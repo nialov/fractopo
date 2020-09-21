@@ -1,0 +1,32 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+hypothesis = "*"
+pytest = "*"
+sphinx = "*"
+recommonmark = "*"
+tox = "*"
+pipenv-setup = "*"
+sphinx-autodoc-typehints = "*"
+matplotlib = "*"
+descartes = "*"
+jupyterlab = "*"
+pipenv-to-requirements = "*"
+coverage = "*"
+pygeos = "*"
+mypy = "*"
+pylama = "*"
+trace-validator = {editable = true, path = "./../trace-validator"}
+
+[packages]
+geopandas = "*"
+pandas = "*"
+click = "*"
+numpy = "*"
+shapely = "*"
+
+[requires]
+python_version = "3.8"

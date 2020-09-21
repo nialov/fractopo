@@ -1,0 +1,13 @@
+.mypy_cache
+.ipynb_checkpoints/
+dev
+trace_validator.egg-info
+.tox
+**/__pycache__
+hypothesis
+.coverage
+.hypothesis
+.vim
+.esri.gz
+concurrency.ipynb
+tests/sample_data/*
