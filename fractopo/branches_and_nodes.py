@@ -1,15 +1,17 @@
 import geopandas as gpd
 import shapely
-from shapely.geometry import LineString, Point, MultiPoint, MultiPolygon, Polygon
-from shapely.ops import snap, split
-import shapely
-import pandas as pd
+from shapely.geometry import MultiPoint, Point, LineString
+from shapely.ops import split
 import numpy as np
-import matplotlib.pyplot as plt
 from typing import List, Tuple
 
 # Import trace_validator
 from tval import trace_validator
+from tval.trace_validator import BaseValidator
+
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(process)d-%(levelname)s-%(message)s")
 
 # Setup
 trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1)
@@ -17,9 +19,13 @@ trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1
 CC_branch = "C-C"
 CI_branch = "C-I"
 II_branch = "I-I"
+Error_branch = "E-E"
 X_node = "X"
 Y_node = "Y"
 I_node = "I"
+
+type_column = "Type"
+geom_column = "geometry"
 
 
 def remove_identical(geosrs: gpd.GeoSeries, snap_threshold: float) -> gpd.GeoSeries:
@@ -70,8 +76,13 @@ def get_node_identities(
     traces: gpd.GeoSeries, nodes: gpd.GeoSeries, snap_threshold: float
 ) -> List[str]:
     identities = []
+    trace_sindex = traces.sindex
     for i, p in enumerate(nodes):
-        inter_with_traces = traces.intersection(p.buffer(snap_threshold))
+        trace_candidate_idxs = list(
+            trace_sindex.intersection(p.buffer(snap_threshold).bounds)
+        )
+        trace_candidates = traces.iloc[trace_candidate_idxs]
+        inter_with_traces = trace_candidates.intersection(p.buffer(snap_threshold))
         # If theres 2 intersections -> X or Y
         # 1 (must be) -> I
         # Point + LineString -> Y
@@ -81,10 +92,10 @@ def get_node_identities(
         assert len(inter_with_traces_geoms) > 0
 
         if len(inter_with_traces_geoms) == 1:
-            identities.append("I")
+            identities.append(I_node)
             continue
         if any([isinstance(iwt, shapely.geometry.Point) for iwt in inter_with_traces]):
-            identities.append("Y")
+            identities.append(Y_node)
             continue
         # assert len(inter_with_traces_geoms) == 2
 
@@ -98,10 +109,10 @@ def get_node_identities(
         ]
         if any([p.intersects(ep) for ep in all_inter_endpoints]):
             # Y-node
-            identities.append("Y")
+            identities.append(Y_node)
             continue
         else:
-            identities.append("X")
+            identities.append(X_node)
             continue
     return identities
 
@@ -115,8 +126,7 @@ def find_y_nodes_and_snap_em(
     snapped = []
     assert len(nodes) == len(node_ids)
     for n, n_id in zip(nodes, node_ids):
-        if n_id == "X" or n_id == "I":
-            # print(n, n_id)
+        if n_id == X_node or n_id == I_node:
             snapped.append(n)
             continue
         # elif n.distance(t) > 0.02:
@@ -132,14 +142,25 @@ def find_y_nodes_and_snap_em(
             assert len([tn for tn in traces_nearby if tn.intersects(n)]) < 3
             assert len(traces_nearby) != 0
             if all([tn.intersects(n) for tn in traces_nearby]):
-                # Both traces in a Y-node intersect -> no snapping required
+                # TODO:
+                # Snapping required if trace overlaps in a Y-node
+                # for t in traces_nearby:
+                #     endpoints = BaseValidator.get_trace_endpoints(t)
+                #     endpoints_buffered = gpd.GeoSeries([ep.buffer(snap_threshold) for ep in endpoints])
+                #     if n.intersects(endpoints_buffered):
+                #         inter_projected = t.interpolate(t.project(n))
+                #         snapped.append(inter_projected)
+                #         continue
+
                 snapped.append(n)
+                continue
             for tn in traces_nearby:
                 if not tn.intersects(n):
                     # print(f"Doesnt intersect {n}")
                     inter_projected = tn.interpolate(tn.project(n))
                     # print(n, n_id)
                     snapped.append(inter_projected)
+                    continue
         else:
             # print(n, n_id)
             snapped.append(n)
@@ -148,7 +169,7 @@ def find_y_nodes_and_snap_em(
     return snapped
 
 
-def split_traces_to_branches(traces, nodes, node_identities):
+def split_traces_to_branches(traces, nodes, node_identities, snap_threshold):
     def filter_with_sindex_then_split(
         trace: gpd.GeoSeries, nodes: gpd.GeoSeries, node_spatial_index
     ) -> Tuple[gpd.GeoSeries, MultiPoint]:
@@ -167,10 +188,12 @@ def split_traces_to_branches(traces, nodes, node_identities):
         [
             node
             for node, node_id in zip(nodes, node_identities)
-            if node_id == "X" or node_id == "Y"
+            if node_id == X_node or node_id == Y_node
         ]
     )
-    node_spatial_index = nodes.sindex
+    # Index is made from buffer polygons but indexes will match with those
+    # of nodes
+    node_spatial_index = gpd.GeoSeries([p.buffer(snap_threshold) for p in nodes]).sindex
     branches_grouped = [
         filter_with_sindex_then_split(trace, nodes, node_spatial_index)
         for trace in traces
@@ -188,7 +211,9 @@ def get_branch_identities(
 ) -> List[str]:
     assert len(nodes) == len(node_identities)
     nodes_buffered = gpd.GeoSeries(list(map(lambda p: p.buffer(snap_threshold), nodes)))
-    node_gdf = gpd.GeoDataFrame({"geometry": nodes_buffered, "Type": node_identities})
+    node_gdf = gpd.GeoDataFrame(
+        {geom_column: nodes_buffered, type_column: node_identities}
+    )
     node_spatial_index = nodes_buffered.sindex
     branch_identities = []
     for idx, branch in enumerate(branches):
@@ -204,14 +229,14 @@ def get_branch_identities(
         number_of_I_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect["Type"]
+                for inter_id in nodes_that_intersect[type_column]
                 if inter_id == I_node
             ]
         )
         number_of_XY_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect["Type"]
+                for inter_id in nodes_that_intersect[type_column]
                 if inter_id in [X_node, Y_node]
             ]
         )
@@ -226,10 +251,12 @@ def get_branch_identities(
         elif number_of_XY_nodes == 2 and number_of_I_nodes == 0:
             branch_identities.append(CC_branch)
         else:
-            raise TypeError(
-                "Node identities did not match specified strings."
-                f"\nnode_identities: {nodes_that_intersect.Type}"
+            logging.error(
+                "Did not find 2 XYI-nodes that intersected branch endpoints.\n"
+                f"branch: {branch.wkt}\n"
+                f"nodes_that_intersect[type_column]: {nodes_that_intersect[type_column]}\n"
             )
+            branch_identities.append(Error_branch)
     return branch_identities
 
 
@@ -237,7 +264,7 @@ def branches_and_nodes(
     traces: gpd.GeoSeries, snap_threshold: float
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({"geometry": traces})
+        gpd.GeoDataFrame({geom_column: traces})
     )
     nodes = gpd.GeoSeries(nodes)
     nodes = remove_identical_sindex(nodes, snap_threshold)
@@ -247,9 +274,67 @@ def branches_and_nodes(
     branch_identities = get_branch_identities(
         branches, nodes, node_identities, snap_threshold
     )
-    node_geodataframe = gpd.GeoDataFrame({"geometry": nodes, "Type": node_identities})
+    node_geodataframe = gpd.GeoDataFrame(
+        {geom_column: nodes, type_column: node_identities}
+    )
     branch_geodataframe = gpd.GeoDataFrame(
-        {"geometry": branches, "Type": branch_identities}
+        {geom_column: branches, type_column: branch_identities}
     )
     return branch_geodataframe, node_geodataframe
 
+
+def snap_traces(traces: gpd.GeoSeries, snap_threshold: float) -> gpd.GeoSeries:
+    """
+    Snaps traces to end exactly at other traces when the trace endpoint
+    is within the snap threshold of another trace.
+    """
+    traces_spatial_index = traces.sindex
+    snapped_traces = []
+    for idx, trace in enumerate(traces):
+        minx, miny, maxx, maxy = trace.bounds
+        extended_bounds = (
+            minx - snap_threshold * 10,
+            miny - snap_threshold * 10,
+            maxx + snap_threshold * 10,
+            maxy + snap_threshold * 10,
+        )
+        trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+        trace_candidate_idxs.remove(idx)
+        trace_candidates = traces.iloc[trace_candidate_idxs]
+        if len(trace_candidates) == 0:
+            snapped_traces.append(trace)
+            continue
+        # get_trace_endpoints returns ls[0] and then ls[-1]
+        endpoints = BaseValidator.get_trace_endpoints(trace)
+        snapped_endpoints = []
+        for n in endpoints:
+            distances = np.array([t.distance(n) for t in trace_candidates])
+            distances_less_than = distances < snap_threshold
+            traces_to_snap_to = trace_candidates[distances_less_than]
+            if len(traces_to_snap_to) == 1:
+                t = traces_to_snap_to.iloc[0]
+                inter_projected = t.interpolate(t.project(n))
+                assert inter_projected.intersects(t)
+                assert isinstance(inter_projected, Point)
+                snapped_endpoints.append(inter_projected)
+            elif len(traces_to_snap_to) == 0:
+                snapped_endpoints.append(n)
+            else:
+                logging.warning(
+                    "Trace endpoint is within the snap threshold"
+                    " of two traces.\n"
+                    f"No Snapping was done.\n"
+                    f"endpoints: {endpoints}\n"
+                    f"distances: {distances}\n"
+                    f"traces_to_snap_to: {traces_to_snap_to}\n"
+                )
+                snapped_endpoints.append(n)
+        assert len(snapped_endpoints) == len(endpoints)
+        # Original coords
+        trace_coords = [point for point in trace.coords]
+        trace_coords[0] = snapped_endpoints[0]
+        trace_coords[-1] = snapped_endpoints[-1]
+        snapped_traces.append(LineString(trace_coords))
+
+    assert len(snapped_traces) == len(traces)
+    return gpd.GeoSeries(snapped_traces)

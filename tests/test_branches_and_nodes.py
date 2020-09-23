@@ -144,3 +144,17 @@ def test_get_branch_identities():
         ]
     )
 
+
+def test_snap_traces():
+    simple_traces = gpd.GeoSeries(
+        [LineString([(0, 0), (0.99, 0)]), LineString([(1, -1), (1, 1)])]
+    )
+    simple_snap_threshold = 0.02
+    simple_snapped_traces = branches_and_nodes.snap_traces(
+        simple_traces, simple_snap_threshold
+    )
+    first_coords = simple_snapped_traces.iloc[0].coords
+    first_coords_points = [Point(c) for c in first_coords]
+    assert any(
+        [p.intersects(simple_snapped_traces.iloc[1]) for p in first_coords_points]
+    )
