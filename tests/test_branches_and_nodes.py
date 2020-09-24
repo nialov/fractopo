@@ -24,37 +24,42 @@ class Helpers:
         [
             LineString([(-1, 0), (1, 0)]),
             LineString([(0, -1), (0, 1)]),
-            LineString([(-1.0 - snap_threshold, -1), (-1.0 - snap_threshold, 1)]),
+            LineString(
+                [(-1.0 - snap_threshold * 0.99, -1), (-1.0 - snap_threshold * 0.99, 1)]
+            ),
         ]
     )
-    nodes_geosrs = gpd.GeoSeries(
+
+    nice_traces = gpd.GeoSeries(
         [
-            Point(-1, 0),
-            Point(1, 0),
-            Point(0, -1),
-            Point(0, 1),
-            Point(-1.0 - snap_threshold, -1),
-            Point(-1.0 - snap_threshold, 1),
-            Point(0, 0),
+            # Horizontal
+            LineString([(-10, 0), (10, 0)]),
+            # Underlapping
+            LineString([(-5, 2), (-5, 0 + snap_threshold * 0.01)]),
+            LineString([(-4, 2), (-4, 0 + snap_threshold * 0.5)]),
+            LineString([(-3, 2), (-3, 0 + snap_threshold * 0.7)]),
+            LineString([(-2, 2), (-2, 0 + snap_threshold * 0.9)]),
+            LineString([(-1, 2), (-1, 0 + snap_threshold * 1.1)]),
+            # Overlapping
+            LineString([(1, 2), (1, 0 - snap_threshold * 1.1)]),
+            LineString([(2, 2), (2, 0 - snap_threshold * 0.9)]),
+            LineString([(3, 2), (3, 0 - snap_threshold * 0.7)]),
+            LineString([(4, 2), (4, 0 - snap_threshold * 0.5)]),
+            LineString([(5, 2), (5, 0 - snap_threshold * 0.01)]),
         ]
     )
+
+    @classmethod
+    def get_nice_traces(cls):
+        return cls.nice_traces.copy()
+
+    @classmethod
+    def get_traces_geosrs(cls):
+        return cls.traces_geosrs.copy()
 
     @classmethod
     def get_geosrs_identicals(cls):
         return cls.geosrs_identicals.copy()
-
-    @classmethod
-    def get_matching_traces_and_nodes_geosrs(cls):
-        return cls.traces_geosrs.copy(), cls.nodes_geosrs.copy()
-
-
-def test_remove_identical():
-    geosrs = Helpers.get_geosrs_identicals()
-    geosrs_orig_length = len(geosrs)
-    result = branches_and_nodes.remove_identical(geosrs, Helpers.snap_threshold)
-    result_length = len(result)
-    assert geosrs_orig_length > result_length
-    assert geosrs_orig_length - result_length == 2
 
 
 def test_remove_identical_sindex():
@@ -83,7 +88,16 @@ def test_remove_snapping_in_remove_identicals():
 
 
 def test_get_node_identities():
-    traces_geosrs, nodes_geosrs = Helpers.get_matching_traces_and_nodes_geosrs()
+    traces_geosrs = Helpers.get_traces_geosrs()
+    traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
+        traces_geosrs, Helpers.snap_threshold
+    )
+    det_nodes, _ = trace_validator.BaseValidator.determine_nodes(
+        gpd.GeoDataFrame({"geometry": traces_geosrs})
+    )
+    nodes_geosrs = branches_and_nodes.remove_identical_sindex(
+        gpd.GeoSeries(det_nodes), Helpers.snap_threshold
+    )
     result = branches_and_nodes.get_node_identities(
         traces_geosrs, nodes_geosrs, Helpers.snap_threshold
     )
@@ -94,24 +108,11 @@ def test_get_node_identities():
     assert len([r for r in result if r == "I"]) == 5
 
 
-def test_find_y_nodes_and_snap_em():
-    traces_geosrs, nodes_geosrs = Helpers.get_matching_traces_and_nodes_geosrs()
-    node_identities = branches_and_nodes.get_node_identities(
-        traces_geosrs, nodes_geosrs, Helpers.snap_threshold
-    )
-    result = branches_and_nodes.find_y_nodes_and_snap_em(
-        traces_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
-    )
-    assert len(nodes_geosrs) == len(node_identities) == len(result)
-    assert any([Point(-1 - Helpers.snap_threshold, 0).intersects(p) for p in result])
-    assert (
-        len([p for p in result if Point(-1 - Helpers.snap_threshold, 0).intersects(p)])
-        == 1
-    )
-
-
 def test_branches_and_nodes():
     traces = gpd.GeoSeries(trace_builder.make_valid_traces())
+    traces, any_changed_applied = branches_and_nodes.snap_traces(
+        traces, Helpers.snap_threshold
+    )
     branch_geodataframe, node_geodataframe = branches_and_nodes.branches_and_nodes(
         traces, Helpers.snap_threshold
     )
@@ -124,15 +125,21 @@ def test_branches_and_nodes():
 
 
 def test_get_branch_identities():
-    traces_geosrs, nodes_geosrs = Helpers.get_matching_traces_and_nodes_geosrs()
+    traces_geosrs = Helpers.get_traces_geosrs()
+    traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
+        traces_geosrs, Helpers.snap_threshold
+    )
+    det_nodes, _ = trace_validator.BaseValidator.determine_nodes(
+        gpd.GeoDataFrame({"geometry": traces_geosrs})
+    )
+    nodes_geosrs = branches_and_nodes.remove_identical_sindex(
+        gpd.GeoSeries(det_nodes), Helpers.snap_threshold
+    )
     node_identities = branches_and_nodes.get_node_identities(
         traces_geosrs, nodes_geosrs, Helpers.snap_threshold
     )
-    nodes_geosrs = branches_and_nodes.find_y_nodes_and_snap_em(
+    branches_geosrs = branches_and_nodes.split_traces_to_branches_with_traces(
         traces_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
-    )
-    branches_geosrs = branches_and_nodes.split_traces_to_branches(
-        traces_geosrs, nodes_geosrs, node_identities
     )
     result = branches_and_nodes.get_branch_identities(
         branches_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
@@ -150,7 +157,7 @@ def test_snap_traces():
         [LineString([(0, 0), (0.99, 0)]), LineString([(1, -1), (1, 1)])]
     )
     simple_snap_threshold = 0.02
-    simple_snapped_traces = branches_and_nodes.snap_traces(
+    simple_snapped_traces, any_changed_applied = branches_and_nodes.snap_traces(
         simple_traces, simple_snap_threshold
     )
     first_coords = simple_snapped_traces.iloc[0].coords
@@ -158,3 +165,43 @@ def test_snap_traces():
     assert any(
         [p.intersects(simple_snapped_traces.iloc[1]) for p in first_coords_points]
     )
+
+
+def test_insert_point_to_linestring():
+    ls = LineString([(0, 0), (1, 1), (2, 2)])
+    p = Point(0.5, 0.5)
+    result = branches_and_nodes.insert_point_to_linestring(ls, p)
+    # Assert it is in list
+    assert tuple(*p.coords) in list(result.coords)
+    # Assert index is correct
+    assert list(result.coords).index(tuple(*p.coords)) == 1
+
+
+def test_additional_snapping_func():
+    ls = LineString([(0, 0), (1, 1), (2, 2)])
+    idx = 0
+    p = Point(0.5, 0.5)
+    additional_snapping = [(0, p)]
+    result = branches_and_nodes.additional_snapping_func(ls, idx, additional_snapping)
+    # Assert it is in list
+    assert tuple(*p.coords) in list(result.coords)
+    # Assert index is correct
+    assert list(result.coords).index(tuple(*p.coords)) == 1
+    unchanged_result = branches_and_nodes.additional_snapping_func(
+        ls, 1, additional_snapping
+    )
+    assert unchanged_result == ls
+
+
+def test_nice_traces():
+    nice_traces = Helpers.get_nice_traces()
+    snapped_traces, any_changed_applied = branches_and_nodes.snap_traces(
+        nice_traces, Helpers.snap_threshold
+    )
+    assert len(nice_traces) == len(snapped_traces)
+    for geom in snapped_traces:
+        geom: LineString
+        assert isinstance(geom, LineString)
+        assert geom.is_valid
+        assert geom.is_simple
+    return nice_traces, snapped_traces
