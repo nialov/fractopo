@@ -354,7 +354,9 @@ def branches_and_nodes(
     nodes = remove_identical_sindex(nodes, snap_threshold)
     node_identities = get_node_identities(traces, nodes, snap_threshold)
     nodes = find_y_nodes_and_snap_em(traces, nodes, node_identities, snap_threshold)
-    branches = split_traces_to_branches(traces, nodes, node_identities, snap_threshold)
+    branches = split_traces_to_branches_with_traces(
+        traces, nodes, node_identities, snap_threshold
+    )
     branch_identities = get_branch_identities(
         branches, nodes, node_identities, snap_threshold
     )
