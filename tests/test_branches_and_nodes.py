@@ -1,6 +1,6 @@
 import geopandas as gpd
 import shapely
-from shapely.geometry import LineString, Point, MultiPoint
+from shapely.geometry import LineString, Point, MultiPoint, Polygon
 from shapely.ops import snap, split
 import shapely
 import pandas as pd
@@ -11,6 +11,7 @@ from typing import List
 # Import trace_validator
 from tval import trace_validator, trace_builder
 from fractopo import branches_and_nodes
+from fractopo.branches_and_nodes import I_node, X_node, Y_node, E_node
 
 
 class Helpers:
@@ -29,6 +30,7 @@ class Helpers:
             ),
         ]
     )
+    areas_geosrs = gpd.GeoSeries([Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])])
 
     nice_traces = gpd.GeoSeries(
         [
@@ -56,6 +58,10 @@ class Helpers:
     @classmethod
     def get_traces_geosrs(cls):
         return cls.traces_geosrs.copy()
+
+    @classmethod
+    def get_areas_geosrs(cls):
+        return cls.areas_geosrs.copy()
 
     @classmethod
     def get_geosrs_identicals(cls):
@@ -89,6 +95,7 @@ def test_remove_snapping_in_remove_identicals():
 
 def test_get_node_identities():
     traces_geosrs = Helpers.get_traces_geosrs()
+    areas_geosrs = Helpers.get_areas_geosrs()
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
         traces_geosrs, Helpers.snap_threshold
     )
@@ -99,9 +106,8 @@ def test_get_node_identities():
         gpd.GeoSeries(det_nodes), Helpers.snap_threshold
     )
     result = branches_and_nodes.get_node_identities(
-        traces_geosrs, nodes_geosrs, Helpers.snap_threshold
+        traces_geosrs, nodes_geosrs, areas_geosrs, Helpers.snap_threshold
     )
-    print(nodes_geosrs, result)
     assert "X" in result and "Y" in result and "I" in result
     assert len([r for r in result if r == "X"]) == 1
     assert len([r for r in result if r == "Y"]) == 1
@@ -109,16 +115,21 @@ def test_get_node_identities():
 
 
 def test_branches_and_nodes():
-    traces = gpd.GeoSeries(trace_builder.make_valid_traces())
-    traces, any_changed_applied = branches_and_nodes.snap_traces(
-        traces, Helpers.snap_threshold
+    (
+        valid_geoseries,
+        invalid_geoseries,
+        valid_areas_geoseries,
+        invalid_areas_geoseries,
+    ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
+    valid_geoseries, any_changed_applied = branches_and_nodes.snap_traces(
+        valid_geoseries, Helpers.snap_threshold
     )
     branch_geodataframe, node_geodataframe = branches_and_nodes.branches_and_nodes(
-        traces, Helpers.snap_threshold
+        valid_geoseries, valid_areas_geoseries, Helpers.snap_threshold
     )
 
     for node_id in node_geodataframe["Type"]:
-        assert node_id in ["X", "Y", "I"]
+        assert node_id in [I_node, X_node, Y_node, E_node]
     assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "X"]) > 0
     assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "Y"]) > 0
     assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "I"]) > 1
@@ -126,6 +137,7 @@ def test_branches_and_nodes():
 
 def test_get_branch_identities():
     traces_geosrs = Helpers.get_traces_geosrs()
+    areas_geosrs = Helpers.get_areas_geosrs()
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
         traces_geosrs, Helpers.snap_threshold
     )
@@ -136,7 +148,7 @@ def test_get_branch_identities():
         gpd.GeoSeries(det_nodes), Helpers.snap_threshold
     )
     node_identities = branches_and_nodes.get_node_identities(
-        traces_geosrs, nodes_geosrs, Helpers.snap_threshold
+        traces_geosrs, nodes_geosrs, areas_geosrs, Helpers.snap_threshold
     )
     branches_geosrs = branches_and_nodes.split_traces_to_branches_with_traces(
         traces_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
@@ -205,3 +217,26 @@ def test_nice_traces():
         assert geom.is_valid
         assert geom.is_simple
     return nice_traces, snapped_traces
+
+
+def test_crop_to_target_area():
+
+    (
+        valid_geoseries,
+        invalid_geoseries,
+        valid_areas_geoseries,
+        invalid_areas_geoseries,
+    ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
+    valid_result = branches_and_nodes.crop_to_target_areas(
+        valid_geoseries, valid_areas_geoseries
+    )
+    invalid_result = branches_and_nodes.crop_to_target_areas(
+        invalid_geoseries, invalid_areas_geoseries
+    )
+    assert isinstance(valid_result, gpd.GeoSeries)
+    assert isinstance(invalid_result, gpd.GeoSeries)
+    assert valid_geoseries.geometry.length.mean() > valid_result.geometry.length.mean()
+    assert (
+        invalid_geoseries.geometry.length.mean() > invalid_result.geometry.length.mean()
+    )
+

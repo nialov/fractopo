@@ -26,12 +26,15 @@ logging.basicConfig(level=logging.INFO, format="%(process)d-%(levelname)s-%(mess
 trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1)
 
 CC_branch = "C-C"
+CE_branch = "C-E"
 CI_branch = "C-I"
+IE_branch = "I-E"
 II_branch = "I-I"
-Error_branch = "E-E"
+EE_branch = "E-E"
 X_node = "X"
 Y_node = "Y"
 I_node = "I"
+E_node = "E"
 
 type_column = "Type"
 geom_column = "geometry"
@@ -68,16 +71,23 @@ def remove_identical_sindex(
 
 
 def get_node_identities(
-    traces: gpd.GeoSeries, nodes: gpd.GeoSeries, snap_threshold: float
+    traces: gpd.GeoSeries,
+    nodes: gpd.GeoSeries,
+    areas: gpd.GeoSeries,
+    snap_threshold: float,
 ) -> List[str]:
     """
-    Determines the type of node i.e. X, Y or I.
+    Determines the type of node i.e. E, X, Y or I.
 
     Uses the given traces to assess the number of intersections.
     """
     identities = []
     trace_sindex = traces.sindex
+    nodes_sindex = nodes.sindex
     for i, p in enumerate(nodes):
+        if any([p.buffer(snap_threshold).intersects(area.boundary) for area in areas]):
+            identities.append(E_node)
+            continue
         trace_candidate_idxs = list(
             trace_sindex.intersection(p.buffer(snap_threshold).bounds)
         )
@@ -330,6 +340,13 @@ def get_branch_identities(
         ]
         assert len(inter) == len(node_candidates)
         nodes_that_intersect = node_candidates.loc[inter]
+        number_of_E_nodes = len(
+            [
+                inter_id
+                for inter_id in nodes_that_intersect[type_column]
+                if inter_id == E_node
+            ]
+        )
         number_of_I_nodes = len(
             [
                 inter_id
@@ -348,47 +365,26 @@ def get_branch_identities(
         #     if number_of_I_nodes == 2:
         #         print(nodes_that_intersect)
         #         assert False
-        if number_of_I_nodes == 2 and number_of_XY_nodes == 0:
+        if number_of_I_nodes == 2:
             branch_identities.append(II_branch)
+        elif number_of_XY_nodes == 2:
+            branch_identities.append(CC_branch)
+        elif number_of_E_nodes == 2:
+            branch_identities.append(EE_branch)
         elif number_of_I_nodes == 1 and number_of_XY_nodes == 1:
             branch_identities.append(CI_branch)
-        elif number_of_XY_nodes == 2 and number_of_I_nodes == 0:
-            branch_identities.append(CC_branch)
-        else:
+        elif number_of_E_nodes == 1 and number_of_XY_nodes == 1:
+            branch_identities.append(CE_branch)
+        elif number_of_E_nodes == 1 and number_of_I_nodes == 1:
+            branch_identities.append(IE_branch)
+        elif number_of_I_nodes + number_of_E_nodes + number_of_XY_nodes != 2:
             logging.error(
-                "Did not find 2 XYI-nodes that intersected branch endpoints.\n"
+                "Did not find 2 EXYI-nodes that intersected branch endpoints.\n"
                 f"branch: {branch.wkt}\n"
                 f"nodes_that_intersect[type_column]: {nodes_that_intersect[type_column]}\n"
             )
-            branch_identities.append(Error_branch)
+            branch_identities.append(EE_branch)
     return branch_identities
-
-
-def branches_and_nodes(
-    traces: gpd.GeoSeries, snap_threshold: float
-) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    """
-    Determines branches and nodes of given traces.
-    """
-    nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({geom_column: traces})
-    )
-    nodes = gpd.GeoSeries(nodes)
-    nodes = remove_identical_sindex(nodes, snap_threshold)
-    node_identities = get_node_identities(traces, nodes, snap_threshold)
-    branches = split_traces_to_branches_with_traces(
-        traces, nodes, node_identities, snap_threshold
-    )
-    branch_identities = get_branch_identities(
-        branches, nodes, node_identities, snap_threshold
-    )
-    node_geodataframe = gpd.GeoDataFrame(
-        {geom_column: nodes, type_column: node_identities}
-    )
-    branch_geodataframe = gpd.GeoDataFrame(
-        {geom_column: branches, type_column: branch_identities}
-    )
-    return branch_geodataframe, node_geodataframe
 
 
 def angle_to_point(
@@ -614,3 +610,51 @@ def snap_traces(
 
     assert len(snapped_traces) == len(traces)
     return gpd.GeoSeries(snapped_traces), any_changed_applied
+
+
+def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.GeoSeries:
+    assert str(traces.crs) == str(areas.crs)
+    clipped_traces = gpd.clip(traces, areas)
+    return clipped_traces
+
+
+def branches_and_nodes(
+    traces: gpd.GeoSeries, areas: gpd.GeoSeries, snap_threshold: float
+) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """
+    Determines branches and nodes of given traces.
+    """
+    traces, any_changes_applied = snap_traces(traces, snap_threshold)
+    loops = 0
+    while any_changes_applied:
+        traces, any_changes_applied = snap_traces(traces, snap_threshold)
+        loops += 1
+        print(f"Loop :{ loops }")
+        if loops > 10:
+            logging.warning(
+                f"""
+                    More than 10 loops have passed without resolved snapped
+                    traces. Snapped traces cannot possibly be resolved.
+                    """
+            )
+    traces = crop_to_target_areas(traces, areas)
+    nodes, _ = trace_validator.BaseValidator.determine_nodes(
+        gpd.GeoDataFrame({geom_column: traces})
+    )
+    nodes = gpd.GeoSeries(nodes)
+    nodes = remove_identical_sindex(nodes, snap_threshold)
+    node_identities = get_node_identities(traces, nodes, areas, snap_threshold)
+    branches = split_traces_to_branches_with_traces(
+        traces, nodes, node_identities, snap_threshold
+    )
+    branch_identities = get_branch_identities(
+        branches, nodes, node_identities, snap_threshold
+    )
+    node_geodataframe = gpd.GeoDataFrame(
+        {geom_column: nodes, type_column: node_identities}
+    )
+    branch_geodataframe = gpd.GeoDataFrame(
+        {geom_column: branches, type_column: branch_identities}
+    )
+    return branch_geodataframe, node_geodataframe
+
