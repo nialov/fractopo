@@ -11,3 +11,4 @@ hypothesis
 .esri.gz
 concurrency.ipynb
 tests/sample_data/*
+sampleproject.egg-info/

@@ -20,6 +20,8 @@ pygeos = "*"
 mypy = "*"
 pylama = "*"
 trace-validator = {editable = true, path = "./../trace-validator"}
+hypothesis-geometry = "*"
+pytest-regressions = "*"
 
 [packages]
 geopandas = "*"
