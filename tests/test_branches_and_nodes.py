@@ -1,6 +1,14 @@
 import geopandas as gpd
 import shapely
-from shapely.geometry import LineString, Point, MultiPoint, Polygon
+import shapely.wkt as wkt
+from shapely.geometry import (
+    LineString,
+    Point,
+    MultiPoint,
+    Polygon,
+    MultiLineString,
+    box,
+)
 from shapely.ops import snap, split
 import shapely
 import pandas as pd
@@ -8,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import List
 from hypothesis.strategies import tuples, floats, integers
-from hypothesis import given, assume
+from hypothesis import given, assume, settings, HealthCheck
 from hypothesis_geometry import planar
 from pathlib import Path
 import pytest
@@ -16,7 +24,17 @@ import pytest
 # Import trace_validator
 from tval import trace_validator, trace_builder
 from fractopo import branches_and_nodes
-from fractopo.branches_and_nodes import I_node, X_node, Y_node, E_node
+from fractopo.branches_and_nodes import (
+    I_node,
+    X_node,
+    Y_node,
+    E_node,
+    connection_column,
+    class_column,
+    EE_branch,
+)
+
+from tests.sample_data.py_samples import samples
 
 
 class Helpers:
@@ -62,7 +80,10 @@ class Helpers:
     nice_tuple = tuples(nice_float, nice_float,)
     triple_tuples = tuples(nice_tuple, nice_tuple, nice_tuple,)
     nice_point = planar.points(nice_integer_coordinates)
-    nice_polyline = planar.polylines(nice_integer_coordinates)
+    # TODO: Is not really nice...
+    nice_polyline = planar.polylines(nice_integer_coordinates).filter(
+        lambda x: LineString(x).is_valid
+    )
 
     @classmethod
     def get_multi_polyline_strategy(cls):
@@ -78,7 +99,9 @@ class Helpers:
                 ]
             )
         )
-        return multi_polyline_strategy
+        return multi_polyline_strategy.filter(
+            lambda x: all([LineString(t).is_valid for t in x])
+        )
 
     @classmethod
     def get_nice_traces(cls):
@@ -190,11 +213,20 @@ def test_branches_and_nodes(file_regression):
     # Use --force-regen to remake if fails after trace_builder changes.
     file_regression.check(str(branch_geodataframe) + str(node_geodataframe))
 
-    for node_id in node_geodataframe["Type"]:
+    for node_id in node_geodataframe[class_column]:
         assert node_id in [I_node, X_node, Y_node, E_node]
-    assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "X"]) > 0
-    assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "Y"]) > 0
-    assert len([node_id for node_id in node_geodataframe["Type"] if node_id == "I"]) > 1
+    assert (
+        len([node_id for node_id in node_geodataframe[class_column] if node_id == "X"])
+        > 0
+    )
+    assert (
+        len([node_id for node_id in node_geodataframe[class_column] if node_id == "Y"])
+        > 0
+    )
+    assert (
+        len([node_id for node_id in node_geodataframe[class_column] if node_id == "I"])
+        > 1
+    )
 
 
 @pytest.mark.parametrize(
@@ -241,6 +273,15 @@ def test_snap_traces():
     assert any(
         [p.intersects(simple_snapped_traces.iloc[1]) for p in first_coords_points]
     )
+    # assert Point(0.99, 0).intersects(
+    #     gpd.GeoSeries([Point(xy) for xy in simple_snapped_traces.iloc[1].coords])
+    # )
+    is_in_ls = False
+    assert all([isinstance(ls, LineString) for ls in simple_snapped_traces])
+    for xy in simple_snapped_traces.iloc[1].coords:
+        p = Point(xy)
+        if Point(0.99, 0).intersects(p):
+            is_in_ls = True
 
 
 @given(Helpers.get_multi_polyline_strategy())
@@ -284,9 +325,12 @@ def test_insert_point_to_linestring(linestring, point, assert_result):
     assert_result(result, point)
 
 
+@settings(suppress_health_check=(HealthCheck.filter_too_much,))
 @given(Helpers.nice_polyline, Helpers.nice_point)
 def test_insert_point_to_linestring_hypothesis(linestring, point):
     linestring = LineString(linestring)
+    assume(linestring.is_valid)
+    assume(linestring.is_simple)
     point = Point(point)
     assume(not any([point.intersects(Point(xy)) for xy in linestring.coords]))
     result = branches_and_nodes.insert_point_to_linestring(linestring, point)
@@ -355,3 +399,74 @@ def test_angle_to_point(triple_tuples):
     except ValueError:
         pass
 
+
+def test_angle_to_point_known_err():
+    points_wkt = [
+        "POINT (286975.148 6677657.7042)",
+        "POINT (284919.7632999998 6677522.154200001)",
+        "POINT (280099.6969999997 6677204.276900001)",
+    ]
+    points = [wkt.loads(p) for p in points_wkt]
+    result = branches_and_nodes.angle_to_point(*points)
+    assert np.isclose(result, 180.0)
+
+
+def test_with_known_snapping_error_data():
+    linestrings = samples.results_in_non_simple_from_branches_and_nodes_linestring_list
+    result, any_changed_applied = branches_and_nodes.snap_traces(
+        gpd.GeoSeries(linestrings), Helpers.snap_threshold
+    )
+    count = 0
+    while any_changed_applied:
+        result, any_changed_applied = branches_and_nodes.snap_traces(
+            result, Helpers.snap_threshold
+        )
+        count += 1
+        if count > 10:
+            raise RecursionError()
+
+    # while any_changed_applied:
+    #     result, any_changed_applied = branches_and_nodes.snap_traces(
+    #         gpd.GeoSeries(linestrings), Helpers.snap_threshold
+    #     )
+    for ls in result:
+        assert ls.is_simple
+        assert isinstance(ls, LineString)
+
+
+def test_with_known_mls_error():
+    linestrings = samples.mls_from_these_linestrings_list
+    target_area = [box(*MultiLineString(linestrings).bounds)]
+    branches, nodes = branches_and_nodes.branches_and_nodes(
+        gpd.GeoSeries(linestrings), gpd.GeoSeries(target_area), Helpers.snap_threshold
+    )
+    for branch in branches.geometry:
+        assert EE_branch not in str(branches[connection_column])
+        assert isinstance(branch, LineString)
+        assert branch.is_simple
+        assert not branch.is_empty
+    for node in nodes.geometry:
+        assert isinstance(node, Point)
+        assert not node.is_empty
+
+
+# def test_with_known_snapping_error_data_alt():
+#     linestrings = samples.results_in_non_simple_from_branches_and_nodes_linestring_list
+#     result, any_changed_applied = branches_and_nodes.snap_traces_alternative(
+#         gpd.GeoSeries(linestrings), Helpers.snap_threshold
+#     )
+#     count = 0
+#     while any_changed_applied:
+#         result, any_changed_applied = branches_and_nodes.snap_traces_alternative(
+#             result, Helpers.snap_threshold
+#         )
+#         count += 1
+#         if count > 10:
+#             raise RecursionError()
+
+#     # while any_changed_applied:
+#     #     result, any_changed_applied = branches_and_nodes.snap_traces(
+#     #         gpd.GeoSeries(linestrings), Helpers.snap_threshold
+#     #     )
+#     for ls in result:
+#         assert ls.is_simple

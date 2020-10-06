@@ -12,3 +12,4 @@ hypothesis
 concurrency.ipynb
 tests/sample_data/*
 sampleproject.egg-info/
+fractopo.egg-info/

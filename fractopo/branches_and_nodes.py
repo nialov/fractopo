@@ -36,7 +36,8 @@ Y_node = "Y"
 I_node = "I"
 E_node = "E"
 
-type_column = "Type"
+connection_column = "Connection"
+class_column = "Class"
 geom_column = "geometry"
 
 
@@ -81,6 +82,7 @@ def get_node_identities(
 
     Uses the given traces to assess the number of intersections.
     """
+    assert all([isinstance(trace, LineString) for trace in traces])
     identities = []
     trace_sindex = traces.sindex
     nodes_sindex = nodes.sindex
@@ -131,6 +133,55 @@ def get_node_identities(
             continue
     assert len(identities) == len(nodes)
     return identities
+
+
+def split_traces_with_self(traces, snap_threshold):
+    trace_sindex = traces.sindex
+    split_traces = []
+    for idx, trace in enumerate(traces):
+        minx, miny, maxx, maxy = trace.bounds
+        extended_bounds = (
+            minx - snap_threshold * 10,
+            miny - snap_threshold * 10,
+            maxx + snap_threshold * 10,
+            maxy + snap_threshold * 10,
+        )
+        trace_candidate_idxs = list(trace_sindex.intersection(extended_bounds))
+        assert len(trace_candidate_idxs) != 0
+        trace_candidate_idxs.remove(idx)
+        if len(trace_candidate_idxs) == 0:
+            split_traces.append(trace)
+        trace_candidates = traces.iloc[trace_candidate_idxs]
+        trace_candidates_mls = MultiLineString([tc for tc in trace_candidates])
+        intersection_points = trace.intersection(trace_candidates_mls)
+        if isinstance(intersection_points, Point):
+            intersection_points = MultiPoint([intersection_points])
+        no_multipoints = []
+        for ip in intersection_points:
+            if isinstance(ip, Point):
+                no_multipoints.append(ip)
+            elif isinstance(ip, MultiPoint):
+                no_multipoints.extend([p for p in ip])
+            else:
+                raise ValueError("Invalid geometry from intersection.")
+        no_multipoints = MultiPoint(no_multipoints)
+
+        assert isinstance(trace_candidates_mls, MultiLineString)
+        assert isinstance(no_multipoints, MultiPoint)
+        assert all([isinstance(p, Point) for p in no_multipoints])
+        split_trace = split(trace, no_multipoints)
+        linestrings = []
+        for geom in split_trace:
+            if isinstance(geom, LineString):
+                linestrings.append(geom)
+            elif isinstance(geom, MultiLineString):
+                linestrings.extend([ls for ls in geom])
+            else:
+                raise ValueError(
+                    "Uncompatible geometry from split.\n" f"geom wkt : {geom.wkt}"
+                )
+        assert all([isinstance(trace, LineString) for trace in linestrings])
+        split_traces.extend(linestrings)
 
 
 def split_traces_to_branches_with_traces(
@@ -252,7 +303,7 @@ def get_branch_identities(
     """
     assert len(nodes) == len(node_identities)
     nodes_buffered = gpd.GeoSeries(list(map(lambda p: p.buffer(snap_threshold), nodes)))
-    node_gdf = gpd.GeoDataFrame({geom_column: nodes, type_column: node_identities})
+    node_gdf = gpd.GeoDataFrame({geom_column: nodes, class_column: node_identities})
     node_spatial_index = nodes_buffered.sindex
     branch_identities = []
     for idx, branch in enumerate(branches):
@@ -277,21 +328,21 @@ def get_branch_identities(
         number_of_E_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[type_column]
+                for inter_id in nodes_that_intersect[class_column]
                 if inter_id == E_node
             ]
         )
         number_of_I_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[type_column]
+                for inter_id in nodes_that_intersect[class_column]
                 if inter_id == I_node
             ]
         )
         number_of_XY_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[type_column]
+                for inter_id in nodes_that_intersect[class_column]
                 if inter_id in [X_node, Y_node]
             ]
         )
@@ -311,6 +362,8 @@ def angle_to_point(
     Calculates the angle between two vectors which are made from the given
     points: Both vectors have the same first point, nearest_point, and second
     point is either point or comparison_point.
+
+    Returns angle in degrees.
     """
     if (
         point.intersects(nearest_point)
@@ -326,7 +379,7 @@ def angle_to_point(
         raise ValueError(
             f"""
             np.nan in angle_to_point inputs.\n
-            inputs: {point, nearest_point, comparison_point}
+            inputs: {point,nearest_point,comparison_point}
             """
         )
     # Vector from nearest_point to point
@@ -336,13 +389,16 @@ def angle_to_point(
     unit_vector_1 = vector_1 / np.linalg.norm(vector_1)
     unit_vector_2 = vector_2 / np.linalg.norm(vector_2)
     dot_product = np.dot(unit_vector_1, unit_vector_2)
-    rad_angle = np.arccos(dot_product)
+    if 1 < dot_product or dot_product < -1:
+        rad_angle = np.nan
+    else:
+        rad_angle = np.arccos(dot_product)
     if np.isnan(rad_angle):
         # Cannot determine with angle.
         unit_vector_sum_len = np.linalg.norm(unit_vector_1 + unit_vector_2)
-        if np.isclose(unit_vector_sum_len, 0.0):
+        if np.isclose(unit_vector_sum_len, 0.0, atol=1e-07):
             return 180.0
-        elif np.isclose(unit_vector_sum_len, 2.0):
+        elif np.isclose(unit_vector_sum_len, 2.0, atol=1e-07):
             return 0.0
         else:
             print(unit_vector_1, unit_vector_2, unit_vector_sum_len)
@@ -350,7 +406,7 @@ def angle_to_point(
                 "Could not detemine point relationships." f"Vectors printed above."
             )
     assert 360 >= np.rad2deg(rad_angle) >= 0
-    return rad_angle
+    return np.rad2deg(rad_angle)
 
 
 def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
@@ -551,10 +607,88 @@ def snap_traces(
     return gpd.GeoSeries(snapped_traces), any_changed_applied
 
 
+def get_trace_coord_points(trace: LineString) -> List[Point]:
+    assert isinstance(trace, LineString)
+    return [Point(xy) for xy in trace.coords]
+
+
+def snap_traces_alternative(
+    traces: gpd.GeoSeries, snap_threshold: float
+) -> Tuple[gpd.GeoSeries, bool]:
+    """
+    Snaps traces to end exactly at other traces when the trace endpoint
+    is within the snap threshold of another trace.
+    """
+    assert all([isinstance(trace, LineString) for trace in traces])
+    any_changed_applied = False
+    traces_spatial_index = traces.sindex
+    snapped_traces: List[LineString]
+    snapped_traces = []
+    trace: LineString
+    idx: int
+    for idx, trace in enumerate(traces):
+        minx, miny, maxx, maxy = trace.bounds
+        extended_bounds = (
+            minx - snap_threshold * 10,
+            miny - snap_threshold * 10,
+            maxx + snap_threshold * 10,
+            maxy + snap_threshold * 10,
+        )
+        trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+        trace_candidate_idxs.remove(idx)
+        trace_candidates = traces.iloc[trace_candidate_idxs]
+        if len(trace_candidates) == 0:
+            snapped_traces.append(trace)
+            continue
+        # get_trace_endpoints returns ls[0] and then ls[-1]
+        endpoints = []
+        for trace_candidate in trace_candidates:
+            endpoints = BaseValidator.get_trace_endpoints(trace_candidate)
+            endpoints.extend(endpoints)
+        assert all([isinstance(ep, Point) for ep in endpoints])
+        n: Point
+        for n in endpoints:
+            trace_coord_points = gpd.GeoSeries(get_trace_coord_points(trace))
+            if any(trace_coord_points.intersects(n)):
+                continue
+            if n.buffer(snap_threshold).intersects(trace):
+                # Add point as trace coordinate
+                trace = insert_point_to_linestring(trace, n)
+                assert any(
+                    [n.intersects(point) for point in get_trace_coord_points(trace)]
+                )
+                any_changed_applied = True
+        snapped_traces.append(trace)
+    assert len(snapped_traces) == len(traces)
+    assert all([isinstance(ls, LineString) for ls in snapped_traces])
+    return gpd.GeoSeries(snapped_traces), any_changed_applied
+
+
+def mls_to_ls(linestrings, multilinestrings, depth):
+    for mls in multilinestrings:
+        linestrings.extend([ls for ls in mls])
+    if all([isinstance(ls, LineString) for ls in linestrings]):
+        return linestrings
+    elif depth > 10:
+        raise RecursionError()
+    else:
+        return mls_to_ls(
+            linestrings,
+            list(filter(lambda t: isinstance(t, MultiLineString), linestrings)),
+            depth + 1,
+        )
+
+
 def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.GeoSeries:
-    assert str(traces.crs) == str(areas.crs)
+    if not all([isinstance(trace, LineString) for trace in traces]):
+        logging.error("MultiLineString passed into crop_to_target_areas.")
     clipped_traces = gpd.clip(traces, areas)
-    return clipped_traces
+    clipped_traces = list(filter(lambda t: isinstance(t, LineString), clipped_traces))
+    multilinestrings = list(
+        filter(lambda t: isinstance(t, MultiLineString), clipped_traces)
+    )
+    linestrings = mls_to_ls(clipped_traces, multilinestrings, 0)
+    return gpd.GeoSeries(linestrings)
 
 
 def branches_and_nodes(
@@ -563,6 +697,7 @@ def branches_and_nodes(
     """
     Determines branches and nodes of given traces.
     """
+    assert all([isinstance(trace, LineString) for trace in traces])
     traces, any_changes_applied = snap_traces(traces, snap_threshold)
     loops = 0
     # Snapping causes changes that might cause new errors. The snapping is looped
@@ -580,7 +715,7 @@ def branches_and_nodes(
                     """
             )
         if loops > allowed_loops:
-            raise ValueError(
+            raise RecursionError(
                 f"More loops have passed than allowed by allowed_loops ({allowed_loops}))"
             )
 
@@ -591,17 +726,18 @@ def branches_and_nodes(
     nodes = gpd.GeoSeries(nodes)
     nodes = remove_identical_sindex(nodes, snap_threshold)
     node_identities = get_node_identities(traces, nodes, areas, snap_threshold)
-    branches = split_traces_to_branches_with_traces(
-        traces, nodes, node_identities, snap_threshold
-    )
+    branches = gpd.GeoSeries([b for b in traces.unary_union])
+    # branches = split_traces_to_branches_with_traces(
+    #     traces, nodes, node_identities, snap_threshold
+    # )
     branch_identities = get_branch_identities(
         branches, nodes, node_identities, snap_threshold
     )
     node_geodataframe = gpd.GeoDataFrame(
-        {geom_column: nodes, type_column: node_identities}
+        {geom_column: nodes, class_column: node_identities}
     )
     branch_geodataframe = gpd.GeoDataFrame(
-        {geom_column: branches, type_column: branch_identities}
+        {geom_column: branches, connection_column: branch_identities}
     )
     return branch_geodataframe, node_geodataframe
 
