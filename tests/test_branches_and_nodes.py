@@ -246,9 +246,7 @@ def test_get_branch_identities(traces_geosrs, areas_geosrs):
     node_identities = branches_and_nodes.get_node_identities(
         traces_geosrs, nodes_geosrs, areas_geosrs, Helpers.snap_threshold
     )
-    branches_geosrs = branches_and_nodes.split_traces_to_branches_with_traces(
-        traces_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
-    )
+    branches_geosrs = gpd.GeoSeries([b for b in traces_geosrs.unary_union])
     result = branches_and_nodes.get_branch_identities(
         branches_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
     )
