@@ -185,7 +185,7 @@ def test_determine_branch_identity(
         number_of_I_nodes, number_of_XY_nodes, number_of_E_nodes
     )
     if not should_pass:
-        assert result == branches_and_nodes.EE_branch
+        assert result == branches_and_nodes.Error_branch
 
 
 def check_gdf_contents(obtained_filename, expected_filename):

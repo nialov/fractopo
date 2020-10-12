@@ -25,12 +25,13 @@ logging.basicConfig(level=logging.INFO, format="%(process)d-%(levelname)s-%(mess
 # Setup
 trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1)
 
-CC_branch = "C-C"
-CE_branch = "C-E"
-CI_branch = "C-I"
-IE_branch = "I-E"
-II_branch = "I-I"
-EE_branch = "E-E"
+CC_branch = "C - C"
+CE_branch = "C - E"
+CI_branch = "C - I"
+IE_branch = "I - E"
+II_branch = "I - I"
+EE_branch = "E - E"
+Error_branch = "Error"
 X_node = "X"
 Y_node = "Y"
 I_node = "I"
@@ -182,6 +183,8 @@ def split_traces_with_self(traces, snap_threshold):
                 )
         assert all([isinstance(trace, LineString) for trace in linestrings])
         split_traces.extend(linestrings)
+    assert len(split_traces) > len(traces)
+    return split_traces
 
 
 def split_traces_to_branches_with_traces(
@@ -273,7 +276,7 @@ def determine_branch_identity(
     """
     if number_of_I_nodes + number_of_E_nodes + number_of_XY_nodes != 2:
         logging.error("Did not find 2 EXYI-nodes that intersected branch endpoints.\n")
-        return EE_branch
+        return Error_branch
     elif number_of_I_nodes == 2:
         return II_branch
     elif number_of_XY_nodes == 2:
