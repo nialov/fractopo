@@ -16,7 +16,6 @@ descartes = "*"
 jupyterlab = "*"
 pipenv-to-requirements = "*"
 coverage = "*"
-pygeos = "*"
 mypy = "*"
 pylama = "*"
 trace-validator = {editable = true, path = "./../trace-validator"}
@@ -29,6 +28,7 @@ pandas = "*"
 click = "*"
 numpy = "*"
 shapely = "*"
+pygeos = "*"
 
 [requires]
 python_version = "3.8"

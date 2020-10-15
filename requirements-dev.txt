@@ -20,7 +20,6 @@ matplotlib
 mypy
 pipenv-setup
 pipenv-to-requirements
-pygeos
 pylama
 pytest
 pytest-regressions

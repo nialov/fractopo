@@ -1,0 +1,4 @@
+                                            geometry  ...  Connection_Frequency
+0  POLYGON ((466006.040 6692139.916, 476006.040 6...  ...          1.983780e-07
+
+[1 rows x 14 columns]
