@@ -9,11 +9,8 @@ from shapely.geometry import (
     MultiPolygon,
     Polygon,
 )
-from shapely.ops import split
 import numpy as np
-from typing import List, Tuple, Union
-
-from pygeos import GEOSException
+from typing import List, Tuple
 
 # Import trace_validator
 from tval import trace_validator
@@ -99,7 +96,7 @@ def get_node_identities(
     assert all([isinstance(trace, LineString) for trace in traces])
     identities = []
     trace_sindex = traces.sindex
-    nodes_sindex = nodes.sindex
+    # nodes_sindex = nodes.sindex
     for i, p in enumerate(nodes):
         if any([p.buffer(snap_threshold).intersects(area.boundary) for area in areas]):
             identities.append(E_node)
