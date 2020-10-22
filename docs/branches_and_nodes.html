@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to fractopo-2D’s documentation &mdash; fractopo-2D 0.1 documentation</title>
+  <title>Extracting branches and nodes &mdash; fractopo-2D 0.1 documentation</title>
   
 
   
@@ -49,7 +49,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
           
 
           
@@ -82,7 +82,11 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to fractopo-2D’s documentation</a></li>
+<li><a class="reference internal" href="#">Extracting branches and nodes</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#branches-and-nodes">Branches and nodes</a></li>
+</ul>
+</li>
 </ul>
 </div>
             
@@ -98,7 +102,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">fractopo-2D</a>
+          <a href="index.html">fractopo-2D</a>
         
       </nav>
 
@@ -127,15 +131,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Welcome to fractopo-2D’s documentation</li>
+      <li>Extracting branches and nodes</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/branches_and_nodes.md.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -148,25 +152,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-fractopo-2d-s-documentation">
-<h1>Welcome to fractopo-2D’s documentation<a class="headerlink" href="#welcome-to-fractopo-2d-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Fractopo-2D is a Python module that contains tools for validating and analysing
-fracture trace maps (fracture networks).</p>
-<ul class="simple">
-<li><p><a class="reference external" href="#">Homepage</a></p></li>
-<li><p><a class="reference internal" href="installation.html"><span class="doc">Installation</span></a></p></li>
-<li><p><a class="reference internal" href="usage/python.html"><span class="doc">Usage</span></a></p></li>
-</ul>
-<p>More specific guides</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="validation/basics.html"><span class="doc">Validation</span></a></p></li>
-<li><p><a class="reference internal" href="branches_and_nodes.html"><span class="doc">Branches and Nodes</span></a></p></li>
-<li><p><a class="reference internal" href="analysis/index.html"><span class="doc">Topological and geometric analysis and plotting</span></a></p></li>
-</ul>
-<p>Module documentation for developers</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="apidoc/fractopo.html"><span class="doc">Apidoc</span></a></p></li>
-</ul>
+  <div class="section" id="extracting-branches-and-nodes">
+<h1>Extracting branches and nodes<a class="headerlink" href="#extracting-branches-and-nodes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>See: <a class="reference external" href="validation/basics.md#Prerequisites">Prerequisites</a></p>
+<p>It is recommended to validate the trace data first before using it as an input
+for extracting branches and nodes. Otherwise the extraction process might error
+out or result in invalid branches and nodes.</p>
+</div>
+<div class="section" id="branches-and-nodes">
+<h2>Branches and nodes<a class="headerlink" href="#branches-and-nodes" title="Permalink to this headline">¶</a></h2>
+<p>Topologically a trace network of lineaments or fractures can be dissolved into
+branches and nodes. Branches represent individual segments of traces and each
+segment has a node on each end. Nodes represent either interactions with other
+traces or isolated abutments. See <a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S0191814115000152?via%3Dihub">Sanderson and Nixon,
+2015</a>
+for a more detailed explanation.</p>
+<p><img alt="Definitions of branches and nodes." src="_images/node_and_branch_defs.png" /></p>
+</div>
 </div>
 
 

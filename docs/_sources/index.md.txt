@@ -5,11 +5,13 @@ fracture trace maps (fracture networks).
 
 * [Homepage]()
 * [Installation](installation.md)
-* [General Usage](usage.md)
+* [Usage](usage/python.md)
 
 More specific guides
 
 * [Validation](validation/basics.md)
+* [Branches and Nodes](branches_and_nodes.md)
+* [Topological and geometric analysis and plotting](analysis/index.md)
 
 Module documentation for developers
 
