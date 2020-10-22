@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-See: [Prerequisites](validation/basics.md#Prerequisites)
+See: [Prerequisites](validation/basics.html#Prerequisites)
 
 It is recommended to validate the trace data first before using it as an input
 for extracting branches and nodes. Otherwise the extraction process might error
