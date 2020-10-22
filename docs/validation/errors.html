@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Reference &mdash; fractopo-2D 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Reference</a></li>
+<li><a class="reference internal" href="#geomtypevalidator">GeomTypeValidator</a></li>
+<li><a class="reference internal" href="#multijunctionvalidator">MultiJunctionValidator</a></li>
+<li><a class="reference internal" href="#vnodevalidator">VNodeValidator</a></li>
+<li><a class="reference internal" href="#multiplecrosscutvalidator">MultipleCrosscutValidator</a></li>
+<li><a class="reference internal" href="#underlappingsnapvalidator">UnderlappingSnapValidator</a></li>
+<li><a class="reference internal" href="#targetareasnapvalidator">TargetAreaSnapValidator</a></li>
+<li><a class="reference internal" href="#geomnullvalidator">GeomNullValidator</a><ul>
+<li><a class="reference internal" href="#under-development">UNDER DEVELOPMENT</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stackedtracesvalidator">StackedTracesValidator</a></li>
+<li><a class="reference internal" href="#simplegeometryvalidator">SimpleGeometryValidator</a></li>
+<li><a class="reference internal" href="#emptygeometryvalidator">EmptyGeometryValidator</a></li>
+<li><a class="reference internal" href="#sharpcornervalidator">SharpCornerValidator</a><ul>
+<li><a class="reference internal" href="#id1">UNDER DEVELOPMENT</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fractopo-2D</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Reference</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/validation/errors.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="reference">
+<h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
+<p>The error string is put into the error column of the validated trace data.
+Each error string is explained below. Possible automatic fixing is indicated
+by the checkmarks:</p>
+<p>No automatic fixing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Some cases can be automatically fixed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>All cases can be automatically fixed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="geomtypevalidator">
+<h1>GeomTypeValidator<a class="headerlink" href="#geomtypevalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;GEOM TYPE MULTILINESTRING&quot;</span>
+</pre></div>
+</div>
+<p>The error is caused by the geometry type which is wrong: MultiLineString
+instead of LineString.</p>
+<p>MultiLineString can consist of multiple LineStrings i.e. a MultiLineString can
+consist of disjointed traces. A LineString only consists of a single continuous
+trace.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span><span class="n">o</span><span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span><span class="p">:</span>
+  <span class="o">*</span> <span class="n">Mergeable</span> <span class="n">MultiLineStrings</span>
+  <span class="o">*</span> <span class="n">MultiLineStrings</span> <span class="k">with</span> <span class="n">a</span> <span class="n">single</span> <span class="n">LineString</span>
+</pre></div>
+</div>
+<p>Most of the time MultiLineStrings are created instead of LineStrings by the
+GIS-software and the MultiLineStrings actually only consist of a single
+LineString and conversion from a MultiLineString with a single LineString can
+be done automatically. If the MultiLineString does consist of multiple
+LineStrings they can be automatically merged if they are not disjointed i.e.
+the contained LineStrings join together into a single LineString. If they
+cannot be automatically merged no automatic fix is performed and the error is
+kept in the error column and the user should fix the issue.</p>
+</div>
+<div class="section" id="multijunctionvalidator">
+<h1>MultiJunctionValidator<a class="headerlink" href="#multijunctionvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;MULTI JUNCTION&quot;</span>
+</pre></div>
+</div>
+<p>Two error types can occur in digitization resulting in this error string:</p>
+<ol class="simple">
+<li><p>More than two traces must not cross in the same point or too close to the
+same point.</p></li>
+<li><p>An overlapping Y-node i.e. a trace overlaps the trace it “is supposed” to end
+at too much.</p></li>
+</ol>
+<p><img alt="Multi junction error examples." src="../_images/MultiJunctionValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix the error manually by making sure neither of the above rules are broken.</p>
+</div>
+<div class="section" id="vnodevalidator">
+<h1>VNodeValidator<a class="headerlink" href="#vnodevalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;V NODE&quot;</span>
+</pre></div>
+</div>
+<p>Two traces end at the same point or close enough to be interpreted as the same
+endpoint.</p>
+<p><img alt="V-node error examples." src="../_images/VNodeValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by making sure two traces never end too near to each other.</p>
+</div>
+<div class="section" id="multiplecrosscutvalidator">
+<h1>MultipleCrosscutValidator<a class="headerlink" href="#multiplecrosscutvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;MULTIPLE CROSSCUTS&quot;</span>
+</pre></div>
+</div>
+<p>Two traces cross each other more than two times i.e. they have geometrically
+more than two common coordinate points.</p>
+<p><img alt="Multiple crosscut error examples." src="../_images/MultipleCrosscutValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by decreasing the number of crosses to a maximum of two between two traces.</p>
+</div>
+<div class="section" id="underlappingsnapvalidator">
+<h1>UnderlappingSnapValidator<a class="headerlink" href="#underlappingsnapvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;UNDERLAPPING SNAP&quot;</span>
+</pre></div>
+</div>
+<p>A trace ends very close to another trace but not near enough. The abutting might
+not be registered as a Y-node.</p>
+<p><img alt="Underlapping snap error examples." src="../_images/UnderlappingSnapValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by more accurately snapping the trace to the other trace.</p>
+</div>
+<div class="section" id="targetareasnapvalidator">
+<h1>TargetAreaSnapValidator<a class="headerlink" href="#targetareasnapvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;TRACE UNDERLAPS TARGET AREA&quot;</span>
+</pre></div>
+</div>
+<p>A trace ends very close to the edge of the target area but not close enough.
+The abutting might not be registered as a E-node i.e. a trace endpoint that
+ends at the target area. E-nodes indicate that the trace length is
+undetermined.</p>
+<p><img alt="Target area snap error examples." src="../_images/TargetAreaSnapValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by extending the trace over the target area. The analyses typically crop
+the traces to the target area so there’s very little reason not to always
+extend over the target area edge.</p>
+</div>
+<div class="section" id="geomnullvalidator">
+<h1>GeomNullValidator<a class="headerlink" href="#geomnullvalidator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="under-development">
+<h2>UNDER DEVELOPMENT<a class="headerlink" href="#under-development" title="Permalink to this headline">¶</a></h2>
+<p>No error string because the error is automatically handled. A Null geometry
+means that a row in a GeoDataFrame contains no geometry.</p>
+<p>These rows are subsequently removed. This will change in the future to avoid
+loss of data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="stackedtracesvalidator">
+<h1>StackedTracesValidator<a class="headerlink" href="#stackedtracesvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;STACKED TRACES&quot;</span>
+</pre></div>
+</div>
+<p>Two (or more) traces are stacked partially or completely on top of each other.
+Also finds cases in which two traces form a very small triangle intersection</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by traces do not stack or intersect in a way to create extremely small
+triangles.</p>
+</div>
+<div class="section" id="simplegeometryvalidator">
+<h1>SimpleGeometryValidator<a class="headerlink" href="#simplegeometryvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;CUTS ITSELF&quot;</span>
+</pre></div>
+</div>
+<p>A trace intersects itself.</p>
+<p><img alt="Trace intersects itself." src="../_images/SimpleGeometryValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by removing self-intersections.</p>
+</div>
+<div class="section" id="emptygeometryvalidator">
+<h1>EmptyGeometryValidator<a class="headerlink" href="#emptygeometryvalidator" title="Permalink to this headline">¶</a></h1>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;IS EMPTY&quot;</span>
+</pre></div>
+</div>
+<p>A GeoDataFrame row contains a geometry but that geometry is empty.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>To make sure new geometry is properly created delete the row and make a new
+geometry. The needed action might depend on the GIS-software of choice, safest
+way is always to delete the erroneous row and make a new one as replacement.</p>
+</div>
+<div class="section" id="sharpcornervalidator">
+<h1>SharpCornerValidator<a class="headerlink" href="#sharpcornervalidator" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>UNDER DEVELOPMENT<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;SHARP TURNS&quot;</span>
+</pre></div>
+</div>
+<p>A lineament or fracture trace should not make erratic turns and the trace
+should be sublinear. The exact limit on of what is erratic and what is not is
+completely open to interpretation and therefore the resulting errors are
+subjective. But if a segment of a trace has a direction change of over 180
+degrees compared to the previous there’s probably no natural way for a natural
+bedrock structure to do that. What if the direction change is 90 degrees? 80
+degrees?</p>
+<p><img alt="Erratic trace segment direction change examples." src="../_images/SharpCornerValidator.png" /></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
+</div>
+<p>Fix by making less sharp turns and making sure the trace is sublinear.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Nikolas Ovaskainen
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

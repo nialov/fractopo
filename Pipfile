@@ -6,19 +6,12 @@ verify_ssl = true
 [dev-packages]
 hypothesis = "*"
 pytest = "*"
-sphinx = "*"
-recommonmark = "*"
 tox = "*"
-pipenv-setup = "*"
-sphinx-autodoc-typehints = "*"
 matplotlib = "*"
 descartes = "*"
 jupyterlab = "*"
 pipenv-to-requirements = "*"
 coverage = "*"
-mypy = "*"
-pylama = "*"
-trace-validator = {editable = true, path = "./../trace-validator"}
 hypothesis-geometry = "*"
 pytest-regressions = "*"
 
@@ -32,6 +25,3 @@ pygeos = "*"
 
 [requires]
 python_version = "3.8"
-
-[pipenv]
-allow_prereleases = true

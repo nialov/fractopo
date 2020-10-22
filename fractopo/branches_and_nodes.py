@@ -13,8 +13,8 @@ import numpy as np
 from typing import List, Tuple
 
 # Import trace_validator
-from tval import trace_validator
-from tval.trace_validator import BaseValidator
+from fractopo.tval import trace_validator
+from fractopo.tval.trace_validator import BaseValidator
 
 import logging
 

@@ -22,7 +22,7 @@ from pathlib import Path
 import pytest
 
 # Import trace_validator
-from tval import trace_validator, trace_builder
+from fractopo.tval import trace_validator, trace_builder
 from fractopo import branches_and_nodes
 from fractopo.branches_and_nodes import (
     I_node,

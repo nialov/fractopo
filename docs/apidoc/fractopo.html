@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fractopo package &mdash; fractopo-2D 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">fractopo package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-fractopo.branches_and_nodes">fractopo.branches_and_nodes module</a></li>
+<li><a class="reference internal" href="#fractopo-contour-grid-module">fractopo.contour_grid module</a></li>
+<li><a class="reference internal" href="#module-fractopo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fractopo-2D</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>fractopo package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apidoc/fractopo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fractopo-package">
+<h1>fractopo package<a class="headerlink" href="#fractopo-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="fractopo.tval.html">fractopo.tval package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#module-fractopo.tval.executor">fractopo.tval.executor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#module-fractopo.tval.temp">fractopo.tval.temp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#fractopo-tval-trace-builder-module">fractopo.tval.trace_builder module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#module-fractopo.tval.trace_validator">fractopo.tval.trace_validator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#module-fractopo.tval">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fractopo.branches_and_nodes">
+<span id="fractopo-branches-and-nodes-module"></span><h2>fractopo.branches_and_nodes module<a class="headerlink" href="#module-fractopo.branches_and_nodes" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.additional_snapping_func">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">additional_snapping_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span></em>, <em class="sig-param"><span class="n">idx</span></em>, <em class="sig-param"><span class="n">additional_snapping</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.additional_snapping_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts points into LineStrings to make sure trace intersects Y-node.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">2.25</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">additional_snapping</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">point</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">additional_snapping_func</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">additional_snapping</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span>
+<span class="go">&#39;LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)&#39;</span>
+</pre></div>
+</div>
+<p>When idx doesn’t match -&gt; no additional snapping</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">idx</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">2.25</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">additional_snapping</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">point</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">additional_snapping_func</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">additional_snapping</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span>
+<span class="go">&#39;LINESTRING (0 0, 1 0, 2 0, 3 0)&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LineString</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.angle_to_point">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">angle_to_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span></em>, <em class="sig-param"><span class="n">nearest_point</span></em>, <em class="sig-param"><span class="n">comparison_point</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.angle_to_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the angle between two vectors which are made from the given
+points: Both vectors have the same first point, nearest_point, and second
+point is either point or comparison_point.</p>
+<p>Returns angle in degrees.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nearest_point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comparison_point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angle_to_point</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">nearest_point</span><span class="p">,</span> <span class="n">comparison_point</span><span class="p">)</span>
+<span class="go">90.0</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nearest_point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comparison_point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angle_to_point</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">nearest_point</span><span class="p">,</span> <span class="n">comparison_point</span><span class="p">)</span>
+<span class="go">71.56505117707799</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.branches_and_nodes">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">branches_and_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span></em>, <em class="sig-param"><span class="n">areas</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em>, <em class="sig-param"><span class="n">allowed_loops</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.branches_and_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines branches and nodes of given traces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.crop_to_target_areas">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">crop_to_target_areas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span></em>, <em class="sig-param"><span class="n">areas</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.crop_to_target_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crops given traces to the gives area polygons.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mf">1.9999</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)])]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">areas</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span>
+<span class="gp">... </span>            <span class="n">Polygon</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]),</span>
+<span class="gp">... </span>                    <span class="n">Polygon</span><span class="p">([(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.9</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]),</span>
+<span class="gp">... </span>                        <span class="p">]</span>
+<span class="gp">... </span>                        <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cropped_traces</span> <span class="o">=</span> <span class="n">crop_to_target_areas</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">areas</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">trace</span><span class="o">.</span><span class="n">wkt</span> <span class="k">for</span> <span class="n">trace</span> <span class="ow">in</span> <span class="n">cropped_traces</span><span class="p">])</span>
+<span class="go">[&#39;LINESTRING (-1.9 4.924998124953124, -2 5)&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoSeries</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.determine_branch_identity">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">determine_branch_identity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number_of_I_nodes</span></em>, <em class="sig-param"><span class="n">number_of_XY_nodes</span></em>, <em class="sig-param"><span class="n">number_of_E_nodes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.determine_branch_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the identity of a branch based on the amount of I-, XY- and E-nodes
+and returns it as a string.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_branch_identity</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">&#39;I - I&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_branch_identity</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">&#39;C - I&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_branch_identity</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;I - E&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.get_branch_identities">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">get_branch_identities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branches</span></em>, <em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">node_identities</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.get_branch_identities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the type of branch i.e. C-C, C-I or I-I for all branches of a
+GeoSeries.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">branches</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span>
+<span class="gp">... </span>           <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span>
+<span class="gp">... </span>           <span class="n">LineString</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>           <span class="n">LineString</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span>
+<span class="gp">... </span>           <span class="n">LineString</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node_identities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snap_threshold</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_branch_identities</span><span class="p">(</span><span class="n">branches</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">node_identities</span><span class="p">,</span> <span class="n">snap_threshold</span><span class="p">)</span>
+<span class="go">[&#39;C - I&#39;, &#39;C - I&#39;, &#39;C - I&#39;, &#39;C - E&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.get_node_identities">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">get_node_identities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span></em>, <em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">areas</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.get_node_identities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the type of node i.e. E, X, Y or I.
+Uses the given traces to assess the number of intersections.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)])]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">areas</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">([</span><span class="n">Polygon</span><span class="p">([(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)])])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snap_threshold</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_node_identities</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">areas</span><span class="p">,</span> <span class="n">snap_threshold</span><span class="p">)</span>
+<span class="go">[&#39;X&#39;, &#39;I&#39;, &#39;I&#39;, &#39;I&#39;, &#39;E&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.get_trace_coord_points">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">get_trace_coord_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.get_trace_coord_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all coordinate Points of a LineString.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coord_points</span> <span class="o">=</span> <span class="n">get_trace_coord_points</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">wkt</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">coord_points</span><span class="p">])</span>
+<span class="go">[&#39;POINT (0 0)&#39;, &#39;POINT (2 0)&#39;, &#39;POINT (3 0)&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.insert_point_to_linestring">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">insert_point_to_linestring</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span></em>, <em class="sig-param"><span class="n">point</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.insert_point_to_linestring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts given point to given trace LineString.
+The point location is determined to fit into the LineString without
+changing the geometrical order of LineString vertices
+(which only makes sense if LineString is sublinear.)</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_point_to_linestring</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span>
+<span class="go">&#39;LINESTRING (0 0, 1 0, 1.25 0.1, 2 0, 3 0)&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mf">2.25</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_point_to_linestring</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">wkt</span>
+<span class="go">&#39;LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LineString</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.mls_to_ls">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">mls_to_ls</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">linestrings</span></em>, <em class="sig-param"><span class="n">multilinestrings</span></em>, <em class="sig-param"><span class="n">depth</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.mls_to_ls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flattens a list of multilinestrings to a list of linestrings.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">linestrings</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">multilinestrings</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">MultiLineString</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="p">[</span>
+<span class="gp">... </span>                 <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>                 <span class="n">LineString</span><span class="p">([(</span><span class="mf">1.9999</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
+<span class="gp">... </span>            <span class="p">]</span>
+<span class="gp">... </span>                   <span class="p">),</span>
+<span class="gp">... </span>    <span class="n">MultiLineString</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="p">[</span>
+<span class="gp">... </span>                 <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>                 <span class="n">LineString</span><span class="p">([(</span><span class="mf">1.9999</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
+<span class="gp">... </span>            <span class="p">]</span>
+<span class="gp">... </span>                   <span class="p">),</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result_linestrings</span> <span class="o">=</span> <span class="n">mls_to_ls</span><span class="p">(</span><span class="n">linestrings</span><span class="p">,</span> <span class="n">multilinestrings</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">ls</span><span class="o">.</span><span class="n">wkt</span> <span class="k">for</span> <span class="n">ls</span> <span class="ow">in</span> <span class="n">result_linestrings</span><span class="p">])</span>
+<span class="go">[&#39;LINESTRING (1 1, 2 2, 3 3)&#39;, &#39;LINESTRING (1.9999 2, -2 5)&#39;,</span>
+<span class="go">&#39;LINESTRING (1 1, 2 2, 3 3)&#39;, &#39;LINESTRING (1.9999 2, -2 5)&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LineString</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.remove_identical_sindex">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">remove_identical_sindex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">geosrs</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.remove_identical_sindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes stacked nodes by using a search buffer the size of snap_threshold.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoSeries</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.snap_traces">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">snap_traces</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.snap_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snaps traces to end exactly at other traces when the trace endpoint
+is within the snap threshold of another trace.</p>
+<p>E.g. when within snap_threshold:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mf">1.9999</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)])]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snap_threshold</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">snap_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">snap_threshold</span><span class="p">)</span>
+<span class="go">(0    LINESTRING (1.00000 1.00000, 2.00000 2.00000, ...</span>
+<span class="go">1       LINESTRING (2.00000 2.00000, -2.00000 5.00000)</span>
+<span class="go">dtype: geometry, True)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoSeries</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.branches_and_nodes.snap_traces_alternative">
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">snap_traces_alternative</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span></em>, <em class="sig-param"><span class="n">snap_threshold</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.branches_and_nodes.snap_traces_alternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Snaps traces to end exactly at other traces when the trace endpoint
+is within the snap threshold of another trace.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">GeoSeries</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="fractopo-contour-grid-module">
+<h2>fractopo.contour_grid module<a class="headerlink" href="#fractopo-contour-grid-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fractopo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fractopo" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Nikolas Ovaskainen
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

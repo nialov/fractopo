@@ -10,20 +10,13 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
--e ./../trace-validator
 coverage
 descartes
 hypothesis
 hypothesis-geometry
 jupyterlab
 matplotlib
-mypy
-pipenv-setup
 pipenv-to-requirements
-pylama
 pytest
 pytest-regressions
-recommonmark
-sphinx
-sphinx-autodoc-typehints
 tox
