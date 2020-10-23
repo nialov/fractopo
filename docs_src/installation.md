@@ -35,3 +35,31 @@ git clone https://github.com/nialov/geotransform.git
 cd geotransform
 pip3 install .
 ~~~
+
+## Dependencies
+
+This module is dependant on third-party Python libraries (and their subsequent
+dependancies). These are installed automatically.
+
+Dependencies include:
+
+* Geospatial analysis:
+  * [geopandas](https://geopandas.org/)
+  * [pandas](https://pandas.pydata.org/docs/)
+  * [pygeos](https://pygeos.readthedocs.io/en/latest/)
+* Numerical/statistical analysis:
+  * [numpy](https://numpy.org/)
+  * [scipy](https://www.scipy.org/)
+  * [sklearn](https://scikit-learn.org/stable/index.html)
+  * [powerlaw](https://github.com/jeffalstott/powerlaw)
+* I/O:
+  * Spatial data:
+    * [GDAL](https://gdal.org/)
+    * [Fiona](https://fiona.readthedocs.io/en/latest/)
+  * Other:
+    * [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
+    * [xlrd](https://xlrd.readthedocs.io/en/latest/)
+* Graphical plotting
+  * [matplotlib](https://matplotlib.org/)
+  * [python-ternary](https://github.com/marcharper/Python-ternary)
+  * [seaborn](https://seaborn.pydata.org/)

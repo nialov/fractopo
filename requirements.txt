@@ -10,9 +10,16 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
-click
 geopandas
+matplotlib
 numpy
+openpyxl
 pandas
+powerlaw
 pygeos
+python-ternary
+scipy
+seaborn
 shapely
+sklearn
+xlrd
