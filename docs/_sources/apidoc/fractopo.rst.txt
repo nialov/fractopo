@@ -7,26 +7,17 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   fractopo.analysis
    fractopo.tval
 
 Submodules
 ----------
 
-fractopo.branches\_and\_nodes module
-------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: fractopo.branches_and_nodes
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-fractopo.contour\_grid module
------------------------------
-
-.. automodule:: fractopo.contour_grid
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   fractopo.branches_and_nodes
+   fractopo.contour_grid
 
 Module contents
 ---------------

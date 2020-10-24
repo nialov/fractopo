@@ -1,7 +1,7 @@
-geotrans
+fractopo
 ========
 
 .. toctree::
    :maxdepth: 4
 
-   geotrans
+   fractopo

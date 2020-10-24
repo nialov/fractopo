@@ -1,0 +1,988 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fractopo.analysis.tools module &mdash; fractopo-2D 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">fractopo.analysis.tools module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fractopo-2D</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>fractopo.analysis.tools module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apidoc/fractopo.analysis.tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-fractopo.analysis.tools">
+<span id="fractopo-analysis-tools-module"></span><h1>fractopo.analysis.tools module<a class="headerlink" href="#module-fractopo.analysis.tools" title="Permalink to this headline">¶</a></h1>
+<p>Contains calculation and plotting tools.</p>
+<dl class="py class">
+<dt id="fractopo.analysis.tools.ReportDfCols">
+<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">ReportDfCols</code><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.cols">
+<code class="sig-name descname">cols</code><em class="property"> = ['name', 'powerlaw_exponent', 'powerlaw_sigma', 'powerlaw_cutoff', 'lognormal_mu', 'lognormal_sigma', 'exponential_lambda', 'powerlaw_vs_lognormal_r', 'powerlaw_vs_lognormal_p', 'powerlaw_vs_exponential_r', 'powerlaw_vs_exponential_p', 'lognormal_vs_exponential_r', 'lognormal_vs_exponential_p']</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.cols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.exponential_lambda">
+<code class="sig-name descname">exponential_lambda</code><em class="property"> = 'exponential_lambda'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.exponential_lambda" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.lognormal_mu">
+<code class="sig-name descname">lognormal_mu</code><em class="property"> = 'lognormal_mu'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.lognormal_mu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.lognormal_sigma">
+<code class="sig-name descname">lognormal_sigma</code><em class="property"> = 'lognormal_sigma'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.lognormal_sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.lognormal_vs_exponential_p">
+<code class="sig-name descname">lognormal_vs_exponential_p</code><em class="property"> = 'lognormal_vs_exponential_p'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.lognormal_vs_exponential_p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.lognormal_vs_exponential_r">
+<code class="sig-name descname">lognormal_vs_exponential_r</code><em class="property"> = 'lognormal_vs_exponential_r'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.lognormal_vs_exponential_r" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.name">
+<code class="sig-name descname">name</code><em class="property"> = 'name'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_cutoff">
+<code class="sig-name descname">powerlaw_cutoff</code><em class="property"> = 'powerlaw_cutoff'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_exponent">
+<code class="sig-name descname">powerlaw_exponent</code><em class="property"> = 'powerlaw_exponent'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_exponent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_manual">
+<code class="sig-name descname">powerlaw_manual</code><em class="property"> = 'powerlaw_manual'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_manual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_sigma">
+<code class="sig-name descname">powerlaw_sigma</code><em class="property"> = 'powerlaw_sigma'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_vs_exponential_p">
+<code class="sig-name descname">powerlaw_vs_exponential_p</code><em class="property"> = 'powerlaw_vs_exponential_p'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_vs_exponential_p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_vs_exponential_r">
+<code class="sig-name descname">powerlaw_vs_exponential_r</code><em class="property"> = 'powerlaw_vs_exponential_r'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_vs_exponential_r" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_vs_lognormal_p">
+<code class="sig-name descname">powerlaw_vs_lognormal_p</code><em class="property"> = 'powerlaw_vs_lognormal_p'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_vs_lognormal_p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.tools.ReportDfCols.powerlaw_vs_lognormal_r">
+<code class="sig-name descname">powerlaw_vs_lognormal_r</code><em class="property"> = 'powerlaw_vs_lognormal_r'</em><a class="headerlink" href="#fractopo.analysis.tools.ReportDfCols.powerlaw_vs_lognormal_r" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.aniso_calc_anisotropy">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">aniso_calc_anisotropy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">halved</span></em>, <em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">length</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.aniso_calc_anisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates anisotropy of connectivity for a branch based on azimuth, classification and length.
+Value is calculated for preset angles (angles_of_study = np.arange(0, 179, 30))</p>
+<p>E.g.</p>
+<p>Anisotropy for a C-C classified branch:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aniso_calc_anisotropy</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;C - C&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="go">array([6.12323400e-16, 5.00000000e+00, 8.66025404e+00, 1.00000000e+01,</span>
+<span class="go">       8.66025404e+00, 5.00000000e+00])</span>
+</pre></div>
+</div>
+<p>Other classification for branch:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aniso_calc_anisotropy</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;C - I&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="go">array([0, 0, 0, 0, 0, 0])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>halved</strong> (<em>float</em>) – Azimuth of branch in range 0 - 180</p></li>
+<li><p><strong>c</strong> (<em>str</em>) – Branch classification</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – Branch length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Result is given for every angle of study (angles_of_study array from config.py-file)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.aniso_get_class_as_value">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">aniso_get_class_as_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.aniso_get_class_as_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return value based on branch classification. Only C-C branches have a value, but this can be changed here.
+Classification can differ from (‘C - C’, ‘C - I’, ‘I - I’) (e.g. ‘C - E’) in which case a value is still returned.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aniso_get_class_as_value</span><span class="p">(</span><span class="s1">&#39;C - C&#39;</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aniso_get_class_as_value</span><span class="p">(</span><span class="s1">&#39;C - E&#39;</span><span class="p">)</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>c</strong> (<em>str</em>) – Branch classification</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Value for classification</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.avg_calc">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">avg_calc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.avg_calc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.azimu_half">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">azimu_half</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">degrees</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.azimu_half" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms azimuths from 180-360 range to range 0-180</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>degrees</strong> (<em>float</em>) – Degrees in range 0 - 360</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Degrees in range 0 - 180</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.azimuth_plot_attributes">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">azimuth_plot_attributes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.azimuth_plot_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates azimuth bins for plotting azimuth rose plots.</p>
+<p>Examples:</p>
+<p>Non-weighted</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">azimuth_plot_attributes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;azimu&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span> <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])}))</span>
+<span class="go">array([33.33333333,  0.        ,  0.        ,  0.        ,  0.        ,</span>
+<span class="go">33.33333333,  0.        ,  0.        ,  0.        , 33.33333333,</span>
+<span class="go">0.        ,  0.        ,  0.        ,  0.        ,  0.        ,</span>
+<span class="go">0.        ,  0.        ,  0.        , 33.33333333,  0.        ,</span>
+<span class="go">0.        ,  0.        ,  0.        , 33.33333333,  0.        ,</span>
+<span class="go">0.        ,  0.        , 33.33333333,  0.        ,  0.        ,</span>
+<span class="go">0.        ,  0.        ,  0.        ,  0.        ,  0.        ,</span>
+<span class="go">0.        ])</span>
+</pre></div>
+</div>
+<p>Weighted</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">azimuth_plot_attributes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;azimu&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span> <span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])}),</span> <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([25.,  0.,  0.,  0.,  0., 50.,  0.,  0.,  0., 25.,  0.,  0.,  0.,</span>
+<span class="go">0.,  0.,  0.,  0.,  0., 25.,  0.,  0.,  0.,  0., 50.,  0.,  0.,</span>
+<span class="go">0., 25.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lineframe</strong> (<em>pd.DataFrame</em>) – DataFrame containing lines with azimu (and length columns)</p></li>
+<li><p><strong>weights</strong> (<em>bool</em>) – Whether to use weights for bins.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bin_locs: Locations for each bin, number_of_azimuths: Frequency (length-weighted) of each bin</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.azimuth_plot_attributes_experimental">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">azimuth_plot_attributes_experimental</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.azimuth_plot_attributes_experimental" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates azimuth bins for plotting azimuth rose plots. Uses HALVED azimuths (i.e. column ‘halved’ in lineframe)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lineframe</strong> (<em>pd.DataFrame</em>) – DataFrame containing lines with halved azimuth (and length) columns</p></li>
+<li><p><strong>weights</strong> (<em>bool</em>) – Whether to use weights for bins.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bin_width: Azimuth bin array, bin_locs: Bin locs, number_of_azimuths: Azimuth bin frequency (length-weighted)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_azimu">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_azimu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.calc_azimu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates azimuth of given line.</p>
+<p>e.g.:
+Accepts LineString</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_azimu</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]))</span>
+<span class="go">45.0</span>
+</pre></div>
+</div>
+<p>Accepts mergeable MultiLineString</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_azimu</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">MultiLineString</span><span class="p">([((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))]))</span>
+<span class="go">45.0</span>
+</pre></div>
+</div>
+<p>Returns np.nan when the line cannot be merged into one continuous line.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_azimu</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">MultiLineString</span><span class="p">([((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="p">((</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))]))</span>
+<span class="go">nan</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>line</strong> (<em>shapely.geometry.LineString | shapely.geometry.MultiLineString</em>) – Continous line feature (trace, branch, etc.)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Azimuth of line.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float | np.nan</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_cut_off_length">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_cut_off_length</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe_main</span></em>, <em class="sig-param"><span class="n">cut_off</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.calc_cut_off_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates minimum length for distribution with a proportional cut-off
+value. Exact cut-off length is calculated using cut-off value and the
+maximum line length in distribution.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_cut_off_length</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
+<span class="gp">... </span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">])}),</span> <span class="mf">0.55</span><span class="p">)</span>
+<span class="go">4.5</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_cut_off_length</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span>
+<span class="gp">... </span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">])}),</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="go">5.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lineframe_main</strong> (<em>pd.DataFrame</em>) – DataFrame with lengths</p></li>
+<li><p><strong>cut_off</strong> (<em>float</em>) – Proportional cut-off value in range [0, 1]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cut-off length</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_strike">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_strike</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dip_direction</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.calc_strike" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates strike from dip direction. Right-handed rule.
+Examples:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_strike</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="go">320</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">calc_strike</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span>
+<span class="go">90</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dip_direction</strong> (<em>float</em>) – Dip direction of plane</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Strike of plane</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_xlims">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_xlims</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.calc_xlims" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_y_distribution">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_y_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe_main</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">area</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#fractopo.analysis.tools.calc_y_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Complementary Cumulative Number (= y) for a length distribution
+and normalises the values based on target area size.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2123</span><span class="p">,</span> <span class="mi">24</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">area</span> <span class="o">=</span> <span class="mi">234</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calc_y_distribution</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span>
+<span class="go">   length         y</span>
+<span class="go">5    2123  0.004274</span>
+<span class="go">3    1000  0.008547</span>
+<span class="go">2     100  0.012821</span>
+<span class="go">6      24  0.017094</span>
+<span class="go">1      10  0.021368</span>
+<span class="go">4       4  0.025641</span>
+<span class="go">0       1  0.029915</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lineframe_main</strong> (<em>pd.DataFrame</em>) – DataFrame with lengths</p></li>
+<li><p><strong>area</strong> (<em>float</em>) – Area value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with y values calculated</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.calc_ylims">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">calc_ylims</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.calc_ylims" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.construct_length_distribution_base">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">construct_length_distribution_base</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">areaframe</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">group</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">cut_off_length</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">using_branches</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.construct_length_distribution_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to construct TargetAreaLines to a pandas DataFrame using apply().</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.construct_node_data_base">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">construct_node_data_base</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodeframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">group</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.construct_node_data_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to construct TargetAreaNodes to a pandas DataFrame using apply().</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.create_azimuth_set_text">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">create_azimuth_set_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.create_azimuth_set_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates azimuth set statistics for figure.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lineframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="s2">&quot;set&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">create_azimuth_set_text</span><span class="p">(</span><span class="n">lineframe</span><span class="p">))</span>
+<span class="go">Set 1, FoL = 73.7%</span>
+<span class="go">Set 2, FoL = 26.3%</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.curviness">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">curviness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">linestring</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.curviness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.curviness_initialize_sub_plotting">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">curviness_initialize_sub_plotting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filecount</span></em>, <em class="sig-param"><span class="n">ncols</span><span class="o">=</span><span class="default_value">4</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.curviness_initialize_sub_plotting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.define_set">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">define_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">azimuth</span></em>, <em class="sig-param"><span class="n">set_df</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.define_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines set based on azimuth value in degrees. Uses halved azimuth values i.e. azimuth must be: 0 &lt; azimuth &lt; 180.</p>
+<p>E.g. when azimuth is in set 1:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">define_set</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;SetLimits&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">170</span><span class="p">)]}))</span>
+<span class="go">&#39;1&#39;</span>
+</pre></div>
+</div>
+<p>When azimuth isn’t within ranges:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">define_set</span><span class="p">(</span><span class="mi">99</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Set&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;SetLimits&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">170</span><span class="p">)]}))</span>
+<span class="go">&#39;-1&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>azimuth</strong> (<em>float</em>) – azimuth as float (degrees)</p></li>
+<li><p><strong>set_df</strong> (<em>DataFrame</em>) – DataFrame with set ranges and set names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Set name based on azimuth</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.get_intersect_frame">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_intersect_frame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intersecting_nodes_frame</span></em>, <em class="sig-param"><span class="n">traceframe</span></em>, <em class="sig-param"><span class="n">set_tuple</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_intersect_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does spatial intersects to determine how abutments and crosscuts occur between two sets</p>
+<p>E.g. where Set 2 ends in set 1 and Set 2 crosscuts set 1 (TODO: DECREPID)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span>
+<span class="gp">... </span><span class="n">LineString</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])]</span>
+<span class="gp">... </span><span class="p">,</span> <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span><span class="p">[</span><span class="s1">&#39;startpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">traces</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">line_start_point</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span><span class="p">[</span><span class="s1">&#39;endpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">traces</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">line_end_point</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sets</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intersect_frame</span> <span class="o">=</span> <span class="n">get_intersect_frame</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">traces</span><span class="p">,</span> <span class="n">sets</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">intersect_frame</span>
+<span class="go">          node nodeclass    sets  error</span>
+<span class="go">0  POINT (0 0)         Y  (2, 1)  False</span>
+<span class="go">1  POINT (1 1)         X  (1, 2)  False</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intersecting_nodes_frame</strong> (<em>GeoDataFrame</em>) – GeoDataFrame with X- and Y-nodes that intersect both sets.
+Contains columns: “c”, “geometry”</p></li>
+<li><p><strong>traceframe</strong> (<em>GeoDataFrame</em>) – GeoDataFrame of traces.  Contains columns: “set”, “geometry”, “startpoint”, “endpoint”</p></li>
+<li><p><strong>set_tuple</strong> (<em>tuple</em>) – Sets used in the comparison</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataFrame with intersect results. Contains columns: ‘node’, ‘nodeclass’, ‘sets’, ‘error’:
+(node = node as shapely.geometry.Point, nodeclass = classification, i.e. X or Y, sets = tuple (set 1, set 2),
+error = possible error results)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.get_nodes_intersecting_sets">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_nodes_intersecting_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xypointsframe</span></em>, <em class="sig-param"><span class="n">traceframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_nodes_intersecting_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes and
+the trace GeoDataFrame with only two sets. Returns only nodes that intersect traces from BOTH sets.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)])],</span> <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_nodes_intersecting_sets</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+<span class="go">geometry</span>
+<span class="go">0  POINT (0.00000 0.00000)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xypointsframe</strong> (<em>GeoDataFrame</em>) – GeoDataFrame with only X- and Y-nodes</p></li>
+<li><p><strong>traceframe</strong> (<em>GeoDataFrame</em>) – Trace GeoDataFrame with only two sets</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>GeoDataFrame with nodes that intersect traces from BOTH sets</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>GeoDataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.initialize_report_df">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">initialize_report_df</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#fractopo.analysis.tools.initialize_report_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.initialize_ternary_branches_points">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">initialize_ternary_branches_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.initialize_ternary_branches_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.initialize_ternary_points">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">initialize_ternary_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.initialize_ternary_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.length_distribution_plot">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">length_distribution_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_distribution</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.length_distribution_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>length_distribution</strong> (<a class="reference internal" href="fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines" title="fractopo.analysis.target_area.TargetAreaLines"><em>TargetAreaLines</em></a>) – TargetAreaLines Class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.length_distribution_plot_sets">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">length_distribution_plot_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_distribution</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.length_distribution_plot_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution plot using sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>length_distribution</strong> (<a class="reference internal" href="fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines" title="fractopo.analysis.target_area.TargetAreaLines"><em>TargetAreaLines</em></a>) – TargetAreaLines Class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.length_distribution_plot_with_fit">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">length_distribution_plot_with_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_distribution</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.length_distribution_plot_with_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution plot with fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>length_distribution</strong> (<a class="reference internal" href="fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines" title="fractopo.analysis.target_area.TargetAreaLines"><em>TargetAreaLines</em></a>) – TargetAreaLines Class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.line_end_point">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">line_end_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.line_end_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the end point of a given shapely Line.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">line_end_point</span><span class="p">(</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]))</span><span class="o">.</span><span class="n">wkt</span>
+<span class="go">&#39;POINT (2 2)&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>line</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Point or np.NaN if unsuccessful.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>shapely.geometry.Point | numpy.NaN</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.line_start_point">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">line_start_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.line_start_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the start point of a given shapely Line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>line</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Point or np.NaN if unsuccessful.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>shapely.geometry.Point | numpy.NaN</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.make_point_tree">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">make_point_tree</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traceframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.make_point_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.plot_azimuth_plot">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">plot_azimuth_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">two_halves</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.plot_azimuth_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots an azimuth plot using a bin array. Weighted or non-weighted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>two_halves</strong> (<em>np.ndarray</em>) – Azimuth bin array</p></li>
+<li><p><strong>weights</strong> (<em>bool</em>) – Whether to use weights for bins.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.plot_curv_plot">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">plot_curv_plot</code><span class="sig-paren">(</span><em class="sig-param">lineframe</em>, <em class="sig-param">ax=&lt;AxesSubplot:&gt;</em>, <em class="sig-param">name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.plot_curv_plot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.plotting_directories">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">plotting_directories</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">results_folder</span></em>, <em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.plotting_directories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates plotting directories and handles FileExistsErrors when raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results_folder</strong> (<em>str</em>) – Base folder to create plots_{name} folder to.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Analysis name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Newly made path to plotting directory where all plots will be saved to.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.prepare_geometry_traces">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">prepare_geometry_traces</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traceframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.prepare_geometry_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare tracefrace geometries for a spatial analysis (faster).
+The try-except clause is required due to QGIS differences in the shapely package</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>traceframe</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.report_powerlaw_fit_statistics_df">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">report_powerlaw_fit_statistics_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">fit</span><span class="p">:</span> <span class="n">powerlaw.Fit</span></em>, <em class="sig-param"><span class="n">report_df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">using_branches</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.report_powerlaw_fit_statistics_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes powerlaw module Fit object statistics to a given report_df. Included
+powerlaw, lognormal and exponential fit statistics and parameters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.sd_calc">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">sd_calc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.sd_calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: Wrong results atm. Needs to take into account real length, not just orientation of unit vector.
+Calculates standard deviation for radial data (degrees)</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sd_calc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">]))</span>
+<span class="go">(3.0, 5.00)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>np.ndarray</em>) – Array of degrees</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Standard deviation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.setup_ax_for_ld">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">setup_ax_for_ld</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax_for_setup</span></em>, <em class="sig-param"><span class="n">using_branches</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.setup_ax_for_ld" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to setup ax for length distribution plots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax_for_setup</strong> (<em>matplotlib.axes.Axes</em>) – Ax to setup.</p></li>
+<li><p><strong>using_branches</strong> (<em>bool</em>) – Are the lines branches or traces.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.tern_plot_branch_lines">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">tern_plot_branch_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.tern_plot_branch_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot line of random assignment of nodes to branches to a given branch ternary tax.
+Line positions taken from NetworkGT open source code.
+Credit to:
+<a class="reference external" href="https://github.com/BjornNyberg/NetworkGT">https://github.com/BjornNyberg/NetworkGT</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – Ternary axis to plot to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.tern_plot_the_fing_lines">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">tern_plot_the_fing_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tax</span></em>, <em class="sig-param"><span class="n">cs_locs</span><span class="o">=</span><span class="default_value">1.3, 1.5, 1.7, 1.9</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.tern_plot_the_fing_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots <em>connections per branch</em> parameter to XYI-plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – Ternary axis to plot to</p></li>
+<li><p><strong>cs_locs</strong> (<em>tuple</em>) – Pre-determined locations for lines</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.tern_yi_func">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">tern_yi_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.tern_yi_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for plotting <em>Connections per branch</em> line to branch ternary plot. Absolute values.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.unify_lds">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">unify_lds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list_of_lds</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">group</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">cut_off_length</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.unify_lds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unifies/adds multiple TargetAreaLines objects together</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_lds</strong> (<em>list</em>) – List of TargetAreaLines objects</p></li>
+<li><p><strong>group</strong> (<em>str</em>) – Group name for the objects</p></li>
+<li><p><strong>cut_off_length</strong> (<em>float</em>) – Cut-off for the group objects.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Unified TargetAreaLines object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ta.TargetAreaLines</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.unify_nds">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">unify_nds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list_of_nds</span><span class="p">:</span> <span class="n">list</span></em>, <em class="sig-param"><span class="n">group</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.unify_nds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unifies/adds multiple TargetAreaNodes objects together</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">fractopo.analysis.target_area</span> <span class="kn">import</span> <span class="n">TargetAreaNodes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf1</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="s2">&quot;Class&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf2</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="s2">&quot;Class&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_area_nodes1</span> <span class="o">=</span> <span class="n">TargetAreaNodes</span><span class="p">(</span><span class="n">gdf1</span><span class="p">,</span> <span class="s2">&quot;some_name&quot;</span><span class="p">,</span> <span class="s2">&quot;some_group&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_area_nodes2</span> <span class="o">=</span> <span class="n">TargetAreaNodes</span><span class="p">(</span><span class="n">gdf2</span><span class="p">,</span> <span class="s2">&quot;some_name&quot;</span><span class="p">,</span> <span class="s2">&quot;some_group&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">list_of_nds</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_area_nodes1</span><span class="p">,</span> <span class="n">target_area_nodes2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">unify_nds</span><span class="p">(</span><span class="n">list_of_nds</span><span class="p">,</span> <span class="s2">&quot;some_grouping&quot;</span><span class="p">)</span>
+<span class="go">                nodeframe:</span>
+<span class="go">                                  geometry Class</span>
+<span class="go">0  POINT (1.00000 1.00000)     X</span>
+<span class="go">1  POINT (2.00000 2.00000)     Y</span>
+<span class="go">2  POINT (0.00000 1.00000)     I</span>
+<span class="go">3  POINT (3.00000 2.00000)     I</span>
+<span class="go">                name:</span>
+<span class="go">                some_grouping</span>
+<span class="go">                group:</span>
+<span class="go">                some_grouping</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_nds</strong> (<em>list</em>) – List of TargetAreaNodes objects</p></li>
+<li><p><strong>group</strong> (<em>str</em>) – Group name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Unified TargetAreaNodes object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ta.TargetAreaNodes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.tools.unite_areaframes">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">unite_areaframes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">list_of_areaframes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.unite_areaframes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Nikolas Ovaskainen
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fractopo.analysis.target_area module &mdash; fractopo-2D 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">fractopo.analysis.target_area module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fractopo-2D</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>fractopo.analysis.target_area module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apidoc/fractopo.analysis.target_area.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-fractopo.analysis.target_area">
+<span id="fractopo-analysis-target-area-module"></span><h1>fractopo.analysis.target_area module<a class="headerlink" href="#module-fractopo.analysis.target_area" title="Permalink to this headline">¶</a></h1>
+<p>Handles a single target area or a single grouped area. Does not discriminate between a single target area and
+grouped target areas.</p>
+<dl class="py class">
+<dt id="fractopo.analysis.target_area.TargetAreaLines">
+<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.target_area.</code><code class="sig-name descname">TargetAreaLines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em>, <em class="sig-param"><span class="n">areaframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">group</span></em>, <em class="sig-param"><span class="n">using_branches</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">cut_off_length</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for a target area or a group of target areas that consists of lines (traces or branches) and interpretation
+areas for these lines. Additionally contains cut offs and calculates parameters for analysis and plotting,
+information whether the lines are traces or branches and the name for the target area.
+The name parameter acts as the unique indicator to differentiate these objects. Duplicate target area or group names
+are therefore not allowed.</p>
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.calc_anisotropy">
+<em class="property">static </em><code class="sig-name descname">calc_anisotropy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe_main</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.calc_anisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates annisotropy of connectivity for branch DataFrame</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.calc_attributes">
+<code class="sig-name descname">calc_attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.calc_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates important attributes of target area.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.calc_curviness">
+<code class="sig-name descname">calc_curviness</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.calc_curviness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.define_sets">
+<code class="sig-name descname">define_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_df</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.define_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Categorizes both non-cut and cut DataFrames with set limits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>set_df</strong> (<em>pd.DataFrame</em>) – DataFrame with set limits and set names.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_anisotropy_styled">
+<em class="property">static </em><code class="sig-name descname">plot_anisotropy_styled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">anisotropy</span></em>, <em class="sig-param"><span class="n">for_ax</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_anisotropy_styled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a styled anisotropy of connectivity figure.</p>
+<p>Spline done with:
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>for_ax</strong> (<em>bool</em>) – Whether plotting to a ready-made ax or not</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – ax to plot to (optional)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_azimuth_ax_weighted">
+<code class="sig-name descname">plot_azimuth_ax_weighted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_visualization</span></em>, <em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">rose_type</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_azimuth_ax_weighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot weighted azimuth rose-plot to given ax. Type can be ‘equal-radius’ or ‘equal-area’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>set_visualization</strong> (<em>bool</em>) – Whether to visualize sets into the same plot</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.projections.polar.PolarAxes</em>) – Polar axis to plot on.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the target area or group</p></li>
+<li><p><strong>rose_type</strong> (<em>str</em>) – Type can be ‘equal-radius’ or ‘equal-area’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When given invalid rose_type string. Valid: ‘equal-radius’ or ‘equal-area’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_azimuth_weighted">
+<code class="sig-name descname">plot_azimuth_weighted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rose_type</span></em>, <em class="sig-param"><span class="n">set_visualization</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_azimuth_weighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot weighted azimuth rose-plot. Type can be ‘equal-radius’ or ‘equal-area’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rose_type</strong> (<em>str</em>) – Whether to plot equal-radius or equal-area rose plot: ‘equal-radius’ or ‘equal-area’</p></li>
+<li><p><strong>set_visualization</strong> (<em>bool</em>) – Whether to visualize sets into the same plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_branch_ternary_plot">
+<code class="sig-name descname">plot_branch_ternary_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_branch_ternary_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a branch classification ternary plot to a new ternary figure. Single point in each figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unified</strong> (<em>bool</em>) – Plot for target area or grouped data</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for point in plot.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Save or not</p></li>
+<li><p><strong>savefolder</strong> (<em>str</em>) – Folder to save plot to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_branch_ternary_point">
+<code class="sig-name descname">plot_branch_ternary_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tax</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_branch_ternary_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a branch classification ternary scatter point to a given tax.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – python-ternary AxesSubPlot</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for point in plot.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution">
+<code class="sig-name descname">plot_length_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit_distribution</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution to its own figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unified</strong> (<em>bool</em>) – Is data from target area or grouped data?</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for scatter plot points.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save</p></li>
+<li><p><strong>savefolder</strong> (<em>str</em>) – Folder to save to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_ax">
+<em class="property">static </em><code class="sig-name descname">plot_length_distribution_ax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lineframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">normalize_for_powerlaw</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">powerlaw_cut_off</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_ax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution to a given ax.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Ax to plot to</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for scatter plot points.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_fit">
+<em class="property">static </em><code class="sig-name descname">plot_length_distribution_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fit</span><span class="p">:</span> <span class="n">powerlaw.Fit</span></em>, <em class="sig-param"><span class="n">fit_distribution</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">ax</span><span class="p">:</span> <span class="n">matplotlib.axes._axes.Axes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_with_all_fits">
+<code class="sig-name descname">plot_length_distribution_with_all_fits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">fit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fit_distributions</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_with_all_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a length distribution to its own figure along with powerlaw, lognormal and exponential fits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unified</strong> (<em>bool</em>) – Is data from target area or grouped data?</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for scatter plot points.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether to save</p></li>
+<li><p><strong>savefolder</strong> (<em>str</em>) – Folder to save to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaLines.topology_parameters_2d_branches">
+<code class="sig-name descname">topology_parameters_2d_branches</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">branches</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaLines.topology_parameters_2d_branches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather topology parameters for branch data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>branches</strong> (<em>bool</em>) – Branches or traces</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>AttributeError</strong> – When given vector layer doesn’t contain valid column names.
+e.g. (Connection: [‘C - C’, ‘C - I’, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="fractopo.analysis.target_area.TargetAreaNodes">
+<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.target_area.</code><code class="sig-name descname">TargetAreaNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodeframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">group</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for topological nodes. Used in conjunction with TargetAreaLines.</p>
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaNodes.plot_xyi_plot">
+<em class="property">static </em><code class="sig-name descname">plot_xyi_plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodeframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaNodes.plot_xyi_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a XYI-node ternary plot to a new ternary figure. Single point in each figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unified</strong> (<em>bool</em>) – Plot for target area or grouped data</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for point.</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Save or not</p></li>
+<li><p><strong>savefolder</strong> (<em>str</em>) – Folder to save plot to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaNodes.plot_xyi_point">
+<em class="property">static </em><code class="sig-name descname">plot_xyi_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodeframe</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">tax</span></em>, <em class="sig-param"><span class="n">color_for_plot</span><span class="o">=</span><span class="default_value">'black'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaNodes.plot_xyi_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a XYI-node ternary scatter point to a given tax.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – python-ternary AxesSubPlot</p></li>
+<li><p><strong>color_for_plot</strong> (<em>str</em><em> or </em><em>tuple</em>) – Color for plotting point.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.target_area.TargetAreaNodes.topology_parameters_2d_nodes">
+<code class="sig-name descname">topology_parameters_2d_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.target_area.TargetAreaNodes.topology_parameters_2d_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gathers topology parameters of nodes</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Nikolas Ovaskainen
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
