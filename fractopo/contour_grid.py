@@ -24,14 +24,14 @@ Y_node = "Y"
 I_node = "I"
 
 
-def create_grid(cell_width: float, traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     Creates an empty polygon grid for sampling fracture branch data.
-    Grid is created to always contain all given traces.
+    Grid is created to always contain all given branches.
 
     E.g.
 
-    >>> traces = gpd.GeoSeries(
+    >>> branches = gpd.GeoSeries(
     ...     [
     ...             LineString([(1, 1), (2, 2)]),
     ...             LineString([(2, 2), (3, 3)]),
@@ -39,7 +39,7 @@ def create_grid(cell_width: float, traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame
     ...             LineString([(2, 2), (-2, 5)]),
     ...     ]
     ... )
-    >>> create_grid(cell_width=0.1, traces=traces).head(5)
+    >>> create_grid(cell_width=0.1, branches=branches).head(5)
                                                 geometry
     0  POLYGON ((-2.00000 5.00000, -1.90000 5.00000, ...
     1  POLYGON ((-2.00000 4.90000, -1.90000 4.90000, ...
@@ -48,9 +48,9 @@ def create_grid(cell_width: float, traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame
     4  POLYGON ((-2.00000 4.60000, -1.90000 4.60000, ...
     """
     assert cell_width > 0
-    assert len(traces) > 0
-    # Get total bounds of traces
-    xmin, ymin, xmax, ymax = traces.total_bounds
+    assert len(branches) > 0
+    # Get total bounds of branches
+    xmin, ymin, xmax, ymax = branches.total_bounds
     cell_height = cell_width
     # Calculate cell row and column counts
     rows = int(np.ceil((ymax - ymin) / cell_height))
@@ -80,7 +80,7 @@ def create_grid(cell_width: float, traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame
         XleftOrigin = XleftOrigin + cell_width
         XrightOrigin = XrightOrigin + cell_width
     # Create GeoDataFrame with grid polygons
-    grid = gpd.GeoDataFrame({"geometry": polygons}, crs=traces.crs)
+    grid = gpd.GeoDataFrame({"geometry": polygons}, crs=branches.crs)
     assert len(grid) != 0
     return grid
 
@@ -243,7 +243,7 @@ def sample_grid(
 
     E.g.
 
-    >>> traces = gpd.GeoDataFrame(
+    >>> branches = gpd.GeoDataFrame(
     ...     {
     ...             "geometry": [
     ...                         LineString([(1, 1), (2, 2), (3, 3)]),
@@ -260,8 +260,8 @@ def sample_grid(
     ...                      ],
     ...     }
     ... )
-    >>> grid = create_grid(cell_width=0.5, traces=traces)
-    >>> sample_grid(grid, traces, nodes).loc[5]
+    >>> grid = create_grid(cell_width=0.5, branches=branches)
+    >>> sample_grid(grid, branches, nodes).loc[5]
     geometry                  POLYGON ((1.5 2.5, 2 2.5, 2 2, 1.5 2, 1.5 2.5))
     Sample_Area                                                       1.76431
     Total_Length                                                      1.32287
@@ -325,6 +325,20 @@ def sample_grid(
     for key in params:
         grid[key] = params[key]
     return grid
+
+
+def run_grid_sampling(
+    traces: gpd.GeoDataFrame,
+    branches: gpd.GeoDataFrame,
+    nodes: gpd.GeoDataFrame,
+    cell_width: float,
+) -> gpd.GeoDataFrame:
+    """
+    Runs the contour grid sampling.
+    """
+    grid = create_grid(cell_width, branches)
+    sampled_grid = sample_grid(grid, traces, nodes)
+    return sampled_grid
 
 
 # def plot_base(
