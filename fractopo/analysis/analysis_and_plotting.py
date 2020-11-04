@@ -17,7 +17,6 @@ class MultiTargetAreaAnalysis:
         choose_your_analyses,
         logger,
     ):
-        """"""
         self.set_df = set_df
         self.group_names_cutoffs_df = group_names_cutoffs_df
         self.spatial_df = filepath_df
@@ -26,11 +25,6 @@ class MultiTargetAreaAnalysis:
         self.analysis_traces = None
         self.analysis_branches = None
         self.logger = logger
-
-        # self.spatial_df["traceframe"] = filepath_df["Trace_layer_name"]
-        # self.spatial_df["branchframe"] = filepath_df["Branch_layer_name"]
-        # self.spatial_df["areaframe"] = filepath_df["Area_layer_name"]
-        # self.spatial_df["nodeframe"] = filepath_df["Node_layer_name"]
 
         # Check if cross-cutting and abutting relationships can be determined
         # TODO: Also check if sets actually exist in lines...
@@ -134,11 +128,6 @@ class MultiTargetAreaAnalysis:
                     + "/length_distributions/branches",
                 )
 
-            # TODO: Length distribution predictions
-            # for p in predict_with:
-            #     self.analysis_branches.plot_lengths_unified_combined_predictions(
-            #         save=True, savefolder=self.plotting_directory + '/length_distributions/branches/predictions', predict_with=p)
-
             # Azimuths
             if self.determine_azimuths:
                 self.analysis_branches.plot_azimuths_weighted(
@@ -233,11 +222,6 @@ class MultiTargetAreaAnalysis:
                 savefolder=self.plotting_directory + "/length_distributions/traces",
             )
 
-            # Length distribution predictions
-        # for p in predict_with:
-        #     self.analysis_traces.plot_lengths_unified_combined_predictions(
-        #         save=True, savefolder=self.plotting_directory + '/length_distributions/traces/predictions', predict_with=p)
-
         # Azimuths
         if self.determine_azimuths:
             self.analysis_traces.plot_azimuths_weighted(
@@ -250,14 +234,6 @@ class MultiTargetAreaAnalysis:
                 save=True,
                 savefolder=self.plotting_directory + "/azimuths",
             )
-            # self.analysis_traces.plot_azimuths(unified=False, rose_type='equal-radius', save=True
-        #                                    , savefolder=self.plotting_directory + '/azimuths/equal_radius/traces')
-        # self.analysis_traces.plot_azimuths(unified=True, rose_type='equal-radius', save=True
-        #                                    , savefolder=self.plotting_directory + '/azimuths/equal_radius/traces')
-        # self.analysis_traces.plot_azimuths(unified=False, rose_type='equal-area', save=True
-        #                                    , savefolder=self.plotting_directory + '/azimuths/equal_area/traces')
-        # self.analysis_traces.plot_azimuths(unified=True, rose_type='equal-area', save=True
-        #                                    , savefolder=self.plotting_directory + '/azimuths/equal_area/traces')
         # Topo parameters
         if self.determine_topology:
             self.analysis_traces.plot_topology(
@@ -300,10 +276,3 @@ class MultiTargetAreaAnalysis:
                 save=True,
                 savefolder=self.plotting_directory + "/age_relations",
             )
-        #
-        # if self.spatial_df.shape[0] > 1:
-        #     self.analysis_traces.plot_xy_age_relations_all(save=True, savefolder=self.plotting_directory + '/age_relations/indiv')
-        #     self.analysis_traces.plot_xy_age_relations_unified(save=True, savefolder=self.plotting_directory + '/age_relations')
-
-        # TODO: Curviness
-        # self.analysis_traces.plot_curviness_for_unified(violins=True, save=True, savefolder=self.plotting_directory + '/curviness/traces')
