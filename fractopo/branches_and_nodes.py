@@ -10,7 +10,7 @@ from shapely.geometry import (
     Polygon,
 )
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 # Import trace_validator
 from fractopo.tval import trace_validator
@@ -92,6 +92,7 @@ def get_node_identities(
     >>> snap_threshold = 0.001
     >>> get_node_identities(traces, nodes, areas, snap_threshold)
     ['X', 'I', 'I', 'I', 'E']
+
     """
     assert all([isinstance(trace, LineString) for trace in traces])
     identities = []
@@ -471,6 +472,9 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     changing the geometrical order of LineString vertices
     (which only makes sense if LineString is sublinear.)
 
+    TODO/Note: Does not work for 2.5D geometries (Z-coordinates).
+    Z-coordinates will be lost.
+
     E.g.
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
@@ -486,6 +490,10 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     """
     assert isinstance(trace, LineString)
     assert isinstance(point, Point)
+    if trace.has_z:
+        logging.warning("Trace contains z-coordinates. These will be lost.")
+    if point.has_z:
+        logging.warning("Point contains z-coordinates. These will be lost.")
 
     if any([point.intersects(Point(xy)) for xy in trace.coords]):
         logging.error(
@@ -541,7 +549,7 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     assert new_trace.is_valid
     # assert new_trace.is_simple
     if not new_trace.is_simple:
-        logging.warning("Non-simple geometry detected.\n" f"{new_trace.wkt}")
+        logging.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
     return new_trace
 
 
@@ -850,11 +858,18 @@ def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.Geo
 
 
 def branches_and_nodes(
-    traces: gpd.GeoSeries, areas: gpd.GeoSeries, snap_threshold: float, allowed_loops=10
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    snap_threshold: float,
+    allowed_loops=10,
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """
     Determines branches and nodes of given traces.
     """
+    if isinstance(traces, gpd.GeoDataFrame):
+        traces = traces.geometry
+    if isinstance(areas, gpd.GeoDataFrame):
+        areas = areas.geometry
     assert all([isinstance(trace, LineString) for trace in traces])
     traces, any_changes_applied = snap_traces(traces, snap_threshold)
     loops = 0
