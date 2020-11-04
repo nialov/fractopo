@@ -3,6 +3,9 @@ Main module for the control of analysis and plotting.
 """
 import logging
 from pathlib import Path
+import pandas as pd
+import geopandas as gpd
+from typing import List, Dict, Tuple
 
 from fractopo.analysis import analysis_and_plotting as taaq, tools as tools, config
 
@@ -110,3 +113,87 @@ def initialize_analysis_logging(plotting_directory):
 
     logger.info("Analysis Statistics logfile initialized.")
     return logger
+
+
+def analyze_datasets(
+    traces: List[gpd.GeoDataFrame],
+    areas: List[gpd.GeoDataFrame],
+    branches: List[gpd.GeoDataFrame],
+    nodes: List[gpd.GeoDataFrame],
+    names: List[str],
+    groups: List[str],
+    cut_offs_traces: List[float],
+    cut_offs_branches: List[float],
+    datasets_grouped: List[str],
+    set_names: List[str],
+    set_limits: List[Tuple[float, float]],
+    analysis_name: str,
+    results_folder: str,
+    choose_your_analyses: Dict[str, bool],
+):
+
+    # SETUP PLOTTING DIRECTORIES
+    plotting_directory = tools.plotting_directories(results_folder, analysis_name)
+
+    # SETUP LOGGER
+    logger = initialize_analysis_logging(plotting_directory)
+
+    # SETUP CONFIG PARAMETERS
+    config.n_ta = len(traces)
+    config.n_g = len(groups)
+    config.ta_list = names
+    config.g_list = groups
+
+    analysis_df = pd.DataFrame(
+        {
+            "Name": names,
+            "Group": datasets_grouped,
+            "traceframe": traces,
+            "areaframe": areas,
+            "branchframe": branches,
+            "nodeframe": nodes,
+        }
+    )
+
+    group_names_cutoffs_df = pd.DataFrame(
+        {
+            "Group": groups,
+            "CutOffTraces": cut_offs_traces,
+            "CutOffBranches": cut_offs_branches,
+        }
+    )
+    set_df = pd.DataFrame(
+        {
+            "Set": set_names,
+            "SetLimits": set_limits,
+        }
+    )
+
+    # SAVE ANALYSIS SETTINGS AND INPUTS INTO LOGGER
+    logger.info("Analysis Settings and Inputs")
+    logger.info("-----------------------------------")
+    logger.info(f"Layer table DataFrame:\n {analysis_df.to_string()}")
+    logger.info(f"Results folder:\n {results_folder}")
+    logger.info(f"Analysis name:\n {analysis_name}")
+    logger.info(
+        f"Group names and Cut-offs DataFrame:\n {group_names_cutoffs_df.to_string()}"
+    )
+    logger.info(f"Set DataFrame:\n {set_df.to_string()}")
+    logger.info(f"Chosen analyses from config.py file:\n {choose_your_analyses}")
+
+    # START __init__
+
+    mta_analysis = taaq.MultiTargetAreaAnalysis(
+        analysis_df,
+        plotting_directory,
+        analysis_name,
+        group_names_cutoffs_df,
+        set_df,
+        choose_your_analyses,
+        logger,
+    )
+
+    # Start analysis
+    mta_analysis.analysis()
+    # Start plotting
+    mta_analysis.plot_results()
