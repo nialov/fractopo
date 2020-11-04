@@ -22,8 +22,8 @@ choose_your_analyses = {
 }
 
 # Half the bin width in azimuth plots
-# Applicable when sample size low and lines have preferred orientations
-# i.e. discrete fracture sets.
+# Applicable when sample size low and lines have preferred orientations i.e.
+# discrete fracture sets.
 half_the_bin_width = False
 
 # ---------------------------------------------------------
@@ -35,7 +35,8 @@ half_the_bin_width = False
 buffer_value = 0.001
 snap_value = 0.001
 
-# Lists for columns and units for plotting abundance, size and topological parameters
+# Lists for columns and units for plotting abundance, size and topological
+# parameters
 columns_to_plot_branches = [
     "Mean Length",
     "Connections per Branch",
@@ -97,15 +98,18 @@ g_list = []
 
 def get_color_dict(unified: bool) -> dict:
     """
-    Returns the default color dict, which was setup for the correct number of target areas and groups
-    (sns.color_palette('dark', n_colors)). Assertations will fail if setup hasn't been done.
+    Returns the default color dict, which was setup for the correct number of
+    target areas and groups
+    (sns.color_palette('dark', n_colors)). Assertations will fail if setup
+    hasn't been done.
 
     :param unified: Whether the cycle for target areas or grouped data is wanted.
     :type unified: bool
     :return: Default dictionary with either target area names or group names as keys
         and colors as values.
     :rtype: dict
-    :raise AssertationError: Assertations will fail if setup of target area and group counts hasn't been done.
+    :raise AssertationError: Assertations will fail if setup of target area and
+    group counts hasn't been done.
 
     """
     assert n_ta != -1

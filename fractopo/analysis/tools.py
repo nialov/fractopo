@@ -1232,7 +1232,8 @@ def calc_ylims(lineframe):
 
 def define_set(azimuth, set_df):  # Uses HALVED azimuth: 0-180
     """
-    Defines set based on azimuth value in degrees. Uses halved azimuth values i.e. azimuth must be: 0 < azimuth < 180.
+    Defines set based on azimuth value in degrees. Uses halved azimuth values
+    i.e. azimuth must be: 0 < azimuth < 180.
 
     E.g. when azimuth is in set 1:
 
