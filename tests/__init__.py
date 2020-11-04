@@ -1,7 +1,7 @@
 import pandas as pd
 import geopandas as gpd
 import shapely
-from shapely.geometry import Point, LineString, MultiLineString
+from shapely.geometry import Point, LineString, MultiLineString, Polygon
 import numpy as np
 import hypothesis
 from hypothesis.strategies import (
@@ -158,3 +158,72 @@ class Helpers:
             )
         )
         return multi_polyline_strategy
+
+    snap_threshold = 0.001
+    geosrs_identicals = gpd.GeoSeries(
+        [Point(1, 1), Point(1, 1), Point(2, 1), Point(2, 1), Point(3, 1), Point(2, 3)]
+    )
+
+    traces_geosrs = gpd.GeoSeries(
+        [
+            LineString([(-1, 0), (1, 0)]),
+            LineString([(0, -1), (0, 1)]),
+            LineString(
+                [(-1.0 - snap_threshold * 0.99, -1), (-1.0 - snap_threshold * 0.99, 1)]
+            ),
+        ]
+    )
+    areas_geosrs = gpd.GeoSeries([Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])])
+
+    nice_traces = gpd.GeoSeries(
+        [
+            # Horizontal
+            LineString([(-10, 0), (10, 0)]),
+            # Underlapping
+            LineString([(-5, 2), (-5, 0 + snap_threshold * 0.01)]),
+            LineString([(-4, 2), (-4, 0 + snap_threshold * 0.5)]),
+            LineString([(-3, 2), (-3, 0 + snap_threshold * 0.7)]),
+            LineString([(-2, 2), (-2, 0 + snap_threshold * 0.9)]),
+            LineString([(-1, 2), (-1, 0 + snap_threshold * 1.1)]),
+            # Overlapping
+            LineString([(1, 2), (1, 0 - snap_threshold * 1.1)]),
+            LineString([(2, 2), (2, 0 - snap_threshold * 0.9)]),
+            LineString([(3, 2), (3, 0 - snap_threshold * 0.7)]),
+            LineString([(4, 2), (4, 0 - snap_threshold * 0.5)]),
+            LineString([(5, 2), (5, 0 - snap_threshold * 0.01)]),
+        ]
+    )
+    nice_integer_coordinates = integers(-10, 10)
+    nice_float = floats(
+        allow_nan=False, allow_infinity=False, min_value=-1e5, max_value=1e5
+    )
+    nice_tuple = tuples(
+        nice_float,
+        nice_float,
+    )
+    triple_tuples = tuples(
+        nice_tuple,
+        nice_tuple,
+        nice_tuple,
+    )
+    nice_point = planar.points(nice_integer_coordinates)
+    # TODO: Is not really nice...
+    nice_polyline = planar.polylines(nice_integer_coordinates).filter(
+        lambda x: LineString(x).is_valid
+    )
+
+    @classmethod
+    def get_nice_traces(cls):
+        return cls.nice_traces.copy()
+
+    @classmethod
+    def get_traces_geosrs(cls):
+        return cls.traces_geosrs.copy()
+
+    @classmethod
+    def get_areas_geosrs(cls):
+        return cls.areas_geosrs.copy()
+
+    @classmethod
+    def get_geosrs_identicals(cls):
+        return cls.geosrs_identicals.copy()
