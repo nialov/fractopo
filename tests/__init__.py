@@ -4,6 +4,7 @@ import shapely
 from shapely.geometry import Point, LineString, MultiLineString, Polygon
 import numpy as np
 import hypothesis
+from pathlib import Path
 from hypothesis.strategies import (
     booleans,
     floats,
@@ -33,6 +34,7 @@ from fractopo.tval.trace_validator import (
     SharpCornerValidator,
 )
 from fractopo.tval import trace_builder
+from fractopo.analysis import tools
 
 GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
 ERROR_COLUMN = BaseValidator.ERROR_COLUMN
@@ -227,3 +229,50 @@ class Helpers:
     @classmethod
     def get_geosrs_identicals(cls):
         return cls.geosrs_identicals.copy()
+
+    line_1 = LineString([(0, 0), (0.5, 0.5)])
+    line_2 = LineString([(0, 0), (0.5, -0.5)])
+    line_3 = LineString([(0, 0), (1, 0)])
+    line_1_sp = Point(list(line_1.coords)[0])
+    line_2_sp = Point(list(line_2.coords)[0])
+    line_1_ep = Point(list(line_1.coords)[-1])
+    line_2_ep = Point(list(line_2.coords)[-1])
+    halved_azimuths = [
+        tools.azimu_half(tools.calc_azimu(l))
+        for l in (
+            line_1,
+            line_2,
+            line_3,
+        )
+    ]
+    branch_frame = gpd.GeoDataFrame(
+        {
+            "geometry": [line_1, line_2, line_3],
+            "Connection": ["C - C", "C - I", "I - I"],
+            "Class": ["X - I", "Y - Y", "I - I"],
+            "halved": halved_azimuths,
+            "length": [line.length for line in [line_1, line_2, line_3]],
+        }
+    )
+
+    trace_frame = gpd.GeoDataFrame(
+        {
+            "geometry": [line_1, line_2],
+            "length": [line_1.length, line_2.length],
+            "startpoint": [line_1_sp, line_2_sp],
+            "endpoint": [line_1_ep, line_2_ep],
+        }
+    )
+    point_1 = Point(0.5, 0.5)
+    point_2 = Point(1, 1)
+    point_3 = Point(10, 10)
+    node_frame = gpd.GeoDataFrame(
+        {"geometry": [point_1, point_2, point_3], "Class": ["X", "Y", "I"]}
+    )
+    node_frame["c"] = node_frame["Class"]
+    area_1 = Polygon([(0, 0), (1, 1), (1, 0)])
+    area_frame = gpd.GeoDataFrame({"geometry": [area_1]})
+
+    sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
+    sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
+    sample_area_data = Path("tests/sample_data/KB11_area.shp")
