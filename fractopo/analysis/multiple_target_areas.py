@@ -491,25 +491,19 @@ class MultiTargetAreaQGIS:
             fit_cut_off = powerlaw.Fit(
                 srs["TargetAreaLines"].lineframe_main["length"], xmin=cut_off_length
             )
-            # Report both fits to logfile
-            # tools.report_powerlaw_fit_statistics(
-            #     srs["TargetAreaLines"].name, fit, self.logger, self.using_branches
-            # )
-            # tools.report_powerlaw_fit_statistics(
-            #     srs["TargetAreaLines"].name,
-            #     fit_cut_off,
-            #     self.logger,
-            #     self.using_branches,
-            # )
-            # Report both fits to DataFrame which gets appended
             report_df = tools.report_powerlaw_fit_statistics_df(
-                srs["TargetAreaLines"].name, fit, report_df, self.using_branches
+                srs["TargetAreaLines"].name,
+                fit,
+                report_df,
+                self.using_branches,
+                srs["TargetAreaLines"].lineframe_main["length"],
             )
             report_df = tools.report_powerlaw_fit_statistics_df(
                 srs["TargetAreaLines"].name,
                 fit_cut_off,
                 report_df,
                 self.using_branches,
+                srs["TargetAreaLines"].lineframe_main["length"],
             )
             # Color used for scatter data
             color_for_plot = color_dict[srs["TargetAreaLines"].name]
@@ -658,40 +652,6 @@ class MultiTargetAreaQGIS:
 
         if use_sets:
             raise NotImplementedError("Not implemented. Yet.")
-            # for curr_set, s in enumerate(self.set_ranges_list):
-            #
-            #     fig, ax = plt.subplots(figsize=figure_size)  # Figure for full LDs, for each set
-            #     #                length_text = 'FULL, SET '+str(idx)+'\nCut Off Lengths (m)\n\n'
-            #     for idx, srs in self.uniframe.iterrows():
-            #         srs['TargetAreaLines'].plot_length_distribution_ax(ax=ax, use_sets=True, curr_set=curr_set)
-            #     #                    min_length = srs['TargetAreaLines'].setframes[curr_set].length.min()
-            #     #                    name = srs['name']
-            #     #                    length_text = length_text+name+' : '+str(round(min_length, 2))+'\n'
-            #     ax.set_xlim(self.uni_left, self.uni_right)
-            #     ax.set_ylim(self.uni_bottom, self.uni_top)
-            #     tools.setup_ax_for_ld(ax, self)
-            #     if save:
-            #         savename = Path(savefolder + '/FULL_LD_SET_{}.png'.format(curr_set))
-            #         plt.savefig(savename, dpi=150)
-            #     fig, ax = plt.subplots(figsize=figure_size)  # Figure for cut LDs, for each set
-            #     length_text = 'CUT, SET ' + str(curr_set) + '\nCut Off Lengths (m)\n\n'
-            #     for idx, srs in self.uniframe.iterrows():
-            #         srs['TargetAreaLines'].plot_length_distribution_ax(ax=ax, cut=True, use_sets=True,
-            #                                                            curr_set=curr_set)
-            #         min_length = srs['TargetAreaLines'].setframes_cut[curr_set].length.min()
-            #         name = srs['name']
-            #         length_text = length_text + name + ' : ' + str(round(min_length, 2)) + '\n'
-            #
-            #     tools.plot_fit_for_uniframe(self, ax=ax, cut=True, use_sets=True, curr_set=curr_set,
-            #                                 font_multiplier=1, unified=unified)
-            #     ax.set_xlim(self.uni_left, self.uni_right)
-            #     ax.set_ylim(self.uni_bottom, self.uni_top)
-            #     tools.setup_ax_for_ld(ax, self)
-            #     ax.text(0.1, 0.3, length_text, transform=ax.transAxes, fontsize=18, weight='roman',
-            #             verticalalignment='top', bbox=props, fontfamily='Times New Roman')
-            #     if save:
-            #         savename = Path(savefolder + '/CUT_LD_SET_{}.png'.format(curr_set))
-            #         plt.savefig(savename, dpi=150)
 
     def plot_azimuths(self, unified: bool, rose_type: str, save=False, savefolder=""):
         """

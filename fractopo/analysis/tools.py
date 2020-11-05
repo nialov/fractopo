@@ -23,7 +23,7 @@ from shapely.ops import linemerge
 from shapely import prepared
 import powerlaw
 import logging
-from typing import Tuple
+from typing import Tuple, Union
 
 
 # Own code imports
@@ -54,6 +54,7 @@ class ReportDfCols:
     powerlaw_vs_exponential_p = "powerlaw_vs_exponential_p"
     lognormal_vs_exponential_r = "lognormal_vs_exponential_r"
     lognormal_vs_exponential_p = "lognormal_vs_exponential_p"
+    remaining_percent_of_data = "remaining_percent_of_data"
 
     cols = [
         name,
@@ -69,6 +70,7 @@ class ReportDfCols:
         powerlaw_vs_exponential_p,
         lognormal_vs_exponential_r,
         lognormal_vs_exponential_p,
+        remaining_percent_of_data,
     ]
 
 
@@ -2038,7 +2040,11 @@ def create_azimuth_set_text(lineframe):
 
 
 def report_powerlaw_fit_statistics_df(
-    name: str, fit: powerlaw.Fit, report_df: pd.DataFrame, using_branches: bool
+    name: str,
+    fit: powerlaw.Fit,
+    report_df: pd.DataFrame,
+    using_branches: bool,
+    lengths: Union[np.ndarray, pd.Series],
 ):
     """
     Writes powerlaw module Fit object statistics to a given report_df. Included
@@ -2063,6 +2069,8 @@ def report_powerlaw_fit_statistics_df(
     lognormal_vs_exponential_r = R
     lognormal_vs_exponential_p = p
 
+    remaining_percent_of_data = (sum(lengths > fit.power_law.xmin) / len(lengths)) * 100
+
     report_df = report_df.append(
         {
             ReportDfCols.name: name,
@@ -2080,6 +2088,7 @@ def report_powerlaw_fit_statistics_df(
             ReportDfCols.lognormal_vs_exponential_r: lognormal_vs_exponential_r,
             ReportDfCols.lognormal_vs_exponential_p: lognormal_vs_exponential_p,
             ReportDfCols.lognormal_vs_exponential_p: lognormal_vs_exponential_p,
+            ReportDfCols.remaining_percent_of_data: remaining_percent_of_data,
         },
         ignore_index=True,
     )
@@ -2199,5 +2208,9 @@ def setup_powerlaw_axlims(ax: matplotlib.axes.Axes, lineframe_main, powerlaw_cut
     right = right / 5
     bottom = bottom * 5
     top = top / 5
-    ax.set_xlim(left, right)
-    ax.set_ylim(bottom, top)
+    try:
+        ax.set_xlim(left, right)
+        ax.set_ylim(bottom, top)
+    except ValueError:
+        # Don't try setting if it errors
+        pass

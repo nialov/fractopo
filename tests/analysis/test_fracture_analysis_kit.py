@@ -250,7 +250,7 @@ class TestTools:
         report_df = tools.initialize_report_df()
         fit = powerlaw.Fit(Helpers.trace_frame["length"])
         result_report_df = tools.report_powerlaw_fit_statistics_df(
-            "test", fit, report_df, False
+            "test", fit, report_df, False, Helpers.trace_frame["length"]
         )
         assert len(result_report_df) > len(report_df)
         assert all([col in result_report_df.columns for col in tools.ReportDfCols.cols])
