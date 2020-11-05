@@ -13,7 +13,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 
 CC_branch = "C - C"
 CI_branch = "C - I"
@@ -331,133 +331,27 @@ def run_grid_sampling(
     traces: gpd.GeoDataFrame,
     branches: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
-    cell_width: float,
+    cell_width=0.0,
+    precursor_grid: Optional[gpd.GeoDataFrame] = None,
 ) -> gpd.GeoDataFrame:
     """
-    Runs the contour grid sampling.
+    Runs the contour grid sampling to passed trace, branch and node data.
+    The grid extents are determined by using the passed branches unless
+    precursor_grid is passed.
+
+    If precursor_grid is passed, cell_width is not requires. Otherwise
+    it must always be set to be to a non-default value.
     """
-    grid = create_grid(cell_width, branches)
+    if precursor_grid is not None:
+        if not isinstance(precursor_grid, gpd.GeoDataFrame):
+            raise TypeError("Expected precursor_grid to be of type: GeoDataFrame.")
+        # Avoid modifying same precursor_grid multiple times
+        grid = precursor_grid.copy()
+    else:
+        if np.isclose(cell_width, 0.0) or cell_width < 0:
+            raise ValueError(
+                "Expected cell_width to be non-close-to-zero positive number."
+            )
+        grid = create_grid(cell_width, branches)
     sampled_grid = sample_grid(grid, traces, nodes)
     return sampled_grid
-
-
-# def plot_base(
-#     traces: gpd.GeoDataFrame, grid: gpd.GeoDataFrame
-# ) -> Tuple[plt.Figure, plt.Axes]:
-#     fig, ax = plt.subplots(figsize=(20, 14))
-#     traces.plot(ax=ax)
-#     grid.boundary.plot(ax=ax, color="black")
-#     return fig, ax
-
-
-# def plot_results(
-#     grid_topo: gpd.GeoDataFrame, traces: gpd.GeoDataFrame
-# ) -> Tuple[plt.Figure, List[plt.Axes]]:
-#     fig, axes = plt.subplots(3, 4, figsize=(30, 20))
-#     plt.subplots_adjust(wspace=0.25, hspace=0.25)
-#     ax_gen = (item for sublist in axes for item in sublist)
-
-#     parameters_to_plot = [
-#         "Total_Length",
-#         "Average_Trace_Length",
-#         "Average_Branch_Length",
-#         "Branch_Frequency",
-#         "Trace_Frequency",
-#         "Node_Frequency",
-#         "P21",
-#         "P22",
-#         "B22",
-#         "Connections_Per_Branch",
-#         "Connections_Per_Trace",
-#         "Connection_Frequency",
-#     ]
-#     for parameter in parameters_to_plot:
-#         ax_to_plot = next(ax_gen)  # type: plt.Axes
-#         grid_topo.plot(column=parameter, ax=ax_to_plot, cmap="magma", alpha=0.7)
-#         ax_to_plot.set_title(parameter)
-#         # plot traces
-#         traces.plot(ax=ax_to_plot)
-
-#     return fig, axes
-
-
-# def get_layers_from_files():
-#     """dict_keys[('OG1_tulkinta', OG1_tulkinta_alue'', 'OG2_tulkinta',
-#     OG2_tulkinta_alue'', 'OG3_Fractures_IA', OG7_Fractures_IA'',
-#     'OG3_samplearea', OG7_samplearea'', 'OG5_samplearea', OG5_fractures'',
-#     'OG6_fractures_HW', OG6_samplearea'', 'BS_20m_HW', OG4_fractures_ML'',
-#     'OG4_samplearea', BS_20m_samplearea_ext''])')]
-#     """
-#     # Traces
-#     OG145_traces = gpd.read_file(r"data/merged/OG1-4-5_fractures.gpkg")
-#     all_layers = get_all_layers("data/Orrengrund.gdb")
-#     OG6_traces = all_layers["OG6_fractures_HW"]
-#     OG7_traces = all_layers["OG7_Fractures_IA"]
-#     BS_traces = all_layers["BS_20m_HW"]
-#     OG3_traces = all_layers["OG3_Fractures_IA"]
-#     # Branches
-#     OG145_branches = gpd.read_file("data/final/OG1-4-5_branches.shp")
-#     OG6_branches = gpd.read_file("data/final/branches_OG6_fractures_HW.gpkg")
-#     OG7_branches = gpd.read_file("data/final/branches_OG7_Fractures_IA.gpkg")
-#     BS_branches = gpd.read_file("data/final/branches_BS_20m_HW.gpkg")
-#     OG3_branches = gpd.read_file("data/final/branches_OG3_Fractures_IA.gpkg")
-#     # Nodes
-#     OG145_nodes = gpd.read_file("data/final/OG1-4-5_nodes.shp")
-#     OG6_nodes = gpd.read_file("data/final/nodes_OG6_fractures_HW.gpkg")
-#     OG7_nodes = gpd.read_file("data/final/nodes_OG7_Fractures_IA.gpkg")
-#     BS_nodes = gpd.read_file("data/final/nodes_BS_20m_HW.gpkg")
-#     OG3_nodes = gpd.read_file("data/final/nodes_OG3_Fractures_IA.gpkg")
-#     # Gather in lists
-#     trace_list = [OG145_traces, OG6_traces, OG7_traces, BS_traces, OG3_traces]
-#     branch_list = [
-#         OG145_branches,
-#         OG6_branches,
-#         OG7_branches,
-#         BS_branches,
-#         OG3_branches,
-#     ]
-#     node_list = [OG145_nodes, OG6_nodes, OG7_nodes, BS_nodes, OG3_nodes]
-#     name_list = ["OG145", "OG6", "OG7", "BS", "OG3"]
-#     # Testing validity
-#     reference_crs = trace_list[0].crs
-#     print(f"Ref crs: {reference_crs}")
-#     for t, b, n, name in zip(trace_list, branch_list, node_list, name_list):
-#         assert isinstance(t, gpd.GeoDataFrame)
-#         assert isinstance(b, gpd.GeoDataFrame)
-#         assert isinstance(n, gpd.GeoDataFrame)
-#         assert isinstance(name, str)
-#         assert len(t) > 0
-#         assert len(b) > 0
-#         assert len(n) > 0
-#         assert len(name) > 0
-#         assert len(t.geometry) > 0
-#         assert len(b.geometry) > 0
-#         assert len(n.geometry) > 0
-#         # All crs should be the same
-#         t.crs = reference_crs
-#         b.crs = reference_crs
-#         n.crs = reference_crs
-#         if t.crs != reference_crs:
-#             print(name + " traces")
-#             print(t.crs)
-#         if b.crs != reference_crs:
-#             print(name + " branches")
-#             print(b.crs)
-#         if n.crs != reference_crs:
-#             print(name + " nodes")
-#             print(n.crs)
-
-#     return trace_list, branch_list, node_list, name_list
-
-
-# def get_test_layers():
-#     all_layers = get_all_layers("data/Orrengrund.gdb")
-#     OG3_traces = all_layers["OG3_Fractures_IA"]
-#     OG3_branches = gpd.read_file("data/merged/branches_OG3_Fractures_IA.gpkg")
-#     OG3_nodes = gpd.read_file("data/merged/nodes_OG3_Fractures_IA.gpkg")
-#     name = "OG3"
-#     return [OG3_traces], [OG3_branches], [OG3_nodes], [name]
-
-
-# if __name__ == "__main__":
-#     main()
