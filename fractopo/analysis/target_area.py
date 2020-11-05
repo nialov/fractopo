@@ -166,8 +166,11 @@ class TargetAreaLines:
             tools.curviness
         )
 
+    @staticmethod
     def plot_length_distribution(
-        self,
+        lineframe_main,
+        name: str,
+        using_branches: bool,
         unified: bool,
         color_for_plot="black",
         save=False,
@@ -191,9 +194,9 @@ class TargetAreaLines:
         normalize_for_power_law = True if fit is not None else False
         xmin = 0 if fit is None else fit.xmin
         # scatter plot with original length data
-        self.plot_length_distribution_ax(
-            self.lineframe_main,
-            self.name,
+        TargetAreaLines.plot_length_distribution_ax(
+            lineframe_main,
+            name,
             ax,
             color_for_plot=color_for_plot,
             normalize_for_powerlaw=normalize_for_power_law,
@@ -201,21 +204,24 @@ class TargetAreaLines:
         )
         if fit is not None:
             # Plot the given fit_distribution if it exists
-            self.plot_length_distribution_fit(fit, fit_distribution, ax)
-        tools.setup_ax_for_ld(ax, self.using_branches)
+            TargetAreaLines.plot_length_distribution_fit(fit, fit_distribution, ax)
+        tools.setup_ax_for_ld(ax, using_branches, indiv_fit=fit is not None)
+        tools.setup_powerlaw_axlims(ax, lineframe_main, powerlaw_cut_off=xmin)
 
         if save:
             group = "group" if unified else "area"
             cut_off = "manual" if fit.fixed_xmin else "automatic"
             savename = Path(
-                savefolder
-                + f"/{self.name}_{group}_indiv_{cut_off}_{fit_distribution}.svg"
+                savefolder + f"/{name}_{group}_indiv_{cut_off}_{fit_distribution}.svg"
             )
             plt.savefig(savename, dpi=150, bbox_inches="tight")
         plt.close()
 
+    @staticmethod
     def plot_length_distribution_with_all_fits(
-        self,
+        lineframe_main,
+        name: str,
+        using_branches: bool,
         unified: bool,
         color_for_plot="black",
         save=False,
@@ -236,9 +242,9 @@ class TargetAreaLines:
         :type savefolder: str
         """
         fig, ax = plt.subplots(figsize=(7, 7))
-        self.plot_length_distribution_ax(
-            self.lineframe_main,
-            self.name,
+        TargetAreaLines.plot_length_distribution_ax(
+            lineframe_main,
+            name,
             ax,
             color_for_plot=color_for_plot,
             normalize_for_powerlaw=True,
@@ -247,15 +253,18 @@ class TargetAreaLines:
         if not len(fit_distributions) == 0:
             # Plot the given fit_distributions along with the scatter plot with original length data.
             [
-                self.plot_length_distribution_fit(fit, fit_distribution, ax)
+                TargetAreaLines.plot_length_distribution_fit(fit, fit_distribution, ax)
                 for fit_distribution in fit_distributions
             ]
-        tools.setup_ax_for_ld(ax, self.using_branches)
+        tools.setup_ax_for_ld(ax, using_branches, indiv_fit=len(fit_distributions) != 0)
+        tools.setup_powerlaw_axlims(
+            ax, lineframe_main, powerlaw_cut_off=fit.power_law.xmin
+        )
         if save:
             group = "group" if unified else "area"
             cut_off = "manual" if fit.fixed_xmin else "automatic"
             savename = Path(
-                savefolder + f"/{self.name}_{group}_indiv_{cut_off}_all_fits.svg"
+                savefolder + f"/{name}_{group}_indiv_{cut_off}_all_fits.svg"
             )
             plt.savefig(savename, dpi=150, bbox_inches="tight")
         plt.close()
@@ -294,11 +303,6 @@ class TargetAreaLines:
     ):
         """
         Plots a length distribution to a given ax.
-
-        :param ax: Ax to plot to
-        :type ax: matplotlib.axes.Axes
-        :param color_for_plot: Color for scatter plot points.
-        :type color_for_plot: str or tuple
         """
 
         # Plot length distribution

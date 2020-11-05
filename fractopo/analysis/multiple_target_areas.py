@@ -518,6 +518,9 @@ class MultiTargetAreaQGIS:
             for fit_distribution in fit_distributions:
                 # Automatic cut-off
                 srs["TargetAreaLines"].plot_length_distribution(
+                    lineframe_main=srs["TargetAreaLines"].lineframe_main,
+                    name=srs["TargetAreaLines"].name,
+                    using_branches=srs["TargetAreaLines"].using_branches,
                     unified=unified,
                     color_for_plot=color_for_plot,
                     save=save,
@@ -527,6 +530,9 @@ class MultiTargetAreaQGIS:
                 )
                 # Manual cut-off
                 srs["TargetAreaLines"].plot_length_distribution(
+                    lineframe_main=srs["TargetAreaLines"].lineframe_main,
+                    name=srs["TargetAreaLines"].name,
+                    using_branches=srs["TargetAreaLines"].using_branches,
                     unified=unified,
                     color_for_plot=color_for_plot,
                     save=save,
@@ -537,6 +543,9 @@ class MultiTargetAreaQGIS:
             # Plot original data along with all three fits in the same plot.
             # Automatic
             srs["TargetAreaLines"].plot_length_distribution_with_all_fits(
+                lineframe_main=srs["TargetAreaLines"].lineframe_main,
+                name=srs["TargetAreaLines"].name,
+                using_branches=srs["TargetAreaLines"].using_branches,
                 unified=unified,
                 color_for_plot=color_for_plot,
                 save=save,
@@ -546,6 +555,9 @@ class MultiTargetAreaQGIS:
             )
             # Manual
             srs["TargetAreaLines"].plot_length_distribution_with_all_fits(
+                lineframe_main=srs["TargetAreaLines"].lineframe_main,
+                name=srs["TargetAreaLines"].name,
+                using_branches=srs["TargetAreaLines"].using_branches,
                 unified=unified,
                 color_for_plot=color_for_plot,
                 save=save,
@@ -1399,6 +1411,7 @@ class MultiTargetAreaQGIS:
             topology_concat = self.df_topology_concat
         # Add color column to topology_concat DataFrame
         topology_concat["color"] = topology_concat.name.apply(lambda n: color_dict[n])
+        save_text = "unified" if unified else "all"
 
         if branches:
             columns_to_plot = [
@@ -1495,19 +1508,13 @@ class MultiTargetAreaQGIS:
                 )
 
             if save:
-                if unified:
-                    savename = Path(savefolder + "/{}_unified.svg".format(str(column)))
-                else:
-                    savename = Path(savefolder + "/{}_all.svg".format(str(column)))
+                savename = Path(savefolder + f"/{column}_{save_text}.svg")
                 plt.savefig(savename, dpi=150)
                 plt.close()
         if save:
             # Save the topology results into .csv file
-            if unified:
-                filename = Path(savefolder + "/_unified.csv")
-            else:
-                filename = Path(savefolder + "/_all.csv")
-            topology_concat.to_csv(filename)
+            filename = Path(savefolder + f"/topology_{save_text}.xlsx")
+            topology_concat.to_excel(filename)
 
     def plot_hexbin_plot(self, unified: bool, save=False, savefolder=""):
         """
@@ -1663,4 +1670,10 @@ class MultiTargetAreaQGIS:
                     )
 
                 plt.savefig(savename, dpi=200, bbox_inches="tight")
-                plt.close()
+                # Save anisotropy values to excel
+                pd.DataFrame(
+                    {"anisotropy_values": row.TargetAreaLines.anisotropy}
+                ).to_excel(
+                    Path(savefolder + f"/{row.TargetAreaLines.name}_anisotropy.xlsx")
+                )
+            plt.close()

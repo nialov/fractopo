@@ -10,6 +10,7 @@ from pathlib import Path
 import geopandas as gpd
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -22,6 +23,7 @@ from shapely.ops import linemerge
 from shapely import prepared
 import powerlaw
 import logging
+from typing import Tuple
 
 
 # Own code imports
@@ -1218,13 +1220,14 @@ def calc_cut_off_length(lineframe_main, cut_off: float):
     return cut_off_length
 
 
-def calc_xlims(lineframe):
+def calc_xlims(lineframe) -> Tuple[float, float]:
     left = lineframe.length.min() / 50
     right = lineframe.length.max() * 50
     return left, right
 
 
-def calc_ylims(lineframe):
+def calc_ylims(lineframe) -> Tuple[float, float]:
+    # TODO: Take y series instead of while dataframe...
     top = lineframe.y.max() * 50
     bottom = lineframe.y.min() / 50
     return top, bottom
@@ -1893,7 +1896,7 @@ def initialize_ternary_branches_points(ax, tax):
 #         nd.determine_XY_relation(length_distribution_for_relation=ld)
 
 
-def setup_ax_for_ld(ax_for_setup, using_branches):
+def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     """
     Function to setup ax for length distribution plots.
 
@@ -1905,23 +1908,17 @@ def setup_ax_for_ld(ax_for_setup, using_branches):
     #
     ax = ax_for_setup
     # LABELS
-    if using_branches:
-        ax.set_xlabel(
-            "Branch Length (m)",
-            fontsize="xx-large",
-            fontfamily="Calibri",
-            style="italic",
-            labelpad=16,
-        )
-    else:
-        ax.set_xlabel(
-            "Trace Length (m)",
-            fontsize="xx-large",
-            fontfamily="Calibri",
-            style="italic",
-            labelpad=16,
-        )
-    ccm_unit = r"$(\frac{1}{m^2})$"
+    label = "Branch length $(m)$" if using_branches else "Trace Length $(m)$"
+    ax.set_xlabel(
+        label,
+        fontsize="xx-large",
+        fontfamily="Calibri",
+        style="italic",
+        labelpad=16,
+    )
+    # Individual powerlaw fits are not normalized to area because they aren't
+    # multiscale
+    ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
     ax.set_ylabel(
         "Complementary Cumulative Number " + ccm_unit,
         fontsize="xx-large",
@@ -2188,3 +2185,19 @@ def plotting_directories(results_folder, name):
 def initialize_report_df() -> pd.DataFrame:
     report_df = pd.DataFrame(columns=ReportDfCols.cols)
     return report_df
+
+
+def setup_powerlaw_axlims(ax: matplotlib.axes.Axes, lineframe_main, powerlaw_cut_off):
+    # :type ax: matplotlib.axes.Axes
+    # TODO: Very inefficient
+    lineframe_main = lineframe_main.copy()
+    lineframe_main = lineframe_main.loc[lineframe_main["length"] > powerlaw_cut_off]
+    lineframe_main["y"] = lineframe_main["y"] / lineframe_main["y"].max()
+    left, right = calc_xlims(lineframe_main)
+    top, bottom = calc_ylims(lineframe_main)
+    left = left * 5
+    right = right / 5
+    bottom = bottom * 5
+    top = top / 5
+    ax.set_xlim(left, right)
+    ax.set_ylim(bottom, top)
