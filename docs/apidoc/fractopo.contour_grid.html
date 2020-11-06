@@ -157,11 +157,11 @@ Description: Scripts for creating sample grids for fracture trace, branch and
 node data</p>
 <dl class="py function">
 <dt id="fractopo.contour_grid.create_grid">
-<code class="sig-prename descclassname">fractopo.contour_grid.</code><code class="sig-name descname">create_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell_width</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">traces</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geodataframe.GeoDataFrame<a class="headerlink" href="#fractopo.contour_grid.create_grid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.contour_grid.</code><code class="sig-name descname">create_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cell_width</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">branches</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geodataframe.GeoDataFrame<a class="headerlink" href="#fractopo.contour_grid.create_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an empty polygon grid for sampling fracture branch data.
-Grid is created to always contain all given traces.</p>
+Grid is created to always contain all given branches.</p>
 <p>E.g.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">branches</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[</span>
 <span class="gp">... </span>            <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span>
 <span class="gp">... </span>            <span class="n">LineString</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
@@ -169,7 +169,7 @@ Grid is created to always contain all given traces.</p>
 <span class="gp">... </span>            <span class="n">LineString</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]),</span>
 <span class="gp">... </span>    <span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">create_grid</span><span class="p">(</span><span class="n">cell_width</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">traces</span><span class="o">=</span><span class="n">traces</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">create_grid</span><span class="p">(</span><span class="n">cell_width</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="n">branches</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 <span class="go">                                            geometry</span>
 <span class="go">0  POLYGON ((-2.00000 5.00000, -1.90000 5.00000, ...</span>
 <span class="go">1  POLYGON ((-2.00000 4.90000, -1.90000 4.90000, ...</span>
@@ -227,12 +227,22 @@ other inputs.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt id="fractopo.contour_grid.run_grid_sampling">
+<code class="sig-prename descclassname">fractopo.contour_grid.</code><code class="sig-name descname">run_grid_sampling</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">branches</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">cell_width</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">precursor_grid</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geodataframe.GeoDataFrame<a class="headerlink" href="#fractopo.contour_grid.run_grid_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the contour grid sampling to passed trace, branch and node data.
+The grid extents are determined by using the passed branches unless
+precursor_grid is passed.</p>
+<p>If precursor_grid is passed, cell_width is not requires. Otherwise
+it must always be set to be to a non-default value.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="fractopo.contour_grid.sample_grid">
 <code class="sig-prename descclassname">fractopo.contour_grid.</code><code class="sig-name descname">sample_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grid</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">traces</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geodataframe.GeoDataFrame<a class="headerlink" href="#fractopo.contour_grid.sample_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Populates a sample polygon grid with geometrical and topological fracture
 network parameters.</p>
 <p>E.g.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">branches</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">{</span>
 <span class="gp">... </span>            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">[</span>
 <span class="gp">... </span>                        <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
@@ -249,8 +259,8 @@ network parameters.</p>
 <span class="gp">... </span>                     <span class="p">],</span>
 <span class="gp">... </span>    <span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">create_grid</span><span class="p">(</span><span class="n">cell_width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">traces</span><span class="o">=</span><span class="n">traces</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sample_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">traces</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">create_grid</span><span class="p">(</span><span class="n">cell_width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">branches</span><span class="o">=</span><span class="n">branches</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">branches</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
 <span class="go">geometry                  POLYGON ((1.5 2.5, 2 2.5, 2 2, 1.5 2, 1.5 2.5))</span>
 <span class="go">Sample_Area                                                       1.76431</span>
 <span class="go">Total_Length                                                      1.32287</span>
