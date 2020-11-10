@@ -70,6 +70,7 @@ class MultiTargetAreaQGIS:
         # TODO: Add DF columns here?
         self.set_ranges_list = None
         self.set_df = None
+        self.length_set_df = None
         self.uniframe = None
         self.df_lineframe_main_concat = None
         self.df_lineframe_main_cut_concat = None
@@ -192,16 +193,19 @@ class MultiTargetAreaQGIS:
             [srs.lineframe_main_cut for srs in self.df.TargetAreaLines], sort=True
         )
 
-    def define_sets_for_all(self, set_df):
+    def define_sets_for_all(self, set_df, for_length=False):
         """
         Categorizes data based on azimuth to sets.
 
         :param set_df: DataFrame with sets. Columns: "Set", "SetLimits"
         :type set_df: DataFrame
         """
-        self.set_df = set_df
+        if for_length:
+            self.length_set_df = set_df
+        else:
+            self.set_df = set_df
         for idx, row in self.df.iterrows():
-            row["TargetAreaLines"].define_sets(set_df)
+            row["TargetAreaLines"].define_sets(set_df, for_length=for_length)
 
     def calc_curviness_for_all(self, use_branches_anyway=False):
         if use_branches_anyway:
@@ -855,22 +859,24 @@ class MultiTargetAreaQGIS:
                 plt.close()
 
     # noinspection PyArgumentList
-    def determine_crosscut_abutting_relationships(self, unified: bool):
+    def determine_crosscut_abutting_relationships(
+        self, unified: bool, use_length_sets=False
+    ):
         """
-        Determines cross-cutting and abutting relationships between all inputted sets by using spatial intersects
-        between node and trace data. Sets result as a class parameter self.relations_df that is used for plotting.
+        Determines cross-cutting and abutting relationships between all
+        inputted sets by using spatial intersects
+        between node and trace data. Sets result as a class parameter
+        self.relations_df that is used for plotting.
 
         :param unified: Calculate for unified datasets or individual target areas
         :type unified: bool
-        :raise AssertionError: When attempting to determine cross-cutting and abutting relationships from branch data
-            or if self.using_branches is True even though you are using trace data.
         :raise ValueError: When there's only one set defined.
             You cannot determine cross-cutting and abutting relationships from only one set.
         """
         # Determines xy relations and dynamically creates a dataframe as an aid for plotting the relations
         # TODO: No within set relations.....yet... Problem?
         if self.using_branches:
-            raise AssertionError(
+            raise TypeError(
                 "Cross-cutting and abutting relationships cannot be determined from BRANCH data."
             )
 
@@ -885,6 +891,13 @@ class MultiTargetAreaQGIS:
         else:
             frame = self.df
 
+        if use_length_sets:
+            sets = self.length_set_df.LengthSet.tolist()
+            set_column = "length_set"
+        else:
+            sets = self.set_df.Set.tolist()
+            set_column = "set"
+
         # plotting_set_counts = {}
         for _, row in frame.iterrows():
             name = row.TargetAreaNodes.name
@@ -897,11 +910,9 @@ class MultiTargetAreaQGIS:
             nodeframe = nodeframe.loc[(nodeframe.c == "X") | (nodeframe.c == "Y")]
             xypointsframe = nodeframe.reset_index(drop=True)
 
-            sets = self.set_df.Set.tolist()
-
             if len(sets) < 2:
                 raise ValueError(
-                    "Only one set defined. Cannot determine cross-cutting and abutting relationships"
+                    f"Only one {set_column} defined. Cannot determine cross-cutting and abutting relationships"
                 )
             # COLOR CYCLE FOR BARS
 
@@ -915,16 +926,21 @@ class MultiTargetAreaQGIS:
                 for jdx, c_s in enumerate(compare_sets):
 
                     traceframe_two_sets = traceframe.loc[
-                        (traceframe["set"] == s) | (traceframe["set"] == c_s)
+                        (traceframe[set_column] == s) | (traceframe[set_column] == c_s)
                     ]
                     # TODO: More stats for cross-cutting and abutting relationships?
 
                     intersecting_nodes_frame = tools.get_nodes_intersecting_sets(
-                        xypointsframe, traceframe_two_sets
+                        xypointsframe,
+                        traceframe_two_sets,
+                        use_length_sets=use_length_sets,
                     )
 
                     intersectframe = tools.get_intersect_frame(
-                        intersecting_nodes_frame, traceframe_two_sets, (s, c_s)
+                        intersecting_nodes_frame,
+                        traceframe_two_sets,
+                        (s, c_s),
+                        use_length_sets=use_length_sets,
                     )
 
                     if len(intersectframe.loc[intersectframe.error == True]) > 0:
@@ -952,7 +968,8 @@ class MultiTargetAreaQGIS:
                                 y_reverse_count = value
                             else:
                                 raise ValueError(
-                                    f"item[0][1] doesnt equal {(s, c_s)} nor {(c_s, s)}\nitem[0][1]: {item[0][1]}"
+                                    f"item[0][1] doesnt equal {(s, c_s)}"
+                                    f" nor {(c_s, s)}\nitem[0][1]: {item[0][1]}"
                                 )
                         else:
                             raise ValueError(
@@ -972,12 +989,18 @@ class MultiTargetAreaQGIS:
 
                     relations_df = relations_df.append(addition, ignore_index=True)
         if unified:
-            self.unified_relations_df = relations_df
+            if use_length_sets:
+                self.length_unified_relations_df = relations_df
+            else:
+                self.unified_relations_df = relations_df
         else:
-            self.relations_df = relations_df
+            if use_length_sets:
+                self.length_relations_df = relations_df
+            else:
+                self.relations_df = relations_df
 
     def plot_crosscut_abutting_relationships(
-        self, unified: bool, save=False, savefolder=""
+        self, unified: bool, save=False, savefolder="", use_length_sets=False
     ):
         """
         Plots cross-cutting and abutting relationships for individual target areas or for grouped data.
@@ -993,10 +1016,16 @@ class MultiTargetAreaQGIS:
         """
         if unified:
             frame = self.uniframe
-            rel_frame = self.unified_relations_df
+            rel_frame = (
+                self.unified_relations_df
+                if not use_length_sets
+                else self.length_unified_relations_df
+            )
         else:
             frame = self.df
-            rel_frame = self.relations_df
+            rel_frame = (
+                self.relations_df if not use_length_sets else self.length_relations_df
+            )
 
         if self.using_branches:
             raise TypeError(
@@ -1004,7 +1033,13 @@ class MultiTargetAreaQGIS:
             )
 
         # SUBPLOTS, FIGURE SETUP
-        cols = len(list(itertools.combinations(self.set_df["Set"].tolist(), r=2)))
+        if use_length_sets:
+            sets = self.length_set_df.LengthSet.tolist()
+            set_column = "length_set"
+        else:
+            sets = self.set_df.Set.tolist()
+            set_column = "set"
+        cols = len(list(itertools.combinations(sets, r=2)))
         if cols == 2:
             cols = 1
         width = 12 / 3 * cols
@@ -1018,12 +1053,13 @@ class MultiTargetAreaQGIS:
                     raise Exception(
                         f"Multiple frames with name == name in frame. Unified: {unified}"
                     )
-                set_names = self.set_df.Set.tolist()
                 set_counts = []
                 lineframe = frame_with_name.iloc[0].TargetAreaLines.lineframe_main
 
-                for set_name in set_names:
-                    set_counts.append(len(lineframe.loc[lineframe.set == set_name]))
+                for set_name in sets:
+                    set_counts.append(
+                        len(lineframe.loc[lineframe[set_column] == set_name])
+                    )
 
                 fig, axes = plt.subplots(ncols=cols, nrows=1, figsize=(width, height))
                 if not isinstance(axes, np.ndarray):
@@ -1108,9 +1144,9 @@ class MultiTargetAreaQGIS:
                         prop = dict(
                             boxstyle="square", facecolor="linen", alpha=1, pad=0.45
                         )
-                        for set_label, set_len in zip(set_names, set_counts):
+                        for set_label, set_len in zip(sets, set_counts):
                             text += f"Set {set_label} trace count: {set_len}"
-                            if not set_label == set_names[-1]:
+                            if not set_label == sets[-1]:
                                 text += "\n"
                         ax.text(
                             1.1,

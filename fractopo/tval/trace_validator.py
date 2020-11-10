@@ -550,7 +550,6 @@ class MultiJunctionValidator(BaseValidator):
                 else True
             )
         except ValueError:
-            breakpoint()
             return False
 
     @classmethod

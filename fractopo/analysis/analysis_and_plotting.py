@@ -14,10 +14,12 @@ class MultiTargetAreaAnalysis:
         analysis_name,
         group_names_cutoffs_df,
         set_df,
+        length_set_df,
         choose_your_analyses,
         logger,
     ):
         self.set_df = set_df
+        self.length_set_df = length_set_df
         self.group_names_cutoffs_df = group_names_cutoffs_df
         self.spatial_df = filepath_df
         self.plotting_directory = plotting_directory
@@ -32,6 +34,12 @@ class MultiTargetAreaAnalysis:
             self.determine_relationships = False
         else:
             self.determine_relationships = choose_your_analyses["Cross-cuttingAbutting"]
+        if len(self.length_set_df) < 2:
+            self.determine_length_relationships = False
+        else:
+            self.determine_length_relationships = choose_your_analyses[
+                "Cross-cuttingAbutting"
+            ]
         # Check which analyses to perform
         self.determine_branches = choose_your_analyses["Branches"]
         self.determine_length_distributions = choose_your_analyses[
@@ -71,6 +79,7 @@ class MultiTargetAreaAnalysis:
         # TRACE DATA SETUP
         self.analysis_traces.calc_attributes_for_all()
         self.analysis_traces.define_sets_for_all(self.set_df)
+        self.analysis_traces.define_sets_for_all(self.length_set_df, for_length=True)
 
         # self.analysis_traces.calc_curviness_for_all()
         self.analysis_traces.unified()
@@ -88,12 +97,23 @@ class MultiTargetAreaAnalysis:
                 unified=False
             )
             self.analysis_traces.determine_crosscut_abutting_relationships(unified=True)
+        # Cross-cutting and abutting relationships
+        if self.determine_length_relationships:
+            self.analysis_traces.determine_crosscut_abutting_relationships(
+                unified=False, use_length_sets=True
+            )
+            self.analysis_traces.determine_crosscut_abutting_relationships(
+                unified=True, use_length_sets=True
+            )
 
         if self.determine_branches:
             # BRANCH DATA SETUP
             self.analysis_branches.calc_attributes_for_all()
 
             self.analysis_branches.define_sets_for_all(self.set_df)
+            self.analysis_branches.define_sets_for_all(
+                self.length_set_df, for_length=True
+            )
 
             self.analysis_branches.unified()
 
@@ -275,4 +295,17 @@ class MultiTargetAreaAnalysis:
                 unified=True,
                 save=True,
                 savefolder=self.plotting_directory + "/age_relations",
+            )
+        if self.determine_length_relationships:
+            self.analysis_traces.plot_crosscut_abutting_relationships(
+                unified=False,
+                save=True,
+                savefolder=self.plotting_directory + "/length_age_relations/indiv",
+                use_length_sets=True,
+            )
+            self.analysis_traces.plot_crosscut_abutting_relationships(
+                unified=True,
+                save=True,
+                savefolder=self.plotting_directory + "/length_age_relations",
+                use_length_sets=True,
             )

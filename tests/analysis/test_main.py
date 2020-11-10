@@ -79,6 +79,12 @@ def test_main_regression_kb11(tmp_path: Path, only_lds=False, full_data=False):
         (30.0, 90.0),
         (90.0, 180.0),
     ]
+    length_set_names = ["len1", "len2", "len3"]
+    length_set_limits = [
+        (0, 10),
+        (10, 20),
+        (20, 50),
+    ]
 
     assert len(set_names) == len(set_limits)
     # Choose which analyses to perform.
@@ -119,6 +125,8 @@ def test_main_regression_kb11(tmp_path: Path, only_lds=False, full_data=False):
         datasets_grouped,
         set_names,
         set_limits,
+        length_set_names,
+        length_set_limits,
         analysis_name,
         results_folder,
         choose_your_analyses,

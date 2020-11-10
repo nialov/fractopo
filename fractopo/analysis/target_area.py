@@ -106,6 +106,7 @@ class TargetAreaLines:
         self.number_of_azimuths = None
         self.bin_width = None
         self.set_df = None
+        self.length_set_df = None
 
     def calc_attributes(self):
         """
@@ -143,7 +144,7 @@ class TargetAreaLines:
             self.lineframe_main["length"] >= self.cut_off_length
         ]
 
-    def define_sets(self, set_df):
+    def define_sets(self, set_df, for_length: bool):
         """
         Categorizes both non-cut and cut DataFrames with set limits.
 
@@ -151,15 +152,25 @@ class TargetAreaLines:
         :type set_df: pd.DataFrame
         """
 
-        self.lineframe_main["set"] = self.lineframe_main.apply(
-            lambda x: tools.define_set(x["halved"], set_df), axis=1
-        )
-        self.lineframe_main_cut["set"] = self.lineframe_main_cut.apply(
-            lambda x: tools.define_set(x["halved"], set_df), axis=1
-        )
-        set_list = set_df.Set.tolist()
-        self.set_df = set_df
-        self.set_list = set_list
+        if for_length:
+            self.lineframe_main["length_set"] = self.lineframe_main.apply(
+                lambda x: tools.define_length_set(x["length"], set_df), axis=1
+            )
+            self.lineframe_main_cut["length_set"] = self.lineframe_main_cut.apply(
+                lambda x: tools.define_length_set(x["length"], set_df), axis=1
+            )
+            self.length_set_df = set_df
+            self.set_list = set_df.LengthSet.tolist()
+        else:
+            self.lineframe_main["set"] = self.lineframe_main.apply(
+                lambda x: tools.define_set(x["halved"], set_df), axis=1
+            )
+            self.lineframe_main_cut["set"] = self.lineframe_main_cut.apply(
+                lambda x: tools.define_set(x["halved"], set_df), axis=1
+            )
+            set_list = set_df.Set.tolist()
+            self.set_df = set_df
+            self.set_list = set_list
 
     def calc_curviness(self):
         self.lineframe_main["curviness"] = self.lineframe_main.geometry.apply(

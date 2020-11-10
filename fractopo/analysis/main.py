@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 import pandas as pd
 import geopandas as gpd
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 
 from fractopo.analysis import analysis_and_plotting as taaq, tools as tools, config
 
@@ -127,6 +127,8 @@ def analyze_datasets(
     datasets_grouped: List[str],
     set_names: List[str],
     set_limits: List[Tuple[float, float]],
+    length_set_names: List[str],
+    length_set_limits: List[Tuple[float, float]],
     analysis_name: str,
     results_folder: str,
     choose_your_analyses: Dict[str, bool],
@@ -162,10 +164,18 @@ def analyze_datasets(
             "CutOffBranches": cut_offs_branches,
         }
     )
+    # If user gives no input for length_set_names or length_set_limits ->
+    # create dummy values
     set_df = pd.DataFrame(
         {
             "Set": set_names,
             "SetLimits": set_limits,
+        }
+    )
+    length_set_df = pd.DataFrame(
+        {
+            "LengthSet": length_set_names,
+            "LengthSetLimits": length_set_limits,
         }
     )
 
@@ -189,6 +199,7 @@ def analyze_datasets(
         analysis_name,
         group_names_cutoffs_df,
         set_df,
+        length_set_df,
         choose_your_analyses,
         logger,
     )

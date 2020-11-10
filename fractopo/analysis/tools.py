@@ -1277,6 +1277,24 @@ def define_set(azimuth, set_df):  # Uses HALVED azimuth: 0-180
     return str(set_label)
 
 
+def define_length_set(length: float, set_df: pd.DataFrame) -> str:
+    """
+    Defines sets based on the length of the traces or branches.
+    """
+    if length < 0:
+        raise ValueError("length value wasnt positive.\n Value: {length}")
+
+    # Set_num is -1 when length is in no length set range
+    set_label = -1
+    for _, row in set_df.iterrows():
+        set_range: Tuple[float, float] = row.LengthSetLimits
+        # Checks if length degree value is within the length set range
+        if set_range[0] <= length <= set_range[1]:
+            set_label = row.LengthSet
+
+    return str(set_label)
+
+
 def construct_length_distribution_base(
     lineframe: gpd.GeoDataFrame,
     areaframe: gpd.GeoDataFrame,
@@ -1659,7 +1677,7 @@ def make_point_tree(traceframe):
     return tree
 
 
-def get_nodes_intersecting_sets(xypointsframe, traceframe):
+def get_nodes_intersecting_sets(xypointsframe, traceframe, use_length_sets=False):
     """
     Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes and
     the trace GeoDataFrame with only two sets. Returns only nodes that intersect traces from BOTH sets.
@@ -1680,12 +1698,17 @@ def get_nodes_intersecting_sets(xypointsframe, traceframe):
     :rtype: GeoDataFrame
     """
 
-    sets = traceframe.set.unique().tolist()
+    sets = (
+        traceframe.set.unique().tolist()
+        if not use_length_sets
+        else traceframe.length_set.unique().tolist()
+    )
+    set_column = "set" if not use_length_sets else "length_set"
     if len(sets) != 2:
         return xypointsframe.iloc[0:0]
         # raise Exception('get_nodes_intersecting_sets function received traceframe without exactly two sets.')
-    set_1_frame = traceframe.loc[traceframe.set == sets[0]]
-    set_2_frame = traceframe.loc[traceframe.set == sets[1]]
+    set_1_frame = traceframe.loc[traceframe[set_column] == sets[0]]
+    set_2_frame = traceframe.loc[traceframe[set_column] == sets[1]]
 
     prep_traces_1, _ = prepare_geometry_traces(set_1_frame)
     prep_traces_2, _ = prepare_geometry_traces(set_2_frame)
@@ -1702,7 +1725,9 @@ def get_nodes_intersecting_sets(xypointsframe, traceframe):
     return intersecting_nodes_frame
 
 
-def get_intersect_frame(intersecting_nodes_frame, traceframe, set_tuple):
+def get_intersect_frame(
+    intersecting_nodes_frame, traceframe, set_tuple, use_length_sets=False
+):
     """
     Does spatial intersects to determine how abutments and crosscuts occur between two sets
 
@@ -1734,13 +1759,14 @@ def get_intersect_frame(intersecting_nodes_frame, traceframe, set_tuple):
         error = possible error results)
     :rtype: DataFrame
     """
+    set_column = "set" if not use_length_sets else "length_set"
 
     intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
 
     set1, set2 = set_tuple[0], set_tuple[1]  # sets for comparison
 
-    set1frame = traceframe.loc[traceframe.set == set1]  # cut first setframe
-    set2frame = traceframe.loc[traceframe.set == set2]  # cut second setframe
+    set1frame = traceframe.loc[traceframe[set_column] == set1]  # cut first setframe
+    set2frame = traceframe.loc[traceframe[set_column] == set2]  # cut second setframe
 
     set1_prep, _ = prepare_geometry_traces(set1frame)
     set2_prep, _ = prepare_geometry_traces(set2frame)
@@ -2115,6 +2141,8 @@ def plotting_directories(results_folder, name):
             return plotting_directory
         os.mkdir(Path(f"{plotting_directory}/age_relations"))
         os.mkdir(Path(f"{plotting_directory}/age_relations/indiv"))
+        os.mkdir(Path(f"{plotting_directory}/length_age_relations"))
+        os.mkdir(Path(f"{plotting_directory}/length_age_relations/indiv"))
         os.mkdir(Path(f"{plotting_directory}/anisotropy"))
         os.mkdir(Path(f"{plotting_directory}/anisotropy/indiv"))
         os.mkdir(Path(f"{plotting_directory}/azimuths"))

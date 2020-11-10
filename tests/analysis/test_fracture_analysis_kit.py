@@ -304,6 +304,12 @@ class TestMultipleTargetAreas:
         group = "T1"
 
         set_df = pd.DataFrame({"Set": [1, 2], "SetLimits": [(40, 50), (130, 140)]})
+        length_set_df = pd.DataFrame(
+            {
+                "LengthSet": ["l1", "l2", "l3"],
+                "LengthSetLimits": [(0, 1000), (1100, 1200), (1300, 1400)],
+            }
+        )
 
         table_append = {
             "Name": name,
@@ -322,6 +328,7 @@ class TestMultipleTargetAreas:
 
         dummy.determine_branches = True
         dummy.determine_relationships = False
+        dummy.determine_length_relationships = False
         dummy.determine_length_distributions = True
         dummy.determine_azimuths = True
         dummy.determine_xyi = True
@@ -332,7 +339,7 @@ class TestMultipleTargetAreas:
         dummy.spatial_df = spatial_df
         dummy.group_names_cutoffs_df = group_names_cutoffs_df
         dummy.set_df = set_df
-
+        dummy.length_set_df = length_set_df
         dummy.logger = logging.getLogger()
 
         dummy.analysis()
