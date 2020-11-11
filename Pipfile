@@ -13,6 +13,7 @@ pipenv-to-requirements = "*"
 coverage = "*"
 hypothesis-geometry = "*"
 pytest-regressions = "*"
+mypy = "*"
 
 [packages]
 geopandas = "*"
@@ -28,6 +29,8 @@ openpyxl = "*"
 xlrd = "*"
 seaborn = "*"
 matplotlib = "*"
+click = "*"
+geotrans = "*"
 
 [requires]
 python_version = "3.8"
