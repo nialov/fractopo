@@ -1679,8 +1679,9 @@ def make_point_tree(traceframe):
 
 def get_nodes_intersecting_sets(xypointsframe, traceframe, use_length_sets=False):
     """
-    Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes and
-    the trace GeoDataFrame with only two sets. Returns only nodes that intersect traces from BOTH sets.
+    Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes
+    and the trace GeoDataFrame with only two sets. Returns only nodes that
+    intersect traces from BOTH sets.
 
     E.g.
 
@@ -1715,7 +1716,6 @@ def get_nodes_intersecting_sets(xypointsframe, traceframe, use_length_sets=False
 
     rows_to_keep = []
     for idx, row in xypointsframe.iterrows():
-
         point = row.geometry
         if (prep_traces_1.intersects(point.buffer(buffer_value))) and (
             prep_traces_2.intersects(point.buffer(buffer_value))

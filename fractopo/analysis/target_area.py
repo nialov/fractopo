@@ -846,6 +846,8 @@ class TargetAreaLines:
         ci = connection_dict["C - I"]
         ii = connection_dict["I - I"]
         sumcount = cc + ci + ii
+        if sumcount == 0:
+            return
         ccp = 100 * cc / sumcount
         cip = 100 * ci / sumcount
         iip = 100 * ii / sumcount
@@ -931,6 +933,8 @@ class TargetAreaLines:
         ci = connection_dict["C - I"]
         ii = connection_dict["I - I"]
         sumcount = cc + ci + ii
+        if sumcount == 0:
+            return
         ccp = 100 * cc / sumcount
         cip = 100 * ci / sumcount
         iip = 100 * ii / sumcount
@@ -1099,12 +1103,13 @@ class TargetAreaNodes:
         icount = len(nodeframe.loc[nodeframe["c"] == "I"])
 
         sumcount = xcount + ycount + icount
-
-        xp = 100 * xcount / sumcount
-        yp = 100 * ycount / sumcount
-        ip = 100 * icount / sumcount
-
-        point = [(xp, ip, yp)]
+        if sumcount == 0:
+            return
+        else:
+            xp = 100 * xcount / sumcount
+            yp = 100 * ycount / sumcount
+            ip = 100 * icount / sumcount
+            point = [(xp, ip, yp)]
 
         # Scatter Plot
         scale = 100
@@ -1154,7 +1159,7 @@ class TargetAreaNodes:
             else:
                 savename = Path(savefolder + f"/indiv/{name}_area_xyi_point.svg")
             plt.savefig(savename, dpi=150, bbox_inches="tight")
-            plt.close()
+        plt.close()
 
     @staticmethod
     def plot_xyi_point(nodeframe, name, tax, color_for_plot="black"):
@@ -1171,6 +1176,8 @@ class TargetAreaNodes:
         ycount = len(nodeframe.loc[nodeframe["c"] == "Y"])
         icount = len(nodeframe.loc[nodeframe["c"] == "I"])
         sumcount = xcount + ycount + icount
+        if sumcount == 0:
+            return
         xp = 100 * xcount / sumcount
         yp = 100 * ycount / sumcount
         ip = 100 * icount / sumcount
@@ -1187,4 +1194,7 @@ class TargetAreaNodes:
         """
         nodeframe = self.nodeframe
         node_dict = nodeframe.c.value_counts().to_dict()
+        for node_type in ("X", "Y", "I"):
+            if node_type not in node_dict:
+                node_dict[node_type] = 0
         return node_dict

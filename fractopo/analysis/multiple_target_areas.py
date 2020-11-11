@@ -39,8 +39,8 @@ from fractopo.analysis import target_area as ta, tools, config
 class MultiTargetAreaQGIS:
     def __init__(self, table_df, gnames_cutoffs_df, branches, logger):
         """
-        Class for operations with multiple target areas. Handles grouping, analysis and plotting of both individual
-        target areas and grouped data.
+        Class for operations with multiple target areas. Handles grouping,
+        analysis and plotting of both individual target areas and grouped data.
 
         :param table_df: DataFrame with user inputs
         :type table_df: pd.DataFrame
@@ -1045,6 +1045,9 @@ class MultiTargetAreaQGIS:
         width = 12 / 3 * cols
         height = (width / cols) * 0.75
         names = set(rel_frame.name.tolist())
+        uses = "length_sets" if use_length_sets else "azimuth_sets"
+        rel_frame.to_excel(Path(savefolder) /
+                f"crossabutt_frame_{unified}_{uses}.xlsx")
         with plt.style.context("default"):
             for name in names:
                 rel_frame_with_name = rel_frame.loc[rel_frame.name == name]
@@ -1163,7 +1166,8 @@ class MultiTargetAreaQGIS:
                         savefolder + f"/{name}_crosscutting_abutting_relationships.svg"
                     )
                     plt.savefig(savename, dpi=200, bbox_inches="tight")
-                    plt.close()
+
+                plt.close()
 
     def plot_xyi_ternary(self, unified: bool, save=False, savefolder=""):
         """
