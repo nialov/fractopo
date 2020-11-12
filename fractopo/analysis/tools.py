@@ -1097,8 +1097,10 @@ def aniso_get_class_as_value(c):
 
 def aniso_calc_anisotropy(halved, c, length):
     """
-    Calculates anisotropy of connectivity for a branch based on azimuth, classification and length.
-    Value is calculated for preset angles (angles_of_study = np.arange(0, 179, 30))
+    Calculates anisotropy of connectivity for a branch based on azimuth,
+    classification and length.
+    Value is calculated for preset angles (angles_of_study = np.arange(0, 179,
+    30))
 
     E.g.
 

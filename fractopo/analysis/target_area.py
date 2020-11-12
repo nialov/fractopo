@@ -640,7 +640,8 @@ class TargetAreaLines:
 
     def plot_azimuth_ax_weighted(self, set_visualization, ax, name, rose_type):
         """
-        Plot weighted azimuth rose-plot to given ax. Type can be 'equal-radius' or 'equal-area'.
+        Plot weighted azimuth rose-plot to given ax. Type can be 'equal-radius'
+        or 'equal-area'.
 
         :param set_visualization: Whether to visualize sets into the same plot
         :type set_visualization: bool

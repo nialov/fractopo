@@ -7,6 +7,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from typing import Tuple, Dict, List, Union
 
+import fractopo.analysis.tools as tools
+
 POWERLAW = "powerlaw"
 LOGNORMAL = "lognormal"
 EXPONENTIAL = "exponential"
@@ -55,3 +57,17 @@ def plot_fit_on_ax(
         fit.exponential.plot_ccdf(
             ax=ax, label="Exponential", linestyle="--", color="blue"
         )
+    return
+
+
+def plot_distribution_fits(
+    length_array: np.ndarray, label: str, cut_off: Union[None, float] = None
+):
+    fit = determine_fit(length_array, cut_off)
+    fig, ax = plt.subplots(7, 7)
+    _, ccm_array = fit.ccdf()
+    plot_length_data_on_ax(ax, length_array, ccm_array, label)
+    for fit_distribution in (POWERLAW, LOGNORMAL, EXPONENTIAL):
+        plot_fit_on_ax(ax, fit, fit_distribution)
+    tools.setup_ax_for_ld(ax, using_branches=False)
+    return fit, fig, ax
