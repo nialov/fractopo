@@ -290,7 +290,10 @@ setup(
     #
     # For example, the following would provide a command called `sample` which
     # executes the function `main` from this package when invoked:
-    # entry_points={"console_scripts": ["sample=sample:main"]},  # Optional
+    entry_points="""
+        [console_scripts]
+        tracevalidate=fractopo.cli:tracevalidate
+    """,
     # List additional URLs that are relevant to your project as a dict.
     #
     # This field corresponds to the "Project-URL" metadata fields:

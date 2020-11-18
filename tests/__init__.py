@@ -276,3 +276,16 @@ class Helpers:
     sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
+
+    test_tracevalidate_params = [
+        (
+            Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
+            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
+            "--fix",
+        ),
+        (
+            Path("tests/sample_data/KB7/KB7_tulkinta_100.shp"),  # cut 50-100
+            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
+            "--fix",
+        ),
+    ]
