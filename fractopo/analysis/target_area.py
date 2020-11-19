@@ -26,6 +26,8 @@ import fractopo.analysis.tools as tools
 import fractopo.analysis.config as config
 
 from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
+from typing import Dict, Tuple, Union
+import logging
 
 
 # Classes
@@ -768,20 +770,28 @@ class TargetAreaLines:
                     prop={"family": "Calibri", "size": 12},
                 )
 
-    def topology_parameters_2d_branches(self, branches=False):
+    def topology_parameters_2d(
+        self, node_dict: Dict[str, int], branches=False
+    ) -> Tuple[float, float, float, float, float, Union[Dict[str, int], None]]:
         """
         Gather topology parameters for branch data.
         """
         # SAME METHOD FOR BOTH TRACES AND BRANCHES.
         # MAKE SURE YOU KNOW WHICH YOU ARE USING.
         connection_types = ("C - C", "C - I", "I - I")
+        if not branches:
+            number_of_lines = (node_dict["Y"] + node_dict["I"]) / 2
+        else:
+            number_of_lines = (
+                (node_dict["X"] * 4) + (node_dict["Y"] * 3) + node_dict["I"]
+            ) / 2
         fracture_intensity = self.lineframe_main.length.sum() / self.area
-        aerial_frequency = len(self.lineframe_main) / self.area
+        aerial_frequency = number_of_lines / self.area
         characteristic_length = self.lineframe_main.length.mean()
         if not np.isclose(
             [characteristic_length], [np.mean(self.lineframe_main.geometry.length)]
         ):
-            raise ValueError(
+            logging.error(
                 "Lengths from self.lineframe_main.length.mean()"
                 "and np.mean(self.lineframe_main.geometry.length)"
                 "are not close.\n"
@@ -789,27 +799,9 @@ class TargetAreaLines:
                 f"and {np.mean(self.lineframe_main.geometry.length)}"
             )
         dimensionless_intensity = fracture_intensity * characteristic_length
-        if not branches:
-            number_of_lines = len(self.lineframe_main)  # type: ignore
-        else:
-            number_of_lines = len(
-                self.lineframe_main.loc[
-                    [
-                        conn in connection_types
-                        for conn in self.lineframe_main["Connection"]  # type:ignore
-                    ]
-                ]
-            )
 
         if branches:
-            try:
-                connection_dict = (
-                    self.lineframe_main.Connection.value_counts().to_dict()
-                )
-            except AttributeError:
-                raise AttributeError(
-                    "Given vector layer doesn't contain valid column names."
-                )
+            connection_dict = self.lineframe_main.Connection.value_counts().to_dict()
             # TODO: This should only be done once -> connection_dict as attribute?
             for connection_type in connection_types:
                 if connection_type not in [key for key in connection_dict]:
@@ -830,6 +822,7 @@ class TargetAreaLines:
                 characteristic_length,
                 dimensionless_intensity,
                 number_of_lines,
+                None,
             )
 
     def plot_branch_ternary_plot(

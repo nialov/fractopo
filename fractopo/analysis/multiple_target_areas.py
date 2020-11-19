@@ -23,6 +23,7 @@ import shapely
 import sklearn.metrics as sklm
 import ternary
 from fractopo.analysis import target_area as ta, tools, config
+from typing import List, Dict, Tuple, Union
 
 
 # from . import target_area as ta
@@ -1308,10 +1309,10 @@ class MultiTargetAreaQGIS:
         topology_appends = []
         for idx, row in frame.iterrows():
             name = row.TargetAreaLines.name
-            ld = row.TargetAreaLines
-            nd = row.TargetAreaNodes
-            params_ld = ld.topology_parameters_2d_branches(branches=branches)
-            params_nd = nd.topology_parameters_2d_nodes()
+            ld: ta.TargetAreaLines = row.TargetAreaLines
+            nd: ta.TargetAreaNodes = row.TargetAreaNodes
+            node_dict = nd.topology_parameters_2d_nodes()
+            params_ld = ld.topology_parameters_2d(branches=branches, node_dict=node_dict)
             if branches:
                 (
                     fracture_intensity,
@@ -1328,23 +1329,27 @@ class MultiTargetAreaQGIS:
                     characteristic_length,
                     dimensionless_intensity,
                     number_of_lines,
+                    _
                 ) = params_ld
 
-            node_dict = params_nd
 
-            connections_per_line = (
-                2 * (node_dict["Y"] + node_dict["X"]) / number_of_lines
-            )
-            connections_per_branch = (
-                3 * node_dict["Y"] + 4 * node_dict["X"]
-            ) / number_of_lines
+            if number_of_lines > 0:
+                connections_per_line = (
+                    2 * (node_dict["Y"] + node_dict["X"]) / number_of_lines
+                )
+                connections_per_branch = (
+                    3 * node_dict["Y"] + 4 * node_dict["X"]
+                ) / number_of_lines
+            else:
+                connections_per_line = 0
+                connections_per_branch = 0
             if branches:
-                topology_dict = {
+                topology_dict: Dict[str, Union[float, int]] = {
                     "name": name,
                     "Number of Branches": number_of_lines,
-                    "C - C": connection_dict["C - C"],
-                    "C - I": connection_dict["C - I"],
-                    "I - I": connection_dict["I - I"],
+                    "C - C": connection_dict["C - C"], # type: ignore
+                    "C - I": connection_dict["C - I"], # type: ignore
+                    "I - I": connection_dict["I - I"], # type: ignore
                     "X": node_dict["X"],
                     "Y": node_dict["Y"],
                     "I": node_dict["I"],
