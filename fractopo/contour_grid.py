@@ -138,7 +138,9 @@ def populate_sample_cell(
 
     """
     params = dict()
-    sample_circle = sample_cell.centroid.buffer(np.sqrt(sample_cell_area) * 1.5)
+    sample_circle = sample_cell.centroid.buffer(
+        np.sqrt(sample_cell_area) * 1.5  # type: ignore
+    )
     sample_circle_area = sample_circle.area
     assert sample_circle_area > 0
     # Choose geometries that are either within the sample_circle or
@@ -154,7 +156,7 @@ def populate_sample_cell(
     # Crop traces to sample circle
     # First check if any geometries intersect
     # If not: sample_features is an empty GeoDataFrame
-    if any(trace_candidates.intersects(sample_circle)):
+    if any(trace_candidates.intersects(sample_circle)):  # type: ignore
         sample_traces = gpd.clip(trace_candidates, sample_circle)
     else:
         sample_traces = traces.iloc[0:0]
