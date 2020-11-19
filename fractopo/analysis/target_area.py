@@ -771,14 +771,10 @@ class TargetAreaLines:
     def topology_parameters_2d_branches(self, branches=False):
         """
         Gather topology parameters for branch data.
-
-        :param branches: Branches or traces
-        :type branches: bool
-        :raise AttributeError: When given vector layer doesn't contain valid column names.
-            e.g. (Connection: ['C - C', 'C - I', ...]
         """
         # SAME METHOD FOR BOTH TRACES AND BRANCHES.
         # MAKE SURE YOU KNOW WHICH YOU ARE USING.
+        connection_types = ("C - C", "C - I", "I - I")
         fracture_intensity = self.lineframe_main.length.sum() / self.area
         aerial_frequency = len(self.lineframe_main) / self.area
         characteristic_length = self.lineframe_main.length.mean()
@@ -793,16 +789,29 @@ class TargetAreaLines:
                 f"and {np.mean(self.lineframe_main.geometry.length)}"
             )
         dimensionless_intensity = fracture_intensity * characteristic_length
-        number_of_lines = len(self.lineframe_main)
+        if not branches:
+            number_of_lines = len(self.lineframe_main)  # type: ignore
+        else:
+            number_of_lines = len(
+                self.lineframe_main.loc[
+                    [
+                        conn in connection_types
+                        for conn in self.lineframe_main["Connection"]  # type:ignore
+                    ]
+                ]
+            )
+
         if branches:
             try:
                 connection_dict = (
                     self.lineframe_main.Connection.value_counts().to_dict()
                 )
-            except AttributeError as e:
-                raise e("Given vector layer doesn't contain valid column names.")
+            except AttributeError:
+                raise AttributeError(
+                    "Given vector layer doesn't contain valid column names."
+                )
             # TODO: This should only be done once -> connection_dict as attribute?
-            for connection_type in ("C - C", "C - I", "I - I"):
+            for connection_type in connection_types:
                 if connection_type not in [key for key in connection_dict]:
                     connection_dict[connection_type] = 0
 
