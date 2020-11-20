@@ -235,11 +235,10 @@ The error string is:
 
 A lineament or fracture trace should not make erratic turns and the trace
 should be sublinear. The exact limit on of what is erratic and what is not is
-completely open to interpretation and therefore the resulting errors are
-subjective. But if a segment of a trace has a direction change of over 180
+**completely open to interpretation and therefore the resulting errors are
+subjective**. But if a segment of a trace has a direction change of over 180
 degrees compared to the previous there's probably no natural way for a natural
-bedrock structure to do that. What if the direction change is 90 degrees? 80
-degrees?
+bedrock structure to do that.
 
 ![Erratic trace segment direction change examples.](../imgs/SharpCornerValidator.png "Erratic trace segment direction change examples.")
 
