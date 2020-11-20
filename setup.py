@@ -42,7 +42,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description="A sample Python project",  # Optional
+    description="Brittle Geology Analysis Toolkit",  # Optional
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
     #
@@ -67,13 +67,13 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url="https://github.com/pypa/sampleproject",  # Optional
+    url="https://github.com/nialov/fractopo",  # Optional
     # This should be your name or the name of the organization which owns the
     # project.
-    author="The Python Packaging Authority",  # Optional
+    author="Nikolas Ovaskainen",  # Optional
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email="pypa-dev@googlegroups.com",  # Optional
+    author_email="nikolasovaskainen@gmail.com",  # Optional
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
@@ -85,19 +85,15 @@ setup(
         "Development Status :: 3 - Alpha",
         # Indicate who your project is intended for
         "Intended Audience :: Developers",
-        "Topic :: Software Development :: Build Tools",
+        "Topic :: Brittle Geology Data Analysis :: Data Analysis",
         # Pick your license as you wish
         "License :: OSI Approved :: MIT License",
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         # These classifiers are *not* checked by 'pip install'. See instead
         # 'python_requires' below.
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     # This field adds keywords for your project which will appear on the
     # project page. What does your project relate to?
@@ -129,13 +125,14 @@ setup(
     install_requires=[
         "attrs==20.3.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
         "certifi==2020.6.20",
-        "click==7.1.2; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'",
+        "click==7.1.2",
         "click-plugins==1.1.1",
         "cligj==0.7.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3' and python_version < '4'",
         "cycler==0.10.0",
         "et-xmlfile==1.0.1",
         "fiona==1.8.17",
         "geopandas==0.8.1",
+        "geotrans==0.0.4",
         "jdcal==1.4.1",
         "joblib==0.17.0; python_version >= '3.6'",
         "kiwisolver==1.3.1; python_version >= '3.6'",
@@ -192,7 +189,7 @@ setup(
             "distlib==0.3.1",
             "entrypoints==0.3; python_version >= '2.7'",
             "filelock==3.0.12",
-            "hypothesis==5.41.1",
+            "hypothesis==5.41.2",
             "hypothesis-geometry==0.17.1",
             "idna==2.10; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "iniconfig==1.1.1",
@@ -213,11 +210,13 @@ setup(
             "markupsafe==1.1.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "matplotlib==3.3.2",
             "mistune==0.8.4",
+            "mypy==0.790",
+            "mypy-extensions==0.4.3",
             "nbclient==0.5.1; python_version >= '3.6'",
             "nbconvert==6.0.7; python_version >= '3.6'",
             "nbformat==5.0.8; python_version >= '3.5'",
             "nest-asyncio==1.4.2; python_version >= '3.5'",
-            "notebook==6.1.4; python_version >= '3.5'",
+            "notebook==6.1.5; python_version >= '3.5'",
             "numpy==1.19.4",
             "packaging==20.4; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "pandocfilters==1.4.3",
@@ -249,13 +248,15 @@ setup(
             "robust==0.2.5; python_version >= '3.5'",
             "send2trash==1.5.0",
             "six==1.15.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
-            "sortedcontainers==2.2.2",
+            "sortedcontainers==2.3.0",
             "terminado==0.9.1; python_version >= '3.6'",
             "testpath==0.4.4",
             "toml==0.10.2; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "tornado==6.1; python_version >= '3.5'",
             "tox==3.20.1",
             "traitlets==5.0.5; python_version >= '3.7'",
+            "typed-ast==1.4.1",
+            "typing-extensions==3.7.4.3",
             "urllib3==1.25.11; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "virtualenv==20.1.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "virtualenv-clone==0.5.4; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
@@ -304,9 +305,7 @@ setup(
     # maintainers, and where to support the project financially. The key is
     # what's used to render the link text on PyPI.
     project_urls={  # Optional
-        "Bug Reports": "https://github.com/pypa/sampleproject/issues",
-        "Funding": "https://donate.pypi.org",
-        "Say Thanks!": "http://saythanks.io/to/example",
-        "Source": "https://github.com/pypa/sampleproject/",
+        "Bug Reports": "https://github.com/nialov/fractopo/issues",
+        "Source": "https://github.com/nialov/fractopo/",
     },
 )
