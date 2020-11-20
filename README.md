@@ -9,6 +9,11 @@ lineament and fracture trace maps (fracture networks).
 
 * In development.
 
+## Full documentation
+
+* Documentation hosted on GitHub pages:
+  * [Documentation](https://nialov.github.io/fractopo/index.html)
+
 ## Installation
 
 ### Pipenv
