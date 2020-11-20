@@ -15,6 +15,7 @@ descartes
 hypothesis
 hypothesis-geometry
 jupyterlab
+mypy
 pipenv-to-requirements
 pytest
 pytest-regressions

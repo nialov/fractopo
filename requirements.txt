@@ -10,7 +10,9 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
+click
 geopandas
+geotrans
 matplotlib
 numpy
 openpyxl
