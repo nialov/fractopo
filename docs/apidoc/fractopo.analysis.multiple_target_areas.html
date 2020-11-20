@@ -179,7 +179,7 @@ MultiTargetAreaQGIS-objects are made separately for trace and branch data. Both 
 
 <dl class="py method">
 <dt id="fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.define_sets_for_all">
-<code class="sig-name descname">define_sets_for_all</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_df</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.define_sets_for_all" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">define_sets_for_all</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_df</span></em>, <em class="sig-param"><span class="n">for_length</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.define_sets_for_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Categorizes data based on azimuth to sets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -190,20 +190,18 @@ MultiTargetAreaQGIS-objects are made separately for trace and branch data. Both 
 
 <dl class="py method">
 <dt id="fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.determine_crosscut_abutting_relationships">
-<code class="sig-name descname">determine_crosscut_abutting_relationships</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.determine_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines cross-cutting and abutting relationships between all inputted sets by using spatial intersects
-between node and trace data. Sets result as a class parameter self.relations_df that is used for plotting.</p>
+<code class="sig-name descname">determine_crosscut_abutting_relationships</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">use_length_sets</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.determine_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines cross-cutting and abutting relationships between all
+inputted sets by using spatial intersects
+between node and trace data. Sets result as a class parameter
+self.relations_df that is used for plotting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>unified</strong> (<em>bool</em>) – Calculate for unified datasets or individual target areas</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>AssertionError</strong> – When attempting to determine cross-cutting and abutting relationships from branch data
-or if self.using_branches is True even though you are using trace data.</p></li>
-<li><p><strong>ValueError</strong> – When there’s only one set defined.
-You cannot determine cross-cutting and abutting relationships from only one set.</p></li>
-</ul>
+<dd class="field-even"><p><strong>ValueError</strong> – When there’s only one set defined.
+You cannot determine cross-cutting and abutting relationships from only one set.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -296,7 +294,7 @@ You cannot determine cross-cutting and abutting relationships from only one set.
 
 <dl class="py method">
 <dt id="fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_crosscut_abutting_relationships">
-<code class="sig-name descname">plot_crosscut_abutting_relationships</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_crosscut_abutting_relationships</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unified</span><span class="p">:</span> <span class="n">bool</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">savefolder</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">use_length_sets</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plots cross-cutting and abutting relationships for individual target areas or for grouped data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

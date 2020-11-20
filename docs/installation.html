@@ -163,14 +163,14 @@
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/nialov/geotransform.git
 <span class="nb">cd</span> geotransform
-pipenv install
+pipenv sync
 pipenv shell
 </pre></div>
 </div>
 <p>If if you want to run tests or make documentation add –dev after pipenv
-install. tox runs the test suite, makes documentation and syncs Pipfile
+sync. tox runs the test suite, makes documentation and syncs Pipfile
 -&gt; setup.py files.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv install --dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv sync --dev
 pipenv shell
 tox
 </pre></div>
@@ -182,9 +182,7 @@ tox
 </div>
 <div class="section" id="install-into-your-python-environment-of-choice-with-pip">
 <h2>Install into your Python environment of choice with pip<a class="headerlink" href="#install-into-your-python-environment-of-choice-with-pip" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/nialov/geotransform.git
-<span class="nb">cd</span> geotransform
-pip3 install .
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/nialov/fractopo#egg<span class="o">=</span>fractopo
 </pre></div>
 </div>
 </div>

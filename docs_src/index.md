@@ -1,9 +1,9 @@
 # Welcome to fractopo-2D's documentation
 
 Fractopo-2D is a Python module that contains tools for validating and analysing
-fracture trace maps (fracture networks).
+lineament and fracture trace maps (fracture networks).
 
-![Overview pf fractopo-2D](imgs/fractopo_2d_diagram.png)
+![Overview of fractopo-2D](imgs/fractopo_2d_diagram.png)
 
 # Contents
 

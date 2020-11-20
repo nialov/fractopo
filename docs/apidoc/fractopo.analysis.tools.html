@@ -240,8 +240,10 @@
 <dl class="py function">
 <dt id="fractopo.analysis.tools.aniso_calc_anisotropy">
 <code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">aniso_calc_anisotropy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">halved</span></em>, <em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">length</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.aniso_calc_anisotropy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates anisotropy of connectivity for a branch based on azimuth, classification and length.
-Value is calculated for preset angles (angles_of_study = np.arange(0, 179, 30))</p>
+<dd><p>Calculates anisotropy of connectivity for a branch based on azimuth,
+classification and length.
+Value is calculated for preset angles (angles_of_study = np.arange(0, 179,
+30))</p>
 <p>E.g.</p>
 <p>Anisotropy for a C-C classified branch:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aniso_calc_anisotropy</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;C - C&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
@@ -553,6 +555,12 @@ and normalises the values based on target area size.</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt id="fractopo.analysis.tools.define_length_set">
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">define_length_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">set_df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#fractopo.analysis.tools.define_length_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines sets based on the length of the traces or branches.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="fractopo.analysis.tools.define_set">
 <code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">define_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">azimuth</span></em>, <em class="sig-param"><span class="n">set_df</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.define_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines set based on azimuth value in degrees. Uses halved azimuth values
@@ -585,7 +593,7 @@ i.e. azimuth must be: 0 &lt; azimuth &lt; 180.</p>
 
 <dl class="py function">
 <dt id="fractopo.analysis.tools.get_intersect_frame">
-<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_intersect_frame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intersecting_nodes_frame</span></em>, <em class="sig-param"><span class="n">traceframe</span></em>, <em class="sig-param"><span class="n">set_tuple</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_intersect_frame" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_intersect_frame</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">intersecting_nodes_frame</span></em>, <em class="sig-param"><span class="n">traceframe</span></em>, <em class="sig-param"><span class="n">set_tuple</span></em>, <em class="sig-param"><span class="n">use_length_sets</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_intersect_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does spatial intersects to determine how abutments and crosscuts occur between two sets</p>
 <p>E.g. where Set 2 ends in set 1 and Set 2 crosscuts set 1 (TODO: DECREPID)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">]})</span>
@@ -624,9 +632,10 @@ error = possible error results)</p>
 
 <dl class="py function">
 <dt id="fractopo.analysis.tools.get_nodes_intersecting_sets">
-<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_nodes_intersecting_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xypointsframe</span></em>, <em class="sig-param"><span class="n">traceframe</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_nodes_intersecting_sets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes and
-the trace GeoDataFrame with only two sets. Returns only nodes that intersect traces from BOTH sets.</p>
+<code class="sig-prename descclassname">fractopo.analysis.tools.</code><code class="sig-name descname">get_nodes_intersecting_sets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xypointsframe</span></em>, <em class="sig-param"><span class="n">traceframe</span></em>, <em class="sig-param"><span class="n">use_length_sets</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.tools.get_nodes_intersecting_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes
+and the trace GeoDataFrame with only two sets. Returns only nodes that
+intersect traces from BOTH sets.</p>
 <p>E.g.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]),</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)])],</span> <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]})</span>

@@ -331,10 +331,9 @@ Z-coordinates will be lost.</p>
 
 <dl class="py function">
 <dt id="fractopo.branches_and_nodes.mls_to_ls">
-<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">mls_to_ls</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">linestrings</span><span class="p">:</span> <span class="n">List<span class="p">[</span>shapely.geometry.linestring.LineString<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">multilinestrings</span><span class="p">:</span> <span class="n">List<span class="p">[</span>shapely.geometry.multilinestring.MultiLineString<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">depth</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>shapely.geometry.linestring.LineString<span class="p">]</span><a class="headerlink" href="#fractopo.branches_and_nodes.mls_to_ls" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">mls_to_ls</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">multilinestrings</span><span class="p">:</span> <span class="n">List<span class="p">[</span>shapely.geometry.multilinestring.MultiLineString<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>shapely.geometry.linestring.LineString<span class="p">]</span><a class="headerlink" href="#fractopo.branches_and_nodes.mls_to_ls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flattens a list of multilinestrings to a list of linestrings.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">linestrings</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">multilinestrings</span> <span class="o">=</span> <span class="p">[</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">multilinestrings</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="n">MultiLineString</span><span class="p">(</span>
 <span class="gp">... </span>            <span class="p">[</span>
 <span class="gp">... </span>                 <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
@@ -348,8 +347,7 @@ Z-coordinates will be lost.</p>
 <span class="gp">... </span>            <span class="p">]</span>
 <span class="gp">... </span>                   <span class="p">),</span>
 <span class="gp">... </span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result_linestrings</span> <span class="o">=</span> <span class="n">mls_to_ls</span><span class="p">(</span><span class="n">linestrings</span><span class="p">,</span> <span class="n">multilinestrings</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result_linestrings</span> <span class="o">=</span> <span class="n">mls_to_ls</span><span class="p">(</span><span class="n">multilinestrings</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span><span class="n">ls</span><span class="o">.</span><span class="n">wkt</span> <span class="k">for</span> <span class="n">ls</span> <span class="ow">in</span> <span class="n">result_linestrings</span><span class="p">])</span>
 <span class="go">[&#39;LINESTRING (1 1, 2 2, 3 3)&#39;, &#39;LINESTRING (1.9999 2, -2 5)&#39;,</span>
 <span class="go">&#39;LINESTRING (1 1, 2 2, 3 3)&#39;, &#39;LINESTRING (1.9999 2, -2 5)&#39;]</span>

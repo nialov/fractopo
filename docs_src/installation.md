@@ -8,16 +8,16 @@
 ~~~bash
 git clone https://github.com/nialov/geotransform.git
 cd geotransform
-pipenv install
+pipenv sync
 pipenv shell
 ~~~
 
 If if you want to run tests or make documentation add --dev after pipenv
-install. tox runs the test suite, makes documentation and syncs Pipfile
+sync. tox runs the test suite, makes documentation and syncs Pipfile
 -> setup.py files.
 
 ~~~bash
-pipenv install --dev
+pipenv sync --dev
 pipenv shell
 tox
 ~~~
@@ -31,9 +31,7 @@ geotrans --help
 ## Install into your Python environment of choice with pip
 
 ~~~bash
-git clone https://github.com/nialov/geotransform.git
-cd geotransform
-pip3 install .
+pip install git+https://github.com/nialov/fractopo#egg=fractopo
 ~~~
 
 ## Dependencies

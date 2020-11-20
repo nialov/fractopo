@@ -17,6 +17,7 @@ Submodules
    :maxdepth: 4
 
    fractopo.branches_and_nodes
+   fractopo.cli
    fractopo.contour_grid
 
 Module contents
