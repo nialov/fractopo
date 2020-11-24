@@ -37,6 +37,14 @@ def tracevalidate(
         output_path = (
             trace_path.parent / f"{trace_path.stem}_validated.{trace_path.suffix}"
         )
+    snap_threshold = 0.001
+    snap_threshold_error_multiplier = 10.0
+    area_edge_snap_multiplier = 1.0
+    BaseValidator.set_snap_threshold_and_multipliers(
+        snap_threshold=snap_threshold,
+        snap_threshold_error_multiplier=snap_threshold_error_multiplier,
+        area_edge_snap_multiplier=area_edge_snap_multiplier,
+    )
     validated = main(
         [gpd.read_file(trace_path)],  # type: ignore
         [gpd.read_file(area_path)],  # type: ignore
