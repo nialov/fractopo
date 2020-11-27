@@ -289,3 +289,27 @@ class Helpers:
             "--fix",
         ),
     ]
+
+    test_match_crs_params = [
+        (
+            gpd.GeoSeries([Point(1, 1)]).set_crs(3067),  # first
+            gpd.GeoSeries([Point(1, 1)]),  # second
+            True,  # same
+            True,  # from_first
+            False,  # is_none
+        ),
+        (
+            gpd.GeoSeries([Point(1, 1)]),  # first
+            gpd.GeoSeries([Point(1, 1)]),  # second
+            True,  # same
+            True,  # from_first
+            True,  # is_none
+        ),
+        (
+            gpd.GeoSeries([Point(1, 1)]).set_crs(3067),  # first
+            gpd.GeoSeries([Point(1, 1)]).set_crs(3066),  # second
+            False,  # same
+            True,  # from_first
+            False,  # is_none
+        ),
+    ]

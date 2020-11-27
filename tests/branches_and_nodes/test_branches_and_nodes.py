@@ -29,8 +29,8 @@ from fractopo.branches_and_nodes import (
     X_node,
     Y_node,
     E_node,
-    connection_column,
-    class_column,
+    CONNECTION_COLUMN,
+    CLASS_COLUMN,
     EE_branch,
 )
 
@@ -131,18 +131,18 @@ def test_branches_and_nodes(file_regression):
     # Use --force-regen to remake if fails after trace_builder changes.
     file_regression.check(str(branch_geodataframe) + str(node_geodataframe))
 
-    for node_id in node_geodataframe[class_column]:
+    for node_id in node_geodataframe[CLASS_COLUMN]:
         assert node_id in [I_node, X_node, Y_node, E_node]
     assert (
-        len([node_id for node_id in node_geodataframe[class_column] if node_id == "X"])
+        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "X"])
         > 0
     )
     assert (
-        len([node_id for node_id in node_geodataframe[class_column] if node_id == "Y"])
+        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "Y"])
         > 0
     )
     assert (
-        len([node_id for node_id in node_geodataframe[class_column] if node_id == "I"])
+        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "I"])
         > 1
     )
 
@@ -362,7 +362,7 @@ def test_with_known_mls_error():
         gpd.GeoSeries(linestrings), gpd.GeoSeries(target_area), Helpers.snap_threshold
     )
     for branch in branches.geometry:
-        assert EE_branch not in str(branches[connection_column])
+        assert EE_branch not in str(branches[CONNECTION_COLUMN])
         assert isinstance(branch, LineString)
         assert branch.is_simple
         assert not branch.is_empty
@@ -391,3 +391,7 @@ def test_with_known_mls_error():
 #     #     )
 #     for ls in result:
 #         assert ls.is_simple
+
+
+def test_branches_and_nodes_regression(file_regression):
+    pass

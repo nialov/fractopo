@@ -12,7 +12,7 @@ from typing import Dict, Tuple, List
 
 import fractopo.contour_grid as contour_grid
 import fractopo.branches_and_nodes as branches_and_nodes
-from fractopo.contour_grid import CC_branch, CI_branch, II_branch
+from fractopo.general import CC_branch, CI_branch, II_branch
 
 cell_width = 0.10
 branches = gpd.GeoDataFrame(
