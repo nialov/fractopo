@@ -41,6 +41,7 @@ from tests import (
     SharpCornerValidator,
 )
 from tests.sample_data import stacked_test
+from tests.sample_data.py_samples.stacked_traces_sample import stacked_traces_ls
 
 BaseValidator.set_snap_threshold_and_multipliers(
     SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER, AREA_EDGE_SNAP_MULTIPLIER
@@ -572,7 +573,7 @@ class TestStackedTracesValidator:
                     if StackedTracesValidator.ERROR in err
                 ]
             )
-            >= 5
+            >= 3
         )
 
     def test_segment_within_buffer(self):
@@ -654,6 +655,27 @@ class TestStackedTracesValidator:
         # BaseValidator.set_snap_threshold_and_multipliers(
         #     SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER, AREA_EDGE_SNAP_MULTIPLIER
         # )
+
+    @staticmethod
+    def test_with_known_non_stacked():
+        stacked_traces_gdf = gpd.GeoDataFrame(geometry=stacked_traces_ls).set_crs(3067)
+        result_gdf = StackedTracesValidator.execute(
+            stacked_traces_gdf, area_geodataframe=None, auto_fix=False, parallel=False
+        )
+        assert BaseValidator.ERROR_COLUMN in result_gdf.columns
+        assert StackedTracesValidator.ERROR not in str(
+            result_gdf[BaseValidator.ERROR_COLUMN]
+        )
+
+    @staticmethod
+    def test_determine_middle_in_triangle():
+        segments = [
+            LineString([(0, 0), (1, 1)]),
+            LineString([(1, 1), (2, 2)]),  # middle
+            LineString([(2, 2), (3, 3)]),
+        ]
+        result = StackedTracesValidator.determine_middle_in_triangle(segments)
+        assert result.wkt == segments[1].wkt
 
 
 class TestEmptyGeometryValidator:
