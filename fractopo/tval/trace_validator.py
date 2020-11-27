@@ -4,11 +4,9 @@ import shapely
 from shapely.geometry import MultiPoint, Point, LineString, MultiLineString, Polygon
 from shapely.ops import split
 import ast
-from pygeos import GEOSException
 import numpy as np
 
-import math
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, Optional
 from abc import abstractmethod
 from itertools import zip_longest
 import logging
@@ -25,7 +23,7 @@ class BaseValidator:
     INTERACTION_NODES_COLUMN = "IP"
     # Default snap threshold
     SNAP_THRESHOLD = 0.01
-    SNAP_THRESHOLD_ERROR_MULTIPLIER = 10.0
+    SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
     AREA_EDGE_SNAP_MULTIPLIER = 1.0
     TRIANGLE_ERROR_SNAP_MULTIPLIER = 10.0
     OVERLAP_DETECTION_MULTIPLIER = 50.0
@@ -1027,6 +1025,25 @@ class StackedTracesValidator(MultipleCrosscutValidator):
         return rows_with_overlapping_traces
 
     @classmethod
+    def determine_middle_in_triangle(
+        cls, segments: List[LineString]
+    ) -> Optional[LineString]:
+        """
+        Determines the middle segment within a triangle error. The middle
+        segment always intersects the other two.
+        """
+        buffered = [
+            ls.buffer(cls.SNAP_THRESHOLD * cls.SNAP_THRESHOLD_ERROR_MULTIPLIER)
+            for ls in segments
+        ]
+        for idx, buffer in enumerate(buffered):
+            others = buffered.copy()
+            others.pop(idx)
+            if sum([buffer.intersects(other) for other in others]) >= 2:
+                return segments[idx]
+        return None
+
+    @classmethod
     def split_to_determine_triangle_errors(cls, trace, splitter_trace):
         assert isinstance(trace, LineString)
         assert isinstance(splitter_trace, LineString)
@@ -1036,8 +1053,13 @@ class StackedTracesValidator(MultipleCrosscutValidator):
             # split not possible, the traces overlap
             return True
         if len(segments) > 2:
-            seg_lengths: List[float]
-            seg_lengths = [seg.length for seg in segments]
+            middle = StackedTracesValidator.determine_middle_in_triangle(
+                [ls for ls in segments.geoms]
+            )
+            if middle is not None:
+                seg_lengths: List[float] = [middle.length]
+            else:
+                seg_lengths: List[float] = [seg.length for seg in segments]
             for seg_length in seg_lengths:
                 if (
                     cls.SNAP_THRESHOLD
@@ -1349,7 +1371,7 @@ class SharpCornerValidator(BaseValidator):
             return False
         dot_product = np.dot(vec_1, vec_2)
         if 1 < dot_product or dot_product < -1 or np.isnan(dot_product):
-            rad_angle = np.nan
+            return False
         else:
             rad_angle = np.arccos(dot_product)
         deg_angle = np.rad2deg(rad_angle)
