@@ -37,9 +37,10 @@ def tracevalidate(
         output_path = (
             trace_path.parent / f"{trace_path.stem}_validated.{trace_path.suffix}"
         )
+    # Sensible defaults
     snap_threshold = 0.001
-    snap_threshold_error_multiplier = 10.0
-    area_edge_snap_multiplier = 1.0
+    snap_threshold_error_multiplier = 1.1
+    area_edge_snap_multiplier = 5
     BaseValidator.set_snap_threshold_and_multipliers(
         snap_threshold=snap_threshold,
         snap_threshold_error_multiplier=snap_threshold_error_multiplier,
