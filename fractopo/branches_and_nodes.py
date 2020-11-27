@@ -23,21 +23,23 @@ logging.basicConfig(level=logging.INFO, format="%(process)d-%(levelname)s-%(mess
 # Setup
 trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1)
 
-CC_branch = "C - C"
-CE_branch = "C - E"
-CI_branch = "C - I"
-IE_branch = "I - E"
-II_branch = "I - I"
-EE_branch = "E - E"
-Error_branch = "Error"
-X_node = "X"
-Y_node = "Y"
-I_node = "I"
-E_node = "E"
-
-connection_column = "Connection"
-class_column = "Class"
-geom_column = "geometry"
+from fractopo.general import (
+    CC_branch,
+    CE_branch,
+    CI_branch,
+    IE_branch,
+    II_branch,
+    EE_branch,
+    Error_branch,
+    X_node,
+    Y_node,
+    I_node,
+    E_node,
+    CONNECTION_COLUMN,
+    CLASS_COLUMN,
+    GEOMETRY_COLUMN,
+    match_crs,
+)
 
 
 def remove_identical_sindex(
@@ -344,7 +346,7 @@ def get_branch_identities(
     """
     assert len(nodes) == len(node_identities)
     nodes_buffered = gpd.GeoSeries(list(map(lambda p: p.buffer(snap_threshold), nodes)))
-    node_gdf = gpd.GeoDataFrame({geom_column: nodes, class_column: node_identities})
+    node_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities})
     node_spatial_index = nodes_buffered.sindex
     branch_identities = []
     for idx, branch in enumerate(branches):
@@ -369,21 +371,21 @@ def get_branch_identities(
         number_of_E_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[class_column]
+                for inter_id in nodes_that_intersect[CLASS_COLUMN]
                 if inter_id == E_node
             ]
         )
         number_of_I_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[class_column]
+                for inter_id in nodes_that_intersect[CLASS_COLUMN]
                 if inter_id == I_node
             ]
         )
         number_of_XY_nodes = len(
             [
                 inter_id
-                for inter_id in nodes_that_intersect[class_column]
+                for inter_id in nodes_that_intersect[CLASS_COLUMN]
                 if inter_id in [X_node, Y_node]
             ]
         )
@@ -504,7 +506,7 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
         return trace
     t_points_gdf = gpd.GeoDataFrame(
         {
-            "geometry": [Point(c) for c in trace.coords],
+            GEOMETRY_COLUMN: [Point(c) for c in trace.coords],
             "distances": [Point(c).distance(point) for c in trace.coords],
         }
     )
@@ -838,6 +840,8 @@ def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.Geo
     """
     if not all([isinstance(trace, LineString) for trace in traces]):
         logging.error("MultiLineString passed into crop_to_target_areas.")
+    # TODO: CRS mismatch
+    traces, areas = match_crs(traces, areas)
     clipped_traces = gpd.clip(traces, areas)
     clipped_traces_linestrings = [
         trace for trace in clipped_traces if isinstance(trace, LineString)
@@ -886,7 +890,7 @@ def branches_and_nodes(
 
     traces = crop_to_target_areas(traces, areas)
     nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({geom_column: traces})
+        gpd.GeoDataFrame({GEOMETRY_COLUMN: traces})
     )
     nodes = gpd.GeoSeries(nodes)
     nodes = remove_identical_sindex(nodes, snap_threshold)
@@ -899,9 +903,9 @@ def branches_and_nodes(
         branches, nodes, node_identities, snap_threshold
     )
     node_geodataframe = gpd.GeoDataFrame(
-        {geom_column: nodes, class_column: node_identities}
+        {GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities}
     )
     branch_geodataframe = gpd.GeoDataFrame(
-        {geom_column: branches, connection_column: branch_identities}
+        {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
     )
     return branch_geodataframe, node_geodataframe

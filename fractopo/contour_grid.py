@@ -15,13 +15,15 @@ import numpy as np
 
 from typing import Dict, Tuple, List, Optional
 
-CC_branch = "C - C"
-CI_branch = "C - I"
-II_branch = "I - I"
-EE_branch = "E - E"
-X_node = "X"
-Y_node = "Y"
-I_node = "I"
+from fractopo.general import (
+    X_node,
+    Y_node,
+    I_node,
+    E_node,
+    CONNECTION_COLUMN,
+    CLASS_COLUMN,
+    GEOMETRY_COLUMN,
+)
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -80,7 +82,7 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
         XleftOrigin = XleftOrigin + cell_width
         XrightOrigin = XrightOrigin + cell_width
     # Create GeoDataFrame with grid polygons
-    grid = gpd.GeoDataFrame({"geometry": polygons}, crs=branches.crs)
+    grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=branches.crs)
     assert len(grid) != 0
     return grid
 
