@@ -1047,8 +1047,7 @@ class MultiTargetAreaQGIS:
         height = (width / cols) * 0.75
         names = set(rel_frame.name.tolist())
         uses = "length_sets" if use_length_sets else "azimuth_sets"
-        rel_frame.to_excel(Path(savefolder) /
-                f"crossabutt_frame_{unified}_{uses}.xlsx")
+        rel_frame.to_excel(Path(savefolder) / f"crossabutt_frame_{unified}_{uses}.xlsx")
         with plt.style.context("default"):
             for name in names:
                 rel_frame_with_name = rel_frame.loc[rel_frame.name == name]
@@ -1312,7 +1311,9 @@ class MultiTargetAreaQGIS:
             ld: ta.TargetAreaLines = row.TargetAreaLines
             nd: ta.TargetAreaNodes = row.TargetAreaNodes
             node_dict = nd.topology_parameters_2d_nodes()
-            params_ld = ld.topology_parameters_2d(branches=branches, node_dict=node_dict)
+            params_ld = ld.topology_parameters_2d(
+                branches=branches, node_dict=node_dict
+            )
             if branches:
                 (
                     fracture_intensity,
@@ -1329,9 +1330,8 @@ class MultiTargetAreaQGIS:
                     characteristic_length,
                     dimensionless_intensity,
                     number_of_lines,
-                    _
+                    _,
                 ) = params_ld
-
 
             if number_of_lines > 0:
                 connections_per_line = (
@@ -1347,9 +1347,9 @@ class MultiTargetAreaQGIS:
                 topology_dict: Dict[str, Union[float, int]] = {
                     "name": name,
                     "Number of Branches": number_of_lines,
-                    "C - C": connection_dict["C - C"], # type: ignore
-                    "C - I": connection_dict["C - I"], # type: ignore
-                    "I - I": connection_dict["I - I"], # type: ignore
+                    "C - C": connection_dict["C - C"],  # type: ignore
+                    "C - I": connection_dict["C - I"],  # type: ignore
+                    "I - I": connection_dict["I - I"],  # type: ignore
                     "X": node_dict["X"],
                     "Y": node_dict["Y"],
                     "I": node_dict["I"],
@@ -1378,6 +1378,7 @@ class MultiTargetAreaQGIS:
             topo = topology[1]
             topoframe = pd.DataFrame()
             topoframe = topoframe.append(topo, ignore_index=True)
+            # TODO: SettingWithCopyWarning
             frame.topology[idx] = topoframe
         if unified:
             self.uniframe_topology_concat = pd.concat(
