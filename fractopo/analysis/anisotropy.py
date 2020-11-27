@@ -7,19 +7,19 @@ from scipy.interpolate import CubicSpline
 from typing import Dict, Optional, Tuple, Union
 
 
-def aniso_get_class_as_value(c) -> int:
+def determine_anisotropy_classification(c) -> int:
     """
     Return value based on branch classification. Only C-C branches have a
     value, but this can be changed here.
-    Classification can differ from ('C - C', 'C - I', 'I - I') (e.g. 'C - E')
-    in which case a value is still returned.
+    Classification can differ from 'C - C', 'C - I', 'I - I' (e.g. 'C - E')
+    in which case a value (0) is still returned.
 
     E.g.
 
-    >>> aniso_get_class_as_value('C - C')
+    >>> determine_anisotropy_classification('C - C')
     1
 
-    >>> aniso_get_class_as_value('C - E')
+    >>> determine_anisotropy_classification('C - E')
     0
 
     """
@@ -35,7 +35,34 @@ def aniso_get_class_as_value(c) -> int:
         return 0
 
 
-def aniso_calc_anisotropy(
+def determine_anisotropy_sum(
+    azimuths: np.ndarray,
+    branch_types: np.ndarray,
+    lengths: np.ndarray,
+    sample_intervals: np.ndarray = np.arange(0, 179, 30),
+):
+    """
+
+    E.g.
+
+    >>> azimuths = np.array([20, 50, 60, 70])
+    >>> lengths = np.array([2, 5, 6, 7])
+    >>> branch_types = np.array(["C - C", "C - C", "C - C", "C - I"])
+    >>> determine_anisotropy_sum(azimuths, branch_types, lengths)
+    array([ 8.09332329, 11.86423103, 12.45612765,  9.71041492,  5.05739707,
+            2.15381611])
+    """
+    # Array of anisotropy_array-s
+    anisotropy_arrays = np.array(
+        [
+            determine_anisotropy_value(azimuth, branch_type, length, sample_intervals)
+            for azimuth, branch_type, length in zip(azimuths, branch_types, lengths)
+        ]
+    )
+    return anisotropy_arrays.sum(axis=0)
+
+
+def determine_anisotropy_value(
     azimuth: float,
     branch_type: str,
     length: float,
@@ -43,7 +70,7 @@ def aniso_calc_anisotropy(
 ) -> np.ndarray:
     """
     Calculates anisotropy of connectivity for a branch based on azimuth,
-    classification and length.
+    branch_type and length.
     Value is calculated for preset angles (sample_intervals = np.arange(0, 179,
     30))
 
@@ -51,35 +78,35 @@ def aniso_calc_anisotropy(
 
     Anisotropy for a C-C classified branch:
 
-    >>> aniso_calc_anisotropy(90, 'C - C', 10)
-    array([6.12323400e-16, 5.00000000e+00, 8.66025404e+00, 1.00000000e+01,
-           8.66025404e+00, 5.00000000e+00])
+    >>> determine_anisotropy_value(50, "C - C", 1)
+    array([0.64278761, 0.93969262, 0.98480775, 0.76604444, 0.34202014,
+           0.17364818])
 
     Other classification for branch:
 
-    >>> aniso_calc_anisotropy(90, 'C - I', 10)
+    >>> determine_anisotropy_value(50, "C - I", 1)
     array([0, 0, 0, 0, 0, 0])
 
     """
-    c_value = aniso_get_class_as_value(branch_type)
+    classification = determine_anisotropy_classification(branch_type)
     # CALCULATION
     results = []
     for angle in sample_intervals:
-        if c_value == 0:
+        if classification == 0:
             results.append(0)
             continue
         diff = np.abs(angle - azimuth)
         if diff > 90:
             diff = 180 - max([angle, azimuth]) + min([angle, azimuth])
         cos_diff = np.cos(np.deg2rad(diff))
-        result = length * c_value * cos_diff
+        result = length * classification * cos_diff
         results.append(result)
     # print(results)
     return np.array(results)
 
 
-def plot_anisotropy_styled_ax(
-    anisotropy_array: np.ndarray,
+def plot_anisotropy_ax(
+    anisotropy_sum: np.ndarray,
     ax: plt.PolarAxes,
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ) -> plt.Axes:
