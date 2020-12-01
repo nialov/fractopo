@@ -46,7 +46,7 @@ def remove_identical_sindex(
     geosrs: gpd.GeoSeries, snap_threshold: float
 ) -> gpd.GeoSeries:
     """
-    Removes stacked nodes by using a search buffer the size of snap_threshold.
+    Remove stacked nodes by using a search buffer the size of snap_threshold.
     """
     geosrs.reset_index(inplace=True, drop=True)
     spatial_index = geosrs.sindex
@@ -896,9 +896,6 @@ def branches_and_nodes(
     nodes = remove_identical_sindex(nodes, snap_threshold)
     node_identities = get_node_identities(traces, nodes, areas, snap_threshold)
     branches = gpd.GeoSeries([b for b in traces.unary_union])
-    # branches = split_traces_to_branches_with_traces(
-    #     traces, nodes, node_identities, snap_threshold
-    # )
     branch_identities = get_branch_identities(
         branches, nodes, node_identities, snap_threshold
     )
