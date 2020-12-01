@@ -313,3 +313,7 @@ class Helpers:
             False,  # is_none
         ),
     ]
+    test_is_within_buffer_distance_params = [
+        (nice_traces, 0.5, 25),
+        (nice_traces, 1, 35),
+    ]

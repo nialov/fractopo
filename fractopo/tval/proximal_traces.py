@@ -16,6 +16,8 @@ from fractopo.general import (
     is_azimuth_close,
 )
 
+MERGE_COLUMN = "Merge"
+
 
 def is_within_buffer_distance(
     trace: LineString, other: LineString, buffer_value: float
@@ -114,7 +116,7 @@ def determine_proximal_traces(
     """
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
     if isinstance(traces, gpd.GeoSeries):
-        traces = gpd.GeoDataFrame(traces)
+        traces = gpd.GeoDataFrame(geometry=traces)
     traces = traces.reset_index(inplace=False, drop=True)  # type: ignore
     spatial_index = traces.sindex
     trace: LineString
@@ -140,5 +142,5 @@ def determine_proximal_traces(
                     if i not in proximal_traces
                 ]
             )
-    traces["Merge"] = [i in proximal_traces for i in traces.index]  # type: ignore
+    traces[MERGE_COLUMN] = [i in proximal_traces for i in traces.index]  # type: ignore
     return traces
