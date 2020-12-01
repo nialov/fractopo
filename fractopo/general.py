@@ -23,6 +23,7 @@ from shapely.geometry import LineString, Point
 from shapely.ops import linemerge
 from shapely import prepared
 import logging
+from sklearn.linear_model import LinearRegression
 
 # Own code imports
 from fractopo.analysis import target_area as ta, config
@@ -71,6 +72,71 @@ def determine_set(
                 return True
     if value_range[0] <= value <= value_range[1]:
         return True
+
+
+def is_azimuth_close(first: float, second: float, tolerance: float, halved=True):
+    """
+    Determine are azimuths first and second within tolerance.
+
+    Takes into account the radial nature of azimuths.
+
+    >>> is_azimuth_close(0, 179, 15)
+    True
+
+    >>> is_azimuth_close(166, 179, 15)
+    True
+
+    >>> is_azimuth_close(20, 179, 15)
+    False
+
+    """
+    diff = abs(first - second)
+    if halved:
+        diff = diff if diff <= 90 else 180 - diff
+        assert 0 <= diff <= 90
+    else:
+        diff = diff if diff <= 180 else 360 - diff
+        assert 0 <= diff <= 180
+    return diff < tolerance
+
+
+def determine_regression_azimuth(line: LineString) -> float:
+    """
+    Determine azimuth of line LineString with regression.
+
+    Azimuth is returned in range [0, 180].
+
+    E.g.
+
+    >>> line = LineString([(0, 0), (1, 1), (2, 2), (3, 3)])
+    >>> determine_regression_azimuth(line)
+    45.0
+
+    >>> line = LineString([(-1, -5), (3, 3)])
+    >>> determine_regression_azimuth(line)
+    26.565051177077994
+
+    >>> line = LineString([(0, 0), (0, 3)])
+    >>> determine_regression_azimuth(line)
+    0.0
+
+    """
+    x, y = zip(*line.coords)
+    x = np.array(x).reshape((-1, 1))
+    y = np.array(y)
+    model = LinearRegression().fit(x, y)
+    coefs = model.coef_
+    if len(coefs) == 1:
+        coef = coefs[0]
+    else:
+        raise ValueError("Expected model.coef_ to be an array of length 1.")
+    if np.isclose(coef, 0.0):
+        return 0.0
+    azimuth = np.rad2deg(np.arctan(1 / coef))  # type: ignore
+    if azimuth < 0:
+        azimuth = 90 - np.rad2deg(np.arctan(coef))  # type: ignore
+    assert isinstance(azimuth, float) and 0 <= azimuth <= 180
+    return azimuth
 
 
 def determine_azimuth(line: LineString, halved: bool) -> float:

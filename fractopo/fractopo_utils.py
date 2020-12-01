@@ -11,33 +11,10 @@ from typing import Dict, Tuple, List, Optional, Union
 import numpy as np
 from itertools import count
 
+from fractopo.general import is_azimuth_close
+
 
 class LineMerge:
-    @staticmethod
-    def is_azimuth_close(first, second, tolerance, halved=True):
-        """
-
-        >>> LineMerge.is_azimuth_close(0, 179, 15)
-        True
-
-        >>> LineMerge.is_azimuth_close(166, 179, 15)
-        True
-
-        >>> LineMerge.is_azimuth_close(20, 179, 15)
-        False
-
-        """
-        # print(first, second, tolerance)
-        # Assume halved
-        diff = abs(first - second)
-        if halved:
-            diff = diff if diff <= 90 else 180 - diff
-            assert 0 <= diff <= 90
-        else:
-            diff = diff if diff <= 180 else 360 - diff
-            assert 0 <= diff <= 180
-        return diff < tolerance
-
     @staticmethod
     def conditional_linemerge(
         first: LineString, second: LineString, tolerance: float, buffer_value: float
