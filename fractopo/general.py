@@ -102,9 +102,12 @@ def is_azimuth_close(first: float, second: float, tolerance: float, halved=True)
 
 def determine_regression_azimuth(line: LineString) -> float:
     """
-    Determine azimuth of line LineString with regression.
+    Determine azimuth of line LineString with linear regression.
 
-    Azimuth is returned in range [0, 180].
+    A scikit-learn LinearRegression is fitted to the x, y coordinates of the
+    given `line` and the azimuth of the fitted linear line is returned.
+
+    The azimuth is returned in range [0, 180].
 
     E.g.
 
