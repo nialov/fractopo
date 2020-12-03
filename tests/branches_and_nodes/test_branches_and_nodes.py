@@ -125,26 +125,17 @@ def test_branches_and_nodes(file_regression):
         valid_areas_geoseries,
         invalid_areas_geoseries,
     ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
-    branch_geodataframe, node_geodataframe = branches_and_nodes.branches_and_nodes(
+    branch_gdf, node_gdf = branches_and_nodes.branches_and_nodes(
         valid_geoseries, valid_areas_geoseries, Helpers.snap_threshold
     )
     # Use --force-regen to remake if fails after trace_builder changes.
-    file_regression.check(str(branch_geodataframe) + str(node_geodataframe))
+    file_regression.check(str(branch_gdf) + str(node_gdf))
 
-    for node_id in node_geodataframe[CLASS_COLUMN]:
+    for node_id in node_gdf[CLASS_COLUMN]:
         assert node_id in [I_node, X_node, Y_node, E_node]
-    assert (
-        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "X"])
-        > 0
-    )
-    assert (
-        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "Y"])
-        > 0
-    )
-    assert (
-        len([node_id for node_id in node_geodataframe[CLASS_COLUMN] if node_id == "I"])
-        > 1
-    )
+    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "X"]) > 0
+    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "Y"]) > 0
+    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "I"]) > 1
 
 
 @pytest.mark.parametrize(

@@ -899,10 +899,8 @@ def branches_and_nodes(
     branch_identities = get_branch_identities(
         branches, nodes, node_identities, snap_threshold
     )
-    node_geodataframe = gpd.GeoDataFrame(
-        {GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities}
-    )
-    branch_geodataframe = gpd.GeoDataFrame(
+    node_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities})
+    branch_gdf = gpd.GeoDataFrame(
         {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
     )
-    return branch_geodataframe, node_geodataframe
+    return branch_gdf, node_gdf
