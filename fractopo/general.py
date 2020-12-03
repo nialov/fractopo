@@ -49,10 +49,49 @@ CONNECTION_COLUMN = "Connection"
 CLASS_COLUMN = "Class"
 GEOMETRY_COLUMN = "geometry"
 
+NULL_SET = "-1"
+
 
 def determine_set(
+    value: float,
+    value_ranges: List[Tuple[float, float]],
+    set_names: List[str],
+    loop_around: bool,
+) -> np.ndarray:
+    """
+    Determine which named value range, if any, value is within.
+
+    loop_around defines behavior expected for radial data i.e. when value range
+    can loop back around e.g. [160, 50]
+
+    E.g.
+
+    >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
+    '0-20'
+
+    Example with `loop_around = True`
+
+    >>> determine_set(50.0, [(0, 20), (160, 60)], ["0-20", "160-60"], True)
+    '160-60'
+
+    """
+    assert len(value_ranges) == len(set_names)
+    possible_set_name = [
+        set_name
+        for set_name, value_range in zip(set_names, value_ranges)
+        if is_set(value, value_range, loop_around)
+    ]
+    if len(possible_set_name) == 0:
+        return NULL_SET
+    elif len(possible_set_name) == 1:
+        return possible_set_name[0]
+    else:
+        raise ValueError("Expected set value ranges to not overlap.")
+
+
+def is_set(
     value: Union[float, int], value_range: Tuple[float, float], loop_around: bool
-):
+) -> bool:
     """
     Determines if value fits within the given value_range.
 
@@ -72,6 +111,7 @@ def determine_set(
                 return True
     if value_range[0] <= value <= value_range[1]:
         return True
+    return False
 
 
 def is_azimuth_close(first: float, second: float, tolerance: float, halved=True):
