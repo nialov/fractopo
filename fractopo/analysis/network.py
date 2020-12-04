@@ -26,9 +26,15 @@ from scipy.interpolate import CubicSpline
 # Own code imports
 import fractopo.analysis.tools as tools
 import fractopo.analysis.config as config
-from fractopo.general import determine_azimuth, determine_set, Col
+from fractopo.general import (
+    determine_azimuth,
+    determine_set,
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+)
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis.line_data import LineData
+from fractopo.analysis.parameters import plot_xyi_plot, plot_branch_plot
 
 from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
@@ -185,6 +191,18 @@ class Network:
             return None
         return self.branch_data.length_set_array
 
+    @property
+    def node_types(self) -> Optional[np.ndarray]:
+        if not self._require_branches():
+            return None
+        return self.node_gdf[CLASS_COLUMN].to_numpy()
+
+    @property
+    def branch_types(self) -> Optional[np.ndarray]:
+        if not self._require_branches():
+            return None
+        return self.branch_gdf[CONNECTION_COLUMN].to_numpy()
+
     def assign_branches_nodes(self):
         if self.area_geoseries is not None:
             branches, nodes = branches_and_nodes(
@@ -220,3 +238,19 @@ class Network:
         if label is None:
             label = self.name
         return self.trace_data.plot_azimuth(label=label)
+
+    def plot_xyi(self, label: Optional[str] = None):
+        if label is None:
+            label = self.name
+        if self.node_types is None:
+            print("Expected node_gdf to be defined for plot_xyi.")
+            return
+        return plot_xyi_plot(node_types=self.node_types, label=label)
+
+    def plot_branch(self, label: Optional[str] = None):
+        if label is None:
+            label = self.name
+        if self.branch_types is None:
+            print("Expected node_gdf to be defined for plot_xyi.")
+            return
+        return plot_branch_plot(branch_types=self.branch_types, label=label)
