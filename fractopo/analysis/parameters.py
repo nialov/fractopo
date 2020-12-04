@@ -63,50 +63,57 @@ def decorate_xyi_ax(
     )
 
 
-@singledispatch
 def plot_xyi_plot(
-    node_types: np.ndarray,
-    label: str,
-    color: Optional[str] = None,
-    node_dict: Optional[Dict[str, int]] = None,
-) -> Tuple[
-    Dict[str, int],
-    matplotlib.figure.Figure,  # type: ignore
-    matplotlib.axes.Axes,  # type: ignore
-    ternary.ternary_axes_subplot.TernaryAxesSubplot,
-]:
-    if node_dict is None:
-        node_dict = determine_node_classes(node_types)
-    # Scatter Plot
-    scale = 100
-    fig, ax = plt.subplots(figsize=(6.5, 5.1))
-    fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_xyi_plot_ax(node_dict=node_dict, label=label, tax=tax, color=color)
-    decorate_xyi_ax(ax, tax, label=label, node_dict=node_dict)
-    return node_dict, fig, ax, tax
-
-
-@plot_xyi_plot.register
-def _(
-    node_types: List[np.ndarray],
-    label: str,
-    color: Optional[str] = None,
-    node_dict: Optional[Dict[str, int]] = None,
+    node_types_list: List[np.ndarray],
+    labels: List[str],
+    colors: Optional[List[Optional[str]]] = None,
+    node_dicts: Optional[List[Dict[str, int]]] = None,
 ) -> Tuple[
     List[Dict[str, int]],
     matplotlib.figure.Figure,  # type: ignore
     matplotlib.axes.Axes,  # type: ignore
     ternary.ternary_axes_subplot.TernaryAxesSubplot,
 ]:
+    """
+    Plot ternary XYI-plot.
+
+    By default accepts a list of node_types -arrays but a list with
+    a single node_types -array is accepted i.e. a single XYI-value is easily
+    plotted.
+    """
+    if node_dicts is None:
+        node_dicts = [
+            determine_node_classes(node_types) for node_types in node_types_list
+        ]
+    if colors is None:
+        colors = [None for _ in node_dicts]
     # Scatter Plot
     scale = 100
     fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    for node_types_array in node_types:
-        node_dict = determine_node_classes(node_types)
-        decorate_xyi_ax(ax, tax, label=label, node_dict=node_dict)
-        plot_xyi_plot_ax(node_dict=node_dict, label=label, tax=tax, color=color)
-    return node_dict, fig, ax, tax
+    plot_xyi_plot_ax(node_dict=node_dicts[0], label=labels[0], tax=tax, color=colors[0])
+    decorate_xyi_ax(ax, tax, label=labels[0], node_dict=node_dicts[0])
+    if len(node_dicts) > 1:
+        for node_dict, label, color in zip(node_dicts[1:], labels[1:], colors[1:]):
+            point = node_dict_to_point(node_dict)
+            if point is None:
+                continue
+            plot_ternary_point(point=point, marker="X", label=label, tax=tax)
+
+    return node_dicts, fig, ax, tax
+
+
+def node_dict_to_point(node_dict: Dict[str, int]):
+    xcount, ycount, icount = _get_xyi_counts(node_dict)
+    sumcount = xcount + ycount + icount
+    if sumcount == 0:
+        return None
+    else:
+        xp = 100 * xcount / sumcount
+        yp = 100 * ycount / sumcount
+        ip = 100 * icount / sumcount
+        point = [(xp, ip, yp)]
+        return point
 
 
 def _get_xyi_counts(node_dict: Dict[str, int]) -> Tuple[int, int, int]:
@@ -132,17 +139,9 @@ def plot_xyi_plot_ax(
     if color is None:
         color = "black"
     xcount, ycount, icount = _get_xyi_counts(node_dict)
-
-    sumcount = xcount + ycount + icount
-    if sumcount == 0:
-        return
-    else:
-        xp = 100 * xcount / sumcount
-        yp = 100 * ycount / sumcount
-        ip = 100 * icount / sumcount
-        point = [(xp, ip, yp)]
-
-    plot_ternary_point(tax=tax, point=point, marker="o", label=label)
+    point = node_dict_to_point(node_dict)
+    if point is not None:
+        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
     # tax.scatter(point, s=50, marker="o", label=label, alpha=1, zorder=4, color=color)
     tax.legend(
         loc="upper center",
@@ -180,6 +179,7 @@ def plot_ternary_point(
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = "black",
+    s: float = 25,
 ):
     tax.scatter(
         point,
@@ -187,7 +187,7 @@ def plot_ternary_point(
         label=label,
         alpha=1,
         zorder=4,
-        s=125,
+        s=s,
         color=color,
     )
 

@@ -245,7 +245,7 @@ class Network:
         if self.node_types is None:
             print("Expected node_gdf to be defined for plot_xyi.")
             return
-        return plot_xyi_plot(node_types=self.node_types, label=label)
+        return plot_xyi_plot(node_types_list=[self.node_types], labels=[label])
 
     def plot_branch(self, label: Optional[str] = None):
         if label is None:
