@@ -134,7 +134,7 @@ class LineData:
             self.length_array, label=label, cut_off=cut_off
         )
 
-    def plot_azimuth(self, label: str):
+    def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
         return azimuth.plot_azimuth_plot(
             self.azimuth_array,
             self.length_array,
