@@ -2,7 +2,7 @@
 Functions for plotting rose plots.
 """
 
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Dict
 import math
 from textwrap import wrap
 
@@ -87,7 +87,7 @@ def _calc_locs(bin_width: float) -> np.ndarray:
 
 def determine_azimuth_bins(
     azimuth_array: np.ndarray, length_array: Optional[np.ndarray] = None
-) -> Tuple[float, np.ndarray, np.ndarray]:
+) -> Dict[str, np.ndarray]:
     """
     Calculate azimuth bins for plotting azimuth rose plots.
 
@@ -112,38 +112,25 @@ def determine_azimuth_bins(
     # Height of rose plot bins.
     bin_heights, _ = np.histogram(azimuth_array, bin_edges, weights=length_array)
 
-    return bin_width, bin_locs, bin_heights
+    return dict(bin_width=bin_width, bin_locs=bin_locs, bin_heights=bin_heights)
 
 
 def plot_azimuth_ax(
     bin_width: float,
     bin_locs: np.ndarray,
     bin_heights: np.ndarray,
-    ax: matplotlib.axes.Axes,
+    ax: matplotlib.axes.Axes,  # type: ignore
 ):
-    """
-    Plot weighted azimuth rose-plot to given ax. Type can be 'equal-radius'
-    or 'equal-area'.
-
-    :param set_visualization: Whether to visualize sets into the same plot
-    :type set_visualization: bool
-    :param ax: Polar axis to plot on.
-    :type ax: matplotlib.projections.polar.PolarAxes
-    :param name: Name of the target area or group
-    :type name: str
-    :param rose_type: Type can be 'equal-radius' or 'equal-area'
-    :type rose_type: str
-    :raise ValueError: When given invalid rose_type string. Valid: 'equal-radius' or 'equal-area'
-    """
+    """"""
 
     # Rose type always equal-area
-    number_of_azimuths = np.sqrt(bin_heights)
+    number_of_azimuths = np.sqrt(bin_heights)  # type: ignore
 
     # Plot azimuth rose plot
     ax.bar(
-        np.deg2rad(bin_locs),
+        np.deg2rad(bin_locs),  # type: ignore
         number_of_azimuths,
-        width=np.deg2rad(bin_width),
+        width=np.deg2rad(bin_width),  # type: ignore
         bottom=0.0,
         color="darkgrey",
         edgecolor="k",
@@ -189,7 +176,7 @@ def plot_azimuth_ax(
 
 
 def _create_azimuth_set_text(
-    length_array: np.ndarray, set_array: np.ndarray, set_names: List[str]
+    length_array: np.ndarray, set_array: np.ndarray, set_names: Tuple[str, ...]
 ) -> str:
     """
     Creates azimuth set statistics for figure.
@@ -218,15 +205,15 @@ def _create_azimuth_set_text(
 
 
 def decorate_azimuth_ax(
-    ax: matplotlib.axes.Axes,
-    name: str,
+    ax: matplotlib.axes.Axes,  # type: ignore
+    label: str,
     length_array: np.ndarray,
     set_array: np.ndarray,
-    set_names: List[str],
+    set_names: Tuple[str, ...],
 ):
     # Title is the name of the target area or group
     prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
-    title = "\n".join(wrap(f"{name}", 10))
+    title = "\n".join(wrap(f"{label}", 10))
     ax.set_title(
         title,
         x=0.94,
@@ -256,18 +243,30 @@ def decorate_azimuth_ax(
     )
 
 
-# def plot_azimuth(
-#     azimuth_array: np.ndarray,
-#     length_array: np.ndarray,
-#     set_array: np.ndarray,
-#     set_names: List[str],
-#     names: List[str],
-# ):
-#     """
-#     Plot azimuth rose plot to its own figure.
+def plot_azimuth_plot(
+    azimuth_array: np.ndarray,
+    length_array: np.ndarray,
+    azimuth_set_array: np.ndarray,
+    azimuth_set_names: Tuple[str, ...],
+    label: str,
+) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+    """
+    Plot azimuth rose plot to its own figure.
 
-#     Returns figure, ax
-#     """
-#     bin_width, bin_locs, bin_heights = determine_azimuth_bins(
-#         azimuth_array, length_array
-#     )
+    Returns rose plot bin parameters, figure, ax
+    """
+    azimuth_bin_dict = determine_azimuth_bins(azimuth_array, length_array)
+    fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))
+    plot_azimuth_ax(**azimuth_bin_dict, ax=ax)
+    decorate_azimuth_ax(
+        ax=ax,
+        label=label,
+        length_array=length_array,
+        set_array=azimuth_set_array,
+        set_names=azimuth_set_names,
+    )
+    return (
+        azimuth_bin_dict,
+        fig,
+        ax,
+    )
