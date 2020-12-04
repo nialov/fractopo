@@ -1,6 +1,7 @@
 """
 Contains general calculation and plotting tools.
 """
+from enum import Enum, unique
 import powerlaw
 import geopandas as gpd
 import pandas as pd
@@ -52,10 +53,19 @@ GEOMETRY_COLUMN = "geometry"
 NULL_SET = "-1"
 
 
+@unique
+class Col(Enum):
+
+    LENGTH = "length"
+    AZIMUTH = "azimuth"
+    AZIMUTH_SET = "azimuth_set"
+    LENGTH_SET = "length_set"
+
+
 def determine_set(
     value: float,
-    value_ranges: List[Tuple[float, float]],
-    set_names: List[str],
+    value_ranges: Tuple[Tuple[float, float], ...],
+    set_names: Tuple[str, ...],
     loop_around: bool,
 ) -> np.ndarray:
     """
