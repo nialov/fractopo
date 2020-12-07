@@ -163,7 +163,6 @@ class Network:
         Is branch_gdf defined.
         """
         if self.branch_gdf is None:
-            print(f"Expected branch_gdf to be defined.")
             return False
         return True
 

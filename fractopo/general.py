@@ -20,7 +20,7 @@ import seaborn as sns
 import shapely
 import ternary
 from shapely import strtree
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, MultiLineString
 from shapely.ops import linemerge
 from shapely import prepared
 import logging
@@ -585,31 +585,23 @@ def plot_curv_plot(lineframe, ax=plt.gca(), name=""):
     ax.grid(True, color="k", linewidth=0.3)
 
 
-def prepare_geometry_traces(traceframe):
+def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeometry:
     """
-    Prepare tracefrace geometries for a spatial analysis (faster).
-    The try-except clause is required due to QGIS differences in the shapely package
+    Prepare trace_series geometries for a faster spatial analysis.
 
-    :param traceframe:
-    :type traceframe:
-    :return:
-    :rtype:
+    Assumes geometries are LineStrings which are consequently collected into
+    a single MultiLineString which is prepared with shapely.prepared.prep.
+
+    >>> traces = gpd.GeoSeries([LineString([(0,0), (1, 1)]), LineString([(0,1), (0, -1)])])
+    >>> prepare_geometry_traces(traces).context.wkt
+    'MULTILINESTRING ((0 0, 1 1), (0 1, 0 -1))'
+
     """
-    traces = traceframe.geometry.values
+    traces = trace_series.geometry.values
     traces = np.asarray(traces).tolist()  # type: ignore
-    trace_col = shapely.geometry.MultiLineString(traces)
-    prep_col = prepared.prep(trace_col)
-    return prep_col, trace_col
-
-
-def make_point_tree(traceframe):
-    points = []
-    for idx, row in traceframe.iterrows():
-        sp = row.startpoint
-        ep = row.endpoint
-        points.extend([sp, ep])
-    tree = strtree.STRtree(points)
-    return tree
+    trace_col = MultiLineString(traces)
+    prepared_traces = prepared.prep(trace_col)
+    return prepared_traces
 
 
 def initialize_ternary_points(ax, tax):
@@ -900,3 +892,25 @@ def match_crs(
     else:
         # Two crs that are not the same
         return first, second
+
+
+def get_trace_endpoints(
+    trace: LineString,
+) -> Tuple[Point]:
+    """
+    Returns endpoints (shapely.geometry.Point) of a given LineString
+    """
+    if not isinstance(trace, LineString):
+        raise TypeError(
+            "Non LineString geometry passed into get_trace_endpoints.\n"
+            f"trace: {trace}"
+        )
+    return tuple(
+        (
+            endpoint
+            for endpoint in (
+                Point(trace.coords[0]),
+                Point(trace.coords[-1]),
+            )
+        )
+    )

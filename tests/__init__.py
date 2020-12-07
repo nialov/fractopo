@@ -358,3 +358,49 @@ class Helpers:
             ["black"],  # colors
         )
     ]
+    test_determine_nodes_intersecting_sets_params = [
+        (
+            (
+                gpd.GeoSeries([LineString([(0, 0), (1, 1)])]),
+                gpd.GeoSeries([LineString([(0, 1), (0, -1)])]),
+            ),  # trace_series_two_sets
+            np.array(["1", "2"]),  # set_array
+            ("1", "2"),  # set_names_two_sets
+            gpd.GeoSeries(
+                [Point(0, 0), Point(1, 1), Point(0, 1), Point(0, -1)]
+            ),  # node_series_xy
+            0.001,  # buffer_value
+            [True, False, False, False],  # assumed_intersections
+        ),
+        (
+            (
+                gpd.GeoSeries([LineString([(0.5, 0.5), (1, 1)])]),
+                gpd.GeoSeries([LineString([(0, 1), (0, -1)])]),
+            ),  # trace_series_two_sets
+            np.array(["1", "2"]),  # set_array
+            ("1", "2"),  # set_names_two_sets
+            gpd.GeoSeries(
+                [Point(0.5, 0.5), Point(1, 1), Point(0, 1), Point(0, -1)]
+            ),  # node_series_xy
+            0.001,  # buffer_value
+            [False, False, False, False],  # assumed_intersections
+        ),
+    ]
+
+    test_prepare_geometry_traces_params = [
+        (
+            gpd.GeoSeries(
+                [LineString([(0.5, 0.5), (1, 1)]), LineString([(0, 1), (0, -1)])]
+            )
+        ),
+        (
+            gpd.GeoSeries(
+                [
+                    LineString([(0.5, 0.5), (1, 1)]),
+                    LineString([(0, 1), (0, -1)]),
+                    LineString([(0, 100), (0, -15)]),
+                    LineString([(5, 100), (67, -15), (67, -150)]),
+                ]
+            )
+        ),
+    ]

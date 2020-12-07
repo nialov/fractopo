@@ -175,6 +175,8 @@ class BaseValidator:
     ) -> List[shapely.geometry.Point]:
         """
         Returns endpoints (shapely.geometry.Point) of a given LineString
+
+        TODO: Defined also in fractopo.general -> Remove from here.
         """
         if not isinstance(trace, shapely.geometry.LineString):
             raise TypeError(
