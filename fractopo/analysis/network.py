@@ -7,6 +7,7 @@ grouped target areas.
 from pathlib import Path
 from textwrap import wrap
 from dataclasses import dataclass, field
+from functools import cached_property
 
 import geopandas as gpd
 import matplotlib.patches as patches
@@ -34,7 +35,15 @@ from fractopo.general import (
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis.line_data import LineData
-from fractopo.analysis.parameters import plot_xyi_plot, plot_branch_plot
+from fractopo.analysis.parameters import (
+    plot_xyi_plot,
+    plot_branch_plot,
+    determine_node_classes,
+    determine_branch_classes,
+    determine_topology_parameters,
+    plot_parameters_plot,
+)
+from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 
 from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
@@ -85,6 +94,10 @@ class Network:
     # Length distributions
     trace_length_cut_off: Optional[float] = None
     branch_length_cut_off: Optional[float] = None
+
+    # Private caching attributes
+    _anisotropy: Optional[np.ndarray] = None
+    _parameters: Optional[Dict[str, float]] = None
 
     @staticmethod
     def _default_length_set_ranges(count, min, max):
@@ -146,6 +159,9 @@ class Network:
         self.node_gdf = self.node_gdf.copy() if self.node_gdf is not None else None
 
     def _require_branches(self) -> bool:
+        """
+        Is branch_gdf defined.
+        """
         if self.branch_gdf is None:
             print(f"Expected branch_gdf to be defined.")
             return False
@@ -198,10 +214,53 @@ class Network:
         return self.node_gdf[CLASS_COLUMN].to_numpy()
 
     @property
+    def node_counts(self) -> Optional[Dict[str, int]]:
+        if not self._require_branches():
+            return None
+        return determine_node_classes(self.node_types)
+
+    @property
     def branch_types(self) -> Optional[np.ndarray]:
         if not self._require_branches():
             return None
         return self.branch_gdf[CONNECTION_COLUMN].to_numpy()
+
+    @property
+    def branch_counts(self) -> Optional[Dict[str, int]]:
+        if not self._require_branches():
+            return None
+        return determine_branch_classes(self.branch_types)
+
+    @property
+    def total_area(self) -> float:
+        return self.area_geoseries.geometry.area.sum()
+
+    @property
+    def parameters(self) -> Optional[Dict[str, float]]:
+        if not self._require_branches():
+            return None
+        # Cannot do simple cached_property because None might have been
+        # returned previously.
+        if self._parameters is None:
+            self._parameters = determine_topology_parameters(
+                trace_length_array=self.trace_length_array,
+                branch_length_array=self.branch_length_array,
+                node_counts=self.node_counts,  # type: ignore
+                area=self.total_area,
+            )
+        return self._parameters
+
+    @property
+    def anisotropy(self) -> Optional[np.ndarray]:
+        if not self._require_branches:
+            return None
+        if self._anisotropy is None:
+            self._anisotropy = determine_anisotropy_sum(
+                azimuth_array=self.branch_azimuth_array,
+                length_array=self.branch_length_array,
+                branch_types=self.branch_types,
+            )
+        return self._anisotropy
 
     def assign_branches_nodes(self):
         if self.area_geoseries is not None:
@@ -245,12 +304,46 @@ class Network:
         if self.node_types is None:
             print("Expected node_gdf to be defined for plot_xyi.")
             return
-        return plot_xyi_plot(node_types_list=[self.node_types], labels=[label])
+        return plot_xyi_plot(node_counts_list=[self.node_types], labels=[label])
 
     def plot_branch(self, label: Optional[str] = None):
         if label is None:
             label = self.name
         if self.branch_types is None:
-            print("Expected node_gdf to be defined for plot_xyi.")
+            print("Expected branch_gdf to be defined for plot_xyi.")
             return
-        return plot_branch_plot(branch_types=self.branch_types, label=label)
+        return plot_branch_plot(branch_counts_list=[self.branch_types], labels=[label])
+
+    def plot_parameters(self, label: Optional[str] = None, color: Optional[str] = None):
+        if not self._require_branches():
+            return None
+        if label is None:
+            label = self.name
+        if color is None:
+            color = "black"
+        assert self.parameters is not None
+        figs, axes = plot_parameters_plot(
+            topology_parameters_list=[self.parameters],  # type: ignore
+            labels=[label],
+            colors=[color],
+        )
+        return figs[0], axes[0]
+
+    def plot_anisotropy(
+        self, label: Optional[str] = None, color: Optional[str] = None
+    ) -> Optional[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]]:  # type: ignore
+        if label is None:
+            label = self.name
+        if not self._require_branches:
+            return None
+        if color is None:
+            color = "black"
+        anisotropy_sum = self.anisotropy[0]
+        sample_intervals = self.anisotropy[1]
+        fig, ax = plot_anisotropy_plot(
+            anisotropy_sum=anisotropy_sum,
+            sample_intervals=sample_intervals,
+            label=label,  # type: ignore
+            color=color,
+        )
+        return fig, ax

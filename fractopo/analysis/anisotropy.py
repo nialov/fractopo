@@ -1,5 +1,6 @@
 import numpy as np
 import fractopo.analysis.config as config
+import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
@@ -36,30 +37,34 @@ def determine_anisotropy_classification(c) -> int:
 
 
 def determine_anisotropy_sum(
-    azimuths: np.ndarray,
+    azimuth_array: np.ndarray,
     branch_types: np.ndarray,
-    lengths: np.ndarray,
+    length_array: np.ndarray,
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
-):
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-
     E.g.
 
+    >>> from pprint import pprint
     >>> azimuths = np.array([20, 50, 60, 70])
     >>> lengths = np.array([2, 5, 6, 7])
     >>> branch_types = np.array(["C - C", "C - C", "C - C", "C - I"])
-    >>> determine_anisotropy_sum(azimuths, branch_types, lengths)
-    array([ 8.09332329, 11.86423103, 12.45612765,  9.71041492,  5.05739707,
-            2.15381611])
+    >>> pprint(determine_anisotropy_sum(azimuths, branch_types, lengths))
+    (array([ 8.09332329, 11.86423103, 12.45612765,  9.71041492,  5.05739707,
+            2.15381611]),
+     array([  0,  30,  60,  90, 120, 150]))
+
     """
     # Array of anisotropy_array-s
     anisotropy_arrays = np.array(
         [
             determine_anisotropy_value(azimuth, branch_type, length, sample_intervals)
-            for azimuth, branch_type, length in zip(azimuths, branch_types, lengths)
+            for azimuth, branch_type, length in zip(
+                azimuth_array, branch_types, length_array
+            )
         ]
     )
-    return anisotropy_arrays.sum(axis=0)
+    return anisotropy_arrays.sum(axis=0), sample_intervals
 
 
 def determine_anisotropy_value(
@@ -98,34 +103,50 @@ def determine_anisotropy_value(
         diff = np.abs(angle - azimuth)
         if diff > 90:
             diff = 180 - max([angle, azimuth]) + min([angle, azimuth])
-        cos_diff = np.cos(np.deg2rad(diff))
+        cos_diff = np.cos(np.deg2rad(diff))  # type: ignore
         result = length * classification * cos_diff
         results.append(result)
     # print(results)
     return np.array(results)
 
 
+def plot_anisotropy_plot(
+    anisotropy_sum: np.ndarray,
+    sample_intervals: np.ndarray,
+    label: str,
+    color: Optional[str] = None,
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+    """
+    Plot anisotropy values to new figure.
+    """
+    fig, ax = plt.subplots(subplot_kw=dict(polar=True))
+    plot_anisotropy_ax(
+        anisotropy_sum=anisotropy_sum, ax=ax, sample_intervals=sample_intervals
+    )
+    return fig, ax
+
+
 def plot_anisotropy_ax(
     anisotropy_sum: np.ndarray,
     ax: plt.PolarAxes,
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
-) -> plt.Axes:
+):
     """
     Plots a styled anisotropy of connectivity to a given PolarAxes.
 
     Spline done with:
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
     """
-    double_anisotropy = np.concatenate([anisotropy_array, anisotropy_array])
+    double_anisotropy = np.concatenate([anisotropy_sum, anisotropy_sum])
     opp_angles = [i + 180 for i in sample_intervals]
     angles = list(sample_intervals) + opp_angles
     # PLOT SETUP
     ax.set_theta_zero_location("N")
     ax.set_theta_direction(-1)
-    max_aniso = max(anisotropy_array)
+    max_aniso = max(anisotropy_sum)
 
     for theta, r in zip(angles, double_anisotropy):
-        theta = np.deg2rad(theta)
+        theta = np.deg2rad(theta)  # type: ignore
         arrowstyle = patches.ArrowStyle.CurveB(head_length=1, head_width=0.5)
         ax.annotate(
             "",
@@ -141,10 +162,8 @@ def plot_anisotropy_ax(
     double_anisotropy = np.concatenate([double_anisotropy, double_anisotropy[0:1]])
     angles = np.array(angles)
 
-    # TODO: testing CubicSpline
-    # And it works!?
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
-    theta = np.deg2rad(angles)
+    theta = np.deg2rad(angles)  # type: ignore
     cs = CubicSpline(theta, double_anisotropy, bc_type="periodic")
     xnew = np.linspace(theta.min(), theta.max(), 300)
     power_smooth = cs(xnew)
@@ -159,5 +178,3 @@ def plot_anisotropy_ax(
         zorder=10,
     )
     ax.add_artist(circle)
-
-    return ax

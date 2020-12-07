@@ -38,6 +38,7 @@ def tracevalidate(
             trace_path.parent / f"{trace_path.stem}_validated.{trace_path.suffix}"
         )
     # Sensible defaults
+    # TODO: Refactor tval
     snap_threshold = 0.001
     snap_threshold_error_multiplier = 1.1
     area_edge_snap_multiplier = 5

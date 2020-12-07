@@ -28,6 +28,7 @@ release = "0.1"
 
 # -- General configuration ---------------------------------------------------
 
+# TODO: Documentation with rtd
 import recommonmark
 
 extensions = [
