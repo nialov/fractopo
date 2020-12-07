@@ -1,9 +1,10 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
-from typing import Dict, Tuple, Optional, List
-from functools import singledispatch
+from typing import Dict, Tuple, Optional, List, Union
+from functools import lru_cache
 
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -16,8 +17,11 @@ from fractopo.general import (
     CC_branch,
     CI_branch,
     II_branch,
+    Param,
 )
 from fractopo.analysis import tools
+import fractopo.analysis.config as config
+from textwrap import wrap
 
 
 def determine_node_classes(node_types: np.ndarray) -> Dict[str, int]:
@@ -39,9 +43,9 @@ def determine_branch_classes(branch_types: np.ndarray) -> Dict[str, int]:
 
 
 def decorate_xyi_ax(
-    ax: matplotlib.axes.Axes, tax: ternary.ternary_axes_subplot.TernaryAxesSubplot, label: str, node_dict: Dict[str, int]  # type: ignore
+    ax: matplotlib.axes.Axes, tax: ternary.ternary_axes_subplot.TernaryAxesSubplot, label: str, node_counts: Dict[str, int]  # type: ignore
 ):
-    xcount, ycount, icount = _get_xyi_counts(node_dict)
+    xcount, ycount, icount = _get_xyi_counts(node_counts)
     text = f"n: {xcount+ycount+icount}\n"
     f"X-nodes: {xcount}\n"
     f"Y-nodes: {ycount}\n"
@@ -64,12 +68,10 @@ def decorate_xyi_ax(
 
 
 def plot_xyi_plot(
-    node_types_list: List[np.ndarray],
+    node_counts_list: List[Dict[str, int]],
     labels: List[str],
     colors: Optional[List[Optional[str]]] = None,
-    node_dicts: Optional[List[Dict[str, int]]] = None,
 ) -> Tuple[
-    List[Dict[str, int]],
     matplotlib.figure.Figure,  # type: ignore
     matplotlib.axes.Axes,  # type: ignore
     ternary.ternary_axes_subplot.TernaryAxesSubplot,
@@ -81,30 +83,29 @@ def plot_xyi_plot(
     a single node_types -array is accepted i.e. a single XYI-value is easily
     plotted.
     """
-    if node_dicts is None:
-        node_dicts = [
-            determine_node_classes(node_types) for node_types in node_types_list
-        ]
     if colors is None:
-        colors = [None for _ in node_dicts]
-    # Scatter Plot
+        colors = [None for _ in node_counts_list]
     scale = 100
     fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_xyi_plot_ax(node_dict=node_dicts[0], label=labels[0], tax=tax, color=colors[0])
-    decorate_xyi_ax(ax, tax, label=labels[0], node_dict=node_dicts[0])
-    if len(node_dicts) > 1:
-        for node_dict, label, color in zip(node_dicts[1:], labels[1:], colors[1:]):
-            point = node_dict_to_point(node_dict)
+    plot_xyi_plot_ax(
+        node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
+    )
+    decorate_xyi_ax(ax, tax, label=labels[0], node_counts=node_counts_list[0])
+    if len(node_counts_list) > 1:
+        for node_counts, label, color in zip(
+            node_counts_list[1:], labels[1:], colors[1:]
+        ):
+            point = node_counts_to_point(node_counts)
             if point is None:
                 continue
             plot_ternary_point(point=point, marker="X", label=label, tax=tax)
 
-    return node_dicts, fig, ax, tax
+    return fig, ax, tax
 
 
-def node_dict_to_point(node_dict: Dict[str, int]):
-    xcount, ycount, icount = _get_xyi_counts(node_dict)
+def node_counts_to_point(node_counts: Dict[str, int]):
+    xcount, ycount, icount = _get_xyi_counts(node_counts)
     sumcount = xcount + ycount + icount
     if sumcount == 0:
         return None
@@ -116,33 +117,45 @@ def node_dict_to_point(node_dict: Dict[str, int]):
         return point
 
 
-def _get_xyi_counts(node_dict: Dict[str, int]) -> Tuple[int, int, int]:
-    xcount = node_dict[X_node]
-    ycount = node_dict[Y_node]
-    icount = node_dict[I_node]
+def branch_counts_to_point(branch_counts: Dict[str, int]):
+    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
+    sumcount = cc_count + ci_count + ii_count
+    if sumcount == 0:
+        return None
+    ccp = 100 * cc_count / sumcount
+    cip = 100 * ci_count / sumcount
+    iip = 100 * ii_count / sumcount
+
+    point = [(ccp, iip, cip)]
+    return point
+
+
+def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
+    xcount = node_counts[X_node]
+    ycount = node_counts[Y_node]
+    icount = node_counts[I_node]
     return xcount, ycount, icount
 
 
-def _get_branch_class_counts(branch_dict: Dict[str, int]) -> Tuple[int, int, int]:
-    cc_count = branch_dict[CC_branch]
-    ci_count = branch_dict[CI_branch]
-    ii_count = branch_dict[II_branch]
+def _get_branch_class_counts(branch_counts: Dict[str, int]) -> Tuple[int, int, int]:
+    cc_count = branch_counts[CC_branch]
+    ci_count = branch_counts[CI_branch]
+    ii_count = branch_counts[II_branch]
     return cc_count, ci_count, ii_count
 
 
 def plot_xyi_plot_ax(
-    node_dict: Dict[str, int],
+    node_counts: Dict[str, int],
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
 ):
     if color is None:
         color = "black"
-    xcount, ycount, icount = _get_xyi_counts(node_dict)
-    point = node_dict_to_point(node_dict)
+    xcount, ycount, icount = _get_xyi_counts(node_counts)
+    point = node_counts_to_point(node_counts)
     if point is not None:
         plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
-    # tax.scatter(point, s=50, marker="o", label=label, alpha=1, zorder=4, color=color)
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
@@ -155,22 +168,38 @@ def plot_xyi_plot_ax(
 
 
 def plot_branch_plot(
-    branch_types: np.ndarray,
-    label: str,
-    color: Optional[str] = None,
-    branch_dict: Optional[Dict[str, int]] = None,
-):
+    branch_counts_list: List[Dict[str, int]],
+    labels: List[str],
+    colors: Optional[List[Optional[str]]] = None,
+) -> Tuple[
+    matplotlib.figure.Figure,  # type: ignore
+    matplotlib.axes.Axes,  # type: ignore
+    ternary.ternary_axes_subplot.TernaryAxesSubplot,
+]:
     """
     Plot a branch classification ternary plot to a new ternary figure. Single point in each figure.
     """
-    if branch_dict is None:
-        branch_dict = determine_branch_classes(branch_types)
-    fig, ax = plt.subplots(figsize=(6.5, 5.1))
+    if colors is None:
+        colors = [None for _ in branch_counts_list]
     scale = 100
+    fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_branch_plot_ax(branch_dict=branch_dict, label=label, tax=tax, color=color)
-    decorate_branch_ax(ax=ax, tax=tax, label=label, branch_dict=branch_dict)
-    return branch_dict, fig, ax, tax
+    plot_branch_plot_ax(
+        branch_counts=branch_counts_list[0], label=labels[0], tax=tax, color=colors[0]
+    )
+    decorate_branch_ax(
+        ax=ax, tax=tax, label=labels[0], branch_counts=branch_counts_list[0]
+    )
+    if len(branch_counts_list) > 1:
+        for branch_counts, label, color in zip(
+            branch_counts_list[1:], labels[1:], colors[1:]
+        ):
+            point = branch_counts_to_point(branch_counts)
+            if point is None:
+                continue
+            plot_ternary_point(point=point, marker="o", label=label, tax=tax)
+
+    return fig, ax, tax
 
 
 def plot_ternary_point(
@@ -193,30 +222,35 @@ def plot_ternary_point(
 
 
 def plot_branch_plot_ax(
-    branch_dict: Dict[str, int],
+    branch_counts: Dict[str, int],
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
 ):
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_dict)
-    sumcount = cc_count + ci_count + ii_count
-    if sumcount == 0:
-        return
-    ccp = 100 * cc_count / sumcount
-    cip = 100 * ci_count / sumcount
-    iip = 100 * ii_count / sumcount
-
-    point = [(ccp, iip, cip)]
-    plot_ternary_point(tax=tax, point=point, marker="X", label=label, color=color)
+    if color is None:
+        color = "black"
+    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
+    point = branch_counts_to_point(branch_counts)
+    if point is not None:
+        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+    tax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.15),
+        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        edgecolor="black",
+        ncol=2,
+        columnspacing=0.7,
+        shadow=True,
+    )
 
 
 def decorate_branch_ax(
     ax: matplotlib.axes.Axes,  # type: ignore
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     label: str,
-    branch_dict: Dict[str, int],
+    branch_counts: Dict[str, int],
 ):
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_dict)
+    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     text = f"n: {cc_count+ci_count+ii_count}\n"
     f"CC-branches: {cc_count}\n"
     f"CI-branches: {ci_count}\n"
@@ -245,3 +279,148 @@ def decorate_branch_ax(
         columnspacing=0.7,
         shadow=True,
     )
+
+
+def determine_topology_parameters(
+    trace_length_array: np.ndarray,
+    branch_length_array: np.ndarray,
+    node_counts: Dict[str, int],
+    area: float,
+):
+    """
+    Determine topology parameters.
+
+    Number of traces and branches are determined by node counting.
+    """
+    assert isinstance(trace_length_array, np.ndarray)
+    assert isinstance(branch_length_array, np.ndarray)
+    assert isinstance(node_counts, dict)
+    assert isinstance(area, float)
+    number_of_traces = (node_counts[Y_node] + node_counts[I_node]) / 2
+    number_of_branches = (
+        (node_counts[X_node] * 4) + (node_counts[Y_node] * 3) + node_counts[I_node]
+    ) / 2
+    fracture_intensity = branch_length_array.sum() / area
+    aerial_frequency_traces = number_of_traces / area
+    aerial_frequency_branches = number_of_branches / area
+    characteristic_length_traces = trace_length_array.mean()
+    characteristic_length_branches = branch_length_array.mean()
+    dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
+    dimensionless_intensity_branches = (
+        fracture_intensity * characteristic_length_branches
+    )
+    connections_per_trace = (
+        (2 * (node_counts[Y_node] + node_counts[X_node]) / number_of_traces)
+        if number_of_traces > 0
+        else 0.0
+    )
+    connections_per_branch = (
+        (3 * node_counts[Y_node] + 4 * node_counts[X_node]) / number_of_branches
+        if number_of_branches > 0
+        else 0.0
+    )
+    topology_parameters = {
+        Param.NUMBER_OF_TRACES.value: number_of_traces,
+        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
+        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
+        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
+        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
+        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
+        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
+        Param.BRANCH_MEAN_LENGTH.value: characteristic_length_branches,
+        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
+        Param.DIMENSIONLESS_INTENSITY_B22.value: dimensionless_intensity_branches,
+        Param.CONNECTIONS_PER_TRACE.value: connections_per_trace,
+        Param.CONNECTIONS_PER_BRANCH.value: connections_per_branch,
+    }
+    return topology_parameters
+
+
+def plot_parameters_plot(
+    topology_parameters_list: List[Dict[str, float]],
+    labels: List[str],
+    colors=Optional[List[str]],
+):
+    """
+    Plot topological parameters.
+
+    """
+    log_scale_columns = Param.log_scale_columns()
+    prop = config.prop
+
+    columns_to_plot = [param.value for param in Param]
+    figs, axes = [], []
+
+    for column in columns_to_plot:
+        # Figure size setup
+        # TODO: width higher, MAYBE lower bar_width
+
+        width = 6 + 1 * len(topology_parameters_list) / 6
+        bar_width = 0.6 * len(topology_parameters_list) / 6
+
+        fig, ax = plt.subplots(figsize=(width, 5.5))
+        topology_concat = pd.DataFrame(topology_parameters_list)
+        topology_concat["label"] = labels
+        topology_concat.label = topology_concat.label.astype("category")
+
+        # Trying to have sensible widths for bars:
+        topology_concat.plot.bar(
+            x="label",
+            y=column,
+            color=colors,
+            zorder=5,
+            alpha=0.9,
+            width=bar_width,
+            ax=ax,
+        )
+        # PLOT STYLING
+        ax.set_xlabel("")
+        ax.set_ylabel(
+            column + " " + f"({Param.get_unit_for_column(column)})",
+            fontsize="xx-large",
+            fontfamily="Calibri",
+            style="italic",
+        )
+        ax.set_title(
+            x=0.5,
+            y=1.09,
+            label=column,
+            fontsize="xx-large",
+            bbox=prop,
+            transform=ax.transAxes,
+            zorder=-10,
+        )
+        legend = ax.legend()
+        legend.remove()
+        if column in log_scale_columns:
+            ax.set_yscale("log")
+        fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
+        locs, labels = plt.xticks()
+        labels = ["\n".join(wrap(l.get_text(), 6)) for l in labels]
+        plt.yticks(fontsize="xx-large", color="black")
+        plt.xticks(locs, labels, fontsize="xx-large", color="black")
+        # VALUES ABOVE BARS WITH TEXTS
+        rects = ax.patches
+        for value, rect in zip(topology_concat[column].values, rects):
+            height = rect.get_height()
+            if value > 0.01:
+                value = round(value, 2)
+            else:
+                value = "{0:.2e}".format(value)
+            if column in log_scale_columns:
+                height = height + height / 10
+            else:
+                max_height = max([r.get_height() for r in rects])
+                height = height + max_height / 100
+            ax.text(
+                rect.get_x() + rect.get_width() / 2,
+                height,
+                value,
+                ha="center",
+                va="bottom",
+                zorder=15,
+                fontsize="x-large",
+            )
+        figs.append(fig)
+        axes.append(ax)
+    return figs, axes
