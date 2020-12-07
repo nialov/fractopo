@@ -34,7 +34,9 @@ from fractopo.tval.trace_validator import (
     SharpCornerValidator,
 )
 from fractopo.tval import trace_builder
-from fractopo.analysis import tools
+from fractopo.analysis import tools, parameters
+from fractopo.general import CC_branch, CI_branch, II_branch, X_node, Y_node, I_node
+
 
 GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
 ERROR_COLUMN = BaseValidator.ERROR_COLUMN
@@ -316,4 +318,43 @@ class Helpers:
     test_is_within_buffer_distance_params = [
         (nice_traces, 0.5, 25),
         (nice_traces, 1, 35),
+    ]
+
+    test_plot_xyi_plot_params = [
+        ([{X_node: 0, Y_node: 0, I_node: 50}], ["title"]),
+        ([{X_node: 0, Y_node: 0, I_node: 0}], ["title"]),
+        ([{X_node: 0, Y_node: 10, I_node: 25}], [""]),
+    ]
+
+    test_plot_branch_plot_params = [
+        ([{CC_branch: 30, CI_branch: 15, II_branch: 50}], ["title"]),
+        ([{CC_branch: 0, CI_branch: 0, II_branch: 50}], ["title"]),
+        ([{CC_branch: 0, CI_branch: 0, II_branch: 0}], ["title"]),
+    ]
+
+    test_determine_topology_parameters_params = [
+        (
+            np.array([10, 10, 10, 10]),  # trace_length_array
+            np.array([5, 5, 5, 5, 5, 5, 5, 5]),  # branch_length_array
+            {X_node: 3, Y_node: 5, I_node: 8},  # node_counts dict
+            10.0,  # area
+        ),
+        (
+            np.array([1, 1, 1, 1]),  # trace_length_array
+            np.array([1, 1, 1, 1, 1, 1, 1, 1]),  # branch_length_array
+            {X_node: 3, Y_node: 5, I_node: 8},  # node_counts dict
+            1.0,  # area
+        ),
+    ]
+
+    test_plot_topology_params = [
+        (
+            [
+                parameters.determine_topology_parameters(  # topology_parameters_list
+                    *test_determine_topology_parameters_params[0]
+                )
+            ],
+            ["title"],  # labels
+            ["black"],  # colors
+        )
     ]

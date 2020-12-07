@@ -138,6 +138,8 @@ def populate_sample_cell(
     ('Connection_Frequency', 0.008856160796335354)
     [None, None, None, None, None, None, None, None, None, None, None, None, None]
 
+    TODO: Determine params with same function as in analysis.parameters
+
     """
     params = dict()
     sample_circle = sample_cell.centroid.buffer(

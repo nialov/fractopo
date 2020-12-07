@@ -93,10 +93,13 @@ def determine_azimuth_bins(
 
     E.g.
 
+    >>> from pprint import pprint
     >>> azimuth_array = np.array([25, 50, 145, 160])
     >>> length_array = np.array([5, 5, 10, 60])
-    >>> determine_azimuth_bins(azimuth_array, length_array)
-    (45.0, array([ 22.5,  67.5, 112.5, 157.5]), array([ 5,  5,  0, 70]))
+    >>> pprint(determine_azimuth_bins(azimuth_array, length_array))
+    {'bin_heights': array([ 5,  5,  0, 70]),
+     'bin_locs': array([ 22.5,  67.5, 112.5, 157.5]),
+     'bin_width': 45.0}
 
     """
     # Ideal width of rose plot bin based on sample size.

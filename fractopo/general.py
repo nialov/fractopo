@@ -62,6 +62,55 @@ class Col(Enum):
     LENGTH_SET = "length_set"
 
 
+@unique
+class Param(Enum):
+    NUMBER_OF_TRACES = "Number of Traces"
+    NUMBER_OF_BRANCHES = "Number of Branches"
+    TRACE_MEAN_LENGTH = "Trace Mean Length"
+    BRANCH_MEAN_LENGTH = "Branch Mean Length"
+    CONNECTIONS_PER_BRANCH = "Connections per Branch"
+    AREAL_FREQUENCY_B20 = "Areal Frequency B20"
+    FRACTURE_INTENSITY_B21 = "Fracture Intensity B21"
+    DIMENSIONLESS_INTENSITY_B22 = "Dimensionless Intensity B22"
+    CONNECTIONS_PER_TRACE = "Connections per Trace"
+    AREAL_FREQUENCY_P20 = "Areal Frequency P20"
+    FRACTURE_INTENSITY_P21 = "Fracture Intensity P21"
+    DIMENSIONLESS_INTENSITY_P22 = "Dimensionless Intensity P22"
+
+    @classmethod
+    def log_scale_columns(cls) -> List[str]:
+        return [
+            param.value
+            for param in (
+                cls.TRACE_MEAN_LENGTH,
+                cls.BRANCH_MEAN_LENGTH,
+                cls.AREAL_FREQUENCY_B20,
+                cls.FRACTURE_INTENSITY_B21,
+                cls.FRACTURE_INTENSITY_P21,
+                cls.AREAL_FREQUENCY_P20,
+            )
+        ]
+
+    @classmethod
+    def get_unit_for_column(cls, column: str) -> str:
+        units_for_columns = {
+            cls.NUMBER_OF_TRACES.value: "-",
+            cls.NUMBER_OF_BRANCHES.value: "-",
+            cls.TRACE_MEAN_LENGTH.value: "m",
+            cls.BRANCH_MEAN_LENGTH.value: "m",
+            cls.CONNECTIONS_PER_BRANCH.value: r"$\frac{1}{n}$",
+            cls.CONNECTIONS_PER_TRACE.value: r"$\frac{1}{n}$",
+            cls.AREAL_FREQUENCY_B20.value: r"$\frac{1}{m^2}$",
+            cls.DIMENSIONLESS_INTENSITY_P22.value: "-",
+            cls.AREAL_FREQUENCY_P20.value: r"$\frac{1}{m^2}$",
+            cls.FRACTURE_INTENSITY_B21.value: r"$\frac{m}{m^2}$",
+            cls.FRACTURE_INTENSITY_P21.value: r"$\frac{m}{m^2}$",
+            cls.DIMENSIONLESS_INTENSITY_B22.value: "-",
+        }
+        assert len(units_for_columns) == len([param for param in cls])
+        return units_for_columns[column]
+
+
 def determine_set(
     value: float,
     value_ranges: Tuple[Tuple[float, float], ...],
@@ -108,10 +157,10 @@ def is_set(
     If the value range has the possibility of looping around loop_around can be
     set to true.
 
-    >>> determine_set(5, (0, 10), False)
+    >>> is_set(5, (0, 10), False)
     True
 
-    >>> determine_set(5, (175, 15), True)
+    >>> is_set(5, (175, 15), True)
     True
     """
     if loop_around:
