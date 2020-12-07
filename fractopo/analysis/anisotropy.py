@@ -132,7 +132,7 @@ def plot_anisotropy_ax(
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ):
     """
-    Plots a styled anisotropy of connectivity to a given PolarAxes.
+    Plot a styled anisotropy of connectivity to a given PolarAxes.
 
     Spline done with:
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
