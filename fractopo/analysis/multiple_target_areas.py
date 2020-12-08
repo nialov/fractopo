@@ -776,6 +776,7 @@ class MultiTargetAreaQGIS:
             ncols=cols, nrows=rows, subplot_kw=dict(polar=True), figsize=(width, height)
         )
 
+        idx: int
         for idx, row in frame.iterrows():
             row["TargetAreaLines"].plot_azimuth_exp(
                 rose_type=rose_type,
