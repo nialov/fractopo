@@ -1313,10 +1313,11 @@ class SharpCornerValidator(BaseValidator):
             # If they face opposite side -> False
             return False
         dot_product = np.dot(vec_1, vec_2)
+        if np.isclose(dot_product, 1):
+            return True
         if 1 < dot_product or dot_product < -1 or np.isnan(dot_product):
             return False
-        else:
-            rad_angle = np.arccos(dot_product)
+        rad_angle = np.arccos(dot_product)
         deg_angle = np.rad2deg(rad_angle)
         if deg_angle > threshold_angle:
             # If angle between more than threshold_angle -> False

@@ -844,3 +844,15 @@ mls_from_these_linestrings = [
     "346487.79939999990165234 6659420.76620000042021275)",
 ]
 mls_from_these_linestrings_list = [loads(s) for s in mls_from_these_linestrings]
+
+results_in_sharp_turns_error_wkt = [
+    "MultiLineString ((151234.53079999983310699 6701120.37859999947249889, "
+    "144395.03789999987930059 6703719.91510000079870224, 140253.4632999999448657 "
+    "6705986.04409999959170818, 116385.60350000020116568 "
+    "6719045.72680000029504299, 97112.15749999973922968 "
+    "6729591.50219999998807907))"
+]
+
+results_in_sharp_turns_error_mls = [
+    loads(wkt) for wkt in results_in_sharp_turns_error_wkt
+]

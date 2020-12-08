@@ -1,6 +1,7 @@
 import pandas as pd
 import geopandas as gpd
 import shapely
+from shapely.ops import linemerge
 from shapely.geometry import Point, LineString, MultiLineString
 import shapely.wkt as wkt
 import numpy as np
@@ -41,7 +42,9 @@ from tests import (
     SharpCornerValidator,
 )
 from tests.sample_data import stacked_test
+
 from tests.sample_data.py_samples.stacked_traces_sample import stacked_traces_ls
+from tests.sample_data.py_samples.samples import results_in_sharp_turns_error_mls
 
 BaseValidator.set_snap_threshold_and_multipliers(
     SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER, AREA_EDGE_SNAP_MULTIPLIER
@@ -387,7 +390,6 @@ class TestMultipleCrosscutValidator:
 
 
 class TestUnderlappingSnapValidator:
-    # TODO
     def test_determine_underlapping(self):
         valid_result = UnderlappingSnapValidator.determine_underlapping(
             Helpers.valid_gdf_get()
@@ -744,6 +746,13 @@ class TestSharpCornerValidator:
         result = SharpCornerValidator.validation_function(trace)
         if len(trace_validator.get_trace_coord_points(trace)) == 2:
             assert result
+
+    def test_validation_function_false_positive(self):
+        assert isinstance(results_in_sharp_turns_error_mls[0], MultiLineString)
+        as_linestring = linemerge(results_in_sharp_turns_error_mls[0])
+        assert isinstance(as_linestring, LineString)
+        result = SharpCornerValidator.validation_function(as_linestring)
+        assert result
 
 
 def test_point_to_xy():
