@@ -316,8 +316,9 @@ def azimu_half(degrees):
 
 def sd_calc(data):
     """
-    TODO: Wrong results atm. Needs to take into account real length, not just orientation of unit vector.
-    Calculates standard deviation for radial data (degrees)
+    TODO: Wrong results atm. Needs to take into account real length, not just
+    orientation of unit vector.  Calculates standard deviation for radial data
+    (degrees)
 
     E.g.
 
@@ -848,26 +849,6 @@ def plotting_directories(results_folder, name):
 def initialize_report_df() -> pd.DataFrame:
     report_df = pd.DataFrame(columns=ReportDfCols.cols)
     return report_df
-
-
-def setup_powerlaw_axlims(ax: matplotlib.axes.Axes, lineframe_main, powerlaw_cut_off):
-    # :type ax: matplotlib.axes.Axes
-    # TODO: Very inefficient
-    lineframe_main = lineframe_main.copy()
-    lineframe_main = lineframe_main.loc[lineframe_main["length"] > powerlaw_cut_off]
-    lineframe_main["y"] = lineframe_main["y"] / lineframe_main["y"].max()
-    left, right = calc_xlims(lineframe_main)
-    top, bottom = calc_ylims(lineframe_main)
-    left = left * 5
-    right = right / 5
-    bottom = bottom * 5
-    top = top / 5
-    try:
-        ax.set_xlim(left, right)
-        ax.set_ylim(bottom, top)
-    except ValueError:
-        # Don't try setting if it errors
-        pass
 
 
 def match_crs(

@@ -129,6 +129,7 @@ class BaseValidator:
         if snap_threshold <= 0:
             raise ValueError("Snap threshold cannot be negative or zero.")
         # TODO: Check that this effects all classes.
+        # TODO: Refactor away from class variables
         cls.SNAP_THRESHOLD = snap_threshold
         cls.SNAP_THRESHOLD_ERROR_MULTIPLIER = snap_threshold_error_multiplier
         cls.AREA_EDGE_SNAP_MULTIPLIER = area_edge_snap_multiplier
@@ -259,7 +260,6 @@ class BaseValidator:
             node_id_data.append(tuple([i for i in range(start_length, end_length)]))
 
         if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
-            # TODO
             logging.error("Both nodes_of_interaction and node_id_data are empty...")
         return nodes_of_interaction, node_id_data
 
@@ -412,7 +412,6 @@ class BaseValidator:
             node_id_data.append(tuple([i for i in range(start_length, end_length)]))
 
         if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
-            # TODO
             logging.error("Both nodes_of_interaction and node_id_data are empty...")
         return nodes_of_interaction, node_id_data
 
@@ -499,7 +498,7 @@ class GeomTypeValidator(BaseValidator):
             try:
                 removed_error = row[cls.ERROR_COLUMN].remove(cls.ERROR)
             except ValueError:
-                # Error not in row for some reason... TODO
+                # TODO: Error not in row for some reason...
                 removed_error = row[cls.ERROR_COLUMN]
             removed_error = [] if removed_error is None else removed_error
             # Update input row with fixed geometry and with error removed
@@ -1215,73 +1214,13 @@ class EmptyGeometryValidator(BaseValidator):
         return trace_geodataframe
 
 
-# def calc_azimu(line):
-#     """
-#     Calculates azimuth of given line.
-
-#     e.g.:
-#     Accepts LineString
-
-#     >>> calc_azimu(shapely.geometry.LineString([(0, 0), (1, 1)]))
-#     45.0
-
-#     Accepts mergeable MultiLineString
-
-#     >>> calc_azimu(shapely.geometry.MultiLineString([((0, 0), (1, 1)), ((1, 1), (2, 2))]))
-#     45.0
-
-#     Returns np.nan when the line cannot be merged into one continuous line.
-
-#     >>> calc_azimu(shapely.geometry.MultiLineString([((0, 0), (1, 1)), ((1.5, 1), (2, 2))]))
-#     nan
-
-#     :param line: Continous line feature (trace, branch, etc.)
-#     :type line: shapely.geometry.LineString | shapely.geometry.MultiLineString
-#     :return: Azimuth of line.
-#     :rtype: float | np.nan
-#     """
-#     try:
-#         coord_list = list(line.coords)
-#     except NotImplementedError:
-#         # TODO: Needs more testing?
-#         line = linemerge(line)
-#         try:
-#             coord_list = list(line.coords)
-#         except NotImplementedError:
-#             return np.NaN
-#     start_x = coord_list[0][0]
-#     start_y = coord_list[0][1]
-#     end_x = coord_list[-1][0]
-#     end_y = coord_list[-1][1]
-#     azimu = 90 - math.degrees(math.atan2((end_y - start_y), (end_x - start_x)))
-#     if azimu < 0:
-#         azimu = azimu + 360
-#     return azimu
-
-
-# def azimu_half(degrees):
-#     """
-#     Transforms azimuths from 180-360 range to range 0-180
-
-#     :param degrees: Degrees in range 0 - 360
-#     :type degrees: float
-#     :return: Degrees in range 0 - 180
-#     :rtype: float
-#     """
-#     if degrees >= 180:
-#         degrees = degrees - 180
-#     return degrees
-
-
 def get_trace_coord_points(trace: LineString) -> List[Point]:
     assert isinstance(trace, LineString)
     return [Point(xy) for xy in trace.coords]
 
 
 def point_to_xy(point: Point) -> Tuple[float, float]:
-    x, y = point.xy
-    x, y = [val[0] for val in (x, y)]
-    return (x, y)
+    return Point.x, Point.y
 
 
 class SharpCornerValidator(BaseValidator):
