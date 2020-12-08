@@ -32,6 +32,7 @@ def tracevalidate(
     output_path: Union[Path, None] = None,
 ):
     trace_path = Path(trace_path)
+    # Get input crs
     input_crs = gpd.read_file(trace_path).crs
     area_path = Path(area_path)
     if output_path is None:
