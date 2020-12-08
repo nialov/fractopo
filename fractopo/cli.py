@@ -1,5 +1,5 @@
 import click
-from typing import Union
+from typing import Union, Dict
 import geopandas as gpd
 import fiona
 
@@ -32,6 +32,7 @@ def tracevalidate(
     output_path: Union[Path, None] = None,
 ):
     trace_path = Path(trace_path)
+    input_crs = gpd.read_file(trace_path).crs
     area_path = Path(area_path)
     if output_path is None:
         output_path = (
@@ -47,14 +48,23 @@ def tracevalidate(
         snap_threshold_error_multiplier=snap_threshold_error_multiplier,
         area_edge_snap_multiplier=area_edge_snap_multiplier,
     )
-    validated = main(
+    # Validate
+    validated: Dict[str, gpd.GeoDataFrame] = main(
         [gpd.read_file(trace_path)],  # type: ignore
         [gpd.read_file(area_path)],  # type: ignore
         [trace_path.stem],
         auto_fix=auto_fix,
     )
+    # Get result from validated dict
+    validated_trace: gpd.GeoDataFrame = validated[trace_path.stem]
+    # Set same crs as input if input had crs
+    if input_crs is not None:
+        validated_trace.crs = input_crs
+    # Get input driver to use as save driver
     with fiona.open(trace_path) as trace_file:
         save_driver = trace_file.driver
-    validated[trace_path.stem].astype({BaseValidator.ERROR_COLUMN: str}).to_file(
+    # Change validation_error column to type: `string` and consequently save
+    # the GeoDataFrame.
+    validated_trace.astype({BaseValidator.ERROR_COLUMN: str}).to_file(
         output_path, driver=save_driver
     )
