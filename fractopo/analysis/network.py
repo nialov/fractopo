@@ -79,12 +79,13 @@ class Network:
     azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
 
     # Length sets
+    # ===========
 
-    # traces
+    # Trace length
     trace_length_set_names: Optional[Tuple[str, ...]] = None
     trace_length_set_ranges: Optional[Tuple[Tuple[float, float], ...]] = None
 
-    # branches
+    # Branch length
     branch_length_set_names: Optional[Tuple[str, ...]] = None
     branch_length_set_ranges: Optional[Tuple[Tuple[float, float], ...]] = None
 
@@ -180,7 +181,7 @@ class Network:
             )
             self._azimuth_set_relationships = None
 
-    def _require_branches(self) -> bool:
+    def _is_branch_gdf_defined(self) -> bool:
         """
         Is branch_gdf defined.
         """
@@ -194,13 +195,13 @@ class Network:
 
     @property
     def node_series(self) -> Optional[gpd.GeoSeries]:
-        if not self._require_branches:
+        if not self._is_branch_gdf_defined:
             return None
         return self.node_gdf.geometry
 
     @property
     def branch_series(self) -> Optional[gpd.GeoSeries]:
-        if not self._require_branches:
+        if not self._is_branch_gdf_defined:
             return None
         return self.branch_data.line_gdf.geometry
 
@@ -210,7 +211,7 @@ class Network:
 
     @property
     def branch_azimuth_array(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.azimuth_array
 
@@ -220,7 +221,7 @@ class Network:
 
     @property
     def branch_length_array(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_array
 
@@ -230,7 +231,7 @@ class Network:
 
     @property
     def branch_azimuth_set_array(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.azimuth_set_array
 
@@ -240,31 +241,31 @@ class Network:
 
     @property
     def branch_length_set_array(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_set_array
 
     @property
     def node_types(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.node_gdf[CLASS_COLUMN].to_numpy()
 
     @property
     def node_counts(self) -> Optional[Dict[str, int]]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return determine_node_classes(self.node_types)
 
     @property
     def branch_types(self) -> Optional[np.ndarray]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return self.branch_gdf[CONNECTION_COLUMN].to_numpy()
 
     @property
     def branch_counts(self) -> Optional[Dict[str, int]]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         return determine_branch_classes(self.branch_types)
 
@@ -274,7 +275,7 @@ class Network:
 
     @property
     def parameters(self) -> Optional[Dict[str, float]]:
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         # Cannot do simple cached_property because None might have been
         # returned previously.
@@ -289,7 +290,7 @@ class Network:
 
     @property
     def anisotropy(self) -> Optional[np.ndarray]:
-        if not self._require_branches:
+        if not self._is_branch_gdf_defined:
             return None
         if self._anisotropy is None:
             self._anisotropy = determine_anisotropy_sum(
@@ -301,7 +302,7 @@ class Network:
 
     @property
     def azimuth_set_relationships(self) -> Optional[np.ndarray]:
-        if not self._require_branches:
+        if not self._is_branch_gdf_defined:
             return None
         if self._azimuth_set_relationships is None:
             self._azimuth_set_relationships = determine_crosscut_abutting_relationships(
@@ -368,7 +369,7 @@ class Network:
         return plot_branch_plot(branch_counts_list=[self.branch_types], labels=[label])
 
     def plot_parameters(self, label: Optional[str] = None, color: Optional[str] = None):
-        if not self._require_branches():
+        if not self._is_branch_gdf_defined():
             return None
         if label is None:
             label = self.name
@@ -387,7 +388,7 @@ class Network:
     ) -> Optional[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]]:  # type: ignore
         if label is None:
             label = self.name
-        if not self._require_branches:
+        if not self._is_branch_gdf_defined:
             return None
         if color is None:
             color = "black"

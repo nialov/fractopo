@@ -1220,7 +1220,9 @@ def get_trace_coord_points(trace: LineString) -> List[Point]:
 
 
 def point_to_xy(point: Point) -> Tuple[float, float]:
-    return Point.x, Point.y
+    x, y = point.xy
+    x, y = [val[0] for val in (x, y)]
+    return (x, y)
 
 
 class SharpCornerValidator(BaseValidator):

@@ -384,7 +384,7 @@ def plot_crosscut_abutting_relationships_plot(
 
             fig, axes = plt.subplots(ncols=cols, nrows=1, figsize=(width, height))
             if not isinstance(axes, np.ndarray):
-                axes = np.ndarray([axes])
+                axes = np.array([axes])
 
             prop_title = dict(
                 boxstyle="square", facecolor="linen", alpha=1, linewidth=2
