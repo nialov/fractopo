@@ -404,3 +404,42 @@ class Helpers:
             )
         ),
     ]
+    test_determine_intersects_params = [
+        (
+            (
+                gpd.GeoSeries([LineString([(0, 0), (1, 1)])]),
+                gpd.GeoSeries([LineString([(0, 1), (0, -1)])]),
+            ),  # trace_series_two_sets
+            ("1", "2"),  # set_names_two_sets
+            gpd.GeoSeries([Point(0, 0)]),  # node_series_xy_intersects
+            np.array(["Y"]),  # node_types_xy_intersects
+            # assumed_intersections
+            0.001,  # buffer_value
+        ),
+        (
+            (
+                gpd.GeoSeries([LineString([(0.5, 0.5), (1, 1)])]),
+                gpd.GeoSeries([LineString([(0, 1), (0, -1)])]),
+            ),  # trace_series_two_sets
+            ("1", "2"),  # set_names_two_sets
+            gpd.GeoSeries([]),  # node_series_xy_intersects
+            np.array([]),  # node_types_xy_intersects
+            # assumed_intersections
+            0.001,  # buffer_value
+        ),
+    ]
+    test_determine_crosscut_abutting_relationships_params = [
+        (
+            gpd.GeoSeries(
+                [LineString([(0, 0), (1, 0)]), LineString([(0, 1), (0, -1)])]
+            ),  # trace_series
+            gpd.GeoSeries(
+                [Point(0, 0), Point(1, 0), Point(0, 1), Point(0, -1)]
+            ),  # node_series
+            np.array(["Y", "I", "I", "I"]),  # node_types
+            np.array(["1", "2"]),  # set_array
+            ("1", "2"),  # set_names
+            0.001,  # buffer_value
+            "title",  # label
+        ),
+    ]

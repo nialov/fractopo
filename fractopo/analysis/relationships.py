@@ -12,6 +12,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from shapely.geometry import LineString, Point, MultiLineString
 from shapely import prepared
 from shapely.strtree import STRtree
@@ -32,13 +33,36 @@ def determine_crosscut_abutting_relationships(
     set_array: np.ndarray,
     set_names: Tuple[str, ...],
     buffer_value: float,
+    label: str,
 ):
     """
-    Determines cross-cutting and abutting relationships between all
-    inputted sets by using spatial intersects
-    between node and trace data.
+    Determine cross-cutting and abutting relationships between trace sets.
+
+    Determines relationships between all inputted sets by using spatial
+    intersects between node and trace data.
+
+    E.g.
+
+    >>> trace_series = gpd.GeoSeries([LineString([(0,0), (1, 0)]), LineString([(0,1), (0, -1)])])
+    >>> node_series = gpd.GeoSeries([Point(0, 0), Point(1, 0), Point(0, 1), Point(0, -1)])
+    >>> node_types = np.array(["Y", "I", "I", "I"])
+    >>> set_array = np.array(["1", "2"])
+    >>> set_names = ("1", "2")
+    >>> buffer_value = 0.001
+    >>> label = "title"
+    >>> determine_crosscut_abutting_relationships(
+    ... trace_series,
+    ... node_series,
+    ... node_types,
+    ... set_array,
+    ... set_names,
+    ... buffer_value,
+    ... label,)
+        name    sets  x  y y-reverse error-count
+    0  title  (1, 2)  0  1         0           0
 
     TODO: No within set relations.....yet... Problem?
+
     """
     assert len(set_array) == len(trace_series)
     assert len(node_series) == len(node_types)
@@ -49,7 +73,7 @@ def determine_crosscut_abutting_relationships(
     )
 
     is_xy = np.array([val in (X_node, Y_node) for val in node_types])
-    node_series_xy = node_series.loc[is_xy]
+    node_series_xy: gpd.GeoSeries = node_series.loc[is_xy]  # type: ignore
     node_types_xy = node_types[is_xy]
 
     if len(set_names) < 2:
@@ -72,41 +96,42 @@ def determine_crosscut_abutting_relationships(
             node_series_xy=node_series_xy,  # type: ignore
             buffer_value=buffer_value,
         )
+        assert len(node_series_xy) == len(node_types_xy) == len(intersects_both_sets)
+        node_series_xy_intersects = node_series_xy.loc[intersects_both_sets]
+        node_types_xy_intersects = node_types_xy[intersects_both_sets]
 
-        # TODO: Refactor get_intersect_frame to fractopo.general
-        # Along with other support functions
-        intersectframe = tools.get_intersect_frame(
-            intersecting_nodes_frame,
-            traceframe_two_sets,
-            (s, c_s),
-            use_length_sets=use_length_sets,
+        intersectframe = determine_intersects(
+            trace_series_two_sets=trace_series_two_sets,
+            node_series_xy_intersects=node_series_xy_intersects,  # type: ignore
+            node_types_xy_intersects=node_types_xy_intersects,
+            set_names_two_sets=set_names_two_sets,
+            buffer_value=buffer_value,
         )
-
-        if len(intersectframe.loc[intersectframe.error == True]) > 0:
-            # TODO
-            pass
         intersect_series = intersectframe.groupby(["nodeclass", "sets"]).size()
 
         x_count = 0
         y_count = 0
         y_reverse_count = 0
 
-        for item in [s for s in intersect_series.iteritems()]:
+        for item in [val for val in intersect_series.iteritems()]:
             value = item[1]
             if item[0][0] == "X":
                 x_count = value
             elif item[0][0] == "Y":
-                if item[0][1] == (s, c_s):  # it's set s abutting in set c_s
+                if item[0][1] == (
+                    first_set,
+                    second_set,
+                ):  # it's set s abutting in set second_set
                     y_count = value
                 elif item[0][1] == (
-                    c_s,
-                    s,
-                ):  # it's set c_s abutting in set s
+                    second_set,
+                    first_set,
+                ):  # it's set second_set abutting in set s
                     y_reverse_count = value
                 else:
                     raise ValueError(
-                        f"item[0][1] doesnt equal {(s, c_s)}"
-                        f" nor {(c_s, s)}\nitem[0][1]: {item[0][1]}"
+                        f"item[0][1] doesnt equal {(first_set, second_set)}"
+                        f" nor {(second_set, first_set)}\nitem[0][1]: {item[0][1]}"
                     )
             else:
                 raise ValueError(
@@ -114,8 +139,8 @@ def determine_crosscut_abutting_relationships(
                 )
 
         addition = {
-            "name": name,
-            "sets": (s, c_s),
+            "name": label,
+            "sets": (first_set, second_set),
             "x": x_count,
             "y": y_count,
             "y-reverse": y_reverse_count,
@@ -123,6 +148,7 @@ def determine_crosscut_abutting_relationships(
         }
 
         relations_df = relations_df.append(addition, ignore_index=True)
+    return relations_df
 
 
 def determine_nodes_intersecting_sets(
@@ -180,29 +206,32 @@ def determine_nodes_intersecting_sets(
 def determine_intersects(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
     set_names_two_sets: Tuple[str, str],
+    node_series_xy_intersects: gpd.GeoSeries,
+    node_types_xy_intersects: np.ndarray,
     buffer_value: float,
-):
+) -> pd.DataFrame:
     """
     Does spatial intersects to determine how abutments and crosscuts occur between two sets
 
-    E.g. where Set 2 ends in set 1 and Set 2 crosscuts set 1 (TODO: DECREPID)
+    E.g.
 
-    >>> nodes = gpd.GeoDataFrame({'geometry': [Point(0, 0), Point(1, 1)], 'c': ['Y', 'X']})
-    >>> traces = gpd.GeoDataFrame(data={'geometry': [
-    ... LineString([(-1, -1), (2, 2)]), LineString([(0, 0), (-0.5, 0.5)]), LineString([(2, 0), (0, 2)])]
-    ... , 'set': [1, 2, 2]})
-    >>> traces['startpoint'] = traces.geometry.apply(line_start_point)
-    >>> traces['endpoint'] = traces.geometry.apply(line_end_point)
-    >>> sets = (1, 2)
-    >>> intersect_frame = get_intersect_frame(nodes, traces, sets)
-    >>> intersect_frame
+    >>> traces = gpd.GeoSeries([LineString([(0,0), (1, 1)])]), gpd.GeoSeries([LineString([(0,1), (0, -1)])])
+    >>> set_names_two_sets = ("1", "2")
+    >>> node_series_xy_intersects = gpd.GeoSeries([Point(0, 0)])
+    >>> node_types_xy_intersects = np.array(["Y"])
+    >>> buffer_value = 0.001
+    >>> determine_intersects(traces, set_names_two_sets, node_series_xy_intersects,
+    ... node_types_xy_intersects, buffer_value)
               node nodeclass    sets  error
-    0  POINT (0 0)         Y  (2, 1)  False
-    1  POINT (1 1)         X  (1, 2)  False
+    0  POINT (0 0)         Y  (1, 2)  False
 
     """
-
-    # intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
+    # TODO: No DataFrames -> Refactor to something else
+    # TODO: Refactor intersect logic (but it works now)
+    intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
+    if len(node_series_xy_intersects) == 0:
+        # No intersections between sets
+        return intersectframe
 
     first_set, second_set = (
         set_names_two_sets[0],
@@ -227,16 +256,15 @@ def determine_intersects(
         )
     )
     assert all([isinstance(p, Point) for p in first_set_points])
-    rtree = STRtree()
-    first_setpointtree = make_point_tree(first_setframe)
-
-    if len(intersecting_nodes_frame) == 0:
-        # No intersections between sets
-        return intersectframe
-
-    for idx, row in intersecting_nodes_frame.iterrows():
-        node = row.geometry
-        c = row.c
+    first_setpointtree = STRtree(first_set_points)
+    node: Point
+    node_class: str
+    for node, node_class in zip(node_series_xy_intersects, node_types_xy_intersects):  # type: ignore
+        assert isinstance(node, Point)
+        assert isinstance(node_class, str)
+        # for idx, row in intersecting_nodes_frame.iterrows():
+        # node = row.geometry
+        # c = row.c
 
         l1 = first_set_prep.intersects(
             node.buffer(buffer_value)
@@ -254,16 +282,21 @@ def determine_intersects(
         # addition gets overwritten if there are no errors
         addition = {
             "node": node,
-            "nodeclass": c,
+            "nodeclass": node_class,
             "sets": set_names_two_sets,
             "error": True,
         }  # DEBUGGING
 
         # ALL X NODE RELATIONS
-        if c == "X":
+        if node_class == "X":
             if (l1 is True) and (l2 is True):  # It's an x-node between sets
                 sets = (first_set, second_set)
-                addition = {"node": node, "nodeclass": c, "sets": sets, "error": False}
+                addition = {
+                    "node": node,
+                    "nodeclass": node_class,
+                    "sets": sets,
+                    "error": False,
+                }
 
             if (l1 is True) and (l2 is False):  # It's an x-node inside set 1
                 raise Exception(
@@ -280,7 +313,7 @@ def determine_intersects(
                 # addition = {'node': node, 'nodeclass': c, 'sets': sets}
 
         # ALL Y NODE RELATIONS
-        elif c == "Y":
+        elif node_class == "Y":
             if (l1 is True) and (l2 is True):  # It's an y-node between sets
                 # p1 == length of list of nodes from first_set traces that intersect with X- or Y-node
                 p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
@@ -288,7 +321,12 @@ def determine_intersects(
                     sets = (first_set, second_set)
                 else:  # set 2 ends in set 1
                     sets = (second_set, first_set)
-                addition = {"node": node, "nodeclass": c, "sets": sets, "error": False}
+                addition = {
+                    "node": node,
+                    "nodeclass": node_class,
+                    "sets": sets,
+                    "error": False,
+                }
 
             if (l1 is True) and (l2 is False):  # It's a y-node inside set 1
                 raise Exception(
@@ -313,11 +351,130 @@ def determine_intersects(
     return intersectframe
 
 
-# def make_point_tree(traceframe):
-#     points = []
-#     for idx, row in traceframe.iterrows():
-#         sp = row.startpoint
-#         ep = row.endpoint
-#         points.extend([sp, ep])
-#     tree = strtree.STRtree(points)
-#     return tree
+def plot_crosscut_abutting_relationships_plot(
+    relations_df: pd.DataFrame, set_array: np.ndarray, set_names: Tuple[str, ...]
+):
+    """
+    Plot cross-cutting and abutting relationships.
+    """
+    # relations_df = pd.DataFrame(
+    #     columns=["name", "sets", "x", "y", "y-reverse", "error-count"]
+    # )
+    # SUBPLOTS, FIGURE SETUP
+    set_column = "set"
+    cols = relations_df.shape[0]
+    if cols == 2:
+        cols = 1
+    width = 12 / 3 * cols
+    height = (width / cols) * 0.75
+    names = set(relations_df.name.tolist())
+    figs: List[matplotlib.figure.Figure] = []  # type: ignore
+    fig_axes = []
+    with plt.style.context("default"):
+        for name in names:
+            relations_df_with_name = relations_df.loc[relations_df.name == name]
+            set_counts = []
+            for set_name in set_names:
+                set_counts.append(sum(set_array == set_name))
+
+            fig, axes = plt.subplots(ncols=cols, nrows=1, figsize=(width, height))
+            if not isinstance(axes, np.ndarray):
+                axes = [axes]
+
+            prop_title = dict(
+                boxstyle="square", facecolor="linen", alpha=1, linewidth=2
+            )
+
+            fig.suptitle(
+                f"   {name}   ",
+                x=0.19,
+                y=1.0,
+                fontsize=20,
+                fontweight="bold",
+                fontfamily="Calibri",
+                va="center",
+                bbox=prop_title,
+            )
+
+            for ax, idx_row in zip(axes, relations_df_with_name.iterrows()):  # type: ignore
+                row = idx_row[1]
+                # TODO: More colors? change brightness or some other parameter?
+                bars = ax.bar(
+                    x=[0.3, 0.55, 0.65],
+                    height=[row["x"], row["y"], row["y-reverse"]],
+                    width=0.1,
+                    color=["darkgrey", "darkolivegreen", "darkseagreen"],
+                    linewidth=1,
+                    edgecolor="black",
+                    alpha=0.95,
+                    zorder=10,
+                )
+
+                ax.legend(
+                    bars,
+                    (
+                        f"Sets {row.sets[0]} and {row.sets[1]} cross-cut",
+                        f"Set {row.sets[0]} abuts to set {row.sets[1]}",
+                        f"Set {row.sets[1]} abuts to set {row.sets[0]}",
+                    ),
+                    framealpha=1,
+                    loc="upper center",
+                    edgecolor="black",
+                    prop={"family": "Calibri"},
+                )
+
+                ax.set_ylim(0, 1.6 * max([row["x"], row["y"], row["y-reverse"]]))
+
+                ax.grid(zorder=-10, color="black", alpha=0.5)
+
+                xticks = [0.3, 0.6]
+                xticklabels = ["X", "Y"]
+                ax.set_xticks(xticks)
+                ax.set_xticklabels(xticklabels)
+
+                xticklabels = ax.get_xticklabels()
+
+                for xtick in xticklabels:
+                    xtick.set_fontweight("bold")
+                    xtick.set_fontsize(12)
+
+                ax.set_xlabel(
+                    "Node type",
+                    fontweight="bold",
+                    fontsize=13,
+                    fontstyle="italic",
+                    fontfamily="Calibri",
+                )
+                ax.set_ylabel(
+                    "Node count",
+                    fontweight="bold",
+                    fontsize=13,
+                    fontstyle="italic",
+                    fontfamily="Calibri",
+                )
+
+                # Set y ticks as integers
+                ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+                plt.subplots_adjust(wspace=0.3)
+
+                if ax == axes[-1]:
+                    text = ""
+                    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
+                    for set_label, set_len in zip(set_names, set_counts):
+                        text += f"Set {set_label} trace count: {set_len}"
+                        if not set_label == set_names[-1]:
+                            text += "\n"
+                    ax.text(
+                        1.1,
+                        0.5,
+                        text,
+                        rotation=90,
+                        transform=ax.transAxes,
+                        va="center",
+                        bbox=prop,
+                        fontfamily="Calibri",
+                    )
+            figs.append(fig)
+            fig_axes.append(axes)
+    return figs, fig_axes
