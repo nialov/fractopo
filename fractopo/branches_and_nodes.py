@@ -51,18 +51,19 @@ def remove_identical_sindex(
     geosrs.reset_index(inplace=True, drop=True)
     spatial_index = geosrs.sindex
     marked_for_death = []
-    for idx, p in enumerate(geosrs):
+    point: Point
+    for idx, point in enumerate(geosrs):
         if idx in marked_for_death:
             continue
-        p = p.buffer(snap_threshold) if snap_threshold != 0 else p
+        point = point.buffer(snap_threshold) if snap_threshold != 0 else point
         p_candidate_idxs = (
-            list(spatial_index.intersection(p.bounds))
+            list(spatial_index.intersection(point.bounds))
             if snap_threshold != 0
-            else list(spatial_index.intersection(p.coords[0]))
+            else list(spatial_index.intersection(point.coords[0]))
         )
         p_candidate_idxs.remove(idx)
         p_candidates = geosrs.iloc[p_candidate_idxs]
-        inter = p_candidates.intersects(p)
+        inter = p_candidates.intersects(point)
         colliding = inter.loc[inter]
         if len(colliding) > 0:
             index_to_list = colliding.index.to_list()
