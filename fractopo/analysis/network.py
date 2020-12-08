@@ -1,6 +1,5 @@
 """
-Handles a single target area or a single grouped area. Does not discriminate between a single target area and
-grouped target areas.
+Analyse and plot trace map data with Network.
 """
 
 # Python Windows co-operation imports
@@ -44,6 +43,10 @@ from fractopo.analysis.parameters import (
     plot_parameters_plot,
 )
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
+from fractopo.analysis.relationships import (
+    determine_crosscut_abutting_relationships,
+    plot_crosscut_abutting_relationships_plot,
+)
 
 from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
@@ -65,7 +68,7 @@ class Network:
     area_geoseries: Optional[Union[gpd.GeoSeries, gpd.GeoDataFrame]] = None
 
     # Name the network for e.g. plot titles
-    name: str = ""
+    name: str = "Network"
 
     # Azimuth sets
     azimuth_set_ranges: Tuple[Tuple[float, float], ...] = (
@@ -98,6 +101,7 @@ class Network:
     # Private caching attributes
     _anisotropy: Optional[np.ndarray] = None
     _parameters: Optional[Dict[str, float]] = None
+    _azimuth_set_relationships: Optional[pd.DataFrame] = None
 
     @staticmethod
     def _default_length_set_ranges(count, min, max):
@@ -158,6 +162,24 @@ class Network:
         # Nodes
         self.node_gdf = self.node_gdf.copy() if self.node_gdf is not None else None
 
+    def reset_length_data(self):
+        self.trace_data = LineData(
+            self.trace_gdf,
+            self.azimuth_set_ranges,
+            self.azimuth_set_names,
+            self.trace_length_set_ranges,
+            self.trace_length_set_names,
+        )
+        if self.branch_gdf is not None:
+            self.branch_data = LineData(
+                self.branch_gdf,
+                self.azimuth_set_ranges,
+                self.azimuth_set_names,
+                self.branch_length_set_ranges,
+                self.branch_length_set_names,
+            )
+            self._azimuth_set_relationships = None
+
     def _require_branches(self) -> bool:
         """
         Is branch_gdf defined.
@@ -165,6 +187,22 @@ class Network:
         if self.branch_gdf is None:
             return False
         return True
+
+    @property
+    def trace_series(self) -> gpd.GeoSeries:
+        return self.trace_data.line_gdf.geometry
+
+    @property
+    def node_series(self) -> Optional[gpd.GeoSeries]:
+        if not self._require_branches:
+            return None
+        return self.node_gdf.geometry
+
+    @property
+    def branch_series(self) -> Optional[gpd.GeoSeries]:
+        if not self._require_branches:
+            return None
+        return self.branch_data.line_gdf.geometry
 
     @property
     def trace_azimuth_array(self) -> np.ndarray:
@@ -261,6 +299,22 @@ class Network:
             )
         return self._anisotropy
 
+    @property
+    def azimuth_set_relationships(self) -> Optional[np.ndarray]:
+        if not self._require_branches:
+            return None
+        if self._azimuth_set_relationships is None:
+            self._azimuth_set_relationships = determine_crosscut_abutting_relationships(
+                trace_series=self.trace_series,
+                node_series=self.node_series,  # type: ignore
+                node_types=self.node_types,
+                set_array=self.trace_azimuth_set_array,
+                set_names=self.azimuth_set_names,
+                buffer_value=0.001,
+                label=self.name,
+            )
+        return self._azimuth_set_relationships
+
     def assign_branches_nodes(self):
         if self.area_geoseries is not None:
             branches, nodes = branches_and_nodes(
@@ -346,3 +400,10 @@ class Network:
             color=color,
         )
         return fig, ax
+
+    def plot_azimuth_crosscut_abutting_relationships(self, label: Optional[str] = None):
+        return plot_crosscut_abutting_relationships_plot(
+            relations_df=self.azimuth_set_relationships,
+            set_array=self.trace_azimuth_set_array,
+            set_names=self.azimuth_set_names,
+        )

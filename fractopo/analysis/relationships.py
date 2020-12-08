@@ -6,6 +6,7 @@ from typing import Tuple, Optional, List, Dict
 import math
 from textwrap import wrap
 from itertools import combinations, chain
+import logging
 
 import numpy as np
 import pandas as pd
@@ -34,7 +35,7 @@ def determine_crosscut_abutting_relationships(
     set_names: Tuple[str, ...],
     buffer_value: float,
     label: str,
-):
+) -> pd.DataFrame:
     """
     Determine cross-cutting and abutting relationships between trace sets.
 
@@ -76,6 +77,8 @@ def determine_crosscut_abutting_relationships(
     node_series_xy: gpd.GeoSeries = node_series.loc[is_xy]  # type: ignore
     node_types_xy = node_types[is_xy]
 
+    assert len(node_series_xy) == len(node_types_xy)
+
     if len(set_names) < 2:
         raise ValueError(f"Expected more than one set to be defined.")
 
@@ -86,6 +89,10 @@ def determine_crosscut_abutting_relationships(
             trace_series.loc[set_array == first_set],  # type: ignore
             trace_series.loc[set_array == second_set],  # type: ignore
         )
+
+        if any([series.shape[0] == 0 for series in trace_series_two_sets]):
+            logging.warning("Expected first_set and second_set to both contain traces.")
+            return relations_df
         set_names_two_sets = (first_set, second_set)
         # determine_nodes_intersecting_sets returns a boolean array
         # representing nodes that intersect both sets.
@@ -115,9 +122,9 @@ def determine_crosscut_abutting_relationships(
 
         for item in [val for val in intersect_series.iteritems()]:
             value = item[1]
-            if item[0][0] == "X":
+            if item[0][0] == X_node:
                 x_count = value
-            elif item[0][0] == "Y":
+            elif item[0][0] == Y_node:
                 if item[0][1] == (
                     first_set,
                     second_set,
@@ -186,8 +193,6 @@ def determine_nodes_intersecting_sets(
         ) and prep_traces_second.intersects(point.buffer(buffer_value))
 
     assert len(set_names_two_sets) == 2
-    if len(np.unique(set_array)) != 2:
-        return [False for _ in range(len(set_array))]
     trace_series_first_set = trace_series_two_sets[0]
     trace_series_second_set = trace_series_two_sets[1]
 
@@ -202,7 +207,6 @@ def determine_nodes_intersecting_sets(
     return intersects_both_sets
 
 
-# intersecting_nodes_frame, traceframe, set_names_two_sets, use_length_sets=False
 def determine_intersects(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
     set_names_two_sets: Tuple[str, str],
@@ -231,6 +235,7 @@ def determine_intersects(
     intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
     if len(node_series_xy_intersects) == 0:
         # No intersections between sets
+        logging.debug("No intersections between sets.")
         return intersectframe
 
     first_set, second_set = (
@@ -353,7 +358,7 @@ def determine_intersects(
 
 def plot_crosscut_abutting_relationships_plot(
     relations_df: pd.DataFrame, set_array: np.ndarray, set_names: Tuple[str, ...]
-):
+) -> Tuple[List[matplotlib.figure.Figure], List[np.ndarray]]:  # type: ignore
     """
     Plot cross-cutting and abutting relationships.
     """
@@ -379,7 +384,7 @@ def plot_crosscut_abutting_relationships_plot(
 
             fig, axes = plt.subplots(ncols=cols, nrows=1, figsize=(width, height))
             if not isinstance(axes, np.ndarray):
-                axes = [axes]
+                axes = np.ndarray([axes])
 
             prop_title = dict(
                 boxstyle="square", facecolor="linen", alpha=1, linewidth=2
