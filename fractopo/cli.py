@@ -35,7 +35,7 @@ def tracevalidate(
     area_path = Path(area_path)
     if output_path is None:
         output_path = (
-            trace_path.parent / f"{trace_path.stem}_validated.{trace_path.suffix}"
+            trace_path.parent / f"{trace_path.stem}_validated{trace_path.suffix}"
         )
     # Sensible defaults
     # TODO: Refactor tval
