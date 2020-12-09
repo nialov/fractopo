@@ -86,7 +86,7 @@ def determine_proximal_traces(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     buffer_value: float,
     azimuth_tolerance: float,
-):
+) -> gpd.GeoDataFrame:
     """
     Determine proximal traces.
 
@@ -116,15 +116,19 @@ def determine_proximal_traces(
     """
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
     if isinstance(traces, gpd.GeoSeries):
-        traces = gpd.GeoDataFrame(geometry=traces)
-    traces = traces.reset_index(inplace=False, drop=True)  # type: ignore
-    spatial_index = traces.sindex
+        traces_as_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame(geometry=traces)
+    else:
+        traces_as_gdf = traces
+    traces_as_gdf = traces_as_gdf.reset_index(inplace=False, drop=True)  # type: ignore
+    spatial_index = traces_as_gdf.sindex
     trace: LineString
     proximal_traces: List[int] = []
-    for idx, trace in enumerate(traces.geometry):  # type: ignore
-        candidate_idxs = list(spatial_index.intersection(trace.buffer(buffer_value * 5).bounds))  # type: ignore
+    for idx, trace in enumerate(traces_as_gdf.geometry):  # type: ignore
+        candidate_idxs = list(
+            spatial_index.intersection(trace.buffer(buffer_value * 5).bounds)
+        )
         candidate_idxs.remove(idx)  # type: ignore
-        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces.iloc[  # type: ignore
+        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces_as_gdf.iloc[  # type: ignore
             candidate_idxs
         ]
         candidate_traces = candidate_traces.loc[  # type: ignore
@@ -142,5 +146,5 @@ def determine_proximal_traces(
                     if i not in proximal_traces
                 ]
             )
-    traces[MERGE_COLUMN] = [i in proximal_traces for i in traces.index]  # type: ignore
-    return traces
+    traces_as_gdf[MERGE_COLUMN] = [i in proximal_traces for i in traces_as_gdf.index]  # type: ignore
+    return traces_as_gdf
