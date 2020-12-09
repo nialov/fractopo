@@ -102,7 +102,7 @@ def initialize_analysis_logging(plotting_directory):
         filemode="w+",
         format="> %(message)s",
         datefmt="%H:%M:%S'",
-        level=logging.INFO,
+        level=logging.WARNING,
     )
 
     logger = logging.getLogger("Analysis_Statistics")

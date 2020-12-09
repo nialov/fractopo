@@ -1,11 +1,13 @@
-import click
 from typing import Union, Dict
+import logging
+from pathlib import Path
+
+import click
 import geopandas as gpd
 import fiona
 
 from fractopo.tval.executor import main
 from fractopo.tval.trace_validator import BaseValidator
-from pathlib import Path
 
 
 def get_click_path_args(exists=True, **kwargs):
