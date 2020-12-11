@@ -7,3 +7,5 @@
 ### Branches and Nodes
 
 ### Topological and geometric trace analysis
+
+* Notebook with example usage: [notebook](notebooks/fractopo_network_1.ipynb)

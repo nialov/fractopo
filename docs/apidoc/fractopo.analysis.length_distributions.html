@@ -30,6 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -148,22 +149,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-fractopo.analysis.length_distributions">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-fractopo.analysis.length_distributions">
 <span id="fractopo-analysis-length-distributions-module"></span><h1>fractopo.analysis.length_distributions module<a class="headerlink" href="#module-fractopo.analysis.length_distributions" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fractopo.analysis.length_distributions.Dist">
+<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">Dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.length_distributions.Dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt id="fractopo.analysis.length_distributions.Dist.EXPONENTIAL">
+<code class="sig-name descname">EXPONENTIAL</code><em class="property"> = 'exponential'</em><a class="headerlink" href="#fractopo.analysis.length_distributions.Dist.EXPONENTIAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.length_distributions.Dist.LOGNORMAL">
+<code class="sig-name descname">LOGNORMAL</code><em class="property"> = 'lognormal'</em><a class="headerlink" href="#fractopo.analysis.length_distributions.Dist.LOGNORMAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="fractopo.analysis.length_distributions.Dist.POWERLAW">
+<code class="sig-name descname">POWERLAW</code><em class="property"> = 'powerlaw'</em><a class="headerlink" href="#fractopo.analysis.length_distributions.Dist.POWERLAW" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt id="fractopo.analysis.length_distributions.determine_fit">
-<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">determine_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">cut_off</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>None<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; powerlaw.Fit<a class="headerlink" href="#fractopo.analysis.length_distributions.determine_fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">determine_fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; powerlaw.Fit<a class="headerlink" href="#fractopo.analysis.length_distributions.determine_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines powerlaw (along other) length distribution fits for given data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="fractopo.analysis.length_distributions.plot_distribution_fits">
-<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">plot_distribution_fits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">cut_off</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>None<span class="p">, </span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.length_distributions.plot_distribution_fits" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">plot_distribution_fits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>powerlaw.Fit<span class="p">, </span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.length_distributions.plot_distribution_fits" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="fractopo.analysis.length_distributions.plot_fit_on_ax">
-<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">plot_fit_on_ax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="p">:</span> <span class="n">matplotlib.axes._axes.Axes</span></em>, <em class="sig-param"><span class="n">fit</span><span class="p">:</span> <span class="n">powerlaw.Fit</span></em>, <em class="sig-param"><span class="n">fit_distribution</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.length_distributions.plot_fit_on_ax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">fractopo.analysis.length_distributions.</code><code class="sig-name descname">plot_fit_on_ax</code><span class="sig-paren">(</span><em class="sig-param">ax: matplotlib.axes._axes.Axes, fit: powerlaw.Fit, fit_distribution: Literal[&lt;Dist.EXPONENTIAL: 'exponential'&gt;, &lt;Dist.LOGNORMAL: 'lognormal'&gt;, &lt;Dist.POWERLAW: 'powerlaw'&gt;]</em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.length_distributions.plot_fit_on_ax" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

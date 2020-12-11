@@ -9,7 +9,7 @@ lineament and fracture trace maps (fracture networks).
 
 * [Homepage](https://github.com/nialov/fractopo)
 * [How to install](installation.md)
-* [How to use](usage/python.md)
+* [How to use](usage/python)
 
 # Methodology guides
 
@@ -18,6 +18,10 @@ lineament and fracture trace maps (fracture networks).
 * [Extracting branches and nodes](branches_and_nodes.md)
 * [Topological and geometric analysis and plotting](analysis/basics.md)
   * [Contour grids](analysis/contour.md)
+
+# Notebooks with examples
+
+* [Network analysis](notebooks/fractopo_network_1)
 
 # Module documentation for developers
 

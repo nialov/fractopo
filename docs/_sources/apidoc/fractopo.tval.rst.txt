@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    fractopo.tval.executor
+   fractopo.tval.proximal_traces
    fractopo.tval.trace_builder
    fractopo.tval.trace_validator
 

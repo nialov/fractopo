@@ -30,6 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -148,50 +149,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-fractopo.analysis.general">
-<span id="fractopo-analysis-general-module"></span><h1>fractopo.analysis.general module<a class="headerlink" href="#module-fractopo.analysis.general" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
-<dt id="fractopo.analysis.general.determine_azimuth">
-<code class="sig-prename descclassname">fractopo.analysis.general.</code><code class="sig-name descname">determine_azimuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em>, <em class="sig-param"><span class="n">halved</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#fractopo.analysis.general.determine_azimuth" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates azimuth of given line.</p>
-<p>If halved -&gt; return is in range [0, 180]
-Else -&gt; [0, 360]</p>
-<p>e.g.:
-Accepts LineString</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_azimuth</span><span class="p">(</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]),</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">45.0</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_azimuth</span><span class="p">(</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]),</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">0.0</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_azimuth</span><span class="p">(</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]),</span> <span class="kc">False</span><span class="p">)</span>
-<span class="go">225.0</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_azimuth</span><span class="p">(</span><span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]),</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">45.0</span>
-</pre></div>
-</div>
-</dd></dl>
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
 
-<dl class="py function">
-<dt id="fractopo.analysis.general.determine_set">
-<code class="sig-prename descclassname">fractopo.analysis.general.</code><code class="sig-name descname">determine_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">value_range</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">loop_around</span><span class="p">:</span> <span class="n">bool</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.general.determine_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines if value fits within the given value_range.</p>
-<p>If the value range has the possibility of looping around loop_around can be
-set to true.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_set</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">determine_set</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="p">(</span><span class="mi">175</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-</dd></dl>
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
 
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="fractopo-analysis-general-module">
+<h1>fractopo.analysis.general module<a class="headerlink" href="#fractopo-analysis-general-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

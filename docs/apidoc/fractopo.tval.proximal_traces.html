@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fractopo.tval.proximal_traces module &mdash; fractopo-2D 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> fractopo-2D
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">fractopo.tval.proximal_traces module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fractopo-2D</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>fractopo.tval.proximal_traces module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apidoc/fractopo.tval.proximal_traces.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-fractopo.tval.proximal_traces">
+<span id="fractopo-tval-proximal-traces-module"></span><h1>fractopo.tval.proximal_traces module<a class="headerlink" href="#module-fractopo.tval.proximal_traces" title="Permalink to this headline">¶</a></h1>
+<p>Determine traces that could be integrated together.</p>
+<p>determine_proximal_traces takes an input of GeoSeries or GeoDataFrame
+of LineString geometries and returns a GeoDataFrame with a new
+column <cite>Merge</cite> which has values of True or False depending on if
+nearby proximal traces were found.</p>
+<dl class="py function">
+<dt id="fractopo.tval.proximal_traces.determine_proximal_traces">
+<code class="sig-prename descclassname">fractopo.tval.proximal_traces.</code><code class="sig-name descname">determine_proximal_traces</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traces</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>geopandas.geoseries.GeoSeries<span class="p">, </span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">buffer_value</span><span class="p">:</span> <span class="n">float</span></em>, <em class="sig-param"><span class="n">azimuth_tolerance</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geodataframe.GeoDataFrame<a class="headerlink" href="#fractopo.tval.proximal_traces.determine_proximal_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine proximal traces.</p>
+<p>Takes an input of GeoSeries or GeoDataFrame
+of LineString geometries and returns a GeoDataFrame with a new
+column <cite>Merge</cite> which has values of True or False depending on if
+nearby proximal traces were found.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="n">LineString</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="n">LineString</span><span class="p">([(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span>    <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)]),</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traces</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">lines</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">buffer_value</span> <span class="o">=</span> <span class="mf">1.1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">azimuth_tolerance</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">determine_proximal_traces</span><span class="p">(</span><span class="n">traces</span><span class="p">,</span> <span class="n">buffer_value</span><span class="p">,</span> <span class="n">azimuth_tolerance</span><span class="p">)</span>
+<span class="go">                                          geometry  Merge</span>
+<span class="go">0    LINESTRING (0.00000 0.00000, 0.00000 3.00000)   True</span>
+<span class="go">1    LINESTRING (1.00000 0.00000, 1.00000 3.00000)   True</span>
+<span class="go">2    LINESTRING (5.00000 0.00000, 5.00000 3.00000)  False</span>
+<span class="go">3  LINESTRING (0.00000 0.00000, -3.00000 -3.00000)  False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.tval.proximal_traces.is_similar_azimuth">
+<code class="sig-prename descclassname">fractopo.tval.proximal_traces.</code><code class="sig-name descname">is_similar_azimuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em>, <em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.tval.proximal_traces.is_similar_azimuth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if azimuths of <cite>trace</cite> and <cite>other</cite> are close.</p>
+<p>Checks both the start – end -azimuth and regression-based azimuth.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">other</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_similar_azimuth</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">other</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_similar_azimuth</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_similar_azimuth</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_similar_azimuth</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">45</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.tval.proximal_traces.is_within_buffer_distance">
+<code class="sig-prename descclassname">fractopo.tval.proximal_traces.</code><code class="sig-name descname">is_within_buffer_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em>, <em class="sig-param"><span class="n">other</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em>, <em class="sig-param"><span class="n">buffer_value</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.tval.proximal_traces.is_within_buffer_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if <cite>trace</cite> and <cite>other</cite> are within buffer distance.</p>
+<p>Threshold distance is buffer_value (both are buffered with half of
+buffer_value) of each other.</p>
+<p>E.g.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trace</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">other</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_within_buffer_distance</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">line</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">other</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_within_buffer_distance</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_within_buffer_distance</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Nikolas Ovaskainen
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

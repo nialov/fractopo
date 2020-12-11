@@ -30,6 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -148,7 +149,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-fractopo.tval.trace_validator">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-fractopo.tval.trace_validator">
 <span id="fractopo-tval-trace-validator-module"></span><h1>fractopo.tval.trace_validator module<a class="headerlink" href="#module-fractopo.tval.trace_validator" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="fractopo.tval.trace_validator.BaseValidator">
@@ -277,6 +302,7 @@ and endpoints of lines are saved to BaseValidator as a class attribute.</p>
 <dt id="fractopo.tval.trace_validator.BaseValidator.get_trace_endpoints">
 <em class="property">classmethod </em><code class="sig-name descname">get_trace_endpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace</span><span class="p">:</span> <span class="n">shapely.geometry.linestring.LineString</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>shapely.geometry.point.Point<span class="p">]</span><a class="headerlink" href="#fractopo.tval.trace_validator.BaseValidator.get_trace_endpoints" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns endpoints (shapely.geometry.Point) of a given LineString</p>
+<p>TODO: Defined also in fractopo.general -&gt; Remove from here.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -546,6 +572,13 @@ another trace.</p>
 <dt id="fractopo.tval.trace_validator.StackedTracesValidator.ERROR">
 <code class="sig-name descname">ERROR</code><em class="property"> = 'STACKED TRACES'</em><a class="headerlink" href="#fractopo.tval.trace_validator.StackedTracesValidator.ERROR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.tval.trace_validator.StackedTracesValidator.determine_middle_in_triangle">
+<em class="property">classmethod </em><code class="sig-name descname">determine_middle_in_triangle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">segments</span><span class="p">:</span> <span class="n">List<span class="p">[</span>shapely.geometry.linestring.LineString<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>shapely.geometry.linestring.LineString<span class="p">]</span><a class="headerlink" href="#fractopo.tval.trace_validator.StackedTracesValidator.determine_middle_in_triangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the middle segment within a triangle error. The middle
+segment always intersects the other two.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="fractopo.tval.trace_validator.StackedTracesValidator.determine_overlapping_traces">

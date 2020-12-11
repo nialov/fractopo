@@ -30,6 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -148,7 +149,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-fractopo.branches_and_nodes">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="module-fractopo.branches_and_nodes">
 <span id="fractopo-branches-and-nodes-module"></span><h1>fractopo.branches_and_nodes module<a class="headerlink" href="#module-fractopo.branches_and_nodes" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="fractopo.branches_and_nodes.additional_snapping_func">
@@ -358,7 +383,7 @@ Z-coordinates will be lost.</p>
 <dl class="py function">
 <dt id="fractopo.branches_and_nodes.remove_identical_sindex">
 <code class="sig-prename descclassname">fractopo.branches_and_nodes.</code><code class="sig-name descname">remove_identical_sindex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">geosrs</span><span class="p">:</span> <span class="n">geopandas.geoseries.GeoSeries</span></em>, <em class="sig-param"><span class="n">snap_threshold</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span> &#x2192; geopandas.geoseries.GeoSeries<a class="headerlink" href="#fractopo.branches_and_nodes.remove_identical_sindex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes stacked nodes by using a search buffer the size of snap_threshold.</p>
+<dd><p>Remove stacked nodes by using a search buffer the size of snap_threshold.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -30,6 +30,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -153,7 +154,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="fractopo-package">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="fractopo-package">
 <h1>fractopo package<a class="headerlink" href="#fractopo-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
@@ -163,11 +188,15 @@
 <li class="toctree-l2"><a class="reference internal" href="fractopo.analysis.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.analysis_and_plotting.html">fractopo.analysis.analysis_and_plotting module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.anisotropy.html">fractopo.analysis.anisotropy module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.azimuth.html">fractopo.analysis.azimuth module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.config.html">fractopo.analysis.config module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.general.html">fractopo.analysis.general module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.length_distributions.html">fractopo.analysis.length_distributions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.line_data.html">fractopo.analysis.line_data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.main.html">fractopo.analysis.main module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.multiple_target_areas.html">fractopo.analysis.multiple_target_areas module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.network.html">fractopo.analysis.network module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.parameters.html">fractopo.analysis.parameters module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.relationships.html">fractopo.analysis.relationships module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.target_area.html">fractopo.analysis.target_area module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.analysis.tools.html">fractopo.analysis.tools module</a></li>
 </ul>
@@ -178,6 +207,7 @@
 <li class="toctree-l1"><a class="reference internal" href="fractopo.tval.html">fractopo.tval package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="fractopo.tval.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.tval.executor.html">fractopo.tval.executor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fractopo.tval.proximal_traces.html">fractopo.tval.proximal_traces module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.tval.trace_builder.html">fractopo.tval.trace_builder module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fractopo.tval.trace_validator.html">fractopo.tval.trace_validator module</a></li>
 </ul>
@@ -195,6 +225,8 @@
 <li class="toctree-l1"><a class="reference internal" href="fractopo.branches_and_nodes.html">fractopo.branches_and_nodes module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fractopo.cli.html">fractopo.cli module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="fractopo.contour_grid.html">fractopo.contour_grid module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fractopo.fractopo_utils.html">fractopo.fractopo_utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fractopo.general.html">fractopo.general module</a></li>
 </ul>
 </div>
 </div>
