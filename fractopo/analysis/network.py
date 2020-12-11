@@ -334,7 +334,9 @@ class Network:
                 self.branch_length_set_names,
             )
         else:
-            print("Expected area_geoseries to be defined to assign branches and nodes.")
+            logging.error(
+                "Expected area_geoseries to be defined to assign branches and nodes."
+            )
 
     def plot_trace_lengths(
         self, label: Optional[str] = None
@@ -355,18 +357,18 @@ class Network:
     def plot_xyi(self, label: Optional[str] = None):
         if label is None:
             label = self.name
-        if self.node_types is None:
-            print("Expected node_gdf to be defined for plot_xyi.")
+        if self.node_counts is None:
+            logging.error("Expected node_gdf to be defined for plot_xyi.")
             return
-        return plot_xyi_plot(node_counts_list=[self.node_types], labels=[label])
+        return plot_xyi_plot(node_counts_list=[self.node_counts], labels=[label])
 
     def plot_branch(self, label: Optional[str] = None):
         if label is None:
             label = self.name
-        if self.branch_types is None:
-            print("Expected branch_gdf to be defined for plot_xyi.")
+        if self.branch_counts is None:
+            logging.error("Expected branch_gdf to be defined for plot_xyi.")
             return
-        return plot_branch_plot(branch_counts_list=[self.branch_types], labels=[label])
+        return plot_branch_plot(branch_counts_list=[self.branch_counts], labels=[label])
 
     def plot_parameters(self, label: Optional[str] = None, color: Optional[str] = None):
         if not self._is_branch_gdf_defined():
@@ -402,9 +404,11 @@ class Network:
         )
         return fig, ax
 
-    def plot_azimuth_crosscut_abutting_relationships(self, label: Optional[str] = None):
+    def plot_azimuth_crosscut_abutting_relationships(
+        self, label: Optional[str] = None
+    ) -> Tuple[List[matplotlib.figure.Figure], List[np.ndarray]]:  # type: ignore
         return plot_crosscut_abutting_relationships_plot(
-            relations_df=self.azimuth_set_relationships,
+            relations_df=self.azimuth_set_relationships,  # type: ignore
             set_array=self.trace_azimuth_set_array,
             set_names=self.azimuth_set_names,
         )
