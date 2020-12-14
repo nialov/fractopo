@@ -49,6 +49,9 @@ E_node = "E"
 CONNECTION_COLUMN = "Connection"
 CLASS_COLUMN = "Class"
 GEOMETRY_COLUMN = "geometry"
+POWERLAW = "powerlaw"
+LOGNORMAL = "lognormal"
+EXPONENTIAL = "exponential"
 
 NULL_SET = "-1"
 
@@ -64,6 +67,7 @@ class Col(Enum):
 
 @unique
 class Param(Enum):
+
     NUMBER_OF_TRACES = "Number of Traces"
     NUMBER_OF_BRANCHES = "Number of Branches"
     TRACE_MEAN_LENGTH = "Trace Mean Length"
