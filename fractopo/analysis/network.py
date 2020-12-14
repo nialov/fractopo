@@ -24,7 +24,9 @@ from fractopo.general import (
     determine_set,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
-POWERLAW, LOGNORMAL, EXPONENTIAL,
+    POWERLAW,
+    LOGNORMAL,
+    EXPONENTIAL,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis.line_data import LineData
@@ -42,7 +44,6 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 
-from fractopo.analysis.config import 
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
 import logging
 
