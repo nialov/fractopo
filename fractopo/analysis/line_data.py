@@ -2,6 +2,7 @@ from pathlib import Path
 from textwrap import wrap
 from dataclasses import dataclass, field
 from enum import Enum, unique
+import logging
 
 import geopandas as gpd
 import matplotlib.patches as patches
@@ -23,9 +24,9 @@ import fractopo.analysis.tools as tools
 import fractopo.analysis.config as config
 from fractopo.general import determine_azimuth, determine_set, Col
 from fractopo.branches_and_nodes import branches_and_nodes
-from fractopo.analysis import length_distributions, azimuth
+from fractopo.analysis import length_distributions, azimuth, parameters
 
-from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
+from fractopo.general import POWERLAW, LOGNORMAL, EXPONENTIAL
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
 import logging
 
@@ -109,7 +110,7 @@ class LineData:
     @property
     def length_set_array(self) -> Optional[np.ndarray]:
         if self.length_set_names is None or self.length_set_ranges is None:
-            print("Expected length_set_names and _ranges to be defined")
+            logging.error("Expected length_set_names and _ranges to be defined.")
             return None
         column_array = _column_array_property(column=Col.LENGTH_SET, gdf=self.line_gdf)
         if column_array is None:
@@ -127,6 +128,18 @@ class LineData:
             self.line_gdf[Col.LENGTH_SET.value] = column_array
         return column_array
 
+    @property
+    def azimuth_set_counts(self) -> Dict[str, int]:
+        return parameters.determine_set_counts(
+            self.azimuth_set_names, self.azimuth_set_array
+        )
+
+    @property
+    def length_set_counts(self) -> Dict[str, int]:
+        return parameters.determine_set_counts(
+            self.length_set_names, self.length_set_array
+        )
+
     def plot_lengths(
         self, label: str, cut_off: Optional[float] = None
     ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
@@ -142,3 +155,13 @@ class LineData:
             self.azimuth_set_names,
             label=label,
         )
+
+    def plot_azimuth_set_count(
+        self, label: str
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        return parameters.plot_set_count(self.azimuth_set_counts, label=label)
+
+    def plot_length_set_count(
+        self, label: str
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        return parameters.plot_set_count(self.length_set_counts, label=label)
