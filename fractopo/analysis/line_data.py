@@ -62,11 +62,11 @@ class LineData:
     # def __post_init__(self):
     #     self.line_gdf = self.line_gdf.copy()
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
-            self.__dict__[name] = value.copy()
-        else:
-            self.__dict__[name] = value
+    # def __setattr__(self, name: str, value: Any) -> None:
+    #     if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
+    #         self.__dict__[name] = value.copy()
+    #     else:
+    #         self.__dict__[name] = value
 
     @property
     def azimuth_array(self):
