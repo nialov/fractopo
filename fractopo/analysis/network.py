@@ -4,12 +4,9 @@ Analyse and plot trace map data with Network.
 
 # Python Windows co-operation imports
 from pathlib import Path
-from textwrap import wrap
-from dataclasses import dataclass, field
-from functools import cached_property
+from dataclasses import dataclass
 
 import geopandas as gpd
-import matplotlib.patches as patches
 import matplotlib
 
 # Math and analysis imports
@@ -21,16 +18,13 @@ import pandas as pd
 import ternary
 import powerlaw
 
-from scipy.interpolate import CubicSpline
-
 # Own code imports
-import fractopo.analysis.tools as tools
-import fractopo.analysis.config as config
 from fractopo.general import (
     determine_azimuth,
     determine_set,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
+POWERLAW, LOGNORMAL, EXPONENTIAL,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis.line_data import LineData
@@ -48,7 +42,7 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 
-from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
+from fractopo.analysis.config import 
 from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
 import logging
 
@@ -64,6 +58,7 @@ class Network:
     """
 
     # Base data
+    # =========
     trace_gdf: gpd.GeoDataFrame
     area_geoseries: Optional[Union[gpd.GeoSeries, gpd.GeoDataFrame]] = None
 
@@ -71,6 +66,7 @@ class Network:
     name: str = "Network"
 
     # Azimuth sets
+    # ============
     azimuth_set_ranges: Tuple[Tuple[float, float], ...] = (
         (0, 60),
         (60, 120),
@@ -90,19 +86,23 @@ class Network:
     branch_length_set_ranges: Optional[Tuple[Tuple[float, float], ...]] = None
 
     # Branches and nodes
+    # ==================
     branch_gdf: Optional[gpd.GeoDataFrame] = None
     node_gdf: Optional[gpd.GeoDataFrame] = None
     determine_branches_nodes: bool = False
     snap_threshold: float = 0.001
 
     # Length distributions
+    # ====================
     trace_length_cut_off: Optional[float] = None
     branch_length_cut_off: Optional[float] = None
 
     # Private caching attributes
+    # ==========================
     _anisotropy: Optional[np.ndarray] = None
     _parameters: Optional[Dict[str, float]] = None
     _azimuth_set_relationships: Optional[pd.DataFrame] = None
+    _trace_length_set_relationships: Optional[pd.DataFrame] = None
 
     @staticmethod
     def _default_length_set_ranges(count, min, max):
@@ -184,6 +184,8 @@ class Network:
     def _is_branch_gdf_defined(self) -> bool:
         """
         Is branch_gdf defined.
+
+        TODO: Make more intelligent.
         """
         if self.branch_gdf is None:
             return False
@@ -316,6 +318,40 @@ class Network:
             )
         return self._azimuth_set_relationships
 
+    @property
+    def length_set_relationships(self) -> Optional[np.ndarray]:
+        if not self._is_branch_gdf_defined:
+            return None
+        if self._trace_length_set_relationships is None:
+            self._trace_length_set_relationships = (
+                determine_crosscut_abutting_relationships(
+                    trace_series=self.trace_series,
+                    node_series=self.node_series,  # type: ignore
+                    node_types=self.node_types,
+                    set_array=self.trace_data.length_set_array,
+                    set_names=self.trace_data.length_set_names,  # type: ignore
+                    buffer_value=0.001,
+                    label=self.name,
+                )
+            )
+        return self._trace_length_set_relationships
+
+    @property
+    def trace_azimuth_set_counts(self) -> Dict[str, int]:
+        return self.trace_data.azimuth_set_counts
+
+    @property
+    def trace_length_set_counts(self) -> Dict[str, int]:
+        return self.trace_data.length_set_counts
+
+    @property
+    def branch_azimuth_set_counts(self) -> Dict[str, int]:
+        return self.branch_data.azimuth_set_counts
+
+    @property
+    def branch_length_set_counts(self) -> Dict[str, int]:
+        return self.branch_data.length_set_counts
+
     def assign_branches_nodes(self):
         if self.area_geoseries is not None:
             branches, nodes = branches_and_nodes(
@@ -347,6 +383,15 @@ class Network:
             label=label, cut_off=self.trace_length_cut_off
         )
 
+    def plot_branch_lengths(
+        self, label: Optional[str] = None
+    ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+        if label is None:
+            label = self.name
+        return self.branch_data.plot_lengths(
+            label=label, cut_off=self.branch_length_cut_off
+        )
+
     def plot_trace_azimuth(
         self, label: Optional[str] = None
     ) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
@@ -354,7 +399,22 @@ class Network:
             label = self.name
         return self.trace_data.plot_azimuth(label=label)
 
-    def plot_xyi(self, label: Optional[str] = None):
+    def plot_branch_azimuth(
+        self, label: Optional[str] = None
+    ) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+        if label is None:
+            label = self.name
+        return self.branch_data.plot_azimuth(label=label)
+
+    def plot_xyi(
+        self, label: Optional[str] = None
+    ) -> Optional[
+        Tuple[
+            matplotlib.figure.Figure,  # type: ignore
+            matplotlib.axes.Axes,  # type: ignore
+            ternary.ternary_axes_subplot.TernaryAxesSubplot,
+        ]
+    ]:
         if label is None:
             label = self.name
         if self.node_counts is None:
@@ -362,7 +422,15 @@ class Network:
             return
         return plot_xyi_plot(node_counts_list=[self.node_counts], labels=[label])
 
-    def plot_branch(self, label: Optional[str] = None):
+    def plot_branch(
+        self, label: Optional[str] = None
+    ) -> Optional[
+        Tuple[
+            matplotlib.figure.Figure,  # type: ignore
+            matplotlib.axes.Axes,  # type: ignore
+            ternary.ternary_axes_subplot.TernaryAxesSubplot,
+        ]
+    ]:
         if label is None:
             label = self.name
         if self.branch_counts is None:
@@ -370,7 +438,9 @@ class Network:
             return
         return plot_branch_plot(branch_counts_list=[self.branch_counts], labels=[label])
 
-    def plot_parameters(self, label: Optional[str] = None, color: Optional[str] = None):
+    def plot_parameters(
+        self, label: Optional[str] = None, color: Optional[str] = None
+    ) -> Optional[Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]]:  # type: ignore
         if not self._is_branch_gdf_defined():
             return None
         if label is None:
@@ -405,10 +475,47 @@ class Network:
         return fig, ax
 
     def plot_azimuth_crosscut_abutting_relationships(
-        self, label: Optional[str] = None
+        self,
     ) -> Tuple[List[matplotlib.figure.Figure], List[np.ndarray]]:  # type: ignore
         return plot_crosscut_abutting_relationships_plot(
             relations_df=self.azimuth_set_relationships,  # type: ignore
             set_array=self.trace_azimuth_set_array,
             set_names=self.azimuth_set_names,
         )
+
+    def plot_trace_length_crosscut_abutting_relationships(
+        self,
+    ) -> Tuple[List[matplotlib.figure.Figure], List[np.ndarray]]:  # type: ignore
+        return plot_crosscut_abutting_relationships_plot(
+            relations_df=self.length_set_relationships,  # type: ignore
+            set_array=self.trace_data.length_set_array,
+            set_names=self.trace_data.length_set_names,  # type: ignore
+        )
+
+    def plot_trace_azimuth_set_count(
+        self, label: Optional[str] = None
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        if label is None:
+            label = self.name
+        return self.trace_data.plot_azimuth_set_count(label=label)
+
+    def plot_branch_azimuth_set_count(
+        self, label: Optional[str] = None
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        if label is None:
+            label = self.name
+        return self.branch_data.plot_azimuth_set_count(label=label)
+
+    def plot_trace_length_set_count(
+        self, label: Optional[str] = None
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        if label is None:
+            label = self.name
+        return self.trace_data.plot_length_set_count(label=label)
+
+    def plot_branch_length_set_count(
+        self, label: Optional[str] = None
+    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+        if label is None:
+            label = self.name
+        return self.branch_data.plot_length_set_count(label=label)
