@@ -446,8 +446,8 @@ def plot_set_count(
         autopct="%.1f%%",
         explode=[0.025 for _ in set_counts],
         pctdistance=0.5,
-        shadow=True,
         textprops=dict(weight="bold"),
+        wedgeprops=dict(linewidth=2, edgecolor="black"),
     )
     ax.set_title(label)
     for label_text in label_texts:
