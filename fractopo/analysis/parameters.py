@@ -424,3 +424,32 @@ def plot_parameters_plot(
         figs.append(fig)
         axes.append(ax)
     return figs, axes
+
+
+def determine_set_counts(
+    set_names: np.ndarray, set_array: np.ndarray
+) -> Dict[str, int]:
+    return {
+        set_name: amount if (amount := sum(set_array == set_name)) is not None else 0
+        for set_name in set_names
+    }
+
+
+def plot_set_count(
+    set_counts: Dict[str, int],
+    label: str,
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    fig, ax = plt.subplots(figsize=(7, 7))
+    wedges, label_texts, count_texts = ax.pie(
+        x=[set_counts[key] for key in set_counts],
+        labels=[key for key in set_counts],
+        autopct="%.1f%%",
+        explode=[0.025 for _ in set_counts],
+        pctdistance=0.5,
+        shadow=True,
+        textprops=dict(weight="bold"),
+    )
+    ax.set_title(label)
+    for label_text in label_texts:
+        label_text.set_fontsize("large")
+    return fig, ax
