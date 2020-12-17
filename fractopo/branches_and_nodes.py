@@ -39,6 +39,8 @@ from fractopo.general import (
     CLASS_COLUMN,
     GEOMETRY_COLUMN,
     match_crs,
+    get_trace_endpoints,
+    get_trace_coord_points,
 )
 
 
@@ -132,7 +134,7 @@ def get_node_identities(
         all_inter_endpoints = [
             pt
             for sublist in map(
-                trace_validator.BaseValidator.get_trace_endpoints,
+                trace_validator.get_trace_endpoints,
                 inter_with_traces_geoms,
             )
             for pt in sublist
@@ -357,14 +359,7 @@ def get_branch_identities(
         inter = [
             dist < snap_threshold
             for dist in node_candidates.distance(
-                MultiPoint(
-                    [
-                        p
-                        for p in trace_validator.BaseValidator.get_trace_endpoints(
-                            branch
-                        )
-                    ]
-                )
+                MultiPoint([p for p in trace_validator.get_trace_endpoints(branch)])
             )
         ]
         assert len(inter) == len(node_candidates)
@@ -642,7 +637,7 @@ def snap_traces(
             snapped_traces.append(trace)
             continue
         # get_trace_endpoints returns ls[0] and then ls[-1]
-        endpoints = BaseValidator.get_trace_endpoints(trace)
+        endpoints = get_trace_endpoints(trace)
         snapped_endpoints: List[Point]
         snapped_endpoints = []
         n: Point
@@ -721,20 +716,6 @@ def snap_traces(
     return gpd.GeoSeries(snapped_traces), any_changed_applied
 
 
-def get_trace_coord_points(trace: LineString) -> List[Point]:
-    """
-    Get all coordinate Points of a LineString.
-
-    >>> trace = LineString([(0, 0), (2, 0), (3, 0)])
-    >>> coord_points = get_trace_coord_points(trace)
-    >>> print([p.wkt for p in coord_points])
-    ['POINT (0 0)', 'POINT (2 0)', 'POINT (3 0)']
-
-    """
-    assert isinstance(trace, LineString)
-    return [Point(xy) for xy in trace.coords]
-
-
 def snap_traces_alternative(
     traces: gpd.GeoSeries, snap_threshold: float
 ) -> Tuple[gpd.GeoSeries, bool]:
@@ -766,7 +747,7 @@ def snap_traces_alternative(
         # get_trace_endpoints returns ls[0] and then ls[-1]
         endpoints = []
         for trace_candidate in trace_candidates:
-            endpoints = BaseValidator.get_trace_endpoints(trace_candidate)
+            endpoints = get_trace_endpoints(trace_candidate)
             endpoints.extend(endpoints)
         assert all([isinstance(ep, Point) for ep in endpoints])
         n: Point

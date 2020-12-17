@@ -32,7 +32,7 @@ def main(
                 trace_validator.BaseValidator.ERROR_COLUMN
             ]
             trace[trace_validator.BaseValidator.ERROR_COLUMN] = [
-                [] for _ in trace.index
+                [] for _ in trace.index.values
             ]
         for validator in (
             trace_validator.GeomNullValidator,

@@ -6,7 +6,7 @@ import powerlaw
 import geopandas as gpd
 import pandas as pd
 import math
-from typing import Tuple, Dict, List, Union
+from typing import Tuple, Dict, List, Union, Final
 import math
 from textwrap import wrap
 import os
@@ -548,7 +548,7 @@ def curviness(linestring):
         start = Point(coords[i])
         end = Point(coords[i + 1])
         l = LineString([start, end])
-        azimu = calc_azimu(l)
+        azimu = determine_azimuth(l, halved=True)
         # halved = tools.azimu_half(azimu)
         length = l.length
         addition = {
@@ -609,252 +609,6 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     return prepared_traces
 
 
-def initialize_ternary_points(ax, tax):
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.set_frame_on(False)
-    tax.boundary(linewidth=1.5)
-    tax.gridlines(linewidth=0.1, multiple=20, color="grey", alpha=0.6)
-    tax.ticks(
-        axis="lbr",
-        linewidth=1,
-        multiple=20,
-        offset=0.035,
-        tick_formats="%d%%",
-        fontsize="small",
-    )
-    tax.clear_matplotlib_ticks()
-    tax.get_axes().axis("off")
-    fontsize = 25
-    fdict = {
-        "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
-        "color": "white",
-        "family": "Calibri",
-        "size": fontsize,
-        "weight": "bold",
-    }
-    ax.text(-0.1, -0.03, "Y", transform=ax.transAxes, fontdict=fdict)
-    ax.text(1.03, -0.03, "X", transform=ax.transAxes, fontdict=fdict)
-    ax.text(0.5, 1.07, "I", transform=ax.transAxes, fontdict=fdict, ha="center")
-    # tax.set_title(name, x=0.1, y=1, fontsize=14, fontweight='heavy', fontfamily='Times New Roman')
-
-
-def initialize_ternary_branches_points(ax, tax):
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.set_frame_on(False)
-    tax.boundary(linewidth=1.5)
-    tax.gridlines(linewidth=0.9, multiple=20, color="black", alpha=0.6)
-    tax.ticks(
-        axis="lbr",
-        linewidth=0.9,
-        multiple=20,
-        offset=0.03,
-        tick_formats="%d%%",
-        fontsize="small",
-        alpha=0.6,
-    )
-    tax.clear_matplotlib_ticks()
-    tax.get_axes().axis("off")
-    fontsize = 20
-    fdict = {
-        "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
-        "color": "w",
-        "family": "Calibri",
-        "size": fontsize,
-        "weight": "bold",
-    }
-    ax.text(-0.1, -0.06, "I - C", transform=ax.transAxes, fontdict=fdict)
-    ax.text(1.0, -0.06, "C - C", transform=ax.transAxes, fontdict=fdict)
-    ax.text(0.5, 1.07, "I - I", transform=ax.transAxes, fontdict=fdict, ha="center")
-
-
-def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
-    """
-    Function to setup ax for length distribution plots.
-
-    :param ax_for_setup: Ax to setup.
-    :type ax_for_setup: matplotlib.axes.Axes
-    :param using_branches: Are the lines branches or traces.
-    :type using_branches: bool
-    """
-    #
-    ax = ax_for_setup
-    # LABELS
-    label = "Branch length $(m)$" if using_branches else "Trace Length $(m)$"
-    ax.set_xlabel(
-        label,
-        fontsize="xx-large",
-        fontfamily="Calibri",
-        style="italic",
-        labelpad=16,
-    )
-    # Individual powerlaw fits are not normalized to area because they aren't
-    # multiscale
-    ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
-    ax.set_ylabel(
-        "Complementary Cumulative Number " + ccm_unit,
-        fontsize="xx-large",
-        fontfamily="Calibri",
-        style="italic",
-    )
-    # TICKS
-    plt.xticks(color="black", fontsize="x-large")
-    plt.yticks(color="black", fontsize="x-large")
-    plt.tick_params(axis="both", width=1.2)
-    # LEGEND
-    handles, labels = ax.get_legend_handles_labels()
-    labels = ["\n".join(wrap(l, 13)) for l in labels]
-    lgnd = plt.legend(
-        handles,
-        labels,
-        loc="upper center",
-        bbox_to_anchor=(1.37, 1.02),
-        ncol=2,
-        columnspacing=0.3,
-        shadow=True,
-        prop={"family": "Calibri", "weight": "heavy", "size": "large"},
-    )
-    for lh in lgnd.legendHandles:
-        # lh._sizes = [750]
-        lh.set_linewidth(3)
-    ax.grid(zorder=-10, color="black", alpha=0.5)
-
-
-def report_powerlaw_fit_statistics_df(
-    name: str,
-    fit: powerlaw.Fit,
-    report_df: pd.DataFrame,
-    using_branches: bool,
-    lengths: Union[np.ndarray, pd.Series],
-):
-    """
-    Writes powerlaw module Fit object statistics to a given report_df. Included
-    powerlaw, lognormal and exponential fit statistics and parameters.
-    """
-    powerlaw_exponent = -(fit.power_law.alpha - 1)
-    # traces_or_branches = "branches" if using_branches else "traces"
-
-    powerlaw_sigma = fit.power_law.sigma
-    powerlaw_cutoff = fit.power_law.xmin
-    powerlaw_manual = str(fit.fixed_xmin)
-    lognormal_mu = fit.lognormal.mu
-    lognormal_sigma = fit.lognormal.sigma
-    exponential_lambda = fit.exponential.Lambda
-    R, p = fit.distribution_compare("power_law", "lognormal")
-    powerlaw_vs_lognormal_r = R
-    powerlaw_vs_lognormal_p = p
-    R, p = fit.distribution_compare("power_law", "exponential")
-    powerlaw_vs_exponential_r = R
-    powerlaw_vs_exponential_p = p
-    R, p = fit.distribution_compare("lognormal", "exponential")
-    lognormal_vs_exponential_r = R
-    lognormal_vs_exponential_p = p
-
-    remaining_percent_of_data = (sum(lengths > fit.power_law.xmin) / len(lengths)) * 100
-
-    report_df = report_df.append(
-        {
-            ReportDfCols.name: name,
-            ReportDfCols.powerlaw_exponent: powerlaw_exponent,
-            ReportDfCols.powerlaw_sigma: powerlaw_sigma,
-            ReportDfCols.powerlaw_cutoff: powerlaw_cutoff,
-            ReportDfCols.powerlaw_manual: powerlaw_manual,
-            ReportDfCols.lognormal_mu: lognormal_mu,
-            ReportDfCols.lognormal_sigma: lognormal_sigma,
-            ReportDfCols.exponential_lambda: exponential_lambda,
-            ReportDfCols.powerlaw_vs_lognormal_r: powerlaw_vs_lognormal_r,
-            ReportDfCols.powerlaw_vs_lognormal_p: powerlaw_vs_lognormal_p,
-            ReportDfCols.powerlaw_vs_exponential_r: powerlaw_vs_exponential_r,
-            ReportDfCols.powerlaw_vs_exponential_p: powerlaw_vs_exponential_p,
-            ReportDfCols.lognormal_vs_exponential_r: lognormal_vs_exponential_r,
-            ReportDfCols.lognormal_vs_exponential_p: lognormal_vs_exponential_p,
-            ReportDfCols.lognormal_vs_exponential_p: lognormal_vs_exponential_p,
-            ReportDfCols.remaining_percent_of_data: remaining_percent_of_data,
-        },
-        ignore_index=True,
-    )
-    return report_df
-
-
-def plotting_directories(results_folder, name):
-    """
-    Creates plotting directories and handles FileExistsErrors when raised.
-
-    :param results_folder: Base folder to create plots_{name} folder to.
-    :type results_folder: str
-    :param name: Analysis name.
-    :type name: str
-    :return: Newly made path to plotting directory where all plots will be saved to.
-    :rtype: str
-    """
-    plotting_directory = f"{results_folder}/plots_{name}"
-    try:
-        try:
-            os.mkdir(Path(plotting_directory))
-        except FileExistsError:
-            print("Earlier plots exist. Overwriting old ones.")
-            return plotting_directory
-        os.mkdir(Path(f"{plotting_directory}/age_relations"))
-        os.mkdir(Path(f"{plotting_directory}/age_relations/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/length_age_relations"))
-        os.mkdir(Path(f"{plotting_directory}/length_age_relations/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/anisotropy"))
-        os.mkdir(Path(f"{plotting_directory}/anisotropy/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_radius"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_radius/traces"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_radius/branches"))
-
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_area"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_area/traces"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/equal_area/branches"))
-
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_radius"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_radius/traces"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_radius/branches"))
-
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_area"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_area/traces"))
-        os.mkdir(Path(f"{plotting_directory}/azimuths/indiv/equal_area/branches"))
-
-        os.mkdir(Path(f"{plotting_directory}/branch_class"))
-        os.mkdir(Path(f"{plotting_directory}/branch_class/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/branches"))
-        os.mkdir(
-            Path(f"{plotting_directory}/length_distributions/branches/predictions")
-        )
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/traces"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/traces/predictions"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/indiv/branches"))
-        os.mkdir(Path(f"{plotting_directory}/length_distributions/indiv/traces"))
-        os.mkdir(Path(f"{plotting_directory}/topology"))
-        os.mkdir(Path(f"{plotting_directory}/topology/branches"))
-        os.mkdir(Path(f"{plotting_directory}/topology/traces"))
-        os.mkdir(Path(f"{plotting_directory}/xyi"))
-        os.mkdir(Path(f"{plotting_directory}/xyi/indiv"))
-        os.mkdir(Path(f"{plotting_directory}/hexbinplots"))
-
-    # Should not be needed (shutil.rmtree(Path(f"{plotting_directory}"))).
-    # Would run if only SOME of the above folders are present.
-    # i.e. Folder creation has failed and same folder is used again or if some folders have been removed and same
-    # plotting directory is used again. Edge cases.
-    except FileExistsError:
-        raise
-        # print("Earlier decrepit directories found. Deleting decrepit result-plots folder in plots and remaking.")
-        # shutil.rmtree(Path(f"{plotting_directory}"))
-
-    return plotting_directory
-
-
-def initialize_report_df() -> pd.DataFrame:
-    report_df = pd.DataFrame(columns=ReportDfCols.cols)
-    return report_df
-
-
 def match_crs(
     first: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     second: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -899,3 +653,23 @@ def get_trace_endpoints(
             )
         )
     )
+
+
+def get_trace_coord_points(trace: LineString) -> List[Point]:
+    """
+    Get all coordinate Points of a LineString.
+
+    >>> trace = LineString([(0, 0), (2, 0), (3, 0)])
+    >>> coord_points = get_trace_coord_points(trace)
+    >>> print([p.wkt for p in coord_points])
+    ['POINT (0 0)', 'POINT (2 0)', 'POINT (3 0)']
+
+    """
+    assert isinstance(trace, LineString)
+    return [Point(xy) for xy in trace.coords]
+
+
+def point_to_xy(point: Point) -> Tuple[float, float]:
+    x, y = point.xy
+    x, y = [val[0] for val in (x, y)]
+    return (x, y)

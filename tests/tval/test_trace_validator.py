@@ -141,7 +141,7 @@ class TestGeomTypeValidator(TestBaseValidator):
             }
         )
         mls_result = GeomTypeValidator.fix_function(multilinestring_row)
-        assert isinstance(mls_result[GEOMETRY_COLUMN], shapely.geometry.MultiLineString)
+        assert isinstance(mls_result[GEOMETRY_COLUMN], MultiLineString)
         # Check that Error was not fixed
         # (the passed MultiLineString is unmergeable)
         assert GeomTypeValidator.ERROR in mls_result[ERROR_COLUMN]
@@ -151,8 +151,7 @@ class TestGeomTypeValidator(TestBaseValidator):
         result_gdf = GeomTypeValidator.validate(valid_gdf)
         assert all(
             [
-                isinstance(geom, shapely.geometry.LineString)
-                or GeomTypeValidator.ERROR in err
+                isinstance(geom, LineString) or GeomTypeValidator.ERROR in err
                 for geom, err in zip(
                     result_gdf[GEOMETRY_COLUMN], result_gdf[ERROR_COLUMN]
                 )
@@ -163,19 +162,19 @@ class TestGeomTypeValidator(TestBaseValidator):
         # All are not LineStrings
         assert not all(
             [
-                isinstance(geom, shapely.geometry.LineString)
-                for geom in checked_result_gdf[GEOMETRY_COLUMN]
+                isinstance(geom, LineString)
+                for geom in checked_result_gdf[GEOMETRY_COLUMN].values
             ]
         )
         # MultiLineString typeerror has been caught
         assert any(
             [
                 GeomTypeValidator.ERROR in errors
-                for errors in checked_result_gdf[ERROR_COLUMN]
+                for errors in checked_result_gdf[ERROR_COLUMN].values
             ]
         )
         for idx, row in checked_result_gdf.iterrows():
-            if isinstance(row[GEOMETRY_COLUMN], shapely.geometry.MultiLineString):
+            if isinstance(row[GEOMETRY_COLUMN], MultiLineString):
                 assert GeomTypeValidator.ERROR in row[ERROR_COLUMN]
         return checked_result_gdf
 
@@ -188,10 +187,10 @@ class TestGeomTypeValidator(TestBaseValidator):
         print(fixed_result_gdf)
         assert all(
             [
-                isinstance(geom, shapely.geometry.LineString)
-                or GeomTypeValidator.ERROR in err
+                isinstance(geom, LineString) or GeomTypeValidator.ERROR in err
                 for geom, err in zip(
-                    fixed_result_gdf[GEOMETRY_COLUMN], fixed_result_gdf[ERROR_COLUMN]
+                    fixed_result_gdf[GEOMETRY_COLUMN].values,
+                    fixed_result_gdf[ERROR_COLUMN].values,
                 )
             ]
         )
@@ -208,7 +207,7 @@ class TestGeomTypeValidator(TestBaseValidator):
         valid_result = GeomTypeValidator.execute(
             Helpers.valid_gdf_get(), None, auto_fix=False, parallel=False
         )
-        assert all([col in valid_result.columns for col in valid_gdf_orig_cols])
+        assert all([col in valid_result.columns for col in valid_gdf_orig_cols.values])
         valid_result_fix = GeomTypeValidator.execute(
             Helpers.valid_gdf_get(), None, auto_fix=True, parallel=False
         )
@@ -223,18 +222,17 @@ class TestGeomTypeValidator(TestBaseValidator):
         assert len(invalid_result) == len(invalid_result_fix)
         assert all(
             [
-                isinstance(geom, shapely.geometry.LineString)
-                for geom in valid_result_fix[GEOMETRY_COLUMN]
+                isinstance(geom, LineString)
+                for geom in valid_result_fix[GEOMETRY_COLUMN].values
             ]
         )
         # Either geom is a LineString or error has been reported.
         assert all(
             [
-                isinstance(geom, shapely.geometry.LineString)
-                or GeomTypeValidator.ERROR in err
+                isinstance(geom, LineString) or GeomTypeValidator.ERROR in err
                 for geom, err in zip(
-                    invalid_result_fix[GEOMETRY_COLUMN],
-                    invalid_result_fix[ERROR_COLUMN],
+                    invalid_result_fix[GEOMETRY_COLUMN].values,
+                    invalid_result_fix[ERROR_COLUMN].values,
                 )
             ]
         )
@@ -248,19 +246,10 @@ class TestMultiJunctionValidator:
         # print(invalid_result)
         assert (
             MultiJunctionValidator.ERROR in all_errors
-            for all_errors in invalid_result[BaseValidator.ERROR_COLUMN]
+            for all_errors in invalid_result[BaseValidator.ERROR_COLUMN].values
         )
 
     def test_determine_intersections(self):
-        nodes_of_interaction, node_id_data = MultiJunctionValidator.determine_nodes_old(
-            Helpers.valid_gdf_get()
-        )
-        (
-            invalid_nodes_of_interaction,
-            invalid_node_id_data,
-        ) = MultiJunctionValidator.determine_nodes_old(Helpers.invalid_gdf_get())
-        assert len(nodes_of_interaction) > 0 and len(node_id_data) > 0
-        assert len(invalid_nodes_of_interaction) > 0 and len(invalid_node_id_data) > 0
         (
             optimized_valid_result_nodes_of_interaction,
             optimized_valid_result_node_id_data,
@@ -269,17 +258,6 @@ class TestMultiJunctionValidator:
             optimized_invalid_result_nodes_of_interaction,
             optimized_invalid_result_node_id_data,
         ) = MultiJunctionValidator.get_nodes(Helpers.invalid_gdf_get())
-
-        assert len(optimized_valid_result_nodes_of_interaction) == len(
-            nodes_of_interaction
-        )
-        assert len(optimized_valid_result_node_id_data) == len(node_id_data)
-        assert all(
-            [
-                val in optimized_valid_result_nodes_of_interaction
-                for val in nodes_of_interaction
-            ]
-        )
 
         BaseValidator.nodes_of_interaction_both, BaseValidator.node_id_data_both = (
             optimized_valid_result_nodes_of_interaction,
@@ -315,10 +293,10 @@ class TestMultiJunctionValidator:
 
     def test_determine_faulty_junctions(self):
         stacked_points = [
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(0, 0),
+            Point(0, 0),
+            Point(0, 0),
+            Point(0, 0),
+            Point(0, 0),
         ]
         stacked_result = MultiJunctionValidator.determine_faulty_junctions(
             stacked_points
@@ -327,10 +305,10 @@ class TestMultiJunctionValidator:
         assert len(stacked_points) == len(stacked_result)
 
         non_stacked_points = [
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(2, 0),
-            shapely.geometry.Point(0, 2),
-            shapely.geometry.Point(0, 3),
+            Point(0, 0),
+            Point(2, 0),
+            Point(0, 2),
+            Point(0, 3),
         ]
         non_stacked_result = MultiJunctionValidator.determine_faulty_junctions(
             non_stacked_points
@@ -342,16 +320,16 @@ class TestMultiJunctionValidator:
 class TestVNodeValidator:
     def test_determine_v_nodes(self):
         stacked_points = [
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(0, 0),
+            Point(0, 0),
+            Point(0, 0),
         ]
         stacked_result = VNodeValidator.determine_v_nodes(stacked_points)
         assert isinstance(stacked_result, gpd.GeoSeries)
         assert len(stacked_points) == len(stacked_result)
 
         non_stacked_points = [
-            shapely.geometry.Point(0, 0),
-            shapely.geometry.Point(1, 1),
+            Point(0, 0),
+            Point(1, 1),
         ]
         non_stacked_result = VNodeValidator.determine_v_nodes(non_stacked_points)
         assert isinstance(non_stacked_result, gpd.GeoSeries)
@@ -377,14 +355,6 @@ class TestMultipleCrosscutValidator:
     def test_determine_stacked_traces(self):
         invalid_rows_with_stacked = MultipleCrosscutValidator.determine_stacked_traces(
             Helpers.invalid_gdf_get()
-        )
-        assert len(invalid_rows_with_stacked) > 1
-
-    def test_determine_stacked_traces_old(self):
-        invalid_rows_with_stacked = (
-            MultipleCrosscutValidator.determine_stacked_traces_old(
-                Helpers.invalid_gdf_get()
-            )
         )
         assert len(invalid_rows_with_stacked) > 1
 
@@ -499,9 +469,14 @@ class TestAllValidators:
                 auto_fix=True,
                 parallel=False,
             )
-            assert all([col in valid_result.columns for col in valid_result_cols])
             assert all(
-                [col in valid_result_fix.columns for col in valid_result_fix_cols]
+                [col in valid_result.columns for col in valid_result_cols.values]
+            )
+            assert all(
+                [
+                    col in valid_result_fix.columns
+                    for col in valid_result_fix_cols.values
+                ]
             )
 
     def test_all_chained_invalid(self):
@@ -540,7 +515,7 @@ class TestAllValidators:
             )
             # TargetAreaSnapValidator currently last in iterables.
             # If it is reached probably all others are as well.
-            if validator == TargetAreaSnapValidator:
+            if validator is TargetAreaSnapValidator:
                 all_iterated = True
         assert all_iterated
 
@@ -571,7 +546,7 @@ class TestStackedTracesValidator:
             len(
                 [
                     err
-                    for err in invalid_result[ERROR_COLUMN]
+                    for err in invalid_result[ERROR_COLUMN].values
                     if StackedTracesValidator.ERROR in err
                 ]
             )

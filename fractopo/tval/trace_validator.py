@@ -1,8 +1,14 @@
 import geopandas as gpd
 import pandas as pd
-import shapely
-from shapely.geometry import MultiPoint, Point, LineString, MultiLineString, Polygon
-from shapely.ops import split
+from shapely.geometry.base import BaseGeometry
+from shapely.geometry import (
+    MultiPoint,
+    Point,
+    LineString,
+    MultiLineString,
+    Polygon,
+)
+from shapely.ops import split, linemerge
 import ast
 import numpy as np
 
@@ -10,6 +16,8 @@ from typing import Union, Tuple, List, Optional
 from abc import abstractmethod
 from itertools import zip_longest
 import logging
+
+from fractopo.general import get_trace_coord_points, point_to_xy, get_trace_endpoints
 
 
 class BaseValidator:
@@ -140,7 +148,7 @@ class BaseValidator:
     ) -> gpd.GeoDataFrame:
         if cls.ERROR_COLUMN not in trace_geodataframe.columns:
             trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
-                [[] for _ in trace_geodataframe.index], dtype=object
+                [[] for _ in trace_geodataframe.index.values], dtype=object
             )
         validated_error_values: List[list]
         validated_error_values = []
@@ -171,31 +179,9 @@ class BaseValidator:
         return trace_geodataframe
 
     @classmethod
-    def get_trace_endpoints(
-        cls, trace: Union[shapely.geometry.LineString]
-    ) -> List[shapely.geometry.Point]:
-        """
-        Returns endpoints (shapely.geometry.Point) of a given LineString
-
-        TODO: Defined also in fractopo.general -> Remove from here.
-        """
-        if not isinstance(trace, shapely.geometry.LineString):
-            raise TypeError(
-                "Non LineString geometry passed into get_trace_endpoints.\n"
-                f"trace: {trace.wkt}"
-            )
-        return [
-            endpoint
-            for endpoint in (
-                shapely.geometry.Point(trace.coords[0]),
-                shapely.geometry.Point(trace.coords[-1]),
-            )
-        ]
-
-    @classmethod
     def determine_nodes_old(
         cls, trace_geodataframe: gpd.GeoDataFrame, interactions=True, endpoints=True
-    ) -> Tuple[List[shapely.geometry.Point], List[Tuple[int, ...]]]:
+    ) -> Tuple[List[Point], List[Tuple[int, ...]]]:
         """
         Determines points of interest between traces.
 
@@ -211,7 +197,7 @@ class BaseValidator:
 
         # nodes_of_interaction contains all intersection points between
         # trace_geodataframe traces.
-        nodes_of_interaction: List[shapely.geometry.Point]
+        nodes_of_interaction: List[Point]
         nodes_of_interaction = []
         # node_id_data contains all ids that correspond to points in
         # nodes_of_interaction
@@ -231,7 +217,7 @@ class BaseValidator:
                         # -> intersection possible linestring
                         # and multiple intersections between two traces
                         # -> interaction is a multipoint
-                        if isinstance(geom, shapely.geometry.Point)
+                        if isinstance(geom, Point)
                     ]
                 )
             # Add trace endpoints to nodes_of_interaction
@@ -240,7 +226,7 @@ class BaseValidator:
                     nodes_of_interaction.extend(
                         [
                             endpoint
-                            for endpoint in cls.get_trace_endpoints(row.geometry)
+                            for endpoint in get_trace_endpoints(row.geometry)
                             if not any(
                                 intersection_geoms.intersects(
                                     endpoint.buffer(cls.SNAP_THRESHOLD)
@@ -270,9 +256,7 @@ class BaseValidator:
         interactions=True,
         endpoints=True,
         parallel=False,
-    ) -> Union[
-        Tuple[List[shapely.geometry.Point], List[Tuple[int, ...]]], Tuple[None, None]
-    ]:
+    ) -> Union[Tuple[List[Point], List[Tuple[int, ...]]], Tuple[None, None]]:
         """
         To reduce on unnecessary calculations, determined nodes of interaction
         and endpoints of lines are saved to BaseValidator as a class attribute.
@@ -334,7 +318,7 @@ class BaseValidator:
     ) -> List[Point]:
         assert isinstance(intersection_geoms, gpd.GeoSeries)
         valid_interaction_points = []
-        for geom in intersection_geoms:
+        for geom in intersection_geoms.geometry.values:
             if isinstance(geom, Point):
                 valid_interaction_points.append(geom)
             elif isinstance(geom, MultiPoint):
@@ -347,7 +331,7 @@ class BaseValidator:
     @classmethod
     def determine_nodes(
         cls, trace_geodataframe: gpd.GeoDataFrame, interactions=True, endpoints=True
-    ) -> Tuple[List[shapely.geometry.Point], List[Tuple[int, ...]]]:
+    ) -> Tuple[List[Point], List[Tuple[int, ...]]]:
         """
         Determines points of interest between traces.
 
@@ -363,12 +347,10 @@ class BaseValidator:
 
         # nodes_of_interaction contains all intersection points between
         # trace_geodataframe traces.
-        nodes_of_interaction: List[shapely.geometry.Point]
-        nodes_of_interaction = []
+        nodes_of_interaction: List[Point] = []
         # node_id_data contains all ids that correspond to points in
         # nodes_of_interaction
-        node_id_data: List[Tuple[int, ...]]
-        node_id_data = []
+        node_id_data: List[Tuple[int, ...]] = []
         trace_geodataframe.reset_index(drop=True, inplace=True)
         spatial_index = trace_geodataframe.geometry.sindex
         for idx, geom in enumerate(trace_geodataframe.geometry):
@@ -392,7 +374,7 @@ class BaseValidator:
                     nodes_of_interaction.extend(
                         [
                             endpoint
-                            for endpoint in cls.get_trace_endpoints(geom)
+                            for endpoint in get_trace_endpoints(geom)
                             if not any(
                                 intersection_geoms.intersects(
                                     endpoint.buffer(cls.SNAP_THRESHOLD)
@@ -454,10 +436,8 @@ class GeomTypeValidator(BaseValidator):
     ERROR = "GEOM TYPE MULTILINESTRING"
 
     @classmethod
-    def validation_function(
-        cls, geom: Union[shapely.geometry.LineString, shapely.geometry.MultiLineString]
-    ) -> bool:
-        return isinstance(geom, shapely.geometry.LineString)
+    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
+        return isinstance(geom, LineString)
 
     @classmethod
     def validate(
@@ -485,16 +465,16 @@ class GeomTypeValidator(BaseValidator):
 
     @classmethod
     def fix_function(cls, row: pd.Series) -> pd.Series:
-        if isinstance(row[cls.GEOMETRY_COLUMN], shapely.geometry.LineString):
+        if isinstance(row[cls.GEOMETRY_COLUMN], LineString):
             return row
         elif row[cls.GEOMETRY_COLUMN] is None:
             logging.error("row[cls.GEOMETRY_COLUMN] is None")
             return row
         # Fix will not throw error if merge cannot happen. It will simply
         # return a MultiLineString instead of a LineString.
-        fixed_geom = shapely.ops.linemerge(row[cls.GEOMETRY_COLUMN])
+        fixed_geom = linemerge(row[cls.GEOMETRY_COLUMN])
         # If linemerge results in LineString:
-        if isinstance(fixed_geom, shapely.geometry.LineString):
+        if isinstance(fixed_geom, LineString):
             try:
                 removed_error = row[cls.ERROR_COLUMN].remove(cls.ERROR)
             except ValueError:
@@ -533,7 +513,7 @@ class MultiJunctionValidator(BaseValidator):
     @classmethod
     def validation_function(
         cls,
-        point_ids: Tuple[int],
+        point_ids: Tuple[int, ...],
         faulty_junctions: gpd.GeoSeries,
     ) -> bool:
         """
@@ -553,7 +533,7 @@ class MultiJunctionValidator(BaseValidator):
 
     @classmethod
     def determine_faulty_junctions(
-        cls, nodes_of_interaction: List[shapely.geometry.Point], parallel=False
+        cls, nodes_of_interaction: List[Point], parallel=False
     ) -> gpd.GeoSeries:
         """
         Determines when a point of interest represents a multi junction i.e.
@@ -568,8 +548,7 @@ class MultiJunctionValidator(BaseValidator):
         nodes_of_interaction_geoseries = gpd.GeoSeries(nodes_of_interaction)
         # Now all points that are not erronous are removed from the
         # nodes_of_interaction_geoseries
-        indexes_not_to_remove: List[bool]
-        indexes_not_to_remove = []
+        indexes_not_to_remove: List[bool] = []
         for idx, point in enumerate(nodes_of_interaction_geoseries):
             points_intersecting_point = nodes_of_interaction_geoseries.drop(
                 idx
@@ -591,7 +570,7 @@ class MultiJunctionValidator(BaseValidator):
     def validate(
         cls,
         trace_geodataframe: gpd.GeoDataFrame,
-        area_geodataframe=None,
+        area_geodataframe: Optional[gpd.GeoDataFrame] = None,
         parallel=False,
     ) -> gpd.GeoDataFrame:
         nodes_of_interaction, node_id_data = cls.get_nodes(
@@ -650,9 +629,7 @@ class VNodeValidator(MultiJunctionValidator):
     ERROR = "V NODE"
 
     @classmethod
-    def determine_v_nodes(
-        cls, endpoints: List[shapely.geometry.Point]
-    ) -> gpd.GeoSeries:
+    def determine_v_nodes(cls, endpoints: List[Point]) -> gpd.GeoSeries:
         endpoints_geoseries = gpd.GeoSeries(endpoints)
         indexes_not_to_remove: List[bool]
         indexes_not_to_remove = []
@@ -736,32 +713,6 @@ class MultipleCrosscutValidator(BaseValidator):
         return trace_geodataframe
 
     @classmethod
-    def determine_stacked_traces_old(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-    ) -> list:
-        rows_with_stacked = []
-        for idx, row in trace_geodataframe.iterrows():
-            intersection_geoms = trace_geodataframe.geometry.drop(idx).intersection(
-                row.geometry
-            )
-            # Stacked traces are defined as traces with more than two intersections
-            # with each other.
-            # the if-statement checks for MultiPoints in intersection_geoms
-            # which indicates atleast two intersection between traces.
-            # if there are more than two points in a MultiPoint geometry
-            # -> stacked traces
-            if any(
-                [
-                    len(list(geom.geoms)) > 2
-                    for geom in intersection_geoms
-                    if isinstance(geom, shapely.geometry.MultiPoint)
-                ]
-            ):
-                rows_with_stacked.append(idx)
-        return rows_with_stacked
-
-    @classmethod
     def determine_stacked_traces(
         cls,
         trace_geodataframe: gpd.GeoDataFrame,
@@ -791,7 +742,7 @@ class MultipleCrosscutValidator(BaseValidator):
                 [
                     len(list(geom.geoms)) > 2
                     for geom in intersection_geoms
-                    if isinstance(geom, shapely.geometry.MultiPoint)
+                    if isinstance(geom, MultiPoint)
                 ]
             ):
                 rows_with_stacked.append(idx)
@@ -838,7 +789,7 @@ class UnderlappingSnapValidator(MultipleCrosscutValidator):
         rows_with_underlapping = []
         for idx, row in trace_geodataframe.iterrows():
             try:
-                row_endpoints = cls.get_trace_endpoints(row.geometry)
+                row_endpoints = get_trace_endpoints(row.geometry)
             except TypeError:
                 # Multipart geometry encountered -> ignore row
                 continue
@@ -903,7 +854,7 @@ class TargetAreaSnapValidator(MultipleCrosscutValidator):
         rows_with_underlapping = []
         for idx, row in trace_geodataframe.iterrows():
             try:
-                row_endpoints = cls.get_trace_endpoints(row.geometry)
+                row_endpoints = get_trace_endpoints(row.geometry)
             except TypeError:
                 # Multipart geometry encountered -> ignore row
                 continue
@@ -1114,11 +1065,10 @@ class StackedTracesValidator(MultipleCrosscutValidator):
     @classmethod
     def segmentize_linestring(
         cls, linestring: LineString, amount: int
-    ) -> Union[List[LineString], LineString]:
+    ) -> List[LineString]:
         assert isinstance(linestring, LineString)
-        points = [Point(c) for c in linestring.coords]
-        segmentized: List[Point]
-        segmentized = []
+        points: List[Point] = [Point(c) for c in linestring.coords]
+        segmentized: List[Tuple[Point, Point, Point]] = []
         p: Point
         for idx, p in enumerate(points):
             if idx == len(points) - 1:
@@ -1146,9 +1096,7 @@ class SimpleGeometryValidator(BaseValidator):
     ERROR = "CUTS ITSELF"
 
     @classmethod
-    def validation_function(
-        cls, geom: Union[shapely.geometry.LineString, shapely.geometry.MultiLineString]
-    ) -> bool:
+    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
         return geom.is_simple and not geom.is_ring
 
     @classmethod
@@ -1184,9 +1132,7 @@ class EmptyGeometryValidator(BaseValidator):
     ERROR = "IS EMPTY"
 
     @classmethod
-    def validation_function(
-        cls, geom: Union[shapely.geometry.LineString, shapely.geometry.MultiLineString]
-    ) -> bool:
+    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
         return not geom.is_empty
 
     @classmethod
@@ -1214,17 +1160,6 @@ class EmptyGeometryValidator(BaseValidator):
         return trace_geodataframe
 
 
-def get_trace_coord_points(trace: LineString) -> List[Point]:
-    assert isinstance(trace, LineString)
-    return [Point(xy) for xy in trace.coords]
-
-
-def point_to_xy(point: Point) -> Tuple[float, float]:
-    x, y = point.xy
-    x, y = [val[0] for val in (x, y)]
-    return (x, y)
-
-
 class SharpCornerValidator(BaseValidator):
     """
     Finds sharp cornered traces.
@@ -1233,9 +1168,7 @@ class SharpCornerValidator(BaseValidator):
     ERROR = "SHARP TURNS"
 
     @classmethod
-    def validation_function(
-        cls, trace: Union[shapely.geometry.LineString, shapely.geometry.MultiLineString]
-    ) -> bool:
+    def validation_function(cls, trace: Union[LineString, MultiLineString]) -> bool:
         geom_coords = get_trace_coord_points(trace)
         if len(geom_coords) == 2:
             # If LineString consists of two Points -> No sharp corners.
