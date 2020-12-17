@@ -1,6 +1,8 @@
 import pandas as pd
 import geopandas as gpd
 import shapely
+from shapely.ops import linemerge
+from shapely.wkt import loads
 from shapely.geometry import Point, LineString, MultiLineString, Polygon
 import numpy as np
 import hypothesis
@@ -36,6 +38,8 @@ from fractopo.tval.trace_validator import (
 from fractopo.tval import trace_builder
 from fractopo.analysis import tools, parameters
 from fractopo.general import CC_branch, CI_branch, II_branch, X_node, Y_node, I_node
+import fractopo.tval.trace_validation as trace_validation
+from fractopo.tval.executor import Validation
 
 
 GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
@@ -48,10 +52,14 @@ AREA_EDGE_SNAP_MULTIPLIER = 5
 
 class Helpers:
     valid_geom = shapely.geometry.LineString(((0, 0), (1, 1)))
+
     invalid_geom_empty = shapely.geometry.LineString()
     invalid_geom_none = None
     invalid_geom_multilinestring = shapely.geometry.MultiLineString(
         [((0, 0), (1, 1)), ((-1, 0), (1, 0))]
+    )
+    mergeable_geom_multilinestring = shapely.geometry.MultiLineString(
+        [((0, 0), (1, 1)), ((1, 1), (2, 2))]
     )
     (
         valid_traces,
@@ -446,5 +454,37 @@ class Helpers:
             ("1", "2"),  # set_names
             0.001,  # buffer_value
             "title",  # label
+        ),
+    ]
+
+    test__validate_params = [
+        (
+            trace_validation.GeomNullValidator,  # validator
+            None,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [None, [trace_validation.GeomNullValidator.ERROR], True],  # assumed_result
+        ),
+        (
+            trace_validation.GeomTypeValidator,  # validator
+            invalid_geom_multilinestring,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [
+                invalid_geom_multilinestring,
+                [trace_validation.GeomTypeValidator.ERROR],
+                True,
+            ],  # assumed_result
+        ),
+        (
+            trace_validation.GeomTypeValidator,  # validator
+            mergeable_geom_multilinestring,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [
+                loads("LINESTRING (0 0, 1 1, 2 2)"),
+                [],
+                False,
+            ],  # assumed_result
         ),
     ]

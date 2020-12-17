@@ -1,3 +1,10 @@
+import ast
+from typing import Union, Tuple, List, Optional, Any, Set
+from abc import abstractmethod
+import logging
+from itertools import chain, accumulate, zip_longest
+from bisect import bisect
+
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry.base import BaseGeometry
@@ -8,16 +15,18 @@ from shapely.geometry import (
     MultiLineString,
     Polygon,
 )
+from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.ops import split, linemerge
-import ast
 import numpy as np
 
-from typing import Union, Tuple, List, Optional
-from abc import abstractmethod
-from itertools import zip_longest
-import logging
 
-from fractopo.general import get_trace_coord_points, point_to_xy, get_trace_endpoints
+from fractopo.general import (
+    get_trace_coord_points,
+    point_to_xy,
+    get_trace_endpoints,
+    flatten_node_tuples,
+    determine_node_junctions,
+)
 
 
 class BaseValidator:
@@ -77,6 +86,11 @@ class BaseValidator:
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
+    def fix_method(cls, *args, **kwargs):
+        raise NotImplementedError
+
+    @classmethod
     def handle_error_column(
         cls, trace_geodataframe: gpd.GeoDataFrame
     ) -> gpd.GeoDataFrame:
@@ -112,91 +126,6 @@ class BaseValidator:
 
         return trace_geodataframe
 
-    @staticmethod
-    def determine_valid_interaction_points(
-        intersection_geoms: gpd.GeoSeries,
-    ) -> List[Point]:
-        assert isinstance(intersection_geoms, gpd.GeoSeries)
-        valid_interaction_points = []
-        for geom in intersection_geoms.geometry.values:
-            if isinstance(geom, Point):
-                valid_interaction_points.append(geom)
-            elif isinstance(geom, MultiPoint):
-                valid_interaction_points.extend([p for p in geom])
-            else:
-                pass
-        assert all([isinstance(p, Point) for p in valid_interaction_points])
-        return valid_interaction_points
-
-    @classmethod
-    def determine_nodes(
-        cls, trace_geodataframe: gpd.GeoDataFrame, interactions=True, endpoints=True
-    ) -> Tuple[List[Point], List[Tuple[int, ...]]]:
-        """
-        Determines points of interest between traces.
-
-        The points are linked to the indexes of the traces if
-        trace_geodataframe with the returned node_id_data list. node_id_data
-        contains tuples of ids. The ids represent indexes of
-        nodes_of_interaction. The order of the node_id_data tuples is
-        equivalent to the trace_geodataframe trace indexes.
-
-        Conditionals interactions and endpoints allow for choosing what
-        to return specifically.
-        """
-
-        # nodes_of_interaction contains all intersection points between
-        # trace_geodataframe traces.
-        nodes_of_interaction: List[Point] = []
-        # node_id_data contains all ids that correspond to points in
-        # nodes_of_interaction
-        node_id_data: List[Tuple[int, ...]] = []
-        trace_geodataframe.reset_index(drop=True, inplace=True)
-        spatial_index = trace_geodataframe.geometry.sindex
-        for idx, geom in enumerate(trace_geodataframe.geometry):
-            # for idx, row in trace_geodataframe.iterrows():
-            start_length = len(nodes_of_interaction)
-
-            trace_candidates_idx = list(spatial_index.intersection(geom.bounds))
-            assert idx in trace_candidates_idx
-            # Remove current geometry from candidates
-            trace_candidates_idx.remove(idx)
-            assert idx not in trace_candidates_idx
-            trace_candidates = trace_geodataframe.geometry.iloc[trace_candidates_idx]
-            intersection_geoms = trace_candidates.intersection(geom)
-            if interactions:
-                nodes_of_interaction.extend(
-                    cls.determine_valid_interaction_points(intersection_geoms)
-                )
-            # Add trace endpoints to nodes_of_interaction
-            if endpoints:
-                try:
-                    nodes_of_interaction.extend(
-                        [
-                            endpoint
-                            for endpoint in get_trace_endpoints(geom)
-                            if not any(
-                                intersection_geoms.intersects(
-                                    endpoint.buffer(cls.SNAP_THRESHOLD)
-                                )
-                            )
-                            # Checking that endpoint is also not a point of
-                            # interaction is not done if interactions are not
-                            # determined.
-                            or not interactions
-                        ]
-                    )
-                except TypeError:
-                    # Error is raised when MultiLineString is passed. They do
-                    # not provide a coordinate sequence.
-                    pass
-            end_length = len(nodes_of_interaction)
-            node_id_data.append(tuple([i for i in range(start_length, end_length)]))
-
-        if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
-            logging.error("Both nodes_of_interaction and node_id_data are empty...")
-        return nodes_of_interaction, node_id_data
-
     @classmethod
     def error_test(cls, err):
         # If it is invalid -> it can be an empty list.
@@ -226,6 +155,9 @@ class BaseValidator:
             yield combo
 
 
+ValidatorClass = Type[BaseValidator]
+
+
 class GeomTypeValidator(BaseValidator):
     """
     Validates the geometry.
@@ -235,8 +167,13 @@ class GeomTypeValidator(BaseValidator):
 
     ERROR = "GEOM TYPE MULTILINESTRING"
 
+    @staticmethod
+    def fix_method(geom: MultiLineString) -> Optional[LineString]:
+        fixed_geom = linemerge(geom)
+        return fixed_geom if isinstance(fixed_geom, LineString) else None
+
     @classmethod
-    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
+    def validation_method(cls, geom: Any, **kwargs) -> bool:
         return isinstance(geom, LineString)
 
     @classmethod
@@ -249,7 +186,7 @@ class GeomTypeValidator(BaseValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(geom)
+                if not cls.validation_method(geom)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for geom, error in cls.zip_equal(
@@ -263,42 +200,42 @@ class GeomTypeValidator(BaseValidator):
         trace_geodataframe = cls.handle_error_column(trace_geodataframe)
         return trace_geodataframe
 
-    @classmethod
-    def fix_function(cls, row: pd.Series) -> pd.Series:
-        if isinstance(row[cls.GEOMETRY_COLUMN], LineString):
-            return row
-        elif row[cls.GEOMETRY_COLUMN] is None:
-            logging.error("row[cls.GEOMETRY_COLUMN] is None")
-            return row
-        # Fix will not throw error if merge cannot happen. It will simply
-        # return a MultiLineString instead of a LineString.
-        fixed_geom = linemerge(row[cls.GEOMETRY_COLUMN])
-        # If linemerge results in LineString:
-        if isinstance(fixed_geom, LineString):
-            try:
-                removed_error = row[cls.ERROR_COLUMN].remove(cls.ERROR)
-            except ValueError:
-                # TODO: Error not in row for some reason...
-                removed_error = row[cls.ERROR_COLUMN]
-            removed_error = [] if removed_error is None else removed_error
-            # Update input row with fixed geometry and with error removed
-            # from list
-            row[cls.GEOMETRY_COLUMN] = fixed_geom
-            row[cls.ERROR_COLUMN] = removed_error
-            return row
-        else:
-            # Fix was not succesful, keep error message in column.
-            logging.info(
-                "Unable to convert MultiLineString to LineString. "
-                "MultiLineString probably consists of disjointed segments."
-            )
-            return row
+    # @classmethod
+    # def fix_method(cls, row: pd.Series) -> pd.Series:
+    #     if isinstance(row[cls.GEOMETRY_COLUMN], LineString):
+    #         return row
+    #     elif row[cls.GEOMETRY_COLUMN] is None:
+    #         logging.error("row[cls.GEOMETRY_COLUMN] is None")
+    #         return row
+    #     # Fix will not throw error if merge cannot happen. It will simply
+    #     # return a MultiLineString instead of a LineString.
+    #     fixed_geom = linemerge(row[cls.GEOMETRY_COLUMN])
+    #     # If linemerge results in LineString:
+    #     if isinstance(fixed_geom, LineString):
+    #         try:
+    #             removed_error = row[cls.ERROR_COLUMN].remove(cls.ERROR)
+    #         except ValueError:
+    #             # TODO: Error not in row for some reason...
+    #             removed_error = row[cls.ERROR_COLUMN]
+    #         removed_error = [] if removed_error is None else removed_error
+    #         # Update input row with fixed geometry and with error removed
+    #         # from list
+    #         row[cls.GEOMETRY_COLUMN] = fixed_geom
+    #         row[cls.ERROR_COLUMN] = removed_error
+    #         return row
+    #     else:
+    #         # Fix was not succesful, keep error message in column.
+    #         logging.info(
+    #             "Unable to convert MultiLineString to LineString. "
+    #             "MultiLineString probably consists of disjointed segments."
+    #         )
+    #         return row
 
-        return row
+    #     return row
 
     @classmethod
     def fix(cls, trace_geodataframe: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        trace_geodataframe = trace_geodataframe.apply(cls.fix_function, axis=1)
+        trace_geodataframe = trace_geodataframe.apply(cls.fix_method, axis=1)
         return trace_geodataframe
 
 
@@ -311,30 +248,15 @@ class MultiJunctionValidator(BaseValidator):
     ERROR = "MULTI JUNCTION"
 
     @classmethod
-    def validation_function(
-        cls,
-        point_ids: Tuple[int, ...],
-        faulty_junctions: gpd.GeoSeries,
-    ) -> bool:
-        """
-        Returns False if point ids match faulty junctions.
-        """
-        assert isinstance(faulty_junctions, gpd.GeoSeries)
-        if not isinstance(point_ids, tuple):
-            return False
-        try:
-            return (
-                False
-                if len(set(point_ids) & set(list(faulty_junctions.index))) > 0
-                else True
-            )
-        except ValueError:
-            return False
+    def validation_method(cls, *args, idx: int, faulty_junctions: Set[int], **kwargs):
+        return idx not in faulty_junctions
 
-    @classmethod
+    @staticmethod
     def determine_faulty_junctions(
-        cls, nodes_of_interaction: List[Point], parallel=False
-    ) -> gpd.GeoSeries:
+        intersect_nodes: List[Tuple[Point, ...]],
+        snap_threshold: float,
+        snap_threshold_error_multiplier: float,
+    ) -> Set[int]:
         """
         Determines when a point of interest represents a multi junction i.e.
         when there are more than 2 points within the buffer distance of each other.
@@ -345,216 +267,84 @@ class MultiJunctionValidator(BaseValidator):
         Faulty junction can also represent a slightly overlapping trace i.e.
         a snapping error.
         """
-        nodes_of_interaction_geoseries = gpd.GeoSeries(nodes_of_interaction)
-        # Now all points that are not erronous are removed from the
-        # nodes_of_interaction_geoseries
-        indexes_not_to_remove: List[bool] = []
-        for idx, point in enumerate(nodes_of_interaction_geoseries):
-            points_intersecting_point = nodes_of_interaction_geoseries.drop(
-                idx
-            ).intersects(
-                point.buffer(cls.SNAP_THRESHOLD * cls.SNAP_THRESHOLD_ERROR_MULTIPLIER)
-            )
-            if len([p for p in points_intersecting_point if p]) >= 2:
-                # The junction is erronous when there are more than 2 points
-                # within the buffer distance of each other.
-                # >= 2 because current 'point' is + 1
-                indexes_not_to_remove.append(True)
-            else:
-                indexes_not_to_remove.append(False)
-
-        faulty_junctions = nodes_of_interaction_geoseries.loc[indexes_not_to_remove]
-        return faulty_junctions
-
-    @classmethod
-    def validate(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-        area_geodataframe: Optional[gpd.GeoDataFrame] = None,
-        parallel=False,
-    ) -> gpd.GeoDataFrame:
-        nodes_of_interaction, node_id_data = cls.get_nodes(
-            trace_geodataframe, parallel=parallel
-        )
-        assert len(node_id_data) == len(trace_geodataframe)
-        assert all([isinstance(x, tuple) for x in node_id_data])
-        # Inplace insertion of new column that contains point ids that
-        # correspond to points of intersection with other traces.
-        trace_geodataframe.insert(
-            loc=len(trace_geodataframe.columns),
-            column=cls.INTERACTION_NODES_COLUMN,
-            value=pd.Series(node_id_data, dtype=object),
-        )
-        faulty_junctions = cls.determine_faulty_junctions(
-            nodes_of_interaction, parallel
+        return determine_node_junctions(
+            nodes=intersect_nodes,
+            snap_threshold=snap_threshold,
+            snap_threshold_error_multiplier=snap_threshold_error_multiplier,
+            error_threshold=2,
         )
 
-        trace_geodataframe = cls.update_error_column(
-            trace_geodataframe, faulty_junctions
-        )
 
-        trace_geodataframe = trace_geodataframe.drop(
-            columns=cls.INTERACTION_NODES_COLUMN, inplace=False
-        )
-        trace_geodataframe = cls.handle_error_column(trace_geodataframe)
-        return trace_geodataframe
-
-    @classmethod
-    def update_error_column(
-        cls, trace_geodataframe: gpd.GeoDataFrame, validation_data: gpd.GeoSeries
-    ) -> gpd.GeoDataFrame:
-        trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
-            [
-                cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(point_ids, validation_data)
-                and cls.ERROR not in cls.error_test(error)
-                else cls.error_test(error)
-                for point_ids, error in cls.zip_equal(
-                    trace_geodataframe[cls.INTERACTION_NODES_COLUMN],
-                    trace_geodataframe[cls.ERROR_COLUMN],
-                )
-            ],
-            dtype=object,
-        )
-        return trace_geodataframe
-
-
-class VNodeValidator(MultiJunctionValidator):
+class VNodeValidator(BaseValidator):
     """
-    Finds V-nodes within trace data. Inherits from MultiJunctionValidator
-    because it uses the same classmethods: update_error_column and
-    validation_function
+    Finds V-nodes within trace data.
     """
 
     ERROR = "V NODE"
 
     @classmethod
-    def determine_v_nodes(cls, endpoints: List[Point]) -> gpd.GeoSeries:
-        endpoints_geoseries = gpd.GeoSeries(endpoints)
-        indexes_not_to_remove: List[bool]
-        indexes_not_to_remove = []
-        for idx, point in enumerate(endpoints_geoseries):
-            points_intersecting_point = endpoints_geoseries.drop(idx).intersects(
-                point.buffer(cls.SNAP_THRESHOLD * cls.SNAP_THRESHOLD_ERROR_MULTIPLIER)
-            )
-            if len([p for p in points_intersecting_point if p]) >= 1:
-                # The junction is erronous when there are any points
-                # within the buffer distance of each other.
-                indexes_not_to_remove.append(True)
-            else:
-                indexes_not_to_remove.append(False)
+    def validation_method(cls, *args, idx: int, vnodes: Set[int], **kwargs):
+        return idx not in vnodes
 
-        assert len(indexes_not_to_remove) == len(endpoints_geoseries)
-        v_nodes = endpoints_geoseries.loc[indexes_not_to_remove]
-        return v_nodes
-
-    @classmethod
-    def validate(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-        area_geodataframe=None,
-        parallel=False,
-    ) -> gpd.GeoDataFrame:
-        # determine_nodes returns only the endpoints
-        endpoints, node_id_data = cls.get_nodes(
-            trace_geodataframe, interactions=False, parallel=parallel
+    @staticmethod
+    def determine_v_nodes(
+        endpoint_nodes: List[Tuple[Point, ...]],
+        snap_threshold: float,
+        snap_threshold_error_multiplier: float,
+    ) -> Set[int]:
+        return determine_node_junctions(
+            nodes=endpoint_nodes,
+            snap_threshold=snap_threshold,
+            snap_threshold_error_multiplier=snap_threshold_error_multiplier,
+            error_threshold=1,
         )
-        trace_geodataframe.insert(
-            loc=len(trace_geodataframe.columns),
-            column=cls.INTERACTION_NODES_COLUMN,
-            value=pd.Series(node_id_data, dtype=object),
-        )
-        v_nodes = cls.determine_v_nodes(endpoints)
-
-        trace_geodataframe = cls.update_error_column(trace_geodataframe, v_nodes)
-
-        trace_geodataframe = trace_geodataframe.drop(
-            columns=cls.INTERACTION_NODES_COLUMN, inplace=False
-        )
-        trace_geodataframe = cls.handle_error_column(trace_geodataframe)
-        return trace_geodataframe
 
 
 class MultipleCrosscutValidator(BaseValidator):
     """
-    Finds traces that cross-cut each other multiple times. This indicates the
-    possibility of duplicate traces.
+    Find traces that cross-cut each other multiple times.
+
+    This also indicates the possibility of duplicate traces.
     """
 
     ERROR = "MULTIPLE CROSSCUTS"
 
-    @classmethod
-    def validation_function(cls, idx, rows_with_stacked):
-        return idx not in rows_with_stacked
+    @staticmethod
+    def validation_method(
+        geom: LineString,
+        idx: int,
+        spatial_index: PyGEOSSTRTreeIndex,
+        traces: gpd.GeoDataFrame,
+        **kwargs,
+    ):
+        trace_candidates_idx = list(spatial_index.intersection(geom.bounds))
+        trace_candidates_idx.remove(idx)
+        trace_candidates = traces.geometry.iloc[trace_candidates_idx]
 
-    @classmethod
-    def validate(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-        area_geodataframe=None,
-        parallel=False,
-    ) -> gpd.GeoDataFrame:
-        rows_with_stacked = cls.determine_stacked_traces(trace_geodataframe)
-
-        trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
+        intersection_geoms = trace_candidates.intersection(geom)
+        # Stacked traces are defined as traces with more than two intersections
+        # with each other.
+        # the if-statement checks for MultiPoints in intersection_traces
+        # which indicates atleast two intersection between traces.
+        # if there are more than two points in a MultiPoint traceetry
+        # -> stacked traces
+        if any(
             [
-                cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(idx, rows_with_stacked)
-                and cls.ERROR not in cls.error_test(error)
-                else cls.error_test(error)
-                for idx, error in cls.zip_equal(
-                    trace_geodataframe.index,
-                    trace_geodataframe[cls.ERROR_COLUMN],
-                )
-            ],
-            dtype=object,
-        )
-        trace_geodataframe = cls.handle_error_column(trace_geodataframe)
-        return trace_geodataframe
-
-    @classmethod
-    def determine_stacked_traces(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-    ) -> List[int]:
-        """
-        Determines row indexes in the trace_geodataframe that have stacked
-        traces. Stackes is defined as having 3 or more intersections with
-        another trace.
-        """
-        rows_with_stacked = []
-        trace_geodataframe.reset_index(drop=True, inplace=True)
-        spatial_index = trace_geodataframe.geometry.sindex
-        for idx, trace in enumerate(trace_geodataframe.geometry):
-            # for idx, row in trace_geodataframe.iterrows():
-            trace_candidates_idx = list(spatial_index.intersection(trace.bounds))
-            trace_candidates_idx.remove(idx)
-            trace_candidates = trace_geodataframe.geometry.iloc[trace_candidates_idx]
-
-            intersection_geoms = trace_candidates.intersection(trace)
-            # Stacked traces are defined as traces with more than two intersections
-            # with each other.
-            # the if-statement checks for MultiPoints in intersection_traces
-            # which indicates atleast two intersection between traces.
-            # if there are more than two points in a MultiPoint traceetry
-            # -> stacked traces
-            if any(
-                [
-                    len(list(geom.geoms)) > 2
-                    for geom in intersection_geoms
-                    if isinstance(geom, MultiPoint)
-                ]
-            ):
-                rows_with_stacked.append(idx)
-        return rows_with_stacked
+                len(list(geom.geoms)) > 2
+                for geom in intersection_geoms
+                if isinstance(geom, MultiPoint)
+            ]
+        ):
+            return False
+        return True
 
 
 class UnderlappingSnapValidator(MultipleCrosscutValidator):
     """
-    Finds snapping errors of
+    Find snapping errors of
     underlapping traces by using a multiple of the given snap_threshold
 
-    Uses validation_function from MultipleCrosscutValidator
+    Uses validation_method from MultipleCrosscutValidator
     """
 
     ERROR = "UNDERLAPPING SNAP"
@@ -571,7 +361,7 @@ class UnderlappingSnapValidator(MultipleCrosscutValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(idx, rows_with_underlapping)
+                if not cls.validation_method(idx, rows_with_underlapping)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for idx, error in cls.zip_equal(
@@ -636,7 +426,7 @@ class TargetAreaSnapValidator(MultipleCrosscutValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(idx, rows_with_underlapping)
+                if not cls.validation_method(idx, rows_with_underlapping)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for idx, error in cls.zip_equal(
@@ -683,9 +473,19 @@ class TargetAreaSnapValidator(MultipleCrosscutValidator):
 
 class GeomNullValidator(BaseValidator):
     """
-    Validates the geometry for NULL errors. These cannot be handled and
-    the rows are consequently removed.
+    Validate the geometry for NULL GEOMETRY errors.
     """
+
+    ERROR = "NULL GEOMETRY"
+
+    @classmethod
+    def validation_method(cls, geom: Any, **kwargs) -> bool:
+        if geom is None:
+            return False
+        elif geom.is_empty:
+            return False
+        else:
+            return True
 
     @classmethod
     def validate(
@@ -732,7 +532,7 @@ class StackedTracesValidator(MultipleCrosscutValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(idx, rows_with_overlapping)
+                if not cls.validation_method(idx, rows_with_overlapping)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for idx, error in cls.zip_equal(
@@ -896,7 +696,7 @@ class SimpleGeometryValidator(BaseValidator):
     ERROR = "CUTS ITSELF"
 
     @classmethod
-    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
+    def validation_method(cls, geom: LineString, **kwargs) -> bool:
         return geom.is_simple and not geom.is_ring
 
     @classmethod
@@ -909,7 +709,7 @@ class SimpleGeometryValidator(BaseValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(geom)
+                if not cls.validation_method(geom)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for geom, error in cls.zip_equal(
@@ -932,7 +732,9 @@ class EmptyGeometryValidator(BaseValidator):
     ERROR = "IS EMPTY"
 
     @classmethod
-    def validation_function(cls, geom: Union[LineString, MultiLineString]) -> bool:
+    def validation_method(
+        cls, geom: Union[LineString, MultiLineString], **kwargs
+    ) -> bool:
         return not geom.is_empty
 
     @classmethod
@@ -945,7 +747,7 @@ class EmptyGeometryValidator(BaseValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(geom)
+                if not cls.validation_method(geom)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for geom, error in cls.zip_equal(
@@ -968,7 +770,9 @@ class SharpCornerValidator(BaseValidator):
     ERROR = "SHARP TURNS"
 
     @classmethod
-    def validation_function(cls, trace: Union[LineString, MultiLineString]) -> bool:
+    def validation_method(
+        cls, trace: Union[LineString, MultiLineString], **kwargs
+    ) -> bool:
         geom_coords = get_trace_coord_points(trace)
         if len(geom_coords) == 2:
             # If LineString consists of two Points -> No sharp corners.
@@ -1009,7 +813,7 @@ class SharpCornerValidator(BaseValidator):
         trace_geodataframe[cls.ERROR_COLUMN] = pd.Series(
             [
                 cls.error_test(error) + [cls.ERROR]
-                if not cls.validation_function(geom)
+                if not cls.validation_method(geom)
                 and cls.ERROR not in cls.error_test(error)
                 else cls.error_test(error)
                 for geom, error in cls.zip_equal(
@@ -1056,3 +860,20 @@ class SharpCornerValidator(BaseValidator):
             # If angle between more than threshold_angle -> False
             return False
         return True
+
+
+# Order is important
+ALL_VALIDATORS = (
+    GeomNullValidator,
+    GeomTypeValidator,
+    SimpleGeometryValidator,
+    MultiJunctionValidator,
+    VNodeValidator,
+    MultipleCrosscutValidator,
+    UnderlappingSnapValidator,
+    TargetAreaSnapValidator,
+    StackedTracesValidator,
+    SharpCornerValidator,
+)
+
+MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)

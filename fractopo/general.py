@@ -1,12 +1,14 @@
 """
 Contains general calculation and plotting tools.
 """
+from itertools import accumulate, chain
+from bisect import bisect
 from enum import Enum, unique
 import powerlaw
 import geopandas as gpd
 import pandas as pd
 import math
-from typing import Tuple, Dict, List, Union, Final
+from typing import Tuple, Dict, List, Union, Final, Set
 import math
 from textwrap import wrap
 import os
@@ -29,8 +31,16 @@ from sklearn.linear_model import LinearRegression
 # Own code imports
 from fractopo.analysis import target_area as ta, config
 
-style = config.styled_text_dict
-prop = config.styled_prop
+styled_text_dict = {
+    "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
+    "color": "white",
+}
+styled_prop = dict(
+    boxstyle="round",
+    pad=0.6,
+    facecolor="wheat",
+    path_effects=[path_effects.SimplePatchShadow(), path_effects.Normal()],
+)
 
 # Columns for report_df
 
@@ -521,23 +531,6 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     return str(set_label)
 
 
-def construct_length_distribution_base(
-    lineframe: gpd.GeoDataFrame,
-    areaframe: gpd.GeoDataFrame,
-    name: str,
-    group: str,
-    cut_off_length=1,
-    using_branches=False,
-):
-    """
-    Helper function to construct TargetAreaLines to a pandas DataFrame using apply().
-    """
-    ld = ta.TargetAreaLines(
-        lineframe, areaframe, name, group, using_branches, cut_off_length
-    )
-    return ld
-
-
 def curviness(linestring):
     try:
         coords = list(linestring.coords)
@@ -740,3 +733,59 @@ def determine_valid_intersection_points(
             pass
     assert all([isinstance(p, Point) for p in valid_interaction_points])
     return valid_interaction_points
+
+
+def flatten_node_tuples(
+    list_of_node_tuples: List[Tuple[Point, ...]]
+) -> Tuple[List[int], List[Point]]:
+    accumulated_idxs = list(
+        accumulate(
+            [len(node_tuple) for idx, node_tuple in enumerate(list_of_node_tuples)]
+        )
+    )
+    flattened_node_tuples = list(chain(*list_of_node_tuples))
+    flattened_idx_reference = [
+        bisect(accumulated_idxs, idx) for idx in range(len(flattened_node_tuples))
+    ]
+    return flattened_idx_reference, flattened_node_tuples
+
+
+def determine_node_junctions(
+    nodes: List[Tuple[Point, ...]],
+    snap_threshold: float,
+    snap_threshold_error_multiplier: float,
+    error_threshold: int,
+) -> Set[int]:
+
+    if len(nodes) == 0:
+        return set()
+    flattened_idx_reference, flattened_node_tuples = flatten_node_tuples(nodes)
+    nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
+
+    indexes_with_junctions: Set[int] = set()
+    for idx, points in enumerate(nodes):
+        other_nodes = nodes_geoseries.drop(idx)
+        if len(points) == 0 or idx in indexes_with_junctions:
+            continue
+        for point in points:
+            intersection_data = [
+                (intersecting_point, intersecting_point_idx)
+                for intersecting_point, intersecting_point_idx in zip(
+                    other_nodes.geometry.values, other_nodes.index.values
+                )
+                if intersecting_point.distance(point) < snap_threshold
+            ]
+            if len(intersection_data) == 0:
+                continue
+            points_intersecting_point, points_intersecting_point_idxs = zip(
+                *intersection_data
+            )
+            # points_intersecting_point = nodes_geoseries.drop(idx, inplace=False).loc[]
+            if len([p for p in points_intersecting_point if p]) >= error_threshold:
+                for idx in [idx] + [
+                    flattened_idx_reference[ref_idx]
+                    for ref_idx in points_intersecting_point_idxs
+                ]:
+                    indexes_with_junctions.add(idx)
+
+    return indexes_with_junctions
