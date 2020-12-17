@@ -37,37 +37,6 @@ class BaseValidator:
     OVERLAP_DETECTION_MULTIPLIER = 50.0
     SHARP_AVG_THRESHOLD = 80
     SHARP_PREV_SEG_THRESHOLD = 70
-    nodes_calculated = False
-    (
-        nodes_of_interaction_both,
-        node_id_data_both,
-        nodes_of_interaction_endpoints,
-        node_id_data_endpoints,
-        nodes_of_interaction_interactions,
-        node_id_data_interactions,
-    ) = (None, None, None, None, None, None)
-
-    @classmethod
-    def determined_node_data(cls):
-        for data in (
-            cls.nodes_of_interaction_both,
-            cls.node_id_data_both,
-            cls.nodes_of_interaction_endpoints,
-            cls.node_id_data_endpoints,
-            cls.nodes_of_interaction_interactions,
-            cls.node_id_data_interactions,
-        ):
-            yield data
-
-    @classmethod
-    def empty_node_data(cls):
-        cls.nodes_of_interaction_both = None
-        cls.node_id_data_both = None
-        cls.nodes_of_interaction_endpoints = None
-        cls.node_id_data_endpoints = None
-        cls.nodes_of_interaction_interactions = None
-        cls.node_id_data_interactions = None
-        cls.nodes_calculated = False
 
     @classmethod
     def execute(
@@ -108,41 +77,6 @@ class BaseValidator:
         raise NotImplementedError
 
     @classmethod
-    def set_snap_threshold_and_multipliers(
-        cls,
-        snap_threshold: Union[int, float],
-        snap_threshold_error_multiplier: Union[int, float],
-        area_edge_snap_multiplier: Union[int, float],
-    ) -> None:
-        if not all(
-            [
-                isinstance(arg, float) or isinstance(arg, int)
-                for arg in (
-                    snap_threshold,
-                    snap_threshold_error_multiplier,
-                    area_edge_snap_multiplier,
-                )
-            ]
-        ):
-            args = {
-                "snap_threshold": snap_threshold,
-                "snap_threshold_error_multiplier": snap_threshold_error_multiplier,
-                "area_edge_snap_multiplier": area_edge_snap_multiplier,
-            }
-            raise TypeError(
-                f"Arguments of set_snap_threshold_and_multipliers"
-                f" must be either floats or ints. Passed args:\n"
-                f"{args}"
-            )
-        if snap_threshold <= 0:
-            raise ValueError("Snap threshold cannot be negative or zero.")
-        # TODO: Check that this effects all classes.
-        # TODO: Refactor away from class variables
-        cls.SNAP_THRESHOLD = snap_threshold
-        cls.SNAP_THRESHOLD_ERROR_MULTIPLIER = snap_threshold_error_multiplier
-        cls.AREA_EDGE_SNAP_MULTIPLIER = area_edge_snap_multiplier
-
-    @classmethod
     def handle_error_column(
         cls, trace_geodataframe: gpd.GeoDataFrame
     ) -> gpd.GeoDataFrame:
@@ -177,69 +111,6 @@ class BaseValidator:
         )
 
         return trace_geodataframe
-
-    @classmethod
-    def get_nodes(
-        cls,
-        trace_geodataframe: gpd.GeoDataFrame,
-        interactions=True,
-        endpoints=True,
-        parallel=False,
-    ) -> Union[Tuple[List[Point], List[Tuple[int, ...]]], Tuple[None, None]]:
-        """
-        To reduce on unnecessary calculations, determined nodes of interaction
-        and endpoints of lines are saved to BaseValidator as a class attribute.
-        """
-        if (
-            BaseValidator.nodes_calculated
-            and parallel
-            and all([saved is not None for saved in cls.determined_node_data()])
-        ):
-            if interactions and endpoints:
-                return cls.nodes_of_interaction_both, cls.node_id_data_both
-            elif endpoints:
-                return cls.nodes_of_interaction_endpoints, cls.node_id_data_endpoints
-            elif interactions:
-                return (
-                    cls.nodes_of_interaction_interactions,
-                    cls.node_id_data_interactions,
-                )
-            else:
-                raise ValueError(
-                    "determine_nodes called with both"
-                    "interactions and endpoints as False."
-                )
-        elif not parallel:
-            BaseValidator.nodes_calculated = False
-            return cls.determine_nodes(trace_geodataframe, interactions, endpoints)
-        else:
-            (nodes_of_interaction_both, node_id_data_both,) = cls.determine_nodes(
-                trace_geodataframe, interactions=True, endpoints=True
-            )
-            BaseValidator.nodes_of_interaction_both = nodes_of_interaction_both
-            BaseValidator.node_id_data_both = node_id_data_both
-            (
-                nodes_of_interaction_endpoints,
-                node_id_data_endpoints,
-            ) = cls.determine_nodes(
-                trace_geodataframe, interactions=False, endpoints=True
-            )
-            BaseValidator.nodes_of_interaction_endpoints = (
-                nodes_of_interaction_endpoints
-            )
-            BaseValidator.node_id_data_endpoints = node_id_data_endpoints
-            (
-                nodes_of_interaction_interactions,
-                node_id_data_interactions,
-            ) = cls.determine_nodes(
-                trace_geodataframe, interactions=True, endpoints=False
-            )
-            BaseValidator.nodes_of_interaction_interactions = (
-                nodes_of_interaction_interactions
-            )
-            BaseValidator.node_id_data_interactions = node_id_data_interactions
-            BaseValidator.nodes_calculated = True
-            return cls.get_nodes(trace_geodataframe, interactions, endpoints, parallel)
 
     @staticmethod
     def determine_valid_interaction_points(

@@ -20,7 +20,7 @@ import seaborn as sns
 import shapely
 import ternary
 from shapely import strtree
-from shapely.geometry import LineString, Point, MultiLineString
+from shapely.geometry import LineString, Point, MultiLineString, MultiPoint
 from shapely.ops import linemerge
 from shapely import prepared
 import logging
@@ -673,3 +673,70 @@ def point_to_xy(point: Point) -> Tuple[float, float]:
     x, y = point.xy
     x, y = [val[0] for val in (x, y)]
     return (x, y)
+
+
+def determine_general_nodes(
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame], snap_threshold: float
+) -> Tuple[List[Tuple[Point, ...]], List[Tuple[Point, ...]]]:
+    """
+    Determine points of intersection and endpoints of given trace LineStrings.
+
+    The points are linked to the indexes of the traces.
+    """
+
+    if traces.shape[0] == 0 or traces.empty:
+        raise ValueError("Expected non-empty dataset in determine_nodes.")
+    if not (
+        traces.index.values[0] == 0 and traces.index.values[-1] == traces.shape[0] - 1
+    ):
+        raise ValueError(
+            "Expected traces to have a continous index from 0...len(traces) - 1"
+        )
+
+    intersect_nodes: List[Tuple[Point, ...]] = []
+    endpoint_nodes: List[Tuple[Point, ...]] = []
+    spatial_index = traces.geometry.sindex
+    for idx, geom in enumerate(traces.geometry.values):
+        # Get trace candidates for intersection
+        trace_candidates_idx: List[int] = sorted(  # type: ignore
+            list(spatial_index.intersection(geom.bounds))
+        )
+        # Remove current geometry from candidates
+        trace_candidates_idx.remove(idx)
+        trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
+        # trace_candidates.index = trace_candidates_idx
+        intersection_geoms = trace_candidates.intersection(geom)
+        intersect_nodes.append(
+            tuple(determine_valid_intersection_points(intersection_geoms))
+        )
+        endpoints = tuple(
+            (
+                endpoint
+                for endpoint in get_trace_endpoints(geom)
+                if not any(
+                    [
+                        endpoint.distance(intersection_geom) < snap_threshold
+                        for intersection_geom in intersection_geoms
+                        if not intersection_geom.is_empty
+                    ]
+                )
+            )
+        )
+        endpoint_nodes.append(endpoints)
+    return intersect_nodes, endpoint_nodes
+
+
+def determine_valid_intersection_points(
+    intersection_geoms: gpd.GeoSeries,
+) -> List[Point]:
+    assert isinstance(intersection_geoms, gpd.GeoSeries)
+    valid_interaction_points = []
+    for geom in intersection_geoms.geometry.values:
+        if isinstance(geom, Point):
+            valid_interaction_points.append(geom)
+        elif isinstance(geom, MultiPoint):
+            valid_interaction_points.extend([p for p in geom.geoms])
+        else:
+            pass
+    assert all([isinstance(p, Point) for p in valid_interaction_points])
+    return valid_interaction_points

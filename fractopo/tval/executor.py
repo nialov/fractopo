@@ -1,12 +1,60 @@
-import geopandas as gpd
-from typing import List, Dict
-from pathlib import Path
+from dataclasses import dataclass
+from typing import List, Dict, Tuple, Optional, Final
 from datetime import datetime
+from pathlib import Path
 import time
 import logging
-from fractopo.tval import trace_validator
 
-logging.basicConfig(level=logging.INFO, format="%(process)d-%(levelname)s-%(message)s")
+import geopandas as gpd
+from shapely.geometry import Point, LineString
+
+from fractopo.tval import trace_validator
+from fractopo.general import determine_general_nodes
+
+logging.basicConfig(
+    level=logging.WARNING, format="%(process)d-%(levelname)s-%(message)s"
+)
+
+
+@dataclass
+class Validation:
+
+    traces: gpd.GeoDataFrame
+    area: gpd.GeoDataFrame
+    name: str
+    auto_fix: bool
+
+    # Default thresholds
+    SNAP_THRESHOLD: Final[float] = 0.01
+    SNAP_THRESHOLD_ERROR_MULTIPLIER: Final[float] = 1.1
+    AREA_EDGE_SNAP_MULTIPLIER: Final[float] = 1.0
+    TRIANGLE_ERROR_SNAP_MULTIPLIER: Final[float] = 10.0
+    OVERLAP_DETECTION_MULTIPLIER: Final[float] = 50.0
+    SHARP_AVG_THRESHOLD: Final[float] = 80.0
+    SHARP_PREV_SEG_THRESHOLD: Final[float] = 70.0
+
+    # Private caching attributes
+    _endpoint_nodes: Optional[List[Tuple[Point, ...]]] = None
+    _intersect_nodes: Optional[List[Tuple[Point, ...]]] = None
+
+    @property
+    def endpoint_nodes(self):
+        if self._endpoint_nodes is None:
+            self._endpoint_nodes, self._intersect_nodes = determine_general_nodes(
+                self.traces, self.SNAP_THRESHOLD
+            )
+        return self._endpoint_nodes
+
+    @property
+    def endpoint_nodes(self):
+        if self._intersect_nodes is None:
+            self._endpoint_nodes, self._intersect_nodes = determine_general_nodes(
+                self.traces, self.SNAP_THRESHOLD
+            )
+        return self._intersect_nodes
+
+    def run_validation(self):
+        pass
 
 
 def main(
