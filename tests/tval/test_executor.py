@@ -5,7 +5,6 @@ import pytest
 from fractopo.tval.trace_validator import BaseValidator
 import fractopo.tval.trace_validation as trace_validation
 import fractopo.tval.trace_builder as trace_builder
-from fractopo.tval.executor import Validation
 
 
 from timeit import default_timer as timer
@@ -134,17 +133,3 @@ def test_main(
 #         for idxrow1, idxrow2 in zip(result_gdf.iterrows(), non_threaded_gdf.iterrows()):
 #             for err in idxrow1[1][BaseValidator.ERROR_COLUMN]:
 #                 assert err in idxrow2[1][BaseValidator.ERROR_COLUMN]
-
-
-@pytest.mark.parametrize(
-    "validator, geom, current_errors, allow_fix,assumed_result",
-    Helpers.test__validate_params,
-)
-def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
-    geom, current_errors, ignore_geom = Validation._validate(
-        geom, validator, current_errors, allow_fix
-    )
-    if assumed_result is not None:
-        assert geom == assumed_result[0]
-        assert current_errors == assumed_result[1]
-        assert ignore_geom == assumed_result[2]

@@ -1,14 +1,14 @@
 """
 Contains general calculation and plotting tools.
 """
-from itertools import accumulate, chain
+from itertools import accumulate, chain, zip_longest
 from bisect import bisect
 from enum import Enum, unique
 import powerlaw
 import geopandas as gpd
 import pandas as pd
 import math
-from typing import Tuple, Dict, List, Union, Final, Set
+from typing import Tuple, Dict, List, Union, Final, Set, Any
 import math
 from textwrap import wrap
 import os
@@ -698,6 +698,7 @@ def determine_general_nodes(
         trace_candidates_idx.remove(idx)
         trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
         # trace_candidates.index = trace_candidates_idx
+        # TODO: Is intersection enough? Most Y-intersections might be underlapping.
         intersection_geoms = trace_candidates.intersection(geom)
         intersect_nodes.append(
             tuple(determine_valid_intersection_points(intersection_geoms))
@@ -735,19 +736,29 @@ def determine_valid_intersection_points(
     return valid_interaction_points
 
 
-def flatten_node_tuples(
-    list_of_node_tuples: List[Tuple[Point, ...]]
-) -> Tuple[List[int], List[Point]]:
+def flatten_tuples(
+    list_of_tuples: List[Tuple[Any, ...]]
+) -> Tuple[List[int], List[Any]]:
+    """
+    Flatten collection of tuples and return index references.
+
+    Indexes are from original tuple groupings.
+
+    E.g.
+
+    >>> tuples = [(1, 1, 1), (2, 2, 2, 2), (3,)]
+    >>> flatten_tuples(tuples)
+    ([0, 0, 0, 1, 1, 1, 1, 2], [1, 1, 1, 2, 2, 2, 2, 3])
+
+    """
     accumulated_idxs = list(
-        accumulate(
-            [len(node_tuple) for idx, node_tuple in enumerate(list_of_node_tuples)]
-        )
+        accumulate([len(val_tuple) for idx, val_tuple in enumerate(list_of_tuples)])
     )
-    flattened_node_tuples = list(chain(*list_of_node_tuples))
+    flattened_tuples = list(chain(*list_of_tuples))
     flattened_idx_reference = [
-        bisect(accumulated_idxs, idx) for idx in range(len(flattened_node_tuples))
+        bisect(accumulated_idxs, idx) for idx in range(len(flattened_tuples))
     ]
-    return flattened_idx_reference, flattened_node_tuples
+    return flattened_idx_reference, flattened_tuples
 
 
 def determine_node_junctions(
@@ -756,36 +767,115 @@ def determine_node_junctions(
     snap_threshold_error_multiplier: float,
     error_threshold: int,
 ) -> Set[int]:
+    """
+
+    E.g.
+
+    >>> nodes = [
+    ...     (Point(0, 0), Point(1, 1)),
+    ...     (Point(1, 1),),
+    ...     (Point(5, 5),),
+    ...     (Point(0, 0), Point(1, 1)),
+    ... ]
+    >>> snap_threshold = 0.01
+    >>> snap_threshold_error_multiplier = 1.1
+    >>> error_threshold = 2
+    >>> determine_node_junctions(
+    ...     nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+    ... )
+    {0, 1, 3}
+
+    """
 
     if len(nodes) == 0:
         return set()
-    flattened_idx_reference, flattened_node_tuples = flatten_node_tuples(nodes)
-    nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
 
+    flattened_idx_reference, flattened_node_tuples = flatten_tuples(nodes)
+    flattened_nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
+    nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
     indexes_with_junctions: Set[int] = set()
     for idx, points in enumerate(nodes):
-        other_nodes = nodes_geoseries.drop(idx)
-        if len(points) == 0 or idx in indexes_with_junctions:
+        associated_point_count = sum(
+            [idx_reference == idx for idx_reference in flattened_idx_reference]
+        )
+        # TODO: Just replace with len
+        assert len(points) == associated_point_count
+        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[
+            [idx_reference != idx for idx_reference in flattened_idx_reference]
+        ]
+        if len(points) == 0:
             continue
-        for point in points:
-            intersection_data = [
-                (intersecting_point, intersecting_point_idx)
-                for intersecting_point, intersecting_point_idx in zip(
-                    other_nodes.geometry.values, other_nodes.index.values
-                )
-                if intersecting_point.distance(point) < snap_threshold
-            ]
-            if len(intersection_data) == 0:
-                continue
-            points_intersecting_point, points_intersecting_point_idxs = zip(
-                *intersection_data
+        for i, point in enumerate(points):
+            node_candidates_idx: List[int] = list(
+                nodes_geoseries_sindex.intersection((point.x, point.y))
             )
-            # points_intersecting_point = nodes_geoseries.drop(idx, inplace=False).loc[]
-            if len([p for p in points_intersecting_point if p]) >= error_threshold:
-                for idx in [idx] + [
-                    flattened_idx_reference[ref_idx]
-                    for ref_idx in points_intersecting_point_idxs
-                ]:
-                    indexes_with_junctions.add(idx)
+            # Shift returned indexes by associated_point_count to match to
+            # correct points
+            node_candidates_idx = [
+                val if val <= idx else val - associated_point_count
+                for val in node_candidates_idx
+            ]
+            node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[
+                node_candidates_idx
+            ]
+            intersection_data = [
+                intersecting_point.distance(point)
+                < snap_threshold * snap_threshold_error_multiplier
+                for intersecting_point in node_candidates.geometry.values
+            ]
+            assert all([isinstance(val, bool) for val in intersection_data])
+            if sum(intersection_data) == 0:
+                continue
+
+            if sum(intersection_data) >= error_threshold:
+                # TODO: Clean-up: Must always check every node anyways
+                # No need for the idx lookup stuff.
+                # for idx in [idx] + [
+                #     flattened_idx_reference[ref_idx]
+                #     for ref_idx in points_intersecting_point_idxs
+                # ]:
+                indexes_with_junctions.add(idx)
 
     return indexes_with_junctions
+
+
+def zip_equal(*iterables):
+    sentinel = object()
+    for combo in zip_longest(*iterables, fillvalue=sentinel):
+        if sentinel in combo:
+            raise ValueError("Iterables have different lengths")
+        yield combo
+
+
+def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
+    """
+    Create numpy unit vector from two shapely Points.
+    """
+    # Convert Point coordinates to (x, y)
+    segment_start = point_to_xy(start_point)
+    segment_end = point_to_xy(end_point)
+    segment_vector = np.array(
+        [segment_end[0] - segment_start[0], segment_end[1] - segment_start[1]]
+    )
+    segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
+    return segment_unit_vector
+
+
+def compare_unit_vector_orientation(vec_1, vec_2, threshold_angle):
+    """
+    If vec_1 and vec_2 are too different in orientation, will return False.
+    """
+    if np.linalg.norm(vec_1 + vec_2) < np.sqrt(2):
+        # If they face opposite side -> False
+        return False
+    dot_product = np.dot(vec_1, vec_2)
+    if np.isclose(dot_product, 1):
+        return True
+    if 1 < dot_product or dot_product < -1 or np.isnan(dot_product):
+        return False
+    rad_angle = np.arccos(dot_product)
+    deg_angle = np.rad2deg(rad_angle)
+    if deg_angle > threshold_angle:
+        # If angle between more than threshold_angle -> False
+        return False
+    return True

@@ -51,3 +51,17 @@ def test_determine_regression_azimuth(line: LineString):
 # def test_determine_set(value, value_range, loop_around):
 #     result = general.determine_set(value, value_range, loop_around)
 #     assert isinstance(result, bool)
+
+
+@pytest.mark.parametrize(
+    "nodes,snap_threshold,snap_threshold_error_multiplier,error_threshold",
+    Helpers.test_determine_node_junctions_params,
+)
+def test_determine_node_junctions(
+    nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+):
+    result = general.determine_node_junctions(
+        nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+    )
+    assert isinstance(result, set)
+    return result

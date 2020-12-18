@@ -39,7 +39,6 @@ from fractopo.tval import trace_builder
 from fractopo.analysis import tools, parameters
 from fractopo.general import CC_branch, CI_branch, II_branch, X_node, Y_node, I_node
 import fractopo.tval.trace_validation as trace_validation
-from fractopo.tval.executor import Validation
 
 
 GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
@@ -286,6 +285,8 @@ class Helpers:
     sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
+    kb11_traces = gpd.read_file(sample_trace_data)
+    kb11_area = gpd.read_file(sample_area_data)
 
     kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
     kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
@@ -487,4 +488,63 @@ class Helpers:
                 False,
             ],  # assumed_result
         ),
+    ]
+    intersect_nodes = [
+        (Point(0, 0), Point(1, 1)),
+        (Point(1, 1),),
+        (Point(5, 5),),
+        (Point(0, 0), Point(1, 1)),
+    ]
+
+    # Intersects next trace three times
+    intersects_next_trace_3_times = LineString(
+        [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+    )
+
+    # Straight line which is intersected twice by same line
+    intersected_3_times = LineString([Point(-3, -4), Point(-3, -1)])
+    test_validation_params = [
+        (
+            kb7_traces,  # traces
+            kb7_area,  # area
+            "kb7",  # name
+            True,  # auto_fix
+            [trace_validation.SharpCornerValidator.ERROR],  # assume_errors
+        ),
+        (
+            kb11_traces,  # traces
+            kb11_area,  # area
+            "kb11",  # name
+            True,  # auto_fix
+            None,  # assume_errors
+        ),
+    ]
+
+    test_determine_v_nodes_params = [
+        (
+            [(Point(1, 1),), (Point(1, 1),)],  # endpoint_nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            {0, 1},  # assumed_result
+        ),
+        (
+            [(Point(1, 1),), (Point(1, 1),)],  # endpoint_nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            {0, 1},  # assumed_result
+        ),
+    ]
+
+    test_determine_node_junctions_params = [
+        (
+            [
+                (Point(0, 0), Point(1, 1)),
+                (Point(1, 1),),
+                (Point(5, 5),),
+                (Point(0, 0), Point(1, 1)),
+            ],  # nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            2,  # error_threshold
+        )
     ]
