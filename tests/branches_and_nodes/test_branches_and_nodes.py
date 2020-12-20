@@ -34,7 +34,7 @@ from fractopo.branches_and_nodes import (
     EE_branch,
 )
 
-from tests.sample_data.py_samples import samples
+import tests.sample_data.py_samples.samples as samples
 from tests import Helpers
 
 

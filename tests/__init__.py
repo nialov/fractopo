@@ -1,3 +1,4 @@
+from typing import List
 import pandas as pd
 import geopandas as gpd
 import shapely
@@ -19,6 +20,7 @@ from hypothesis.strategies import (
 )
 from hypothesis import given
 from hypothesis_geometry import planar
+import pytest
 
 from fractopo.tval import trace_validator
 from fractopo.tval.trace_validator import (
@@ -37,7 +39,15 @@ from fractopo.tval.trace_validator import (
 )
 from fractopo.tval import trace_builder
 from fractopo.analysis import tools, parameters
-from fractopo.general import CC_branch, CI_branch, II_branch, X_node, Y_node, I_node
+from fractopo.general import (
+    CC_branch,
+    CI_branch,
+    II_branch,
+    X_node,
+    Y_node,
+    I_node,
+    bounding_polygon,
+)
 import fractopo.tval.trace_validation as trace_validation
 
 
@@ -518,6 +528,19 @@ class Helpers:
             True,  # auto_fix
             None,  # assume_errors
         ),
+        (
+            gpd.GeoDataFrame(
+                geometry=trace_builder.make_invalid_traces(
+                    snap_threshold=0.01, snap_threshold_error_multiplier=1.1
+                )
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=trace_builder.make_invalid_target_areas()
+            ),  # area
+            "invalid_traces",  # name
+            True,  # auto_fix
+            None,  # assume_errors
+        ),
     ]
 
     test_determine_v_nodes_params = [
@@ -548,3 +571,102 @@ class Helpers:
             2,  # error_threshold
         )
     ]
+
+    test_bounding_polygon_params = [
+        (gpd.GeoSeries([line_1, line_2, line_3])),
+        (gpd.GeoSeries([line_1])),
+    ]
+
+
+class ValidationHelpers:
+
+    known_errors = dict()
+
+    known_multi_junction_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(0, -3), Point(2, -3)]),
+                LineString([Point(1, -4), Point(1, -2)]),
+                LineString([Point(2, -4), Point(0.5, -2.50001)]),
+            ]
+        ),
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 0), Point(2, 0)]),
+                LineString([Point(0, -2), Point(0, 4)]),
+                LineString([Point(1, -1), Point(-1, 1)]),
+            ]
+        ),
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 4), Point(-3, 4)]),
+                LineString([Point(-2.5, 3.5), Point(-3.5, 4.5)]),
+                LineString([Point(-3.5, 3.5), Point(-2.5, 4.5)]),
+            ]
+        ),
+        # TODO: Relies on SNAP_THRESHOLD and SNAP_THRESHOLD_ERROR_MULTIPLIER
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 2), Point(-4, 2)]),
+                LineString(
+                    [
+                        Point(-3, 1),
+                        Point(-3, 2 + 0.01 + 0.0001),
+                    ]
+                ),
+            ]
+        ),
+    ]
+
+    known_multilinestring_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                MultiLineString(
+                    [
+                        LineString([Point(3, -4), Point(3, -1)]),
+                        LineString([Point(3, 0), Point(3, 4)]),
+                    ]
+                )
+            ],
+        )
+    ]
+    known_vnode_gdfs = []
+
+    known_errors[
+        trace_validation.MultiJunctionValidator.ERROR
+    ] = known_multi_junction_gdfs
+
+    known_errors[trace_validation.GeomTypeValidator.ERROR] = known_multilinestring_gdfs
+    known_errors[trace_validation.VNodeValidator.ERROR] = known_vnode_gdfs
+
+    @classmethod
+    def generate_known_params(cls, error):
+        knowns: List[gpd.GeoDataFrame] = cls.known_errors[error]
+        amounts = [gdf.shape[0] for gdf in knowns]
+        areas = [gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns]
+        return [
+            pytest.param(
+                known,
+                area,
+                f"{error}, {amount}",
+                True,
+                [error],
+                amount,
+                id=f"{error}, {amount}",
+            )
+            for known, area, amount in zip(knowns, areas, amounts)
+        ]
+
+    @classmethod
+    def get_all_errors(cls):
+        all_error_types = [
+            validator.ERROR for validator in trace_validation.ALL_VALIDATORS
+        ]
+        all_errs = []
+        for err in all_error_types:
+            try:
+                all_errs.extend(cls.generate_known_params(err))
+            except KeyError:
+                pass
+        assert len(all_errs) > 0
+        return all_errs

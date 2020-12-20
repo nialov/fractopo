@@ -1,6 +1,6 @@
 from hypothesis.strategies._internal.core import booleans, floats
 import fractopo.general as general
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, Polygon
 import geopandas as gpd
 import numpy as np
 
@@ -65,3 +65,12 @@ def test_determine_node_junctions(
     )
     assert isinstance(result, set)
     return result
+
+
+@pytest.mark.parametrize("geoseries", Helpers.test_bounding_polygon_params)
+def test_bounding_polygon(geoseries):
+    result = general.bounding_polygon(geoseries)
+    assert isinstance(result, Polygon)
+    for geom in geoseries:
+        assert not geom.intersects(result.boundary)
+        assert geom.within(result)

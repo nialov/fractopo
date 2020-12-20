@@ -2,7 +2,7 @@ import pytest
 import geopandas as gpd
 
 from tests import Helpers
-from tests.sample_data.py_samples import results_in_multijunction_list_of_ls
+from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
 
 from fractopo.tval.trace_validation import (
     BaseValidator,
@@ -18,6 +18,7 @@ from fractopo.tval.trace_validation import (
     SharpCornerValidator,
 )
 import fractopo.general as general
+from fractopo.tval.executor_v2 import Validation
 
 
 @pytest.mark.parametrize(
@@ -36,10 +37,13 @@ def test_determine_v_nodes(
 
 def test_determine_faulty_junctions_with_known_false_pos():
     false_positive_linestrings = results_in_multijunction_list_of_ls
-    fpls = gpd.GeoSeries(false_positive_linestrings)
-    intersect_nodes, _ = general.determine_general_nodes(fpls, snap_threshold=0.01)
-
-    faulty_junctions = MultiJunctionValidator.determine_faulty_junctions(
-        intersect_nodes, snap_threshold=0.01, snap_threshold_error_multiplier=1.1
+    fpls = gpd.GeoDataFrame(geometry=gpd.GeoSeries(false_positive_linestrings))
+    area = general.bounding_polygon(fpls)
+    area_gdf = gpd.GeoDataFrame({"geometry": [area]})
+    validation = Validation(traces=fpls, area=area_gdf, name="teest", allow_fix=True)
+    faulty_junctions = validation.faulty_junctions
+    endpoint_nodes, intersect_nodes = (
+        validation.endpoint_nodes,
+        validation.intersect_nodes,
     )
-    return fpls, intersect_nodes, faulty_junctions
+    return fpls, intersect_nodes, endpoint_nodes, faulty_junctions

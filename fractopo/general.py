@@ -22,8 +22,16 @@ import seaborn as sns
 import shapely
 import ternary
 from shapely import strtree
-from shapely.geometry import LineString, Point, MultiLineString, MultiPoint
+from shapely.geometry import (
+    LineString,
+    Point,
+    MultiLineString,
+    MultiPoint,
+    Polygon,
+    box,
+)
 from shapely.ops import linemerge
+from shapely.affinity import scale
 from shapely import prepared
 import logging
 from sklearn.linear_model import LinearRegression
@@ -690,6 +698,13 @@ def determine_general_nodes(
     endpoint_nodes: List[Tuple[Point, ...]] = []
     spatial_index = traces.geometry.sindex
     for idx, geom in enumerate(traces.geometry.values):
+        if not isinstance(geom, LineString):
+            # Intersections and endpoints cannot be defined for
+            # MultiLineStrings
+            # TODO: Or can they? Probably shouldn't
+            intersect_nodes.append(())
+            endpoint_nodes.append(())
+            continue
         # Get trace candidates for intersection
         trace_candidates_idx: List[int] = sorted(  # type: ignore
             list(spatial_index.intersection(geom.bounds))
@@ -795,27 +810,29 @@ def determine_node_junctions(
     nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
     indexes_with_junctions: Set[int] = set()
     for idx, points in enumerate(nodes):
-        associated_point_count = sum(
-            [idx_reference == idx for idx_reference in flattened_idx_reference]
-        )
-        # TODO: Just replace with len
-        assert len(points) == associated_point_count
-        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[
+        associated_point_count = len(points)
+        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
             [idx_reference != idx for idx_reference in flattened_idx_reference]
         ]
         if len(points) == 0:
             continue
         for i, point in enumerate(points):
-            node_candidates_idx: List[int] = list(
-                nodes_geoseries_sindex.intersection((point.x, point.y))
+            node_candidates_idx: List[int] = list(  # type: ignore
+                nodes_geoseries_sindex.intersection(
+                    point.buffer(
+                        snap_threshold * snap_threshold_error_multiplier * 10
+                    ).bounds
+                )
             )
             # Shift returned indexes by associated_point_count to match to
             # correct points
+            remaining_idxs = set(other_nodes_geoseries.index.values)
             node_candidates_idx = [
                 val if val <= idx else val - associated_point_count
                 for val in node_candidates_idx
+                if val in remaining_idxs
             ]
-            node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[
+            node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[  # type: ignore
                 node_candidates_idx
             ]
             intersection_data = [
@@ -824,6 +841,8 @@ def determine_node_junctions(
                 for intersecting_point in node_candidates.geometry.values
             ]
             assert all([isinstance(val, bool) for val in intersection_data])
+            # if error_threshold == 2:
+            #     assert False
             if sum(intersection_data) == 0:
                 continue
 
@@ -879,3 +898,36 @@ def compare_unit_vector_orientation(vec_1, vec_2, threshold_angle):
         # If angle between more than threshold_angle -> False
         return False
     return True
+
+
+def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polygon:
+    """
+    Create bounding polygon around GeoSeries.
+
+    The geoseries geometries will always be completely enveloped by the
+    polygon. The geometries will not intersect the polygon boundary.
+
+    >>> geom = LineString([(1, 0), (1, 1), (-1, -1)])
+    >>> geoseries = gpd.GeoSeries([geom])
+    >>> bounding_polygon(geoseries).wkt
+    'POLYGON ((1.1 -1.1, 1.1 1.1, -1.1 1.1, -1.1 -1.1, 1.1 -1.1))'
+
+    """
+    # if geoseries.shape[0] == 1:
+    #     geom = geoseries.geometry.values[0]
+    #     if isinstance(geom, LineString):
+    #         total_bounds = gpd.GeoSeries([geom.buffer(1)]).total_bounds
+    #     elif isinstance(geom, MultiLineString):
+    #         total_bounds = gpd.GeoSeries(
+    #             [linestring.buffer(1) for linestring in geom.geoms]
+    #         ).total_bounds
+    #     else:
+    #         total_bounds = geoseries.total_bounds
+    # else:
+    total_bounds = geoseries.total_bounds
+    bounding_polygon: Polygon = scale(box(*total_bounds), xfact=1.1, yfact=1.1)
+    if any(geoseries.intersects(bounding_polygon.boundary)):
+        bounding_polygon: Polygon = bounding_polygon.buffer(1)
+        assert not any(geoseries.intersects(bounding_polygon.boundary))
+    assert all(geoseries.within(bounding_polygon))
+    return bounding_polygon

@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 import time
 import logging
+from itertools import chain
 
 import geopandas as gpd
 from shapely.geometry import Point, LineString
@@ -57,16 +58,22 @@ class Validation:
         )
 
     @property
-    def endpoint_nodes(self):
+    def endpoint_nodes(self) -> List[Tuple[Point, ...]]:
         if self._endpoint_nodes is None:
             self.set_general_nodes()
-        return self._endpoint_nodes
+        if not self._endpoint_nodes is None:
+            return self._endpoint_nodes
+        else:
+            raise TypeError("Expected self._endpoint_nodes to not be None.")
 
     @property
-    def intersect_nodes(self):
+    def intersect_nodes(self) -> List[Tuple[Point, ...]]:
         if self._intersect_nodes is None:
             self.set_general_nodes()
-        return self._intersect_nodes
+        if not self._intersect_nodes is None:
+            return self._intersect_nodes
+        else:
+            raise TypeError("Expected self._intersect_nodes to not be None.")
 
     @property
     def spatial_index(self) -> PyGEOSSTRTreeIndex:
@@ -83,8 +90,12 @@ class Validation:
     @property
     def faulty_junctions(self):
         if self._faulty_junctions is None:
+            all_nodes = [
+                tuple(chain(first, second))
+                for first, second in zip(self.intersect_nodes, self.endpoint_nodes)
+            ]
             self._faulty_junctions = trace_validation.MultiJunctionValidator.determine_faulty_junctions(
-                self.intersect_nodes,
+                all_nodes,
                 snap_threshold=self.SNAP_THRESHOLD,
                 snap_threshold_error_multiplier=self.SNAP_THRESHOLD_ERROR_MULTIPLIER,
             )

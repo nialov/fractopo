@@ -73,7 +73,7 @@ class GeomTypeValidator(BaseValidator):
     ERROR = "GEOM TYPE MULTILINESTRING"
 
     @staticmethod
-    def fix_method(geom: Any) -> Optional[LineString]:
+    def fix_method(geom: Any, **kwargs) -> Optional[LineString]:
         """
         E.g. mergeable MultiLineString
 
@@ -133,7 +133,7 @@ class MultiJunctionValidator(BaseValidator):
 
     @staticmethod
     def determine_faulty_junctions(
-        intersect_nodes: List[Tuple[Point, ...]],
+        all_nodes: List[Tuple[Point, ...]],
         snap_threshold: float,
         snap_threshold_error_multiplier: float,
     ) -> Set[int]:
@@ -147,7 +147,7 @@ class MultiJunctionValidator(BaseValidator):
         Faulty junction can also represent a slightly overlapping trace i.e.
         a snapping error.
 
-        >>> intersect_nodes = [
+        >>> all_nodes = [
         ...     (Point(0, 0), Point(1, 1)),
         ...     (Point(1, 1),),
         ...     (Point(5, 5),),
@@ -156,13 +156,13 @@ class MultiJunctionValidator(BaseValidator):
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> MultiJunctionValidator.determine_faulty_junctions(
-        ...     intersect_nodes, snap_threshold, snap_threshold_error_multiplier
+        ...     all_nodes, snap_threshold, snap_threshold_error_multiplier
         ... )
         {0, 1, 3}
 
         """
         return determine_node_junctions(
-            nodes=intersect_nodes,
+            nodes=all_nodes,
             snap_threshold=snap_threshold,
             snap_threshold_error_multiplier=snap_threshold_error_multiplier,
             error_threshold=2,

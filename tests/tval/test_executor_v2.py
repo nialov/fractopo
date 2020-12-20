@@ -3,7 +3,7 @@ from typing import List, Optional
 import pytest
 import geopandas as gpd
 
-from tests import Helpers
+from tests import Helpers, ValidationHelpers
 from fractopo.tval.executor_v2 import Validation
 
 
@@ -41,3 +41,31 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
         Validation.ERROR_COLUMN
     ].astype(str)
     return validated_gdf
+
+
+@pytest.mark.parametrize(
+    "traces,area,name,allow_fix,assume_errors,error_amount",
+    ValidationHelpers.get_all_errors(),
+)
+def test_validation_known(
+    traces, area, name, allow_fix, assume_errors: Optional[List[str]], error_amount
+):
+    validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
+    assert isinstance(validated_gdf, gpd.GeoDataFrame)
+    assert Validation.ERROR_COLUMN in validated_gdf.columns.values
+    if assume_errors is not None:
+        for assumed_error in assume_errors:
+            flat_validated_gdf_errors = [
+                val
+                for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
+                for val in subgroup
+            ]
+            assert assumed_error in flat_validated_gdf_errors
+            assert (
+                sum([err == assumed_error for err in flat_validated_gdf_errors])
+                == error_amount
+            )
+    # validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
+    #     Validation.ERROR_COLUMN
+    # ].astype(str)
+    # return validated_gdf
