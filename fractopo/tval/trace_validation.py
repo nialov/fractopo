@@ -52,6 +52,8 @@ class BaseValidator:
     SHARP_AVG_THRESHOLD = 80
     SHARP_PREV_SEG_THRESHOLD = 70
 
+    LINESTRING_ONLY = True
+
     @staticmethod
     @abstractmethod
     def fix_method(*args, **kwargs):
@@ -71,6 +73,7 @@ class GeomTypeValidator(BaseValidator):
     """
 
     ERROR = "GEOM TYPE MULTILINESTRING"
+    LINESTRING_ONLY = False
 
     @staticmethod
     def fix_method(geom: Any, **kwargs) -> Optional[LineString]:
@@ -387,6 +390,7 @@ class GeomNullValidator(BaseValidator):
     """
 
     ERROR = "NULL GEOMETRY"
+    LINESTRING_ONLY = False
 
     @classmethod
     def validation_method(cls, geom: Any, **kwargs) -> bool:
@@ -468,11 +472,16 @@ class StackedTracesValidator(MultipleCrosscutValidator):
         True
 
         """
+
         if len(trace_candidates) == 0:
             return True
 
         trace_candidates_multils = MultiLineString(
-            [tc for tc in trace_candidates.geometry.values]
+            [
+                tc
+                for tc in trace_candidates.geometry.values
+                if isinstance(tc, LineString)
+            ]
         )
         # Test for overlapping traces.
         if segment_within_buffer(
@@ -512,7 +521,7 @@ class SimpleGeometryValidator(BaseValidator):
 
 class SharpCornerValidator(BaseValidator):
     """
-    Finds sharp cornered traces.
+    Find sharp cornered traces.
     """
 
     ERROR = "SHARP TURNS"
@@ -555,9 +564,7 @@ class SharpCornerValidator(BaseValidator):
         return True
 
 
-ALL_VALIDATORS = (
-    GeomNullValidator,
-    GeomTypeValidator,
+MINOR_VALIDATORS = (
     SimpleGeometryValidator,
     MultiJunctionValidator,
     VNodeValidator,
@@ -567,6 +574,10 @@ ALL_VALIDATORS = (
     StackedTracesValidator,
     SharpCornerValidator,
 )
+
+MAJOR_VALIDATORS = (GeomNullValidator, GeomTypeValidator)
+
+ALL_VALIDATORS = MAJOR_VALIDATORS + MINOR_VALIDATORS
 
 MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)
 ValidatorClass = Type[BaseValidator]

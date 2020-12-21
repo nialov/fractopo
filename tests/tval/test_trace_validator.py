@@ -43,7 +43,7 @@ from tests import (
 )
 from tests.sample_data import stacked_test
 
-from tests.sample_data.py_samples.stacked_traces_sample import stacked_traces_ls
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 from tests.sample_data.py_samples.samples import results_in_sharp_turns_error_mls
 
 BaseValidator.set_snap_threshold_and_multipliers(
@@ -635,7 +635,9 @@ class TestStackedTracesValidator:
 
     @staticmethod
     def test_with_known_non_stacked():
-        stacked_traces_gdf = gpd.GeoDataFrame(geometry=stacked_traces_ls).set_crs(3067)
+        stacked_traces_gdf = gpd.GeoDataFrame(geometry=non_stacked_traces_ls).set_crs(
+            3067
+        )
         result_gdf = StackedTracesValidator.execute(
             stacked_traces_gdf, area_geodataframe=None, auto_fix=False, parallel=False
         )

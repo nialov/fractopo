@@ -1,3 +1,4 @@
+from typing import List
 from shapely.ops import linemerge
 from shapely.geometry import LineString
 from shapely.wkt import loads
@@ -59,6 +60,8 @@ stacked_traces_mls_wkt = [
     "6691581.79776241630315781))",
 ]
 
-stacked_traces_ls = [linemerge(loads(wkt)) for wkt in stacked_traces_mls_wkt]
+non_stacked_traces_ls: List[LineString] = [
+    linemerge(loads(wkt)) for wkt in stacked_traces_mls_wkt
+]
 
-assert all([isinstance(trace, LineString) for trace in stacked_traces_ls])
+assert all([isinstance(trace, LineString) for trace in non_stacked_traces_ls])

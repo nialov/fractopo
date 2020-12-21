@@ -60,12 +60,13 @@ The error string is:
 "MULTI JUNCTION"
 ~~~
 
-Two error types can occur in digitization resulting in this error string:
+Three error types can occur in digitization resulting in this error string:
 
 1. More than two traces must not cross in the same point or too close to the
    same point.
 2. An overlapping Y-node i.e. a trace overlaps the trace it "is supposed" to end
    at too much.
+3. `V NODE` errors might also be detected as `MULTI JUNCTION` errors.
 
 ![Multi junction error examples.](../imgs/MultiJunctionValidator.png "Multi junction error examples")
 

@@ -44,11 +44,17 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,allow_fix,assume_errors,error_amount",
+    "traces,area,name,allow_fix,assume_errors,error_amount,false_positive",
     ValidationHelpers.get_all_errors(),
 )
 def test_validation_known(
-    traces, area, name, allow_fix, assume_errors: Optional[List[str]], error_amount
+    traces,
+    area,
+    name,
+    allow_fix,
+    assume_errors: Optional[List[str]],
+    error_amount,
+    false_positive: bool,
 ):
     validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
     assert isinstance(validated_gdf, gpd.GeoDataFrame)
@@ -60,12 +66,11 @@ def test_validation_known(
                 for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
                 for val in subgroup
             ]
-            assert assumed_error in flat_validated_gdf_errors
-            assert (
-                sum([err == assumed_error for err in flat_validated_gdf_errors])
-                == error_amount
-            )
-    # validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
-    #     Validation.ERROR_COLUMN
-    # ].astype(str)
-    # return validated_gdf
+            if false_positive:
+                assert assumed_error not in flat_validated_gdf_errors
+            else:
+                assert assumed_error in flat_validated_gdf_errors
+                assert (
+                    sum([err == assumed_error for err in flat_validated_gdf_errors])
+                    == error_amount
+                )

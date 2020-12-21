@@ -42,7 +42,7 @@ from tests import (
     SharpCornerValidator,
 )
 from tests.sample_data import stacked_test
-from tests.sample_data.py_samples.stacked_traces_sample import stacked_traces_ls
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 import fractopo.tval.proximal_traces as proximal_traces
 

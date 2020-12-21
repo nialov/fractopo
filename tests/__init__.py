@@ -50,6 +50,8 @@ from fractopo.general import (
 )
 import fractopo.tval.trace_validation as trace_validation
 
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
+
 
 GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
 ERROR_COLUMN = BaseValidator.ERROR_COLUMN
@@ -521,13 +523,13 @@ class Helpers:
             True,  # auto_fix
             [trace_validation.SharpCornerValidator.ERROR],  # assume_errors
         ),
-        (
-            kb11_traces,  # traces
-            kb11_area,  # area
-            "kb11",  # name
-            True,  # auto_fix
-            None,  # assume_errors
-        ),
+        # (
+        #     kb11_traces,  # traces
+        #     kb11_area,  # area
+        #     "kb11",  # name
+        #     True,  # auto_fix
+        #     None,  # assume_errors
+        # ),
         (
             gpd.GeoDataFrame(
                 geometry=trace_builder.make_invalid_traces(
@@ -540,6 +542,24 @@ class Helpers:
             "invalid_traces",  # name
             True,  # auto_fix
             None,  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(geometry=[LineString([(0, 0), (0, 1)])]),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon(
+                        [
+                            Point(-1, -1),
+                            Point(-1, 1.011),
+                            Point(1, 1.011),
+                            Point(1, -1),
+                        ]
+                    )
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
         ),
     ]
 
@@ -579,6 +599,9 @@ class Helpers:
 
 
 class ValidationHelpers:
+
+    # Known Errors
+    # ============
 
     known_errors = dict()
 
@@ -630,7 +653,35 @@ class ValidationHelpers:
             ],
         )
     ]
-    known_vnode_gdfs = []
+    known_vnode_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(0, 0), Point(1.0001, 1)]),
+                LineString([Point(1, 0), Point(1.0001, 0.9999)]),
+            ]
+        )
+    ]
+    known_stacked_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString(
+                    [
+                        Point(0, -7),
+                        Point(0, -5),
+                    ]
+                ),
+                LineString(
+                    [
+                        Point(-1, -7),
+                        Point(0 + 0.01, -6),
+                        Point(-1, -5),
+                    ]
+                ),
+            ]
+        ),
+    ]
+
+    known_null_gdfs = [gpd.GeoDataFrame(geometry=[None, LineString()])]
 
     known_errors[
         trace_validation.MultiJunctionValidator.ERROR
@@ -638,12 +689,43 @@ class ValidationHelpers:
 
     known_errors[trace_validation.GeomTypeValidator.ERROR] = known_multilinestring_gdfs
     known_errors[trace_validation.VNodeValidator.ERROR] = known_vnode_gdfs
+    known_errors[trace_validation.StackedTracesValidator.ERROR] = known_stacked_gdfs
+    known_errors[trace_validation.GeomNullValidator.ERROR] = known_null_gdfs
+
+    # False Positives
+    # ===============
+
+    known_false_positives = dict()
+
+    known_non_stacked_gdfs = [
+        gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
+    ]
+
+    known_false_positives[
+        trace_validation.StackedTracesValidator.ERROR
+    ] = known_non_stacked_gdfs
+
+    # Class methods to generate pytest params for parametrization
+    # ===========================================================
 
     @classmethod
-    def generate_known_params(cls, error):
-        knowns: List[gpd.GeoDataFrame] = cls.known_errors[error]
+    def generate_known_params(cls, error, false_positive):
+        knowns: List[gpd.GeoDataFrame] = (
+            cls.known_errors[error]
+            if not false_positive
+            else cls.known_false_positives[error]
+        )
         amounts = [gdf.shape[0] for gdf in knowns]
-        areas = [gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns]
+        try:
+            areas = [
+                gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns
+            ]
+        except:
+            areas = [
+                gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (1, 1), (1, 0)])])
+                for _ in knowns
+            ]
+        assert len(knowns) == len(areas) == len(amounts)
         return [
             pytest.param(
                 known,
@@ -652,6 +734,7 @@ class ValidationHelpers:
                 True,
                 [error],
                 amount,
+                false_positive,
                 id=f"{error}, {amount}",
             )
             for known, area, amount in zip(knowns, areas, amounts)
@@ -665,8 +748,13 @@ class ValidationHelpers:
         all_errs = []
         for err in all_error_types:
             try:
-                all_errs.extend(cls.generate_known_params(err))
+                all_errs.extend(cls.generate_known_params(err, false_positive=False))
             except KeyError:
                 pass
+            try:
+                all_errs.extend(cls.generate_known_params(err, false_positive=True))
+            except KeyError:
+                pass
+
         assert len(all_errs) > 0
         return all_errs

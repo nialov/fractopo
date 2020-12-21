@@ -41,9 +41,11 @@ def test_determine_faulty_junctions_with_known_false_pos():
     area = general.bounding_polygon(fpls)
     area_gdf = gpd.GeoDataFrame({"geometry": [area]})
     validation = Validation(traces=fpls, area=area_gdf, name="teest", allow_fix=True)
-    faulty_junctions = validation.faulty_junctions
-    endpoint_nodes, intersect_nodes = (
-        validation.endpoint_nodes,
-        validation.intersect_nodes,
-    )
-    return fpls, intersect_nodes, endpoint_nodes, faulty_junctions
+    result = validation.run_validation()
+    assert set(result[Validation.ERROR_COLUMN].astype(str)) == {"['SHARP TURNS']", "[]"}
+    # faulty_junctions = validation.faulty_junctions
+    # endpoint_nodes, intersect_nodes = (
+    #     validation.endpoint_nodes,
+    #     validation.intersect_nodes,
+    # )
+    # return fpls, intersect_nodes, endpoint_nodes, faulty_junctions

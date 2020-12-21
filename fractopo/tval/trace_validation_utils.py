@@ -88,7 +88,10 @@ def segmentize_linestring(linestring: LineString, amount: int) -> List[LineStrin
 
 
 def split_to_determine_triangle_errors(
-    trace, splitter_trace, snap_threshold, triangle_error_snap_multiplier
+    trace: LineString,
+    splitter_trace: LineString,
+    snap_threshold: float,
+    triangle_error_snap_multiplier: float,
 ):
     assert isinstance(trace, LineString)
     assert isinstance(splitter_trace, LineString)
@@ -103,13 +106,13 @@ def split_to_determine_triangle_errors(
             snap_threshold=snap_threshold,
             snap_threshold_error_multiplier=triangle_error_snap_multiplier,
         )
-        if middle is not None:
-            seg_lengths: List[float] = [middle.length]
+        if len(middle) > 0:
+            seg_lengths: List[float] = [seg.length for seg in middle]
         else:
             seg_lengths: List[float] = [seg.length for seg in segments]
         for seg_length in seg_lengths:
             if (
-                snap_threshold
+                snap_threshold / triangle_error_snap_multiplier
                 < seg_length
                 < snap_threshold * triangle_error_snap_multiplier
             ):
@@ -118,21 +121,25 @@ def split_to_determine_triangle_errors(
 
 
 def determine_middle_in_triangle(
-    segments: List[LineString], snap_threshold, snap_threshold_error_multiplier
-) -> Optional[LineString]:
+    segments: List[LineString],
+    snap_threshold: float,
+    snap_threshold_error_multiplier: float,
+) -> List[LineString]:
     """
-    Determines the middle segment within a triangle error. The middle
-    segment always intersects the other two.
+    Determine the middle segment within a triangle error.
+
+    The middle segment always intersects the other two.
     """
     buffered = [
         ls.buffer(snap_threshold * snap_threshold_error_multiplier) for ls in segments
     ]
-    for idx, buffer in enumerate(buffered):
+    candidates = []
+    for idx, (buffer, linestring) in enumerate(zip(buffered, segments)):
         others = buffered.copy()
         others.pop(idx)
         if sum([buffer.intersects(other) for other in others]) >= 2:
-            return segments[idx]
-    return None
+            candidates.append(segments[idx])
+    return candidates
 
 
 def determine_trace_candidates(
@@ -146,4 +153,7 @@ def determine_trace_candidates(
     candidate_idxs = list(spatial_index.intersection(geom.bounds))
     candidate_idxs.remove(idx)  # type: ignore
     candidate_traces: gpd.GeoSeries = traces.geometry.iloc[candidate_idxs]
+    candidate_traces = candidate_traces.loc[  # type: ignore
+        [isinstance(geom, LineString) for geom in candidate_traces.geometry.values]
+    ]
     return candidate_traces

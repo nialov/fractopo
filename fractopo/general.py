@@ -806,17 +806,30 @@ def determine_node_junctions(
         return set()
 
     flattened_idx_reference, flattened_node_tuples = flatten_tuples(nodes)
+
+    if len(flattened_node_tuples) == 0:
+        return set()
+
+    # Collect nodes into GeoSeries
     flattened_nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
+    # Create spatial index of nodes
     nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
+    # Set collection for indexes with junctions
     indexes_with_junctions: Set[int] = set()
+    # Iterate over node tuples i.e. points is a tuple with Points
+    # The node tuple indexes represent the trace indexes
     for idx, points in enumerate(nodes):
         associated_point_count = len(points)
+        # Because node indexes represent traces, we can remove all nodes of the
+        # current trace by using the idx.
         other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
             [idx_reference != idx for idx_reference in flattened_idx_reference]
         ]
         if len(points) == 0:
             continue
+        # Iterate over the actual Points of the current trace
         for i, point in enumerate(points):
+            # Get node candidates from spatial index
             node_candidates_idx: List[int] = list(  # type: ignore
                 nodes_geoseries_sindex.intersection(
                     point.buffer(
@@ -827,6 +840,8 @@ def determine_node_junctions(
             # Shift returned indexes by associated_point_count to match to
             # correct points
             remaining_idxs = set(other_nodes_geoseries.index.values)
+            # Only choose node candidates that are not part of current traces
+            # nodes
             node_candidates_idx = [
                 val if val <= idx else val - associated_point_count
                 for val in node_candidates_idx
@@ -835,25 +850,27 @@ def determine_node_junctions(
             node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[  # type: ignore
                 node_candidates_idx
             ]
+            # snap_threshold * snap_threshold_error_multiplier represents the
+            # threshold for intersection. Actual intersection is not necessary.
             intersection_data = [
                 intersecting_point.distance(point)
                 < snap_threshold * snap_threshold_error_multiplier
                 for intersecting_point in node_candidates.geometry.values
             ]
             assert all([isinstance(val, bool) for val in intersection_data])
-            # if error_threshold == 2:
-            #     assert False
+            # If no intersects for current node -> continue to next
             if sum(intersection_data) == 0:
                 continue
 
+            # Different error counts for endpoints and intersections
             if sum(intersection_data) >= error_threshold:
-                # TODO: Clean-up: Must always check every node anyways
-                # No need for the idx lookup stuff.
-                # for idx in [idx] + [
-                #     flattened_idx_reference[ref_idx]
-                #     for ref_idx in points_intersecting_point_idxs
-                # ]:
+                # Add idx of current trace
                 indexes_with_junctions.add(idx)
+                # Add other point idxs that correspond to the error
+                for other_index in node_candidates.loc[
+                    intersection_data
+                ].index.to_list():  # type: ignore
+                    indexes_with_junctions.add(flattened_idx_reference[other_index])
 
     return indexes_with_junctions
 
@@ -880,7 +897,9 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     return segment_unit_vector
 
 
-def compare_unit_vector_orientation(vec_1, vec_2, threshold_angle):
+def compare_unit_vector_orientation(
+    vec_1: np.ndarray, vec_2: np.ndarray, threshold_angle: float
+):
     """
     If vec_1 and vec_2 are too different in orientation, will return False.
     """
@@ -925,7 +944,7 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     #         total_bounds = geoseries.total_bounds
     # else:
     total_bounds = geoseries.total_bounds
-    bounding_polygon: Polygon = scale(box(*total_bounds), xfact=1.1, yfact=1.1)
+    bounding_polygon: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
     if any(geoseries.intersects(bounding_polygon.boundary)):
         bounding_polygon: Polygon = bounding_polygon.buffer(1)
         assert not any(geoseries.intersects(bounding_polygon.boundary))
