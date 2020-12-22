@@ -926,23 +926,17 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     The geoseries geometries will always be completely enveloped by the
     polygon. The geometries will not intersect the polygon boundary.
 
+
     >>> geom = LineString([(1, 0), (1, 1), (-1, -1)])
     >>> geoseries = gpd.GeoSeries([geom])
-    >>> bounding_polygon(geoseries).wkt
-    'POLYGON ((1.1 -1.1, 1.1 1.1, -1.1 1.1, -1.1 -1.1, 1.1 -1.1))'
+    >>> poly = bounding_polygon(geoseries)
+    >>> poly.wkt
+    'POLYGON ((2 -2, 2 2, -2 2, -2 -2, 2 -2))'
+    >>> geoseries.intersects(poly.boundary)
+    0    False
+    dtype: bool
 
     """
-    # if geoseries.shape[0] == 1:
-    #     geom = geoseries.geometry.values[0]
-    #     if isinstance(geom, LineString):
-    #         total_bounds = gpd.GeoSeries([geom.buffer(1)]).total_bounds
-    #     elif isinstance(geom, MultiLineString):
-    #         total_bounds = gpd.GeoSeries(
-    #             [linestring.buffer(1) for linestring in geom.geoms]
-    #         ).total_bounds
-    #     else:
-    #         total_bounds = geoseries.total_bounds
-    # else:
     total_bounds = geoseries.total_bounds
     bounding_polygon: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
     if any(geoseries.intersects(bounding_polygon.boundary)):
@@ -950,3 +944,69 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
         assert not any(geoseries.intersects(bounding_polygon.boundary))
     assert all(geoseries.within(bounding_polygon))
     return bounding_polygon
+
+
+def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
+    """
+    Flattens a list of multilinestrings to a list of linestrings.
+
+    >>> multilinestrings = [
+    ...     MultiLineString(
+    ...             [
+    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
+    ...                  LineString([(1.9999, 2), (-2, 5)]),
+    ...             ]
+    ...                    ),
+    ...     MultiLineString(
+    ...             [
+    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
+    ...                  LineString([(1.9999, 2), (-2, 5)]),
+    ...             ]
+    ...                    ),
+    ... ]
+    >>> result_linestrings = mls_to_ls(multilinestrings)
+    >>> print([ls.wkt for ls in result_linestrings])
+    ['LINESTRING (1 1, 2 2, 3 3)', 'LINESTRING (1.9999 2, -2 5)',
+    'LINESTRING (1 1, 2 2, 3 3)', 'LINESTRING (1.9999 2, -2 5)']
+
+    """
+    linestrings: List[LineString] = []
+    for mls in multilinestrings:
+        linestrings.extend([ls for ls in mls.geoms])
+    if not all([isinstance(ls, LineString) for ls in linestrings]):
+        raise ValueError("MultiLineStrings within MultiLineStrings?")
+    return linestrings
+
+
+def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.GeoSeries:
+    """
+    Crop traces to the area polygons.
+
+    E.g.
+
+    >>> traces = gpd.GeoSeries(
+    ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
+    ...     )
+    >>> areas = gpd.GeoSeries(
+    ...     [
+    ...            Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
+    ...            Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
+    ...     ]
+    ... )
+    >>> cropped_traces = crop_to_target_areas(traces, areas)
+    >>> print([trace.wkt for trace in cropped_traces])
+    ['LINESTRING (-1.9 4.924998124953124, -2 5)']
+
+    """
+    if not all([isinstance(trace, LineString) for trace in traces.geometry.values]):
+        logging.error("Expected no MultiLineStrings in crop_to_target_areas.")
+    traces, areas = match_crs(traces, areas)
+    clipped_traces = gpd.clip(traces, areas)
+    clipped_traces_linestrings = [
+        trace for trace in clipped_traces if isinstance(trace, LineString)
+    ]
+    ct_multilinestrings = [
+        mls for mls in clipped_traces if isinstance(mls, MultiLineString)
+    ]
+    as_linestrings = mls_to_ls(ct_multilinestrings)
+    return gpd.GeoSeries(clipped_traces_linestrings + as_linestrings)
