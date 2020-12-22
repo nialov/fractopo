@@ -14,9 +14,6 @@ from shapely.geometry import (
 )
 import numpy as np
 
-# Import trace_validator
-from fractopo.tval import trace_validator
-
 
 # Setup
 
@@ -136,7 +133,7 @@ def get_node_identities(
         all_inter_endpoints = [
             pt
             for sublist in map(
-                trace_validator.get_trace_endpoints,
+                get_trace_endpoints,
                 inter_with_traces_geoms,
             )
             for pt in sublist
@@ -232,7 +229,7 @@ def get_branch_identities(
         inter = [
             dist < snap_threshold
             for dist in node_candidates.distance(
-                MultiPoint([p for p in trace_validator.get_trace_endpoints(branch)])
+                MultiPoint([p for p in get_trace_endpoints(branch)])
             )
         ]
         assert len(inter) == len(node_candidates)

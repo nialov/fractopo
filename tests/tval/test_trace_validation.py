@@ -1,51 +1,76 @@
+from typing import List, Optional
+
 import pytest
 import geopandas as gpd
 
-from tests import Helpers
-from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
-
-from fractopo.tval.trace_validation import (
-    BaseValidator,
-    GeomNullValidator,
-    GeomTypeValidator,
-    SimpleGeometryValidator,
-    MultiJunctionValidator,
-    VNodeValidator,
-    MultipleCrosscutValidator,
-    UnderlappingSnapValidator,
-    TargetAreaSnapValidator,
-    StackedTracesValidator,
-    SharpCornerValidator,
-)
-import fractopo.general as general
-from fractopo.tval.executor_v2 import Validation
+from tests import Helpers, ValidationHelpers
+from fractopo.tval.trace_validation import Validation
 
 
 @pytest.mark.parametrize(
-    "endpoint_nodes, snap_threshold,snap_threshold_error_multiplier,assumed_result",
-    Helpers.test_determine_v_nodes_params,
+    "validator, geom, current_errors, allow_fix,assumed_result",
+    Helpers.test__validate_params,
 )
-def test_determine_v_nodes(
-    endpoint_nodes, snap_threshold, snap_threshold_error_multiplier, assumed_result
-):
-    result = VNodeValidator.determine_v_nodes(
-        endpoint_nodes, snap_threshold, snap_threshold_error_multiplier
+def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
+    geom, current_errors, ignore_geom = Validation._validate(
+        geom, validator, current_errors, allow_fix
     )
     if assumed_result is not None:
-        assert result == assumed_result
+        assert geom == assumed_result[0]
+        assert current_errors == assumed_result[1]
+        assert ignore_geom == assumed_result[2]
 
 
-def test_determine_faulty_junctions_with_known_false_pos():
-    false_positive_linestrings = results_in_multijunction_list_of_ls
-    fpls = gpd.GeoDataFrame(geometry=gpd.GeoSeries(false_positive_linestrings))
-    area = general.bounding_polygon(fpls)
-    area_gdf = gpd.GeoDataFrame({"geometry": [area]})
-    validation = Validation(traces=fpls, area=area_gdf, name="teest", allow_fix=True)
-    result = validation.run_validation()
-    assert set(result[Validation.ERROR_COLUMN].astype(str)) == {"['SHARP TURNS']", "[]"}
-    # faulty_junctions = validation.faulty_junctions
-    # endpoint_nodes, intersect_nodes = (
-    #     validation.endpoint_nodes,
-    #     validation.intersect_nodes,
-    # )
-    # return fpls, intersect_nodes, endpoint_nodes, faulty_junctions
+@pytest.mark.parametrize(
+    "traces,area,name,allow_fix,assume_errors",
+    Helpers.test_validation_params,
+)
+def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
+    validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
+    assert isinstance(validated_gdf, gpd.GeoDataFrame)
+    assert Validation.ERROR_COLUMN in validated_gdf.columns.values
+    if assume_errors is not None:
+        for assumed_error in assume_errors:
+            flat_validated_gdf_errors = [
+                val
+                for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
+                for val in subgroup
+            ]
+            assert assumed_error in flat_validated_gdf_errors
+    validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
+        Validation.ERROR_COLUMN
+    ].astype(str)
+    return validated_gdf
+
+
+@pytest.mark.parametrize(
+    "traces,area,name,allow_fix,assume_errors,error_amount,false_positive",
+    ValidationHelpers.get_all_errors(),
+)
+def test_validation_known(
+    traces,
+    area,
+    name,
+    allow_fix,
+    assume_errors: Optional[List[str]],
+    error_amount,
+    false_positive: bool,
+):
+    validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
+    assert isinstance(validated_gdf, gpd.GeoDataFrame)
+    assert Validation.ERROR_COLUMN in validated_gdf.columns.values
+    if assume_errors is not None:
+        for assumed_error in assume_errors:
+            flat_validated_gdf_errors = [
+                val
+                for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
+                for val in subgroup
+            ]
+            if false_positive:
+                assert assumed_error not in flat_validated_gdf_errors
+            else:
+                assert assumed_error in flat_validated_gdf_errors
+                assert (
+                    sum([err == assumed_error for err in flat_validated_gdf_errors])
+                    == error_amount
+                )

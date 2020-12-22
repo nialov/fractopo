@@ -22,8 +22,7 @@ from hypothesis import given
 from hypothesis_geometry import planar
 import pytest
 
-from fractopo.tval import trace_validator
-from fractopo.tval.trace_validator import (
+from fractopo.tval.trace_validators import (
     BaseValidator,
     GeomTypeValidator,
     MultiJunctionValidator,
@@ -33,7 +32,6 @@ from fractopo.tval.trace_validator import (
     UnderlappingSnapValidator,
     GeomNullValidator,
     StackedTracesValidator,
-    EmptyGeometryValidator,
     SimpleGeometryValidator,
     SharpCornerValidator,
 )
@@ -53,8 +51,8 @@ import fractopo.tval.trace_validation as trace_validation
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 
-GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
-ERROR_COLUMN = BaseValidator.ERROR_COLUMN
+GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
+ERROR_COLUMN = trace_validation.Validation.ERROR_COLUMN
 
 SNAP_THRESHOLD = 0.001
 SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
@@ -62,14 +60,14 @@ AREA_EDGE_SNAP_MULTIPLIER = 5
 
 
 class Helpers:
-    valid_geom = shapely.geometry.LineString(((0, 0), (1, 1)))
+    valid_geom = LineString(((0, 0), (1, 1)))
 
-    invalid_geom_empty = shapely.geometry.LineString()
+    invalid_geom_empty = LineString()
     invalid_geom_none = None
-    invalid_geom_multilinestring = shapely.geometry.MultiLineString(
+    invalid_geom_multilinestring = MultiLineString(
         [((0, 0), (1, 1)), ((-1, 0), (1, 0))]
     )
-    mergeable_geom_multilinestring = shapely.geometry.MultiLineString(
+    mergeable_geom_multilinestring = MultiLineString(
         [((0, 0), (1, 1)), ((1, 1), (2, 2))]
     )
     (
@@ -78,8 +76,8 @@ class Helpers:
         valid_areas_geoseries,
         invalid_areas_geoseries,
     ) = trace_builder.main(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
-    valid_error_srs = pd.Series([[] for _ in valid_traces])
-    invalid_error_srs = pd.Series([[] for _ in invalid_traces])
+    valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
+    invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
     random_data_column = lambda i: ["aaa" for _ in i]
     # geoms are all LineStrings and no errors
     @classmethod
@@ -109,7 +107,7 @@ class Helpers:
     def invalid_gdf_null_get(cls):
         return gpd.GeoDataFrame(
             {
-                GEOMETRY_COLUMN: [None, shapely.geometry.LineString()],
+                GEOMETRY_COLUMN: [None, LineString()],
                 ERROR_COLUMN: [[], []],
                 "random_col": cls.random_data_column(range(2)),
             }
@@ -123,7 +121,7 @@ class Helpers:
     def invalid_area_gdf_get():
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.invalid_areas_geoseries})
 
-    faulty_error_srs = pd.Series([[] for _ in valid_traces])
+    faulty_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
     faulty_error_srs[0] = np.nan
     faulty_error_srs[1] = "this cannot be transformed to list?"
     faulty_error_srs[2] = (1, 2, 3, "hello?")
@@ -317,18 +315,6 @@ class Helpers:
             "--fix",
         ),
     ]
-    test_tracevalidatev2_params = [
-        (
-            Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
-            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
-            "--fix",
-        ),
-        (
-            Path("tests/sample_data/KB7/KB7_tulkinta_100.shp"),  # cut 50-100
-            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
-            "--fix",
-        ),
-    ]
 
     test_match_crs_params = [
         (
@@ -484,25 +470,25 @@ class Helpers:
 
     test__validate_params = [
         (
-            trace_validation.GeomNullValidator,  # validator
+            GeomNullValidator,  # validator
             None,  # geom
             [],  # current_errors
             True,  # allow_fix
-            [None, [trace_validation.GeomNullValidator.ERROR], True],  # assumed_result
+            [None, [GeomNullValidator.ERROR], True],  # assumed_result
         ),
         (
-            trace_validation.GeomTypeValidator,  # validator
+            GeomTypeValidator,  # validator
             invalid_geom_multilinestring,  # geom
             [],  # current_errors
             True,  # allow_fix
             [
                 invalid_geom_multilinestring,
-                [trace_validation.GeomTypeValidator.ERROR],
+                [GeomTypeValidator.ERROR],
                 True,
             ],  # assumed_result
         ),
         (
-            trace_validation.GeomTypeValidator,  # validator
+            GeomTypeValidator,  # validator
             mergeable_geom_multilinestring,  # geom
             [],  # current_errors
             True,  # allow_fix
@@ -533,7 +519,7 @@ class Helpers:
             kb7_area,  # area
             "kb7",  # name
             True,  # auto_fix
-            [trace_validation.SharpCornerValidator.ERROR],  # assume_errors
+            [SharpCornerValidator.ERROR],  # assume_errors
         ),
         # (
         #     kb11_traces,  # traces
@@ -755,14 +741,12 @@ class ValidationHelpers:
 
     known_null_gdfs = [gpd.GeoDataFrame(geometry=[None, LineString()])]
 
-    known_errors[
-        trace_validation.MultiJunctionValidator.ERROR
-    ] = known_multi_junction_gdfs
+    known_errors[MultiJunctionValidator.ERROR] = known_multi_junction_gdfs
 
-    known_errors[trace_validation.GeomTypeValidator.ERROR] = known_multilinestring_gdfs
-    known_errors[trace_validation.VNodeValidator.ERROR] = known_vnode_gdfs
-    known_errors[trace_validation.StackedTracesValidator.ERROR] = known_stacked_gdfs
-    known_errors[trace_validation.GeomNullValidator.ERROR] = known_null_gdfs
+    known_errors[GeomTypeValidator.ERROR] = known_multilinestring_gdfs
+    known_errors[VNodeValidator.ERROR] = known_vnode_gdfs
+    known_errors[StackedTracesValidator.ERROR] = known_stacked_gdfs
+    known_errors[GeomNullValidator.ERROR] = known_null_gdfs
 
     # False Positives
     # ===============
@@ -773,9 +757,7 @@ class ValidationHelpers:
         gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
     ]
 
-    known_false_positives[
-        trace_validation.StackedTracesValidator.ERROR
-    ] = known_non_stacked_gdfs
+    known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
 
     # Class methods to generate pytest params for parametrization
     # ===========================================================

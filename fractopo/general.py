@@ -638,7 +638,7 @@ def get_trace_endpoints(
     trace: LineString,
 ) -> Tuple[Point]:
     """
-    Returns endpoints (shapely.geometry.Point) of a given LineString
+    Return endpoints (shapely.geometry.Point) of a given LineString
     """
     if not isinstance(trace, LineString):
         raise TypeError(

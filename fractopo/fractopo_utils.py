@@ -6,12 +6,16 @@ from shapely.geometry.multilinestring import MultiLineString
 from shapely.ops import linemerge
 from shapely.geometry import Polygon, LineString, Point
 from pathlib import Path
-from fractopo.tval.trace_validator import BaseValidator, SharpCornerValidator
 from typing import Dict, Tuple, List, Optional, Union
 import numpy as np
 from itertools import count
 
-from fractopo.general import is_azimuth_close
+from fractopo.general import (
+    is_azimuth_close,
+    get_trace_endpoints,
+    create_unit_vector,
+    compare_unit_vector_orientation,
+)
 
 
 class LineMerge:
@@ -31,22 +35,18 @@ class LineMerge:
         """
         assert isinstance(first, LineString) and isinstance(second, LineString)
         # Get trace endpoints
-        first_start, first_end = BaseValidator.get_trace_endpoints(first)
-        second_start, second_end = BaseValidator.get_trace_endpoints(second)
+        first_start, first_end = get_trace_endpoints(first)
+        second_start, second_end = get_trace_endpoints(second)
 
         # Get unit vectors from endpoints
-        first_unit_vector = SharpCornerValidator.create_unit_vector(
-            first_start, first_end
-        )
-        second_unit_vector = SharpCornerValidator.create_unit_vector(
-            second_start, second_end
-        )
+        first_unit_vector = create_unit_vector(first_start, first_end)
+        second_unit_vector = create_unit_vector(second_start, second_end)
 
         # Check if unit vectors are close in orientation
-        are_close = SharpCornerValidator.compare_unit_vector_orientation(
+        are_close = compare_unit_vector_orientation(
             first_unit_vector, second_unit_vector, threshold_angle=tolerance
         )
-        are_close_reverse = SharpCornerValidator.compare_unit_vector_orientation(
+        are_close_reverse = compare_unit_vector_orientation(
             -first_unit_vector, second_unit_vector, threshold_angle=tolerance
         )
         # Get coordinates

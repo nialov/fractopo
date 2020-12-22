@@ -22,8 +22,8 @@ from pathlib import Path
 import pytest
 
 # Import trace_validator
-from fractopo.tval import trace_validator, trace_builder
 from fractopo import branches_and_nodes
+import fractopo.tval.trace_builder as trace_builder
 from fractopo.branches_and_nodes import (
     I_node,
     X_node,
@@ -70,8 +70,8 @@ def test_get_node_identities():
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
         traces_geosrs, Helpers.snap_threshold
     )
-    det_nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({"geometry": traces_geosrs})
+    det_nodes, _ = branches_and_nodes.determine_nodes(
+        gpd.GeoDataFrame({"geometry": traces_geosrs}), snap_threshold=0.01
     )
     nodes_geosrs = branches_and_nodes.remove_identical_sindex(
         gpd.GeoSeries(det_nodes), Helpers.snap_threshold
@@ -158,8 +158,8 @@ def test_get_branch_identities(traces_geosrs, areas_geosrs):
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
         traces_geosrs, Helpers.snap_threshold
     )
-    det_nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({"geometry": traces_geosrs})
+    det_nodes, _ = branches_and_nodes.determine_nodes(
+        gpd.GeoDataFrame({"geometry": traces_geosrs}), snap_threshold=0.01
     )
     nodes_geosrs = branches_and_nodes.remove_identical_sindex(
         gpd.GeoSeries(det_nodes), Helpers.snap_threshold

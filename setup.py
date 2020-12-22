@@ -294,7 +294,6 @@ setup(
     entry_points="""
         [console_scripts]
         tracevalidate=fractopo.cli:tracevalidate
-        tracevalidatev2=fractopo.cli:tracevalidatev2
     """,
     # List additional URLs that are relevant to your project as a dict.
     #

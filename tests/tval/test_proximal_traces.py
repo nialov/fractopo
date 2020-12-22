@@ -21,7 +21,6 @@ from hypothesis import given
 from hypothesis_geometry import planar
 
 from tests import (
-    trace_validator,
     Helpers,
     SNAP_THRESHOLD,
     SNAP_THRESHOLD_ERROR_MULTIPLIER,
@@ -37,7 +36,6 @@ from tests import (
     UnderlappingSnapValidator,
     GeomNullValidator,
     StackedTracesValidator,
-    EmptyGeometryValidator,
     SimpleGeometryValidator,
     SharpCornerValidator,
 )
