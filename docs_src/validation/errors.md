@@ -158,17 +158,24 @@ extend over the target area edge.
 
 # GeomNullValidator
 
-## UNDER DEVELOPMENT
+The error string is:
 
-No error string because the error is automatically handled. A Null geometry
-means that a row in a GeoDataFrame contains no geometry.
+~~~python
+"NULL GEOMETRY"
+~~~
 
-These rows are subsequently removed. This will change in the future to avoid
-loss of data.
+Rows with geometry set to None or equivalent type that is not a valid GIS geometry or
+rows with empty geometries.
+
+These rows could be automatically removed but these are most likely rare
+occurrences and deleting the row would cause all attribute data associated with
+the row to be consequently removed.
 
 ~~~
-* [X] Automatic fix
+* [ ] Automatic fix
 ~~~
+
+Fix by
 
 # StackedTracesValidator
 
@@ -205,24 +212,6 @@ A trace intersects itself.
 ~~~
 
 Fix by removing self-intersections.
-
-# EmptyGeometryValidator
-
-The error string is:
-
-~~~python
-"IS EMPTY"
-~~~
-
-A GeoDataFrame row contains a geometry but that geometry is empty.
-
-~~~
-* [ ] Automatic fix
-~~~
-
-To make sure new geometry is properly created delete the row and make a new
-geometry. The needed action might depend on the GIS-software of choice, safest
-way is always to delete the erroneous row and make a new one as replacement.
 
 # SharpCornerValidator
 

@@ -268,10 +268,8 @@ class MultipleCrosscutValidator(BaseValidator):
 
 class UnderlappingSnapValidator(BaseValidator):
     """
-    Find snapping errors of
-    underlapping traces by using a multiple of the given snap_threshold
-
-    Uses validation_method from MultipleCrosscutValidator
+    Find snapping errors of underlapping traces by using a multiple of the
+    given snap_threshold
     """
 
     ERROR = "UNDERLAPPING SNAP"
@@ -324,7 +322,7 @@ class UnderlappingSnapValidator(BaseValidator):
         return True
 
 
-class TargetAreaSnapValidator(MultipleCrosscutValidator):
+class TargetAreaSnapValidator(BaseValidator):
 
     ERROR = "TRACE UNDERLAPS TARGET AREA"
 
@@ -416,13 +414,12 @@ class GeomNullValidator(BaseValidator):
             return False
         if geom is None:
             return False
-        elif geom.is_empty:
+        if geom.is_empty:
             return False
-        else:
-            return True
+        return True
 
 
-class StackedTracesValidator(MultipleCrosscutValidator):
+class StackedTracesValidator(BaseValidator):
     """
     Find stacked traces and small triangle intersections.
     """

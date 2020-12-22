@@ -23,11 +23,10 @@ Validation consists of finding errors in digitization and then fixing them.
 However currently only very few error types are automatically fixed. Instead it
 is recommended to use the validation tool to find the errors and then fixing
 them manually. The tool creates a new column, *VALIDATION ERRORS*, in the
-GeoDataFrame (visible in the attribute table in GIS-software). Automatic fixing
-does not take into account the basemap and all fixing can add to the
-uncertainty. Automatic fixing might be suitable for validating automatically
-digitized trace data for practicality reasons: topological analyses are sensitive to
-digitization conflicts.
+GeoDataFrame (visible in the attribute table in GIS-software). Currently very
+few types of errors can be automatically fixed and e.g. conversion from
+LineString to MultiLineString has to be done to allow further validation.
+Therefore I currently recommend allowing automatic fixes when prompted.
 
 Page links below explain how to use the validation tool in Python,
 the validation error types and how manually fix the validation errors.

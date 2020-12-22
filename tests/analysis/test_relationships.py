@@ -7,6 +7,7 @@ import geopandas as gpd
 from shapely.geometry import MultiLineString
 from shapely.prepared import PreparedGeometry
 import matplotlib
+import matplotlib.pyplot as plt
 
 from tests import Helpers
 from fractopo.general import prepare_geometry_traces
@@ -130,4 +131,4 @@ def test_plot_crosscut_abutting_relationships_plot():
         relations_df=relations_df, set_array=set_array, set_names=set_names
     )
     assert all([isinstance(fig, matplotlib.figure.Figure) for fig in figs])  # type: ignore
-    return figs
+    plt.close()
