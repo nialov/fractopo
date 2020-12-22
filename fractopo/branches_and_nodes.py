@@ -16,15 +16,9 @@ import numpy as np
 
 # Import trace_validator
 from fractopo.tval import trace_validator
-from fractopo.tval.trace_validator import BaseValidator
 
-
-logging.basicConfig(
-    level=logging.WARNING, format="%(process)d-%(levelname)s-%(message)s"
-)
 
 # Setup
-trace_validator.BaseValidator.set_snap_threshold_and_multipliers(0.001, 1.1, 1.1)
 
 from fractopo.general import (
     CC_branch,
@@ -624,10 +618,10 @@ def snap_traces_alternative(
             snapped_traces.append(trace)
             continue
         # get_trace_endpoints returns ls[0] and then ls[-1]
-        endpoints = []
+        endpoints_list = []
         for trace_candidate in trace_candidates:
             endpoints = get_trace_endpoints(trace_candidate)
-            endpoints.extend(endpoints)
+            endpoints_list.extend(endpoints)
         assert all([isinstance(ep, Point) for ep in endpoints])
         n: Point
         for n in endpoints:
@@ -687,9 +681,10 @@ def branches_and_nodes(
             )
 
     traces_geosrs = crop_to_target_areas(traces_geosrs, areas_geosrs)
-    # TODO: Works but inefficient
-    nodes, _ = trace_validator.BaseValidator.determine_nodes(
-        gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs})
+    # TODO: Works but inefficient. Waiting for refactor.
+    nodes, _ = determine_nodes(
+        gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs}),
+        snap_threshold=snap_threshold,
     )
     nodes_geosrs: gpd.GeoSeries = gpd.GeoSeries(nodes)
     nodes_geosrs = remove_identical_sindex(nodes_geosrs, snap_threshold)
@@ -707,3 +702,93 @@ def branches_and_nodes(
         {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
     )
     return branch_gdf, node_gdf
+
+
+def determine_nodes(
+    trace_geodataframe: gpd.GeoDataFrame,
+    snap_threshold: float,
+    interactions=True,
+    endpoints=True,
+) -> Tuple[List[Point], List[Tuple[int, ...]]]:
+    """
+    Determines points of interest between traces.
+
+    The points are linked to the indexes of the traces if
+    trace_geodataframe with the returned node_id_data list. node_id_data
+    contains tuples of ids. The ids represent indexes of
+    nodes_of_interaction. The order of the node_id_data tuples is
+    equivalent to the trace_geodataframe trace indexes.
+
+    Conditionals interactions and endpoints allow for choosing what
+    to return specifically.
+
+    TODO: Waiting for branches and nodes refactor.
+    """
+
+    # nodes_of_interaction contains all intersection points between
+    # trace_geodataframe traces.
+    nodes_of_interaction: List[Point] = []
+    # node_id_data contains all ids that correspond to points in
+    # nodes_of_interaction
+    node_id_data: List[Tuple[int, ...]] = []
+    trace_geodataframe.reset_index(drop=True, inplace=True)
+    spatial_index = trace_geodataframe.geometry.sindex
+    for idx, geom in enumerate(trace_geodataframe.geometry):
+        # for idx, row in trace_geodataframe.iterrows():
+        start_length = len(nodes_of_interaction)
+
+        trace_candidates_idx = list(spatial_index.intersection(geom.bounds))
+        assert idx in trace_candidates_idx
+        # Remove current geometry from candidates
+        trace_candidates_idx.remove(idx)
+        assert idx not in trace_candidates_idx
+        trace_candidates = trace_geodataframe.geometry.iloc[trace_candidates_idx]
+        intersection_geoms = trace_candidates.intersection(geom)
+        if interactions:
+            nodes_of_interaction.extend(
+                determine_valid_interaction_points(intersection_geoms)
+            )
+        # Add trace endpoints to nodes_of_interaction
+        if endpoints:
+            try:
+                nodes_of_interaction.extend(
+                    [
+                        endpoint
+                        for endpoint in get_trace_endpoints(geom)
+                        if not any(
+                            intersection_geoms.intersects(
+                                endpoint.buffer(snap_threshold)
+                            )
+                        )
+                        # Checking that endpoint is also not a point of
+                        # interaction is not done if interactions are not
+                        # determined.
+                        or not interactions
+                    ]
+                )
+            except TypeError:
+                # Error is raised when MultiLineString is passed. They do
+                # not provide a coordinate sequence.
+                pass
+        end_length = len(nodes_of_interaction)
+        node_id_data.append(tuple([i for i in range(start_length, end_length)]))
+
+    if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
+        logging.error("Both nodes_of_interaction and node_id_data are empty...")
+    return nodes_of_interaction, node_id_data
+
+
+def determine_valid_interaction_points(
+    intersection_geoms: gpd.GeoSeries,
+) -> List[Point]:
+    assert isinstance(intersection_geoms, gpd.GeoSeries)
+    valid_interaction_points = []
+    for geom in intersection_geoms.geometry.values:
+        if isinstance(geom, Point):
+            valid_interaction_points.append(geom)
+        elif isinstance(geom, MultiPoint):
+            valid_interaction_points.extend([p for p in geom])
+        else:
+            pass
+    assert all([isinstance(p, Point) for p in valid_interaction_points])
+    return valid_interaction_points

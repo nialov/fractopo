@@ -1,3 +1,6 @@
+"""
+DEPRECATED.
+"""
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional, Final, Any, Type, Union
 from datetime import datetime

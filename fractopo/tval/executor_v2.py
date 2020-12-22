@@ -1,16 +1,19 @@
+"""
+Contains main entrypoint class for validating trace data, Validation.
+
+Create Validation objects from traces and their target areas to validate
+the traces for further analysis (branch and node determination).
+"""
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional, Final, Any, Type, Union, Set
-from datetime import datetime
 from pathlib import Path
-import time
 import logging
 from itertools import chain
 
 import geopandas as gpd
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, MultiLineString
 from geopandas.sindex import PyGEOSSTRTreeIndex
 
-from fractopo.tval import trace_validator
 import fractopo.tval.trace_validation as trace_validation
 from fractopo.tval.trace_validation import (
     MAJOR_VALIDATORS,
@@ -29,6 +32,12 @@ logging.basicConfig(
 
 @dataclass
 class Validation:
+    """
+    Validate traces data delineated by target area(s).
+
+    If allow_fix is True, some automatic fixing will be done to e.g. convert
+    MultiLineStrings to LineStrings.
+    """
 
     traces: gpd.GeoDataFrame
     area: gpd.GeoDataFrame
@@ -54,13 +63,27 @@ class Validation:
         self._faulty_junctions: Optional[Set[int]] = None
         self._vnodes: Optional[Set[int]] = None
 
+        # Validate trace and area inputs
+        # for geom in self.area.geometry.values:
+        #     if not isinstance(geom, Polygon)
+
     def set_general_nodes(self):
+        """
+        Set _intersect_nodes and _endpoint_nodes attributes.
+        """
         self._intersect_nodes, self._endpoint_nodes = determine_general_nodes(
             self.traces, self.SNAP_THRESHOLD
         )
 
     @property
     def endpoint_nodes(self) -> List[Tuple[Point, ...]]:
+        """
+        Get endpoints of all traces.
+
+        Returned as a list of tuples wherein each tuple represents the nodes
+        of a trace in traces i.e. endpoint_nodes[index] are the nodes for
+        traces[index].
+        """
         if self._endpoint_nodes is None:
             self.set_general_nodes()
         if not self._endpoint_nodes is None:
@@ -70,6 +93,13 @@ class Validation:
 
     @property
     def intersect_nodes(self) -> List[Tuple[Point, ...]]:
+        """
+        Get intersection nodes of all traces.
+
+        Returned as a list of tuples wherein each tuple represents the nodes
+        of a trace in traces i.e. intersect_nodes[index] are the nodes for
+        traces[index].
+        """
         if self._intersect_nodes is None:
             self.set_general_nodes()
         if not self._intersect_nodes is None:
@@ -79,6 +109,9 @@ class Validation:
 
     @property
     def spatial_index(self) -> Optional[PyGEOSSTRTreeIndex]:
+        """
+        Get geopandas/pygeos spatial_index of traces.
+        """
         if self._spatial_index is None:
             spatial_index = self.traces.sindex
             if (
@@ -96,7 +129,10 @@ class Validation:
         return self._spatial_index
 
     @property
-    def faulty_junctions(self):
+    def faulty_junctions(self) -> Set[int]:
+        """
+        Determine indexes with Multi Junctions.
+        """
         if self._faulty_junctions is None:
             all_nodes = [
                 tuple(chain(first, second))
@@ -110,7 +146,10 @@ class Validation:
         return self._faulty_junctions
 
     @property
-    def vnodes(self):
+    def vnodes(self) -> Set[int]:
+        """
+        Determine indexes with V-Nodes.
+        """
         if self._vnodes is None:
             self._vnodes = trace_validation.VNodeValidator.determine_v_nodes(
                 endpoint_nodes=self.endpoint_nodes,
@@ -120,6 +159,11 @@ class Validation:
         return self._vnodes
 
     def run_validation(self, first_pass=True):
+        """
+        Main entrypoint for validation.
+
+        Returns validated traces GeoDataFrame.
+        """
 
         # Validations that if are invalid will break all other validation:
         # - GeomNullValidator (also checks for empty)
@@ -162,13 +206,6 @@ class Validation:
                         if trace_candidates is None
                         else trace_candidates
                     )
-                    # Some properties should only be determined if the geoms
-                    # have been determined or fixed to be LineStrings
-                    delicate_kwargs = dict(
-                        spatial_index=self.spatial_index,
-                        vnodes=self.vnodes,
-                        faulty_junctions=self.faulty_junctions,
-                    )
 
                 # Overwrites geom if fix was executed
                 # current_errors either contains new error or is unchanged
@@ -188,7 +225,9 @@ class Validation:
                     sharp_prev_seg_threshold=self.SHARP_PREV_SEG_THRESHOLD,
                     area=self.area,
                     area_edge_snap_multiplier=self.AREA_EDGE_SNAP_MULTIPLIER,
-                    **delicate_kwargs,
+                    spatial_index=self.spatial_index,
+                    vnodes=self.vnodes,
+                    faulty_junctions=self.faulty_junctions,
                 )
             all_errors.append(current_errors)
             all_geoms.append(geom)
@@ -211,12 +250,36 @@ class Validation:
         allow_fix: bool,
         **kwargs,
     ) -> Tuple[Any, List[str], bool]:
+        """
+        Validate geom with validator.
+
+        Returns possibly fixed geom (if allow_fix is True and validator handles
+        fixing), updated current_errors list for geom and whether to ignore
+        the geom in later validations (e.g. when MultiLineString could not
+        be merged by GeomTypeValidator fix.).
+
+        Some validators require many additional kwargs.
+
+        >>> geom = MultiLineString([((0, 0), (1, 1)), ((1, 1), (2, 2))])
+        >>> validator = trace_validation.GeomTypeValidator
+        >>> current_errors = []
+        >>> allow_fix = True
+        >>> fixed_geom, updated_errors, ignore_geom = Validation._validate(
+        ...     geom=geom,
+        ...     validator=validator,
+        ...     current_errors=current_errors,
+        ...     allow_fix=allow_fix
+        ... )
+        >>> fixed_geom.wkt, updated_errors, ignore_geom
+        ('LINESTRING (0 0, 1 1, 2 2)', [], False)
+
+        """
         ignore_geom = False
         fixed = None
         if validator.LINESTRING_ONLY and not isinstance(geom, LineString):
             # Do not pass invalid geometry types to most validators. There's
             # already a error string in current_errors for e.g. MultiLineString
-            # rows.
+            # or empty geom rows.
             return geom, current_errors, True
         elif (
             not validator.validation_method(geom, **kwargs)

@@ -1,3 +1,6 @@
+"""
+DEPRECATED
+"""
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry.base import BaseGeometry

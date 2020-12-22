@@ -4,7 +4,7 @@ import geopandas as gpd
 import shapely
 from shapely.ops import linemerge
 from shapely.wkt import loads
-from shapely.geometry import Point, LineString, MultiLineString, Polygon
+from shapely.geometry import Point, LineString, MultiLineString, Polygon, MultiPolygon
 import numpy as np
 import hypothesis
 from pathlib import Path
@@ -553,6 +553,66 @@ class Helpers:
                             Point(-1, 1.011),
                             Point(1, 1.011),
                             Point(1, -1),
+                        ]
+                    )
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon(
+                        [
+                            Point(-1, -1),
+                            Point(-1, 1.011),
+                            Point(1, 1.011),
+                            Point(1, -1),
+                        ]
+                    ),
+                    Polygon(
+                        [
+                            Point(2, 2),
+                            Point(2, 6.011),
+                            Point(6, 6.011),
+                            Point(6, 2),
+                        ]
+                    ),
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    MultiPolygon(
+                        [
+                            Polygon(
+                                [
+                                    Point(-1, -1),
+                                    Point(-1, 1.011),
+                                    Point(1, 1.011),
+                                    Point(1, -1),
+                                ]
+                            ),
+                            Polygon(
+                                [
+                                    Point(2, 2),
+                                    Point(2, 6.011),
+                                    Point(6, 6.011),
+                                    Point(6, 2),
+                                ]
+                            ),
                         ]
                     )
                 ]

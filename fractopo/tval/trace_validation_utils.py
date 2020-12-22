@@ -1,4 +1,5 @@
 from typing import Union, Tuple, List, Optional, Any, Set, Type
+import logging
 
 import numpy as np
 from shapely.ops import split
@@ -146,8 +147,11 @@ def determine_trace_candidates(
     geom: LineString,
     idx: int,
     traces: gpd.GeoDataFrame,
-    spatial_index: PyGEOSSTRTreeIndex,
+    spatial_index: Optional[PyGEOSSTRTreeIndex],
 ):
+    if spatial_index is None:
+        logging.error("Expected spatial_index not be None.")
+        return gpd.GeoSeries()
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
     assert isinstance(spatial_index, PyGEOSSTRTreeIndex)
     candidate_idxs = list(spatial_index.intersection(geom.bounds))
