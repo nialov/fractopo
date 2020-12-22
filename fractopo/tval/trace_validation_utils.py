@@ -13,7 +13,7 @@ from shapely.geometry import (
 import geopandas as gpd
 from geopandas.sindex import PyGEOSSTRTreeIndex
 
-from fractopo.general import point_to_xy
+from fractopo.general import point_to_xy, get_trace_endpoints
 
 # Order is important
 
@@ -51,10 +51,9 @@ def segment_within_buffer(
     all_segments = []
     ls: LineString
     for ls in multilinestring:
-        all_segments.extend(segmentize_linestring(ls, 1))
-        all_segments.extend(segmentize_linestring(ls, 2))
-        # all_segments.extend(segmentize_linestring(ls, 3))
-        # all_segments.extend(segmentize_linestring(ls, 4))
+        all_segments.extend(
+            segmentize_linestring(ls, snap_threshold * overlap_detection_multiplier)
+        )
     seg: LineString
     for seg in all_segments:
         if (
@@ -65,27 +64,17 @@ def segment_within_buffer(
     return False
 
 
-def segmentize_linestring(linestring: LineString, amount: int) -> List[LineString]:
-    assert isinstance(linestring, LineString)
-    points: List[Point] = [Point(c) for c in linestring.coords]
-    segmentized: List[Tuple[Point, Point, Point]] = []
-    p: Point
-    for idx, p in enumerate(points):
-        if idx == len(points) - 1:
-            break
-        else:
-            # Add additional point to find even smaller segments that overlap
-            x1 = tuple(*p.coords)[0]
-            x2 = tuple(*points[idx + 1].coords)[0]
-            y1 = tuple(*p.coords)[1]
-            y2 = tuple(*points[idx + 1].coords)[1]
-            additional_point = Point((x1 + x2) / 2, (y1 + y2) / 2)
-            segmentized.append((p, additional_point, points[idx + 1]))
-    if amount == 1:
-        return [LineString(points) for points in segmentized]
-    else:
-        ls = LineString([p for points in segmentized for p in points])
-        return segmentize_linestring(ls, amount - 1)
+def segmentize_linestring(linestring: LineString, threshold_length: float):
+    start_point, end_point = get_trace_endpoints(linestring)
+    segments = []
+    for dist in np.arange(0.0, linestring.length, threshold_length):
+        start = linestring.interpolate(dist)
+        end = linestring.interpolate(dist + threshold_length)
+        segment = LineString([start, end])
+        if segment.length < threshold_length:
+            continue
+        segments.append(segment)
+    return segments
 
 
 def split_to_determine_triangle_errors(

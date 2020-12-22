@@ -480,6 +480,11 @@ class StackedTracesValidator(BaseValidator):
                 tc
                 for tc in trace_candidates.geometry.values
                 if isinstance(tc, LineString)
+                and tc.buffer(
+                    snap_threshold
+                    * overlap_detection_multiplier
+                    * snap_threshold_error_multiplier
+                ).intersects(geom)
             ]
         )
         # Test for overlapping traces.

@@ -636,7 +636,7 @@ def match_crs(
 
 def get_trace_endpoints(
     trace: LineString,
-) -> Tuple[Point]:
+) -> Tuple[Point, Point]:
     """
     Return endpoints (shapely.geometry.Point) of a given LineString
     """
