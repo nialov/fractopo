@@ -8,6 +8,7 @@ import fiona
 
 from fractopo.tval.executor import main
 from fractopo.tval.trace_validator import BaseValidator
+from fractopo.tval.executor_v2 import Validation
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -69,5 +70,50 @@ def tracevalidate(
     # Change validation_error column to type: `string` and consequently save
     # the GeoDataFrame.
     validated_trace.astype({BaseValidator.ERROR_COLUMN: str}).to_file(
+        output_path, driver=save_driver
+    )
+
+
+@click.command()
+@click.argument("trace_path", **get_click_path_args())  # type: ignore
+@click.argument("area_path", **get_click_path_args())  # type: ignore
+@click.option(
+    "output_path", "--output", **get_click_path_args(exists=False, writable=True)
+)  # type: ignore
+@click.option("allow_fix", "--fix", is_flag=True)
+def tracevalidatev2(
+    trace_path: Union[Path, str],
+    area_path: Union[Path, str],
+    allow_fix: bool,
+    output_path: Union[Path, None] = None,
+):
+    """
+    Validate trace data delineated by target area data.
+
+    If allow_fix is True, some automatic fixing will be done to e.g. convert
+    MultiLineStrings to LineStrings.
+    """
+    trace_path = Path(trace_path)
+    # Get input crs
+    input_crs = gpd.read_file(trace_path).crs
+    area_path = Path(area_path)
+    if output_path is None:
+        output_path = (
+            trace_path.parent / f"{trace_path.stem}_validated{trace_path.suffix}"
+        )
+    print(f"Validating with snap threshold of {Validation.SNAP_THRESHOLD}.")
+    # Validate
+    validated_trace = Validation(
+        gpd.read_file(trace_path), gpd.read_file(area_path), trace_path.stem, allow_fix
+    ).run_validation()
+    # Set same crs as input if input had crs
+    if input_crs is not None:
+        validated_trace.crs = input_crs
+    # Get input driver to use as save driver
+    with fiona.open(trace_path) as trace_file:
+        save_driver = trace_file.driver
+    # Change validation_error column to type: `string` and consequently save
+    # the GeoDataFrame.
+    validated_trace.astype({Validation.ERROR_COLUMN: str}).to_file(
         output_path, driver=save_driver
     )
