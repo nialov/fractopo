@@ -1,6 +1,7 @@
 from typing import Union, Dict
 import logging
 from pathlib import Path
+from itertools import chain
 
 import click
 import geopandas as gpd
@@ -19,6 +20,17 @@ def get_click_path_args(exists=True, **kwargs):
         nargs=1,
     )
     return path_args
+
+
+def describe_results(validated: gpd.GeoDataFrame, error_column: str):
+    error_count = sum([len(val) != 0 for val in validated[error_column]])  # type: ignore
+    error_types = set([c for c in chain(*validated[error_column].to_list())])  # type: ignore
+    count_string = f"Out of {validated.shape[0]} traces, {error_count} were invalid."
+    type_string = f"There were {len(error_types)} error types. These were:\n"
+    for error_type in error_types:
+        type_string += error_type + "\n"
+    print(count_string)
+    print(type_string)
 
 
 @click.command()
@@ -80,11 +92,15 @@ def tracevalidate(
 @click.option(
     "output_path", "--output", **get_click_path_args(exists=False, writable=True)
 )  # type: ignore
-@click.option("allow_fix", "--fix", is_flag=True)
+@click.option("allow_fix", "--fix", is_flag=True, help="Allow automatic fixing.")
+@click.option(
+    "summary", "--summary", is_flag=True, help="Print summary of validation results"
+)
 def tracevalidatev2(
     trace_path: Union[Path, str],
     area_path: Union[Path, str],
     allow_fix: bool,
+    summary: bool,
     output_path: Union[Path, None] = None,
 ):
     """
@@ -103,9 +119,10 @@ def tracevalidatev2(
         )
     print(f"Validating with snap threshold of {Validation.SNAP_THRESHOLD}.")
     # Validate
-    validated_trace = Validation(
+    validation = Validation(
         gpd.read_file(trace_path), gpd.read_file(area_path), trace_path.stem, allow_fix
-    ).run_validation()
+    )
+    validated_trace = validation.run_validation()
     # Set same crs as input if input had crs
     if input_crs is not None:
         validated_trace.crs = input_crs
@@ -114,6 +131,8 @@ def tracevalidatev2(
         save_driver = trace_file.driver
     # Change validation_error column to type: `string` and consequently save
     # the GeoDataFrame.
-    validated_trace.astype({Validation.ERROR_COLUMN: str}).to_file(
+    validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
         output_path, driver=save_driver
     )
+    if summary:
+        describe_results(validated_trace, validation.ERROR_COLUMN)
