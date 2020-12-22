@@ -33,6 +33,7 @@ from fractopo.branches_and_nodes import (
     CLASS_COLUMN,
     EE_branch,
 )
+import fractopo.general as general
 
 import tests.sample_data.py_samples.samples as samples
 from tests import Helpers
@@ -131,11 +132,20 @@ def test_branches_and_nodes(file_regression):
     # Use --force-regen to remake if fails after trace_builder changes.
     file_regression.check(str(branch_gdf) + str(node_gdf))
 
-    for node_id in node_gdf[CLASS_COLUMN]:
+    for node_id in node_gdf[CLASS_COLUMN].values:
         assert node_id in [I_node, X_node, Y_node, E_node]
-    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "X"]) > 0
-    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "Y"]) > 0
-    assert len([node_id for node_id in node_gdf[CLASS_COLUMN] if node_id == "I"]) > 1
+    assert (
+        len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "X"])
+        > 0
+    )
+    assert (
+        len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "Y"])
+        > 0
+    )
+    assert (
+        len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "I"])
+        > 1
+    )
 
 
 @pytest.mark.parametrize(
@@ -189,7 +199,9 @@ def test_snap_traces():
     #     gpd.GeoSeries([Point(xy) for xy in simple_snapped_traces.iloc[1].coords])
     # )
     is_in_ls = False
-    assert all([isinstance(ls, LineString) for ls in simple_snapped_traces])
+    assert all(
+        [isinstance(ls, LineString) for ls in simple_snapped_traces.geometry.values]
+    )
     for xy in simple_snapped_traces.iloc[1].coords:
         p = Point(xy)
         if Point(0.99, 0).intersects(p):
@@ -270,7 +282,7 @@ def test_nice_traces():
         nice_traces, Helpers.snap_threshold
     )
     assert len(nice_traces) == len(snapped_traces)
-    for geom in snapped_traces:
+    for geom in snapped_traces.geometry.values:
         geom: LineString
         assert isinstance(geom, LineString)
         assert geom.is_valid
@@ -286,10 +298,8 @@ def test_crop_to_target_area():
         valid_areas_geoseries,
         invalid_areas_geoseries,
     ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
-    valid_result = branches_and_nodes.crop_to_target_areas(
-        valid_geoseries, valid_areas_geoseries
-    )
-    invalid_result = branches_and_nodes.crop_to_target_areas(
+    valid_result = general.crop_to_target_areas(valid_geoseries, valid_areas_geoseries)
+    invalid_result = general.crop_to_target_areas(
         invalid_geoseries, invalid_areas_geoseries
     )
     assert isinstance(valid_result, gpd.GeoSeries)
