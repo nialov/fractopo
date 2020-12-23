@@ -15,7 +15,7 @@ lineament and fracture trace maps (fracture networks).
 * [Validating trace map data](validation/basics.md)
   * [Validation error types](validation/errors.md)
 * [Topological and geometric analysis and plotting](analysis/basics.md)
-  * [Extracting branches and nodes](branches_and_nodes.md)
+  * [Extracting branches and nodes](topological_branches_and_nodes.md)
   * [Contour grids](analysis/contour.md)
 
 # Notebooks with examples

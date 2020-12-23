@@ -10,17 +10,18 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
-black
-coverage
-descartes
-hypothesis
-hypothesis-geometry
-jupyterlab
-mypy
-nbsphinx
-pipenv-to-requirements
-pytest
-pytest-regressions
-recommonmark
-sphinx-rtd-theme
-tox
+click
+geopandas
+geotrans
+matplotlib
+numpy
+openpyxl
+pandas
+powerlaw
+pygeos
+python-ternary
+scipy
+seaborn
+shapely
+sklearn
+xlrd
