@@ -11,24 +11,23 @@ graphical plots.
 
 Usage is demonstrated in complementary Jupyter Notebooks.
 
-* (Network analysis)[../notebooks/fractopo_network_1]
+* [Network analysis](../notebooks/fractopo_network_1)
 
   * Loading data for analysis with geopandas
+  * Visualizing traces and target area
   * Extracting branches and nodes
+  * Visualizing branches and nodes
   * Azimuth rose plots
   * Length distribution analysis
   * Crosscutting and abutting relationships between azimuth sets
   * Node and branch proportions
 
-* (Trace data validation)[../notebooks/fractopo_validation_1]
+* [Trace data validation 1](../notebooks/fractopo_validation_1) and
+  [Trace data validation 2](../notebooks/fractopo_validation_2)
 
   * Loading data for analysis with geopandas
-
-## Example plots
-
-![image](../imgs/analysis_collage.png)
-
-# Dependencies and References
+  * Trace validation
+  * Visualizing found validation errors with geopandas and matplotlib
 
 ## References
 

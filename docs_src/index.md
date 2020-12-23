@@ -22,6 +22,18 @@ lineament and fracture trace maps (fracture networks).
 
 * [Network analysis](notebooks/fractopo_network_1)
 
+  * Example walkthrough with most analysis methods demonstrated.
+
+* [Trace Data Validation 1](notebooks/fractopo_validation_1)
+
+  * Example walkthrough with only minor validation errors.
+
+* [Trace Data Validation 2](notebooks/fractopo_validation_2)
+
+  * Example walkthrough with major validation errors.
+  * Contains examples of visualizing validation errors in
+    a notebook.
+
 # Module documentation for developers
 
 * [apidoc](apidoc/fractopo)
