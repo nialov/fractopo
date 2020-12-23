@@ -21,7 +21,6 @@ from hypothesis import given
 from hypothesis_geometry import planar
 
 from tests import (
-    trace_validator,
     Helpers,
     SNAP_THRESHOLD,
     SNAP_THRESHOLD_ERROR_MULTIPLIER,
@@ -37,12 +36,11 @@ from tests import (
     UnderlappingSnapValidator,
     GeomNullValidator,
     StackedTracesValidator,
-    EmptyGeometryValidator,
     SimpleGeometryValidator,
     SharpCornerValidator,
 )
 from tests.sample_data import stacked_test
-from tests.sample_data.py_samples.stacked_traces_sample import stacked_traces_ls
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 import fractopo.tval.proximal_traces as proximal_traces
 

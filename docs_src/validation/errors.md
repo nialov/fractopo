@@ -60,12 +60,13 @@ The error string is:
 "MULTI JUNCTION"
 ~~~
 
-Two error types can occur in digitization resulting in this error string:
+Three error types can occur in digitization resulting in this error string:
 
 1. More than two traces must not cross in the same point or too close to the
    same point.
 2. An overlapping Y-node i.e. a trace overlaps the trace it "is supposed" to end
    at too much.
+3. `V NODE` errors might also be detected as `MULTI JUNCTION` errors.
 
 ![Multi junction error examples.](../imgs/MultiJunctionValidator.png "Multi junction error examples")
 
@@ -121,8 +122,20 @@ The error string is:
 "UNDERLAPPING SNAP"
 ~~~
 
-A trace ends very close to another trace but not near enough. The abutting might
-not be registered as a Y-node.
+Or:
+
+~~~python
+"OVERLAPPING SNAP"
+~~~
+
+Underlapping error can occur when a trace ends very close to another trace but
+not near enough. The abutting might not be registered as a Y-node.
+
+Overlapping error can occur when a trace overlaps another only very slightly
+resulting in a dangling end. Such dangling ends might not be registered as
+Y-nodes and might cause spatial/topological analysis problems later.
+
+Overlapping snap might also be registered as a `MULTI JUNCTION` error.
 
 ![Underlapping snap error examples.](../imgs/UnderlappingSnapValidator.png "Underlapping snap error examples.")
 
@@ -157,17 +170,24 @@ extend over the target area edge.
 
 # GeomNullValidator
 
-## UNDER DEVELOPMENT
+The error string is:
 
-No error string because the error is automatically handled. A Null geometry
-means that a row in a GeoDataFrame contains no geometry.
+~~~python
+"NULL GEOMETRY"
+~~~
 
-These rows are subsequently removed. This will change in the future to avoid
-loss of data.
+Rows with geometry set to None or equivalent type that is not a valid GIS geometry or
+rows with empty geometries.
+
+These rows could be automatically removed but these are most likely rare
+occurrences and deleting the row would cause all attribute data associated with
+the row to be consequently removed.
 
 ~~~
-* [X] Automatic fix
+* [ ] Automatic fix
 ~~~
+
+Fix by
 
 # StackedTracesValidator
 
@@ -204,24 +224,6 @@ A trace intersects itself.
 ~~~
 
 Fix by removing self-intersections.
-
-# EmptyGeometryValidator
-
-The error string is:
-
-~~~python
-"IS EMPTY"
-~~~
-
-A GeoDataFrame row contains a geometry but that geometry is empty.
-
-~~~
-* [ ] Automatic fix
-~~~
-
-To make sure new geometry is properly created delete the row and make a new
-geometry. The needed action might depend on the GIS-software of choice, safest
-way is always to delete the erroneous row and make a new one as replacement.
 
 # SharpCornerValidator
 

@@ -1,5 +1,4 @@
 import numpy as np
-import fractopo.analysis.config as config
 import matplotlib
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt

@@ -17,6 +17,7 @@ mypy = "*"
 nbsphinx = "*"
 recommonmark = "*"
 sphinx-rtd-theme = "*"
+black = "*"
 
 [packages]
 geopandas = "*"
@@ -37,3 +38,6 @@ geotrans = "*"
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

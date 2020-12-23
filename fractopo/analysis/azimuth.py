@@ -147,7 +147,7 @@ def plot_azimuth_ax(
     ax.set_thetagrids(
         np.arange(0, 181, 45),
         fontweight="bold",
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         fontsize=11,
         alpha=0.95,
     )
@@ -223,7 +223,7 @@ def decorate_azimuth_ax(
         y=0.8,
         fontsize=20,
         fontweight="bold",
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         va="top",
         bbox=prop_title,
         transform=ax.transAxes,
@@ -240,7 +240,7 @@ def decorate_azimuth_ax(
         fontsize=12,
         weight="roman",
         bbox=prop,
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         va="top",
         ha="center",
     )

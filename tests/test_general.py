@@ -1,6 +1,6 @@
 from hypothesis.strategies._internal.core import booleans, floats
 import fractopo.general as general
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, Polygon
 import geopandas as gpd
 import numpy as np
 
@@ -51,3 +51,26 @@ def test_determine_regression_azimuth(line: LineString):
 # def test_determine_set(value, value_range, loop_around):
 #     result = general.determine_set(value, value_range, loop_around)
 #     assert isinstance(result, bool)
+
+
+@pytest.mark.parametrize(
+    "nodes,snap_threshold,snap_threshold_error_multiplier,error_threshold",
+    Helpers.test_determine_node_junctions_params,
+)
+def test_determine_node_junctions(
+    nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+):
+    result = general.determine_node_junctions(
+        nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+    )
+    assert isinstance(result, set)
+    return result
+
+
+@pytest.mark.parametrize("geoseries", Helpers.test_bounding_polygon_params)
+def test_bounding_polygon(geoseries):
+    result = general.bounding_polygon(geoseries)
+    assert isinstance(result, Polygon)
+    for geom in geoseries:
+        assert not geom.intersects(result.boundary)
+        assert geom.within(result)

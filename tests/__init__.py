@@ -1,7 +1,10 @@
+from typing import List
 import pandas as pd
 import geopandas as gpd
 import shapely
-from shapely.geometry import Point, LineString, MultiLineString, Polygon
+from shapely.ops import linemerge
+from shapely.wkt import loads
+from shapely.geometry import Point, LineString, MultiLineString, Polygon, MultiPolygon
 import numpy as np
 import hypothesis
 from pathlib import Path
@@ -17,9 +20,9 @@ from hypothesis.strategies import (
 )
 from hypothesis import given
 from hypothesis_geometry import planar
+import pytest
 
-from fractopo.tval import trace_validator
-from fractopo.tval.trace_validator import (
+from fractopo.tval.trace_validators import (
     BaseValidator,
     GeomTypeValidator,
     MultiJunctionValidator,
@@ -29,17 +32,30 @@ from fractopo.tval.trace_validator import (
     UnderlappingSnapValidator,
     GeomNullValidator,
     StackedTracesValidator,
-    EmptyGeometryValidator,
     SimpleGeometryValidator,
     SharpCornerValidator,
 )
 from fractopo.tval import trace_builder
 from fractopo.analysis import tools, parameters
-from fractopo.general import CC_branch, CI_branch, II_branch, X_node, Y_node, I_node
+from fractopo.general import (
+    CC_branch,
+    CI_branch,
+    II_branch,
+    X_node,
+    Y_node,
+    I_node,
+    bounding_polygon,
+)
+import fractopo.tval.trace_validation as trace_validation
+
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
+from tests.sample_data.py_samples.samples import (
+    results_in_false_positive_underlapping_ls,
+)
 
 
-GEOMETRY_COLUMN = BaseValidator.GEOMETRY_COLUMN
-ERROR_COLUMN = BaseValidator.ERROR_COLUMN
+GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
+ERROR_COLUMN = trace_validation.Validation.ERROR_COLUMN
 
 SNAP_THRESHOLD = 0.001
 SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
@@ -47,11 +63,15 @@ AREA_EDGE_SNAP_MULTIPLIER = 5
 
 
 class Helpers:
-    valid_geom = shapely.geometry.LineString(((0, 0), (1, 1)))
-    invalid_geom_empty = shapely.geometry.LineString()
+    valid_geom = LineString(((0, 0), (1, 1)))
+
+    invalid_geom_empty = LineString()
     invalid_geom_none = None
-    invalid_geom_multilinestring = shapely.geometry.MultiLineString(
+    invalid_geom_multilinestring = MultiLineString(
         [((0, 0), (1, 1)), ((-1, 0), (1, 0))]
+    )
+    mergeable_geom_multilinestring = MultiLineString(
+        [((0, 0), (1, 1)), ((1, 1), (2, 2))]
     )
     (
         valid_traces,
@@ -59,8 +79,8 @@ class Helpers:
         valid_areas_geoseries,
         invalid_areas_geoseries,
     ) = trace_builder.main(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
-    valid_error_srs = pd.Series([[] for _ in valid_traces])
-    invalid_error_srs = pd.Series([[] for _ in invalid_traces])
+    valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
+    invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
     random_data_column = lambda i: ["aaa" for _ in i]
     # geoms are all LineStrings and no errors
     @classmethod
@@ -90,7 +110,7 @@ class Helpers:
     def invalid_gdf_null_get(cls):
         return gpd.GeoDataFrame(
             {
-                GEOMETRY_COLUMN: [None, shapely.geometry.LineString()],
+                GEOMETRY_COLUMN: [None, LineString()],
                 ERROR_COLUMN: [[], []],
                 "random_col": cls.random_data_column(range(2)),
             }
@@ -104,7 +124,7 @@ class Helpers:
     def invalid_area_gdf_get():
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.invalid_areas_geoseries})
 
-    faulty_error_srs = pd.Series([[] for _ in valid_traces])
+    faulty_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
     faulty_error_srs[0] = np.nan
     faulty_error_srs[1] = "this cannot be transformed to list?"
     faulty_error_srs[2] = (1, 2, 3, "hello?")
@@ -278,6 +298,8 @@ class Helpers:
     sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
+    kb11_traces = gpd.read_file(sample_trace_data)
+    kb11_area = gpd.read_file(sample_area_data)
 
     kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
     kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
@@ -448,3 +470,356 @@ class Helpers:
             "title",  # label
         ),
     ]
+
+    test__validate_params = [
+        (
+            GeomNullValidator,  # validator
+            None,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [None, [GeomNullValidator.ERROR], True],  # assumed_result
+        ),
+        (
+            GeomTypeValidator,  # validator
+            invalid_geom_multilinestring,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [
+                invalid_geom_multilinestring,
+                [GeomTypeValidator.ERROR],
+                True,
+            ],  # assumed_result
+        ),
+        (
+            GeomTypeValidator,  # validator
+            mergeable_geom_multilinestring,  # geom
+            [],  # current_errors
+            True,  # allow_fix
+            [
+                loads("LINESTRING (0 0, 1 1, 2 2)"),
+                [],
+                False,
+            ],  # assumed_result
+        ),
+    ]
+    intersect_nodes = [
+        (Point(0, 0), Point(1, 1)),
+        (Point(1, 1),),
+        (Point(5, 5),),
+        (Point(0, 0), Point(1, 1)),
+    ]
+
+    # Intersects next trace three times
+    intersects_next_trace_3_times = LineString(
+        [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+    )
+
+    # Straight line which is intersected twice by same line
+    intersected_3_times = LineString([Point(-3, -4), Point(-3, -1)])
+    test_validation_params = [
+        (
+            kb7_traces,  # traces
+            kb7_area,  # area
+            "kb7",  # name
+            True,  # auto_fix
+            [SharpCornerValidator.ERROR],  # assume_errors
+        ),
+        # (
+        #     kb11_traces,  # traces
+        #     kb11_area,  # area
+        #     "kb11",  # name
+        #     True,  # auto_fix
+        #     None,  # assume_errors
+        # ),
+        (
+            gpd.GeoDataFrame(
+                geometry=trace_builder.make_invalid_traces(
+                    snap_threshold=0.01, snap_threshold_error_multiplier=1.1
+                )
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=trace_builder.make_invalid_target_areas()
+            ),  # area
+            "invalid_traces",  # name
+            True,  # auto_fix
+            None,  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(geometry=[LineString([(0, 0), (0, 1)])]),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon(
+                        [
+                            Point(-1, -1),
+                            Point(-1, 1.011),
+                            Point(1, 1.011),
+                            Point(1, -1),
+                        ]
+                    )
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon(
+                        [
+                            Point(-1, -1),
+                            Point(-1, 1.011),
+                            Point(1, 1.011),
+                            Point(1, -1),
+                        ]
+                    ),
+                    Polygon(
+                        [
+                            Point(2, 2),
+                            Point(2, 6.011),
+                            Point(6, 6.011),
+                            Point(6, 2),
+                        ]
+                    ),
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
+            ),  # traces
+            gpd.GeoDataFrame(
+                geometry=[
+                    MultiPolygon(
+                        [
+                            Polygon(
+                                [
+                                    Point(-1, -1),
+                                    Point(-1, 1.011),
+                                    Point(1, 1.011),
+                                    Point(1, -1),
+                                ]
+                            ),
+                            Polygon(
+                                [
+                                    Point(2, 2),
+                                    Point(2, 6.011),
+                                    Point(6, 6.011),
+                                    Point(6, 2),
+                                ]
+                            ),
+                        ]
+                    )
+                ]
+            ),  # area
+            "TargetAreaSnapValidator error",  # name
+            True,  # auto_fix
+            [TargetAreaSnapValidator.ERROR],  # assume_errors
+        ),
+    ]
+
+    test_determine_v_nodes_params = [
+        (
+            [(Point(1, 1),), (Point(1, 1),)],  # endpoint_nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            {0, 1},  # assumed_result
+        ),
+        (
+            [(Point(1, 1),), (Point(1, 1),)],  # endpoint_nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            {0, 1},  # assumed_result
+        ),
+    ]
+
+    test_determine_node_junctions_params = [
+        (
+            [
+                (Point(0, 0), Point(1, 1)),
+                (Point(1, 1),),
+                (Point(5, 5),),
+                (Point(0, 0), Point(1, 1)),
+            ],  # nodes
+            0.01,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            2,  # error_threshold
+        )
+    ]
+
+    test_bounding_polygon_params = [
+        (gpd.GeoSeries([line_1, line_2, line_3])),
+        (gpd.GeoSeries([line_1])),
+    ]
+
+
+class ValidationHelpers:
+
+    # Known Errors
+    # ============
+
+    known_errors = dict()
+
+    known_multi_junction_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(0, -3), Point(2, -3)]),
+                LineString([Point(1, -4), Point(1, -2)]),
+                LineString([Point(2, -4), Point(0.5, -2.50001)]),
+            ]
+        ),
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 0), Point(2, 0)]),
+                LineString([Point(0, -2), Point(0, 4)]),
+                LineString([Point(1, -1), Point(-1, 1)]),
+            ]
+        ),
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 4), Point(-3, 4)]),
+                LineString([Point(-2.5, 3.5), Point(-3.5, 4.5)]),
+                LineString([Point(-3.5, 3.5), Point(-2.5, 4.5)]),
+            ]
+        ),
+        # TODO: Relies on SNAP_THRESHOLD and SNAP_THRESHOLD_ERROR_MULTIPLIER
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(-2, 2), Point(-4, 2)]),
+                LineString(
+                    [
+                        Point(-3, 1),
+                        Point(-3, 2 + 0.01 + 0.0001),
+                    ]
+                ),
+            ]
+        ),
+    ]
+
+    known_multilinestring_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                MultiLineString(
+                    [
+                        LineString([Point(3, -4), Point(3, -1)]),
+                        LineString([Point(3, 0), Point(3, 4)]),
+                    ]
+                )
+            ],
+        )
+    ]
+    known_vnode_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([Point(0, 0), Point(1.0001, 1)]),
+                LineString([Point(1, 0), Point(1.0001, 0.9999)]),
+            ]
+        )
+    ]
+    known_stacked_gdfs = [
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString(
+                    [
+                        Point(0, -7),
+                        Point(0, -5),
+                    ]
+                ),
+                LineString(
+                    [
+                        Point(-1, -7),
+                        Point(0 + 0.01, -6),
+                        Point(-1, -5),
+                    ]
+                ),
+            ]
+        ),
+    ]
+
+    known_non_underlaping_gdfs = [
+        gpd.GeoDataFrame(geometry=results_in_false_positive_underlapping_ls)
+    ]
+
+    known_null_gdfs = [gpd.GeoDataFrame(geometry=[None, LineString()])]
+
+    known_errors[MultiJunctionValidator.ERROR] = known_multi_junction_gdfs
+
+    known_errors[GeomTypeValidator.ERROR] = known_multilinestring_gdfs
+    known_errors[VNodeValidator.ERROR] = known_vnode_gdfs
+    known_errors[StackedTracesValidator.ERROR] = known_stacked_gdfs
+    known_errors[GeomNullValidator.ERROR] = known_null_gdfs
+    known_errors[UnderlappingSnapValidator._OVERLAPPING] = known_non_underlaping_gdfs
+
+    # False Positives
+    # ===============
+
+    known_false_positives = dict()
+
+    known_non_stacked_gdfs = [
+        gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
+    ]
+
+    known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
+    known_false_positives[
+        UnderlappingSnapValidator._UNDERLAPPING
+    ] = known_non_underlaping_gdfs
+
+    # Class methods to generate pytest params for parametrization
+    # ===========================================================
+
+    @classmethod
+    def generate_known_params(cls, error, false_positive):
+        knowns: List[gpd.GeoDataFrame] = (
+            cls.known_errors[error]
+            if not false_positive
+            else cls.known_false_positives[error]
+        )
+        amounts = [gdf.shape[0] for gdf in knowns]
+        try:
+            areas = [
+                gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns
+            ]
+        except:
+            areas = [
+                gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (1, 1), (1, 0)])])
+                for _ in knowns
+            ]
+        assert len(knowns) == len(areas) == len(amounts)
+        return [
+            pytest.param(
+                known,
+                area,
+                f"{error}, {amount}",
+                True,
+                [error],
+                amount,
+                false_positive,
+                id=f"{error}, {amount}",
+            )
+            for known, area, amount in zip(knowns, areas, amounts)
+        ]
+
+    @classmethod
+    def get_all_errors(cls):
+        all_error_types = [
+            validator.ERROR for validator in trace_validation.ALL_VALIDATORS
+        ]
+        all_errs = []
+        for err in all_error_types:
+            try:
+                all_errs.extend(cls.generate_known_params(err, false_positive=False))
+            except KeyError:
+                pass
+            try:
+                all_errs.extend(cls.generate_known_params(err, false_positive=True))
+            except KeyError:
+                pass
+
+        assert len(all_errs) > 0
+        return all_errs

@@ -23,6 +23,7 @@ def test_plot_xyi_plot(node_counts_list, labels):
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
     assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
+    plt.close()
 
 
 @pytest.mark.parametrize(
@@ -35,6 +36,7 @@ def test_plot_branch_plot(branch_counts_list, labels):
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
     assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
+    plt.close()
 
 
 @pytest.mark.parametrize(
@@ -69,3 +71,4 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     )
     assert all([isinstance(fig, matplotlib.figure.Figure) for fig in figs])  # type: ignore
     assert all([isinstance(ax, matplotlib.axes.Axes) for ax in axes])  # type: ignore
+    plt.close()

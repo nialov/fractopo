@@ -119,7 +119,7 @@ def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
         # snap threshold (next 3 traces):
         line_generator([Point(0, -3), Point(2, -3)]),
         line_generator([Point(1, -4), Point(1, -2)]),
-        line_generator([Point(2, -4), Point(0.5, -2.51)]),
+        line_generator([Point(2, -4), Point(0.5, -2.50001)]),
         # V-node
         line_generator([Point(1, 2), Point(0, 4)]),
         # Intersects next trace three times
@@ -170,7 +170,12 @@ def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
         ),
         # Partially overlapping traces
         line_generator([Point(6, -4), Point(6, 4)]),
-        line_generator([Point(6, -4), Point(6, -3),]),
+        line_generator(
+            [
+                Point(6, -4),
+                Point(6, -3),
+            ]
+        ),
         # Overlapping within buffer distance
         line_generator([Point(7, -4), Point(7, 4)]),
         line_generator(
@@ -180,8 +185,19 @@ def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
             ]
         ),
         # Triangle intersection
-        line_generator([Point(0, -7), Point(0, -5),]),
-        line_generator([Point(-1, -7), Point(0 + snap_threshold, -6), Point(-1, -5),]),
+        line_generator(
+            [
+                Point(0, -7),
+                Point(0, -5),
+            ]
+        ),
+        line_generator(
+            [
+                Point(-1, -7),
+                Point(0 + snap_threshold, -6),
+                Point(-1, -5),
+            ]
+        ),
     ]
     return traces
 

@@ -1,16 +1,19 @@
 """
 Contains general calculation and plotting tools.
 """
+from itertools import accumulate, chain, zip_longest
+import logging
+from bisect import bisect
 from enum import Enum, unique
+from typing import Tuple, Dict, List, Union, Final, Set, Any
+from textwrap import wrap
+from pathlib import Path
+import os
+
 import powerlaw
 import geopandas as gpd
 import pandas as pd
 import math
-from typing import Tuple, Dict, List, Union, Final
-import math
-from textwrap import wrap
-import os
-from pathlib import Path
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import matplotlib
@@ -20,17 +23,30 @@ import seaborn as sns
 import shapely
 import ternary
 from shapely import strtree
-from shapely.geometry import LineString, Point, MultiLineString, MultiPoint
+from shapely.geometry import (
+    LineString,
+    Point,
+    MultiLineString,
+    MultiPoint,
+    Polygon,
+    box,
+)
 from shapely.ops import linemerge
+from shapely.affinity import scale
 from shapely import prepared
-import logging
 from sklearn.linear_model import LinearRegression
 
-# Own code imports
-from fractopo.analysis import target_area as ta, config
 
-style = config.styled_text_dict
-prop = config.styled_prop
+styled_text_dict = {
+    "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
+    "color": "white",
+}
+styled_prop = dict(
+    boxstyle="round",
+    pad=0.6,
+    facecolor="wheat",
+    path_effects=[path_effects.SimplePatchShadow(), path_effects.Normal()],
+)
 
 # Columns for report_df
 
@@ -521,23 +537,6 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     return str(set_label)
 
 
-def construct_length_distribution_base(
-    lineframe: gpd.GeoDataFrame,
-    areaframe: gpd.GeoDataFrame,
-    name: str,
-    group: str,
-    cut_off_length=1,
-    using_branches=False,
-):
-    """
-    Helper function to construct TargetAreaLines to a pandas DataFrame using apply().
-    """
-    ld = ta.TargetAreaLines(
-        lineframe, areaframe, name, group, using_branches, cut_off_length
-    )
-    return ld
-
-
 def curviness(linestring):
     try:
         coords = list(linestring.coords)
@@ -635,9 +634,9 @@ def match_crs(
 
 def get_trace_endpoints(
     trace: LineString,
-) -> Tuple[Point]:
+) -> Tuple[Point, Point]:
     """
-    Returns endpoints (shapely.geometry.Point) of a given LineString
+    Return endpoints (shapely.geometry.Point) of a given LineString
     """
     if not isinstance(trace, LineString):
         raise TypeError(
@@ -697,6 +696,13 @@ def determine_general_nodes(
     endpoint_nodes: List[Tuple[Point, ...]] = []
     spatial_index = traces.geometry.sindex
     for idx, geom in enumerate(traces.geometry.values):
+        if not isinstance(geom, LineString):
+            # Intersections and endpoints cannot be defined for
+            # MultiLineStrings
+            # TODO: Or can they? Probably shouldn't
+            intersect_nodes.append(())
+            endpoint_nodes.append(())
+            continue
         # Get trace candidates for intersection
         trace_candidates_idx: List[int] = sorted(  # type: ignore
             list(spatial_index.intersection(geom.bounds))
@@ -705,6 +711,7 @@ def determine_general_nodes(
         trace_candidates_idx.remove(idx)
         trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
         # trace_candidates.index = trace_candidates_idx
+        # TODO: Is intersection enough? Most Y-intersections might be underlapping.
         intersection_geoms = trace_candidates.intersection(geom)
         intersect_nodes.append(
             tuple(determine_valid_intersection_points(intersection_geoms))
@@ -740,3 +747,264 @@ def determine_valid_intersection_points(
             pass
     assert all([isinstance(p, Point) for p in valid_interaction_points])
     return valid_interaction_points
+
+
+def flatten_tuples(
+    list_of_tuples: List[Tuple[Any, ...]]
+) -> Tuple[List[int], List[Any]]:
+    """
+    Flatten collection of tuples and return index references.
+
+    Indexes are from original tuple groupings.
+
+    E.g.
+
+    >>> tuples = [(1, 1, 1), (2, 2, 2, 2), (3,)]
+    >>> flatten_tuples(tuples)
+    ([0, 0, 0, 1, 1, 1, 1, 2], [1, 1, 1, 2, 2, 2, 2, 3])
+
+    """
+    accumulated_idxs = list(
+        accumulate([len(val_tuple) for idx, val_tuple in enumerate(list_of_tuples)])
+    )
+    flattened_tuples = list(chain(*list_of_tuples))
+    flattened_idx_reference = [
+        bisect(accumulated_idxs, idx) for idx in range(len(flattened_tuples))
+    ]
+    return flattened_idx_reference, flattened_tuples
+
+
+def determine_node_junctions(
+    nodes: List[Tuple[Point, ...]],
+    snap_threshold: float,
+    snap_threshold_error_multiplier: float,
+    error_threshold: int,
+) -> Set[int]:
+    """
+
+    E.g.
+
+    >>> nodes = [
+    ...     (Point(0, 0), Point(1, 1)),
+    ...     (Point(1, 1),),
+    ...     (Point(5, 5),),
+    ...     (Point(0, 0), Point(1, 1)),
+    ... ]
+    >>> snap_threshold = 0.01
+    >>> snap_threshold_error_multiplier = 1.1
+    >>> error_threshold = 2
+    >>> determine_node_junctions(
+    ...     nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
+    ... )
+    {0, 1, 3}
+
+    """
+
+    if len(nodes) == 0:
+        return set()
+
+    flattened_idx_reference, flattened_node_tuples = flatten_tuples(nodes)
+
+    if len(flattened_node_tuples) == 0:
+        return set()
+
+    # Collect nodes into GeoSeries
+    flattened_nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
+    # Create spatial index of nodes
+    nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
+    # Set collection for indexes with junctions
+    indexes_with_junctions: Set[int] = set()
+    # Iterate over node tuples i.e. points is a tuple with Points
+    # The node tuple indexes represent the trace indexes
+    for idx, points in enumerate(nodes):
+        associated_point_count = len(points)
+        # Because node indexes represent traces, we can remove all nodes of the
+        # current trace by using the idx.
+        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
+            [idx_reference != idx for idx_reference in flattened_idx_reference]
+        ]
+        if len(points) == 0:
+            continue
+        # Iterate over the actual Points of the current trace
+        for i, point in enumerate(points):
+            # Get node candidates from spatial index
+            node_candidates_idx: List[int] = list(  # type: ignore
+                nodes_geoseries_sindex.intersection(
+                    point.buffer(
+                        snap_threshold * snap_threshold_error_multiplier * 10
+                    ).bounds
+                )
+            )
+            # Shift returned indexes by associated_point_count to match to
+            # correct points
+            remaining_idxs = set(other_nodes_geoseries.index.values)
+            # Only choose node candidates that are not part of current traces
+            # nodes
+            node_candidates_idx = [
+                val if val <= idx else val - associated_point_count
+                for val in node_candidates_idx
+                if val in remaining_idxs
+            ]
+            node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[  # type: ignore
+                node_candidates_idx
+            ]
+            # snap_threshold * snap_threshold_error_multiplier represents the
+            # threshold for intersection. Actual intersection is not necessary.
+            intersection_data = [
+                intersecting_point.distance(point)
+                < snap_threshold * snap_threshold_error_multiplier
+                for intersecting_point in node_candidates.geometry.values
+            ]
+            assert all([isinstance(val, bool) for val in intersection_data])
+            # If no intersects for current node -> continue to next
+            if sum(intersection_data) == 0:
+                continue
+
+            # Different error counts for endpoints and intersections
+            if sum(intersection_data) >= error_threshold:
+                # Add idx of current trace
+                indexes_with_junctions.add(idx)
+                # Add other point idxs that correspond to the error
+                for other_index in node_candidates.loc[
+                    intersection_data
+                ].index.to_list():  # type: ignore
+                    indexes_with_junctions.add(flattened_idx_reference[other_index])
+
+    return indexes_with_junctions
+
+
+def zip_equal(*iterables):
+    sentinel = object()
+    for combo in zip_longest(*iterables, fillvalue=sentinel):
+        if sentinel in combo:
+            raise ValueError("Iterables have different lengths")
+        yield combo
+
+
+def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
+    """
+    Create numpy unit vector from two shapely Points.
+    """
+    # Convert Point coordinates to (x, y)
+    segment_start = point_to_xy(start_point)
+    segment_end = point_to_xy(end_point)
+    segment_vector = np.array(
+        [segment_end[0] - segment_start[0], segment_end[1] - segment_start[1]]
+    )
+    segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
+    return segment_unit_vector
+
+
+def compare_unit_vector_orientation(
+    vec_1: np.ndarray, vec_2: np.ndarray, threshold_angle: float
+):
+    """
+    If vec_1 and vec_2 are too different in orientation, will return False.
+    """
+    if np.linalg.norm(vec_1 + vec_2) < np.sqrt(2):
+        # If they face opposite side -> False
+        return False
+    dot_product = np.dot(vec_1, vec_2)
+    if np.isclose(dot_product, 1):
+        return True
+    if 1 < dot_product or dot_product < -1 or np.isnan(dot_product):
+        return False
+    rad_angle = np.arccos(dot_product)
+    deg_angle = np.rad2deg(rad_angle)
+    if deg_angle > threshold_angle:
+        # If angle between more than threshold_angle -> False
+        return False
+    return True
+
+
+def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polygon:
+    """
+    Create bounding polygon around GeoSeries.
+
+    The geoseries geometries will always be completely enveloped by the
+    polygon. The geometries will not intersect the polygon boundary.
+
+
+    >>> geom = LineString([(1, 0), (1, 1), (-1, -1)])
+    >>> geoseries = gpd.GeoSeries([geom])
+    >>> poly = bounding_polygon(geoseries)
+    >>> poly.wkt
+    'POLYGON ((2 -2, 2 2, -2 2, -2 -2, 2 -2))'
+    >>> geoseries.intersects(poly.boundary)
+    0    False
+    dtype: bool
+
+    """
+    total_bounds = geoseries.total_bounds
+    bounding_polygon: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
+    if any(geoseries.intersects(bounding_polygon.boundary)):
+        bounding_polygon: Polygon = bounding_polygon.buffer(1)
+        assert not any(geoseries.intersects(bounding_polygon.boundary))
+    assert all(geoseries.within(bounding_polygon))
+    return bounding_polygon
+
+
+def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
+    """
+    Flattens a list of multilinestrings to a list of linestrings.
+
+    >>> multilinestrings = [
+    ...     MultiLineString(
+    ...             [
+    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
+    ...                  LineString([(1.9999, 2), (-2, 5)]),
+    ...             ]
+    ...                    ),
+    ...     MultiLineString(
+    ...             [
+    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
+    ...                  LineString([(1.9999, 2), (-2, 5)]),
+    ...             ]
+    ...                    ),
+    ... ]
+    >>> result_linestrings = mls_to_ls(multilinestrings)
+    >>> print([ls.wkt for ls in result_linestrings])
+    ['LINESTRING (1 1, 2 2, 3 3)', 'LINESTRING (1.9999 2, -2 5)',
+    'LINESTRING (1 1, 2 2, 3 3)', 'LINESTRING (1.9999 2, -2 5)']
+
+    """
+    linestrings: List[LineString] = []
+    for mls in multilinestrings:
+        linestrings.extend([ls for ls in mls.geoms])
+    if not all([isinstance(ls, LineString) for ls in linestrings]):
+        raise ValueError("MultiLineStrings within MultiLineStrings?")
+    return linestrings
+
+
+def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.GeoSeries:
+    """
+    Crop traces to the area polygons.
+
+    E.g.
+
+    >>> traces = gpd.GeoSeries(
+    ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
+    ...     )
+    >>> areas = gpd.GeoSeries(
+    ...     [
+    ...            Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
+    ...            Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
+    ...     ]
+    ... )
+    >>> cropped_traces = crop_to_target_areas(traces, areas)
+    >>> print([trace.wkt for trace in cropped_traces])
+    ['LINESTRING (-1.9 4.924998124953124, -2 5)']
+
+    """
+    if not all([isinstance(trace, LineString) for trace in traces.geometry.values]):
+        logging.error("Expected no MultiLineStrings in crop_to_target_areas.")
+    traces, areas = match_crs(traces, areas)
+    clipped_traces = gpd.clip(traces, areas)
+    clipped_traces_linestrings = [
+        trace for trace in clipped_traces if isinstance(trace, LineString)
+    ]
+    ct_multilinestrings = [
+        mls for mls in clipped_traces if isinstance(mls, MultiLineString)
+    ]
+    as_linestrings = mls_to_ls(ct_multilinestrings)
+    return gpd.GeoSeries(clipped_traces_linestrings + as_linestrings)

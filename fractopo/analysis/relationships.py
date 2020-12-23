@@ -18,7 +18,6 @@ from shapely.geometry import LineString, Point, MultiLineString
 from shapely import prepared
 from shapely.strtree import STRtree
 
-from fractopo.analysis import tools
 from fractopo.general import (
     X_node,
     Y_node,
@@ -396,7 +395,7 @@ def plot_crosscut_abutting_relationships_plot(
                 y=1.0,
                 fontsize=20,
                 fontweight="bold",
-                fontfamily="Calibri",
+                fontfamily="DejaVu Sans",
                 va="center",
                 bbox=prop_title,
             )
@@ -425,7 +424,7 @@ def plot_crosscut_abutting_relationships_plot(
                     framealpha=1,
                     loc="upper center",
                     edgecolor="black",
-                    prop={"family": "Calibri"},
+                    prop={"family": "DejaVu Sans"},
                 )
 
                 ax.set_ylim(0, 1.6 * max([row["x"], row["y"], row["y-reverse"]]))
@@ -448,14 +447,14 @@ def plot_crosscut_abutting_relationships_plot(
                     fontweight="bold",
                     fontsize=13,
                     fontstyle="italic",
-                    fontfamily="Calibri",
+                    fontfamily="DejaVu Sans",
                 )
                 ax.set_ylabel(
                     "Node count",
                     fontweight="bold",
                     fontsize=13,
                     fontstyle="italic",
-                    fontfamily="Calibri",
+                    fontfamily="DejaVu Sans",
                 )
 
                 # Set y ticks as integers
@@ -478,7 +477,7 @@ def plot_crosscut_abutting_relationships_plot(
                         transform=ax.transAxes,
                         va="center",
                         bbox=prop,
-                        fontfamily="Calibri",
+                        fontfamily="DejaVu Sans",
                     )
             figs.append(fig)
             fig_axes.append(axes)

@@ -7,6 +7,7 @@ from functools import lru_cache
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
 import matplotlib
 import ternary
 from fractopo.general import (
@@ -18,9 +19,8 @@ from fractopo.general import (
     CI_branch,
     II_branch,
     Param,
+    styled_prop,
 )
-from fractopo.analysis import tools
-import fractopo.analysis.config as config
 from textwrap import wrap
 
 
@@ -50,8 +50,8 @@ def decorate_xyi_ax(
     f"X-nodes: {xcount}\n"
     f"Y-nodes: {ycount}\n"
     f"I-nodes: {icount}\n"
-    tools.initialize_ternary_points(ax, tax)
-    tools.tern_plot_the_fing_lines(tax)
+    initialize_ternary_points(ax, tax)
+    tern_plot_the_fing_lines(tax)
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     ax.text(
         0.85,
@@ -62,7 +62,7 @@ def decorate_xyi_ax(
         weight="roman",
         verticalalignment="top",
         bbox=prop,
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         ha="center",
     )
 
@@ -159,7 +159,7 @@ def plot_xyi_plot_ax(
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -236,7 +236,7 @@ def plot_branch_plot_ax(
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -265,15 +265,15 @@ def decorate_branch_ax(
         weight="roman",
         verticalalignment="top",
         bbox=prop,
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         ha="center",
     )
-    tools.initialize_ternary_branches_points(ax, tax)
-    tools.tern_plot_branch_lines(tax)
+    initialize_ternary_branches_points(ax, tax)
+    tern_plot_branch_lines(tax)
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.1, 1.05),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -346,7 +346,7 @@ def plot_parameters_plot(
 
     """
     log_scale_columns = Param.log_scale_columns()
-    prop = config.prop
+    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
 
     columns_to_plot = [param.value for param in Param]
     figs, axes = [], []
@@ -378,7 +378,7 @@ def plot_parameters_plot(
         ax.set_ylabel(
             column + " " + f"({Param.get_unit_for_column(column)})",
             fontsize="xx-large",
-            fontfamily="Calibri",
+            fontfamily="DejaVu Sans",
             style="italic",
         )
         ax.set_title(
@@ -453,3 +453,180 @@ def plot_set_count(
     for label_text in label_texts:
         label_text.set_fontsize("large")
     return fig, ax
+
+
+def initialize_ternary_points(ax, tax):
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    ax.set_frame_on(False)
+    tax.boundary(linewidth=1.5)
+    tax.gridlines(linewidth=0.1, multiple=20, color="grey", alpha=0.6)
+    tax.ticks(
+        axis="lbr",
+        linewidth=1,
+        multiple=20,
+        offset=0.035,
+        tick_formats="%d%%",
+        fontsize="small",
+    )
+    tax.clear_matplotlib_ticks()
+    tax.get_axes().axis("off")
+    fontsize = 25
+    fdict = {
+        "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
+        "color": "white",
+        "family": "DejaVu Sans",
+        "size": fontsize,
+        "weight": "bold",
+    }
+    ax.text(-0.1, -0.03, "Y", transform=ax.transAxes, fontdict=fdict)
+    ax.text(1.03, -0.03, "X", transform=ax.transAxes, fontdict=fdict)
+    ax.text(0.5, 1.07, "I", transform=ax.transAxes, fontdict=fdict, ha="center")
+    # tax.set_title(name, x=0.1, y=1, fontsize=14, fontweight='heavy', fontfamily='Times New Roman')
+
+
+def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
+    """
+    Plots *connections per branch* parameter to XYI-plot.
+
+    :param tax: Ternary axis to plot to
+    :type tax: ternary.TernaryAxesSubplot
+    :param cs_locs: Pre-determined locations for lines
+    :type cs_locs: tuple
+    """
+
+    def tern_find_last_x(c, x_start=0):
+        x, i, y = tern_yi_func(c, x_start)
+        while y > 0:
+            x_start += 0.01
+            x, i, y = tern_yi_func(c, x_start)
+        return x
+
+    def tern_yi_func_perc(c, x):
+        temp = 6 * (1 - 0.5 * c)
+        temp2 = 3 - (3 / 2) * c
+        temp3 = 1 + c / temp
+        y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
+        i = 1 - x - y
+        return 100 * x, 100 * i, 100 * y
+
+    for c in cs_locs:
+        last_x = tern_find_last_x(c)
+        x1 = 0
+        x2 = last_x
+        point1 = tern_yi_func_perc(c, x1)
+        point2 = tern_yi_func_perc(c, x2)
+        tax.line(
+            point1,
+            point2,
+            alpha=0.4,
+            color="k",
+            zorder=-5,
+            linestyle="dashed",
+            linewidth=0.5,
+        )
+        ax = plt.gca()
+        rot = 6.5
+        rot2 = 4.5
+        ax.text(x=55, y=59, s=r"$C_B = 1.3$", fontsize=10, rotation=rot, ha="center")
+        ax.text(x=61, y=50, s=r"$C_B = 1.5$", fontsize=10, rotation=rot, ha="center")
+        ax.text(
+            x=68.5,
+            y=36.6,
+            s=r"$C_B = 1.7$",
+            fontsize=10,
+            rotation=rot2 + 1,
+            ha="center",
+        )
+        ax.text(x=76, y=17, s=r"$C_B = 1.9$", fontsize=10, rotation=rot2, ha="center")
+
+
+def initialize_ternary_branches_points(ax, tax):
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    ax.set_frame_on(False)
+    tax.boundary(linewidth=1.5)
+    tax.gridlines(linewidth=0.9, multiple=20, color="black", alpha=0.6)
+    tax.ticks(
+        axis="lbr",
+        linewidth=0.9,
+        multiple=20,
+        offset=0.03,
+        tick_formats="%d%%",
+        fontsize="small",
+        alpha=0.6,
+    )
+    tax.clear_matplotlib_ticks()
+    tax.get_axes().axis("off")
+    fontsize = 20
+    fdict = {
+        "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
+        "color": "w",
+        "family": "DejaVu Sans",
+        "size": fontsize,
+        "weight": "bold",
+    }
+    ax.text(-0.1, -0.06, "I - C", transform=ax.transAxes, fontdict=fdict)
+    ax.text(1.0, -0.06, "C - C", transform=ax.transAxes, fontdict=fdict)
+    ax.text(0.5, 1.07, "I - I", transform=ax.transAxes, fontdict=fdict, ha="center")
+
+
+def tern_plot_branch_lines(tax):
+    """
+    Plot line of random assignment of nodes to branches to a given branch ternary tax.
+    Line positions taken from NetworkGT open source code.
+    Credit to:
+    https://github.com/BjornNyberg/NetworkGT
+
+    :param tax: Ternary axis to plot to
+    :type tax: ternary.TernaryAxesSubplot
+    """
+    ax = tax.get_axes()
+    tax.boundary()
+    points = [
+        (0, 1, 0),
+        (0.01, 0.81, 0.18),
+        (0.04, 0.64, 0.32),
+        (0.09, 0.49, 0.42),
+        (0.16, 0.36, 0.48),
+        (0.25, 0.25, 0.5),
+        (0.36, 0.16, 0.48),
+        (0.49, 0.09, 0.42),
+        (0.64, 0.04, 0.32),
+        (0.81, 0.01, 0.18),
+        (1, 0, 0),
+    ]
+    for idx, p in enumerate(points):
+        points[idx] = points[idx][0] * 100, points[idx][1] * 100, points[idx][2] * 100
+
+    text_loc = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]
+    for idx, t in enumerate(text_loc):
+        text_loc[idx] = t[0] * 100, t[1] * 100
+    text = [r"$C_B = 1.0$", r"$1.2$", r"$1.4$", r"$1.6$", r"$1.8$"]
+    rots = [-61, -44, -28, -14, -3]
+    # rot = -65
+    for t, l, rot in zip(text, text_loc, rots):
+        ax.annotate(t, xy=l, fontsize=9, rotation=rot)
+        # rot += 17
+    tax.plot(
+        points,
+        linewidth=1.5,
+        marker="o",
+        color="k",
+        linestyle="dashed",
+        markersize=3,
+        zorder=-5,
+        alpha=0.6,
+    )
+
+
+def tern_yi_func(c, x):
+    """
+    Function for plotting *Connections per branch* line to branch ternary plot. Absolute values.
+    """
+    temp = 6 * (1 - 0.5 * c)
+    temp2 = 3 - (3 / 2) * c
+    temp3 = 1 + c / temp
+    y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
+    i = 1 - x - y
+    return x, i, y
