@@ -24,8 +24,11 @@ sphinx:
 #   - pdf
 
 # Optionally set the version of Python and requirements required to build your docs
+# Install pip with .[dev]
 python:
   version: 3.8
   install:
-    - requirements: docs_src/requirements.txt
-    - requirements: docs_src/requirements-dev.txt
+    - method: pip
+      path: .
+      extra_requirements:
+        - dev
