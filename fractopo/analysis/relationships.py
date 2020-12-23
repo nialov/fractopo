@@ -18,7 +18,6 @@ from shapely.geometry import LineString, Point, MultiLineString
 from shapely import prepared
 from shapely.strtree import STRtree
 
-from fractopo.analysis import tools
 from fractopo.general import (
     X_node,
     Y_node,
