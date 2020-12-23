@@ -1,4 +1,6 @@
 from enum import Enum, unique
+from typing import Tuple, Dict, List, Union, Optional, Literal
+
 import powerlaw
 import geopandas as gpd
 import pandas as pd
@@ -6,9 +8,6 @@ import numpy as np
 import matplotlib.axes
 import matplotlib
 import matplotlib.pyplot as plt
-from typing import Tuple, Dict, List, Union, Optional, Literal
-
-import fractopo.analysis.tools as tools
 
 
 @unique
@@ -103,7 +102,7 @@ def plot_distribution_fits(
     for fit_distribution in (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW):
         plot_fit_on_ax(ax, fit, fit_distribution)
     # Setup of ax appearance and axlims
-    tools.setup_ax_for_ld(ax, using_branches=False)
+    setup_ax_for_ld(ax, using_branches=False)
     _setup_length_plot_axlims(
         ax=ax,
         length_array=truncated_length_array,
@@ -111,3 +110,55 @@ def plot_distribution_fits(
         cut_off=xmin,  # type: ignore
     )
     return fit, fig, ax
+
+
+def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
+    """
+    Function to setup ax for length distribution plots.
+
+    :param ax_for_setup: Ax to setup.
+    :type ax_for_setup: matplotlib.axes.Axes
+    :param using_branches: Are the lines branches or traces.
+    :type using_branches: bool
+    """
+    #
+    ax = ax_for_setup
+    # LABELS
+    label = "Branch length $(m)$" if using_branches else "Trace Length $(m)$"
+    ax.set_xlabel(
+        label,
+        fontsize="xx-large",
+        fontfamily="Calibri",
+        style="italic",
+        labelpad=16,
+    )
+    # Individual powerlaw fits are not normalized to area because they aren't
+    # multiscale
+    ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
+    ax.set_ylabel(
+        "Complementary Cumulative Number " + ccm_unit,
+        fontsize="xx-large",
+        fontfamily="Calibri",
+        style="italic",
+    )
+    # TICKS
+    plt.xticks(color="black", fontsize="x-large")
+    plt.yticks(color="black", fontsize="x-large")
+    plt.tick_params(axis="both", width=1.2)
+    # LEGEND
+    handles, labels = ax.get_legend_handles_labels()
+    labels = ["\n".join(wrap(l, 13)) for l in labels]
+    lgnd = plt.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(1.37, 1.02),
+        ncol=2,
+        columnspacing=0.3,
+        shadow=True,
+        prop={"family": "Calibri", "weight": "heavy", "size": "large"},
+    )
+    for lh in lgnd.legendHandles:
+        # lh._sizes = [750]
+        lh.set_linewidth(3)
+    ax.grid(zorder=-10, color="black", alpha=0.5)

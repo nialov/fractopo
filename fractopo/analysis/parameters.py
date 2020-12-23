@@ -7,6 +7,7 @@ from functools import lru_cache
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
 import matplotlib
 import ternary
 from fractopo.general import (
@@ -617,3 +618,15 @@ def tern_plot_branch_lines(tax):
         zorder=-5,
         alpha=0.6,
     )
+
+
+def tern_yi_func(c, x):
+    """
+    Function for plotting *Connections per branch* line to branch ternary plot. Absolute values.
+    """
+    temp = 6 * (1 - 0.5 * c)
+    temp2 = 3 - (3 / 2) * c
+    temp3 = 1 + c / temp
+    y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
+    i = 1 - x - y
+    return x, i, y
