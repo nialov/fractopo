@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -200,11 +199,10 @@ GeoDataFrames and back).</p>
 However currently only very few error types are automatically fixed. Instead it
 is recommended to use the validation tool to find the errors and then fixing
 them manually. The tool creates a new column, <em>VALIDATION ERRORS</em>, in the
-GeoDataFrame (visible in the attribute table in GIS-software). Automatic fixing
-does not take into account the basemap and all fixing can add to the
-uncertainty. Automatic fixing might be suitable for validating automatically
-digitized trace data for practicality reasons: topological analyses are sensitive to
-digitization conflicts.</p>
+GeoDataFrame (visible in the attribute table in GIS-software). Currently very
+few types of errors can be automatically fixed and e.g. conversion from
+LineString to MultiLineString has to be done to allow further validation.
+Therefore I currently recommend allowing automatic fixes when prompted.</p>
 <p>Page links below explain how to use the validation tool in Python,
 the validation error types and how manually fix the validation errors.</p>
 <ul class="simple">

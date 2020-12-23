@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -202,11 +201,26 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt id="fractopo.analysis.parameters.determine_set_counts">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">determine_set_counts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_names</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">set_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>int<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.parameters.determine_set_counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="fractopo.analysis.parameters.determine_topology_parameters">
 <code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">determine_topology_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace_length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">branch_length_array</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">node_counts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">area</span><span class="p">:</span> <span class="n">float</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.determine_topology_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine topology parameters.</p>
 <p>Number of traces and branches are determined by node counting.</p>
 </dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.parameters.initialize_ternary_branches_points">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">initialize_ternary_branches_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.initialize_ternary_branches_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.parameters.initialize_ternary_points">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">initialize_ternary_points</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.initialize_ternary_points" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt id="fractopo.analysis.parameters.node_counts_to_point">
@@ -231,6 +245,11 @@
 </dd></dl>
 
 <dl class="py function">
+<dt id="fractopo.analysis.parameters.plot_set_count">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">plot_set_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">set_counts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.parameters.plot_set_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt id="fractopo.analysis.parameters.plot_ternary_point">
 <code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">plot_ternary_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">point</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">marker</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">tax</span><span class="p">:</span> <span class="n">ternary.ternary_axes_subplot.TernaryAxesSubplot</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">'black'</span></em>, <em class="sig-param"><span class="n">s</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">25</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.plot_ternary_point" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -248,6 +267,40 @@ plotted.</p>
 <dt id="fractopo.analysis.parameters.plot_xyi_plot_ax">
 <code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">plot_xyi_plot_ax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_counts</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>int<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">tax</span><span class="p">:</span> <span class="n">ternary.ternary_axes_subplot.TernaryAxesSubplot</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.plot_xyi_plot_ax" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.parameters.tern_plot_branch_lines">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">tern_plot_branch_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tax</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.tern_plot_branch_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot line of random assignment of nodes to branches to a given branch ternary tax.
+Line positions taken from NetworkGT open source code.
+Credit to:
+<a class="reference external" href="https://github.com/BjornNyberg/NetworkGT">https://github.com/BjornNyberg/NetworkGT</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – Ternary axis to plot to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.parameters.tern_plot_the_fing_lines">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">tern_plot_the_fing_lines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tax</span></em>, <em class="sig-param"><span class="n">cs_locs</span><span class="o">=</span><span class="default_value">(1.3, 1.5, 1.7, 1.9)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.tern_plot_the_fing_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots <em>connections per branch</em> parameter to XYI-plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tax</strong> (<em>ternary.TernaryAxesSubplot</em>) – Ternary axis to plot to</p></li>
+<li><p><strong>cs_locs</strong> (<em>tuple</em>) – Pre-determined locations for lines</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fractopo.analysis.parameters.tern_yi_func">
+<code class="sig-prename descclassname">fractopo.analysis.parameters.</code><code class="sig-name descname">tern_yi_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.parameters.tern_yi_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for plotting <em>Connections per branch</em> line to branch ternary plot. Absolute values.</p>
+</dd></dl>
 
 </div>
 

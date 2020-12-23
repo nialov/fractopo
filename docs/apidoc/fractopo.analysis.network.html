@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -178,7 +177,7 @@
 <p>Analyse and plot trace map data with Network.</p>
 <dl class="py class">
 <dt id="fractopo.analysis.network.Network">
-<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.network.</code><code class="sig-name descname">Network</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace_gdf</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">area_geoseries</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>geopandas.geoseries.GeoSeries<span class="p">, </span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Network'</span></em>, <em class="sig-param"><span class="n">azimuth_set_ranges</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">((0, 60), (60, 120), (120, 180))</span></em>, <em class="sig-param"><span class="n">azimuth_set_names</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">('1', '2', '3')</span></em>, <em class="sig-param"><span class="n">trace_length_set_names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">trace_length_set_ranges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_set_names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_set_ranges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_gdf</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_gdf</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">determine_branches_nodes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">snap_threshold</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">trace_length_cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_anisotropy</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>numpy.ndarray<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_parameters</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_azimuth_set_relationships</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.network.Network" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">fractopo.analysis.network.</code><code class="sig-name descname">Network</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trace_gdf</span><span class="p">:</span> <span class="n">geopandas.geodataframe.GeoDataFrame</span></em>, <em class="sig-param"><span class="n">area_geoseries</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>geopandas.geoseries.GeoSeries<span class="p">, </span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">'Network'</span></em>, <em class="sig-param"><span class="n">azimuth_set_ranges</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">((0, 60), (60, 120), (120, 180))</span></em>, <em class="sig-param"><span class="n">azimuth_set_names</span><span class="p">:</span> <span class="n">Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">('1', '2', '3')</span></em>, <em class="sig-param"><span class="n">trace_length_set_names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">trace_length_set_ranges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_set_names</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>str<span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_set_ranges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Tuple<span class="p">[</span>Tuple<span class="p">[</span>float<span class="p">, </span>float<span class="p">]</span><span class="p">, </span><span class="p">…</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_gdf</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">node_gdf</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>geopandas.geodataframe.GeoDataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">determine_branches_nodes</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">snap_threshold</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">trace_length_cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">branch_length_cut_off</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>float<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_anisotropy</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>numpy.ndarray<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_parameters</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_azimuth_set_relationships</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_trace_length_set_relationships</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.network.Network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Trace network.</p>
 <p>Consists of at its simplest of validated traces. All other datasets are
@@ -225,6 +224,11 @@ target area dataset.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="fractopo.analysis.network.Network.branch_azimuth_set_counts">
+<em class="property">property </em><code class="sig-name descname">branch_azimuth_set_counts</code><a class="headerlink" href="#fractopo.analysis.network.Network.branch_azimuth_set_counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="fractopo.analysis.network.Network.branch_counts">
 <em class="property">property </em><code class="sig-name descname">branch_counts</code><a class="headerlink" href="#fractopo.analysis.network.Network.branch_counts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -247,6 +251,11 @@ target area dataset.</p>
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.branch_length_set_array">
 <em class="property">property </em><code class="sig-name descname">branch_length_set_array</code><a class="headerlink" href="#fractopo.analysis.network.Network.branch_length_set_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.branch_length_set_counts">
+<em class="property">property </em><code class="sig-name descname">branch_length_set_counts</code><a class="headerlink" href="#fractopo.analysis.network.Network.branch_length_set_counts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -272,6 +281,11 @@ target area dataset.</p>
 <dl class="py attribute">
 <dt id="fractopo.analysis.network.Network.determine_branches_nodes">
 <code class="sig-name descname">determine_branches_nodes</code><em class="property">: bool</em><em class="property"> = False</em><a class="headerlink" href="#fractopo.analysis.network.Network.determine_branches_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.length_set_relationships">
+<em class="property">property </em><code class="sig-name descname">length_set_relationships</code><a class="headerlink" href="#fractopo.analysis.network.Network.length_set_relationships" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -311,22 +325,57 @@ target area dataset.</p>
 
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.plot_azimuth_crosscut_abutting_relationships">
-<code class="sig-name descname">plot_azimuth_crosscut_abutting_relationships</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span>matplotlib.figure.Figure<span class="p">]</span><span class="p">, </span>List<span class="p">[</span>numpy.ndarray<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_azimuth_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_azimuth_crosscut_abutting_relationships</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span>matplotlib.figure.Figure<span class="p">]</span><span class="p">, </span>List<span class="p">[</span>numpy.ndarray<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_azimuth_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.plot_branch">
-<code class="sig-name descname">plot_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_branch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">, </span>ternary.ternary_axes_subplot.TernaryAxesSubplot<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_branch_azimuth">
+<code class="sig-name descname">plot_branch_azimuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>numpy.ndarray<span class="p">]</span><span class="p">, </span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch_azimuth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_branch_azimuth_set_count">
+<code class="sig-name descname">plot_branch_azimuth_set_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch_azimuth_set_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_branch_length_set_count">
+<code class="sig-name descname">plot_branch_length_set_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch_length_set_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_branch_lengths">
+<code class="sig-name descname">plot_branch_lengths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>powerlaw.Fit<span class="p">, </span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_branch_lengths" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.plot_parameters">
-<code class="sig-name descname">plot_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.plot_trace_azimuth">
 <code class="sig-name descname">plot_trace_azimuth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>numpy.ndarray<span class="p">]</span><span class="p">, </span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_trace_azimuth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_trace_azimuth_set_count">
+<code class="sig-name descname">plot_trace_azimuth_set_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_trace_azimuth_set_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_trace_length_crosscut_abutting_relationships">
+<code class="sig-name descname">plot_trace_length_crosscut_abutting_relationships</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>List<span class="p">[</span>matplotlib.figure.Figure<span class="p">]</span><span class="p">, </span>List<span class="p">[</span>numpy.ndarray<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_trace_length_crosscut_abutting_relationships" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.plot_trace_length_set_count">
+<code class="sig-name descname">plot_trace_length_set_count</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_trace_length_set_count" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -336,7 +385,7 @@ target area dataset.</p>
 
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.plot_xyi">
-<code class="sig-name descname">plot_xyi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_xyi" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_xyi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>Tuple<span class="p">[</span>matplotlib.figure.Figure<span class="p">, </span>matplotlib.axes._axes.Axes<span class="p">, </span>ternary.ternary_axes_subplot.TernaryAxesSubplot<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#fractopo.analysis.network.Network.plot_xyi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -364,6 +413,11 @@ target area dataset.</p>
 <em class="property">property </em><code class="sig-name descname">trace_azimuth_set_array</code><a class="headerlink" href="#fractopo.analysis.network.Network.trace_azimuth_set_array" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.trace_azimuth_set_counts">
+<em class="property">property </em><code class="sig-name descname">trace_azimuth_set_counts</code><a class="headerlink" href="#fractopo.analysis.network.Network.trace_azimuth_set_counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt id="fractopo.analysis.network.Network.trace_gdf">
 <code class="sig-name descname">trace_gdf</code><em class="property">: geopandas.geodataframe.GeoDataFrame</em><a class="headerlink" href="#fractopo.analysis.network.Network.trace_gdf" title="Permalink to this definition">¶</a></dt>
@@ -382,6 +436,11 @@ target area dataset.</p>
 <dl class="py method">
 <dt id="fractopo.analysis.network.Network.trace_length_set_array">
 <em class="property">property </em><code class="sig-name descname">trace_length_set_array</code><a class="headerlink" href="#fractopo.analysis.network.Network.trace_length_set_array" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="fractopo.analysis.network.Network.trace_length_set_counts">
+<em class="property">property </em><code class="sig-name descname">trace_length_set_counts</code><a class="headerlink" href="#fractopo.analysis.network.Network.trace_length_set_counts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

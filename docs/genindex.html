@@ -29,7 +29,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -155,7 +154,6 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
- | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -175,6 +173,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.additional_snapping_func">additional_snapping_func() (in module fractopo.branches_and_nodes)</a>
 </li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.allow_fix">allow_fix (fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.analysis_and_plotting.html#fractopo.analysis.analysis_and_plotting.MultiTargetAreaAnalysis.analysis">analysis() (fractopo.analysis.analysis_and_plotting.MultiTargetAreaAnalysis method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.main.html#fractopo.analysis.main.analyze_datasets">analyze_datasets() (in module fractopo.analysis.main)</a>
@@ -187,15 +187,15 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.anisotropy">anisotropy() (fractopo.analysis.network.Network property)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.AREA_EDGE_SNAP_MULTIPLIER">AREA_EDGE_SNAP_MULTIPLIER (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.area">area (fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.AREA_EDGE_SNAP_MULTIPLIER">AREA_EDGE_SNAP_MULTIPLIER (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.area_geoseries">area_geoseries (fractopo.analysis.network.Network attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.AREAL_FREQUENCY_B20">AREAL_FREQUENCY_B20 (fractopo.general.Param attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.AREAL_FREQUENCY_P20">AREAL_FREQUENCY_P20 (fractopo.general.Param attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.executor.html#fractopo.tval.executor.assemble_error_column">assemble_error_column() (in module fractopo.tval.executor)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.assign_branches_nodes">assign_branches_nodes() (fractopo.analysis.network.Network method)</a>
 </li>
@@ -225,6 +225,8 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.azimuth_set_array">azimuth_set_array() (fractopo.analysis.line_data.LineData property)</a>
 </li>
+      <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.azimuth_set_counts">azimuth_set_counts() (fractopo.analysis.line_data.LineData property)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.azimuth_set_names">azimuth_set_names (fractopo.analysis.line_data.LineData attribute)</a>
 
       <ul>
@@ -245,11 +247,15 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator">BaseValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator">BaseValidator (class in fractopo.tval.trace_validators)</a>
+</li>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.bounding_polygon">bounding_polygon() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_azimuth_array">branch_azimuth_array() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_azimuth_set_array">branch_azimuth_set_array() (fractopo.analysis.network.Network property)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_azimuth_set_counts">branch_azimuth_set_counts() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_counts">branch_counts() (fractopo.analysis.network.Network property)</a>
 </li>
@@ -264,6 +270,8 @@
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_length_cut_off">branch_length_cut_off (fractopo.analysis.network.Network attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_length_set_array">branch_length_set_array() (fractopo.analysis.network.Network property)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_length_set_counts">branch_length_set_counts() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.branch_length_set_names">branch_length_set_names (fractopo.analysis.network.Network attribute)</a>
 </li>
@@ -321,19 +329,13 @@
         <li><a href="apidoc/fractopo.general.html#fractopo.general.calc_ylims">(in module fractopo.general)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/geotrans.html#geotrans.modify.check_and_fix_invalid_geometries">check_and_fix_invalid_geometries() (in module geotrans.modify)</a>
-</li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.check_file">check_file() (in module geotrans.transform)</a>
-</li>
-      <li><a href="apidoc/geotrans.html#geotrans.modify.check_for_nan">check_for_nan() (in module geotrans.modify)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.Col">Col (class in fractopo.general)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.general.html#fractopo.general.Col">Col (class in fractopo.general)</a>
-</li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.ReportDfCols.cols">cols (fractopo.analysis.tools.ReportDfCols attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator.compare_unit_vector_orientation">compare_unit_vector_orientation() (fractopo.tval.trace_validator.SharpCornerValidator static method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.compare_unit_vector_orientation">compare_unit_vector_orientation() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.fractopo_utils.html#fractopo.fractopo_utils.LineMerge.conditional_linemerge">conditional_linemerge() (fractopo.fractopo_utils.LineMerge static method)</a>
 </li>
@@ -344,11 +346,7 @@
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.CONNECTIONS_PER_TRACE">CONNECTIONS_PER_TRACE (fractopo.general.Param attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.construct_length_distribution_base">construct_length_distribution_base() (in module fractopo.analysis.tools)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.construct_length_distribution_base">(in module fractopo.general)</a>
 </li>
-      </ul></li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.construct_node_data_base">construct_node_data_base() (in module fractopo.analysis.tools)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.create_azimuth_set_text">create_azimuth_set_text() (in module fractopo.analysis.tools)</a>
@@ -357,9 +355,9 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.create_setframes_for_all_unified">create_setframes_for_all_unified() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator.create_unit_vector">create_unit_vector() (fractopo.tval.trace_validator.SharpCornerValidator static method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.create_unit_vector">create_unit_vector() (in module fractopo.general)</a>
 </li>
-      <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.crop_to_target_areas">crop_to_target_areas() (in module fractopo.branches_and_nodes)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.crop_to_target_areas">crop_to_target_areas() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.curviness">curviness() (in module fractopo.analysis.tools)</a>
 
@@ -397,13 +395,13 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.define_sets_for_all">define_sets_for_all() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
+      <li><a href="apidoc/fractopo.cli.html#fractopo.cli.describe_results">describe_results() (in module fractopo.cli)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.anisotropy.html#fractopo.analysis.anisotropy.determine_anisotropy_classification">determine_anisotropy_classification() (in module fractopo.analysis.anisotropy)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.anisotropy.html#fractopo.analysis.anisotropy.determine_anisotropy_sum">determine_anisotropy_sum() (in module fractopo.analysis.anisotropy)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.anisotropy.html#fractopo.analysis.anisotropy.determine_anisotropy_value">determine_anisotropy_value() (in module fractopo.analysis.anisotropy)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.TargetAreaSnapValidator.determine_area_underlapping">determine_area_underlapping() (fractopo.tval.trace_validator.TargetAreaSnapValidator class method)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.determine_azimuth">determine_azimuth() (in module fractopo.general)</a>
 </li>
@@ -421,27 +419,25 @@
         <li><a href="apidoc/fractopo.analysis.relationships.html#fractopo.analysis.relationships.determine_crosscut_abutting_relationships">(in module fractopo.analysis.relationships)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator.determine_faulty_junctions">determine_faulty_junctions() (fractopo.tval.trace_validator.MultiJunctionValidator class method)</a>
-</li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.determine_filetype">determine_filetype() (in module geotrans.transform)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultiJunctionValidator.determine_faulty_junctions">determine_faulty_junctions() (fractopo.tval.trace_validators.MultiJunctionValidator static method)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.length_distributions.html#fractopo.analysis.length_distributions.determine_fit">determine_fit() (in module fractopo.analysis.length_distributions)</a>
+</li>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.determine_general_nodes">determine_general_nodes() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.relationships.html#fractopo.analysis.relationships.determine_intersects">determine_intersects() (in module fractopo.analysis.relationships)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.determine_middle_in_triangle">determine_middle_in_triangle() (fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.determine_middle_in_triangle">determine_middle_in_triangle() (in module fractopo.tval.trace_validation_utils)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.determine_node_classes">determine_node_classes() (in module fractopo.analysis.parameters)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.determine_nodes">determine_nodes() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.determine_node_junctions">determine_node_junctions() (in module fractopo.general)</a>
+</li>
+      <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.determine_nodes">determine_nodes() (in module fractopo.branches_and_nodes)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.relationships.html#fractopo.analysis.relationships.determine_nodes_intersecting_sets">determine_nodes_intersecting_sets() (in module fractopo.analysis.relationships)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.determine_nodes_old">determine_nodes_old() (fractopo.tval.trace_validator.BaseValidator class method)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.determine_overlapping_traces">determine_overlapping_traces() (fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
 </li>
       <li><a href="apidoc/fractopo.tval.proximal_traces.html#fractopo.tval.proximal_traces.determine_proximal_traces">determine_proximal_traces() (in module fractopo.tval.proximal_traces)</a>
 </li>
@@ -449,19 +445,15 @@
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.determine_set">determine_set() (in module fractopo.general)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator.determine_stacked_traces">determine_stacked_traces() (fractopo.tval.trace_validator.MultipleCrosscutValidator class method)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator.determine_stacked_traces_old">determine_stacked_traces_old() (fractopo.tval.trace_validator.MultipleCrosscutValidator class method)</a>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.determine_set_counts">determine_set_counts() (in module fractopo.analysis.parameters)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.determine_topology_parameters">determine_topology_parameters() (in module fractopo.analysis.parameters)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.UnderlappingSnapValidator.determine_underlapping">determine_underlapping() (fractopo.tval.trace_validator.UnderlappingSnapValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.determine_trace_candidates">determine_trace_candidates() (in module fractopo.tval.trace_validation_utils)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.VNodeValidator.determine_v_nodes">determine_v_nodes() (fractopo.tval.trace_validator.VNodeValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.VNodeValidator.determine_v_nodes">determine_v_nodes() (fractopo.tval.trace_validators.VNodeValidator static method)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.determine_valid_interaction_points">determine_valid_interaction_points() (fractopo.tval.trace_validator.BaseValidator static method)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.determined_node_data">determined_node_data() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.determine_valid_intersection_points">determine_valid_intersection_points() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.DIMENSIONLESS_INTENSITY_B22">DIMENSIONLESS_INTENSITY_B22 (fractopo.general.Param attribute)</a>
 </li>
@@ -475,41 +467,35 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.empty_node_data">empty_node_data() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.endpoint_nodes">endpoint_nodes() (fractopo.tval.trace_validation.Validation property)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.EmptyGeometryValidator">EmptyGeometryValidator (class in fractopo.tval.trace_validator)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.ERROR">ERROR (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator.ERROR">ERROR (fractopo.tval.trace_validators.BaseValidator attribute)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.EmptyGeometryValidator.ERROR">(fractopo.tval.trace_validator.EmptyGeometryValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomNullValidator.ERROR">(fractopo.tval.trace_validators.GeomNullValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator.ERROR">(fractopo.tval.trace_validator.GeomTypeValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomTypeValidator.ERROR">(fractopo.tval.trace_validators.GeomTypeValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator.ERROR">(fractopo.tval.trace_validator.MultiJunctionValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultiJunctionValidator.ERROR">(fractopo.tval.trace_validators.MultiJunctionValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator.ERROR">(fractopo.tval.trace_validator.MultipleCrosscutValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultipleCrosscutValidator.ERROR">(fractopo.tval.trace_validators.MultipleCrosscutValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator.ERROR">(fractopo.tval.trace_validator.SharpCornerValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SharpCornerValidator.ERROR">(fractopo.tval.trace_validators.SharpCornerValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SimpleGeometryValidator.ERROR">(fractopo.tval.trace_validator.SimpleGeometryValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SimpleGeometryValidator.ERROR">(fractopo.tval.trace_validators.SimpleGeometryValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.ERROR">(fractopo.tval.trace_validator.StackedTracesValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.StackedTracesValidator.ERROR">(fractopo.tval.trace_validators.StackedTracesValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.TargetAreaSnapValidator.ERROR">(fractopo.tval.trace_validator.TargetAreaSnapValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.TargetAreaSnapValidator.ERROR">(fractopo.tval.trace_validators.TargetAreaSnapValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.UnderlappingSnapValidator.ERROR">(fractopo.tval.trace_validator.UnderlappingSnapValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.UnderlappingSnapValidator.ERROR">(fractopo.tval.trace_validators.UnderlappingSnapValidator attribute)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.VNodeValidator.ERROR">(fractopo.tval.trace_validator.VNodeValidator attribute)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.VNodeValidator.ERROR">(fractopo.tval.trace_validators.VNodeValidator attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.ERROR_COLUMN">ERROR_COLUMN (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.error_test">error_test() (fractopo.tval.trace_validator.BaseValidator class method)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.execute">execute() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.ERROR_COLUMN">ERROR_COLUMN (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.length_distributions.html#fractopo.analysis.length_distributions.Dist.EXPONENTIAL">EXPONENTIAL (fractopo.analysis.length_distributions.Dist attribute)</a>
 </li>
@@ -521,15 +507,15 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/geotrans.html#geotrans.cli.finished">finished() (in module geotrans.cli)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.faulty_junctions">faulty_junctions() (fractopo.tval.trace_validation.Validation property)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.fix">fix() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator.fix_method">fix_method() (fractopo.tval.trace_validators.BaseValidator static method)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator.fix">(fractopo.tval.trace_validator.GeomTypeValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomTypeValidator.fix_method">(fractopo.tval.trace_validators.GeomTypeValidator static method)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator.fix_function">fix_function() (fractopo.tval.trace_validator.GeomTypeValidator class method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.flatten_tuples">flatten_tuples() (in module fractopo.general)</a>
 </li>
       <li>
     fractopo
@@ -615,8 +601,6 @@
         <li><a href="apidoc/fractopo.analysis.parameters.html#module-fractopo.analysis.parameters">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     fractopo.analysis.relationships
 
@@ -624,6 +608,8 @@
         <li><a href="apidoc/fractopo.analysis.relationships.html#module-fractopo.analysis.relationships">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     fractopo.analysis.target_area
 
@@ -681,13 +667,6 @@
 </li>
       </ul></li>
       <li>
-    fractopo.tval.executor
-
-      <ul>
-        <li><a href="apidoc/fractopo.tval.executor.html#module-fractopo.tval.executor">module</a>
-</li>
-      </ul></li>
-      <li>
     fractopo.tval.proximal_traces
 
       <ul>
@@ -702,10 +681,24 @@
 </li>
       </ul></li>
       <li>
-    fractopo.tval.trace_validator
+    fractopo.tval.trace_validation
 
       <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#module-fractopo.tval.trace_validator">module</a>
+        <li><a href="apidoc/fractopo.tval.trace_validation.html#module-fractopo.tval.trace_validation">module</a>
+</li>
+      </ul></li>
+      <li>
+    fractopo.tval.trace_validation_utils
+
+      <ul>
+        <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#module-fractopo.tval.trace_validation_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    fractopo.tval.trace_validators
+
+      <ul>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#module-fractopo.tval.trace_validators">module</a>
 </li>
       </ul></li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.FRACTURE_INTENSITY_B21">FRACTURE_INTENSITY_B21 (fractopo.general.Param attribute)</a>
@@ -720,77 +713,31 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.gather_topology_parameters">gather_topology_parameters() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.GEOMETRY_COLUMN">GEOMETRY_COLUMN (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.GEOMETRY_COLUMN">GEOMETRY_COLUMN (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomNullValidator">GeomNullValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomNullValidator">GeomNullValidator (class in fractopo.tval.trace_validators)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator">GeomTypeValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomTypeValidator">GeomTypeValidator (class in fractopo.tval.trace_validators)</a>
 </li>
-      <li>
-    geotrans
-
-      <ul>
-        <li><a href="apidoc/geotrans.html#module-geotrans">module</a>
-</li>
-      </ul></li>
-      <li>
-    geotrans.cli
-
-      <ul>
-        <li><a href="apidoc/geotrans.html#module-geotrans.cli">module</a>
-</li>
-      </ul></li>
-      <li>
-    geotrans.modify
-
-      <ul>
-        <li><a href="apidoc/geotrans.html#module-geotrans.modify">module</a>
-</li>
-      </ul></li>
-      <li>
-    geotrans.transform
-
-      <ul>
-        <li><a href="apidoc/geotrans.html#module-geotrans.transform">module</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.get_branch_identities">get_branch_identities() (in module fractopo.branches_and_nodes)</a>
 </li>
       <li><a href="apidoc/fractopo.cli.html#fractopo.cli.get_click_path_args">get_click_path_args() (in module fractopo.cli)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.analysis.config.html#fractopo.analysis.config.get_color_dict">get_color_dict() (in module fractopo.analysis.config)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.get_intersect_frame">get_intersect_frame() (in module fractopo.analysis.tools)</a>
 </li>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.get_node_identities">get_node_identities() (in module fractopo.branches_and_nodes)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.get_nodes">get_nodes() (fractopo.tval.trace_validator.BaseValidator class method)</a>
-</li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.get_nodes_intersecting_sets">get_nodes_intersecting_sets() (in module fractopo.analysis.tools)</a>
 </li>
-      <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.get_trace_coord_points">get_trace_coord_points() (in module fractopo.branches_and_nodes)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.get_trace_coord_points">(in module fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.get_trace_coord_points">get_trace_coord_points() (in module fractopo.general)</a>
 </li>
-      </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.get_trace_endpoints">get_trace_endpoints() (fractopo.tval.trace_validator.BaseValidator class method)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.get_trace_endpoints">(in module fractopo.general)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.get_trace_endpoints">get_trace_endpoints() (in module fractopo.general)</a>
 </li>
-      </ul></li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.get_unit_for_column">get_unit_for_column() (fractopo.general.Param class method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="H">H</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.handle_error_column">handle_error_column() (fractopo.tval.trace_validator.BaseValidator class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -801,36 +748,36 @@
       <li><a href="apidoc/fractopo.analysis.main.html#fractopo.analysis.main.initialize_analysis_logging">initialize_analysis_logging() (in module fractopo.analysis.main)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.initialize_report_df">initialize_report_df() (in module fractopo.analysis.tools)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.initialize_ternary_branches_points">initialize_ternary_branches_points() (in module fractopo.analysis.parameters)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.initialize_report_df">(in module fractopo.general)</a>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.initialize_ternary_branches_points">(in module fractopo.analysis.tools)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.initialize_ternary_branches_points">initialize_ternary_branches_points() (in module fractopo.analysis.tools)</a>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.initialize_ternary_points">initialize_ternary_points() (in module fractopo.analysis.parameters)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.initialize_ternary_branches_points">(in module fractopo.general)</a>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.initialize_ternary_points">(in module fractopo.analysis.tools)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.initialize_ternary_points">initialize_ternary_points() (in module fractopo.analysis.tools)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.initialize_ternary_points">(in module fractopo.general)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.insert_point_to_linestring">insert_point_to_linestring() (in module fractopo.branches_and_nodes)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.fractopo_utils.html#fractopo.fractopo_utils.LineMerge.integrate_replacements">integrate_replacements() (fractopo.fractopo_utils.LineMerge static method)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.INTERACTION_NODES_COLUMN">INTERACTION_NODES_COLUMN (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator.INTERACTION_NODES_COLUMN">INTERACTION_NODES_COLUMN (fractopo.tval.trace_validators.BaseValidator attribute)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.intersect_nodes">intersect_nodes() (fractopo.tval.trace_validation.Validation property)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.is_azimuth_close">is_azimuth_close() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.is_set">is_set() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.tval.proximal_traces.html#fractopo.tval.proximal_traces.is_similar_azimuth">is_similar_azimuth() (in module fractopo.tval.proximal_traces)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.is_underlapping">is_underlapping() (in module fractopo.tval.trace_validation_utils)</a>
 </li>
       <li><a href="apidoc/fractopo.tval.proximal_traces.html#fractopo.tval.proximal_traces.is_within_buffer_distance">is_within_buffer_distance() (in module fractopo.tval.proximal_traces)</a>
 </li>
@@ -854,30 +801,36 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.length_set_array">length_set_array() (fractopo.analysis.line_data.LineData property)</a>
 </li>
+      <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.length_set_counts">length_set_counts() (fractopo.analysis.line_data.LineData property)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.length_set_names">length_set_names (fractopo.analysis.line_data.LineData attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.length_set_ranges">length_set_ranges (fractopo.analysis.line_data.LineData attribute)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.length_set_relationships">length_set_relationships() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.line_end_point">line_end_point() (in module fractopo.analysis.tools)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.line_gdf">line_gdf (fractopo.analysis.line_data.LineData attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.line_generator">line_generator() (in module fractopo.tval.trace_builder)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.line_generator">line_generator() (in module fractopo.tval.trace_builder)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.line_start_point">line_start_point() (in module fractopo.analysis.tools)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData">LineData (class in fractopo.analysis.line_data)</a>
 </li>
       <li><a href="apidoc/fractopo.fractopo_utils.html#fractopo.fractopo_utils.LineMerge">LineMerge (class in fractopo.fractopo_utils)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.load_file">load_file() (in module geotrans.transform)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator.LINESTRING_ONLY">LINESTRING_ONLY (fractopo.tval.trace_validators.BaseValidator attribute)</a>
+
+      <ul>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomNullValidator.LINESTRING_ONLY">(fractopo.tval.trace_validators.GeomNullValidator attribute)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.load_multilayer">load_multilayer() (in module geotrans.transform)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomTypeValidator.LINESTRING_ONLY">(fractopo.tval.trace_validators.GeomTypeValidator attribute)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.load_singlelayer">load_singlelayer() (in module geotrans.transform)</a>
-</li>
+      </ul></li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.log_scale_columns">log_scale_columns() (fractopo.general.Param class method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.length_distributions.html#fractopo.analysis.length_distributions.Dist.LOGNORMAL">LOGNORMAL (fractopo.analysis.length_distributions.Dist attribute)</a>
@@ -896,12 +849,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.executor.html#fractopo.tval.executor.main">main() (in module fractopo.tval.executor)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.main">(in module fractopo.tval.trace_builder)</a>
+      <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.main">main() (in module fractopo.tval.trace_builder)</a>
 </li>
-      </ul></li>
       <li><a href="apidoc/fractopo.analysis.main.html#fractopo.analysis.main.main_multi_target_area">main_multi_target_area() (in module fractopo.analysis.main)</a>
 </li>
       <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.make_invalid_target_areas">make_invalid_target_areas() (in module fractopo.tval.trace_builder)</a>
@@ -916,7 +865,7 @@
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.match_crs">match_crs() (in module fractopo.general)</a>
 </li>
-      <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.mls_to_ls">mls_to_ls() (in module fractopo.branches_and_nodes)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.mls_to_ls">mls_to_ls() (in module fractopo.general)</a>
 </li>
       <li>
     module
@@ -964,30 +913,24 @@
 </li>
         <li><a href="apidoc/fractopo.tval.html#module-fractopo.tval">fractopo.tval</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.executor.html#module-fractopo.tval.executor">fractopo.tval.executor</a>
-</li>
         <li><a href="apidoc/fractopo.tval.proximal_traces.html#module-fractopo.tval.proximal_traces">fractopo.tval.proximal_traces</a>
 </li>
         <li><a href="apidoc/fractopo.tval.trace_builder.html#module-fractopo.tval.trace_builder">fractopo.tval.trace_builder</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#module-fractopo.tval.trace_validator">fractopo.tval.trace_validator</a>
+        <li><a href="apidoc/fractopo.tval.trace_validation.html#module-fractopo.tval.trace_validation">fractopo.tval.trace_validation</a>
 </li>
-        <li><a href="apidoc/geotrans.html#module-geotrans">geotrans</a>
+        <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#module-fractopo.tval.trace_validation_utils">fractopo.tval.trace_validation_utils</a>
 </li>
-        <li><a href="apidoc/geotrans.html#module-geotrans.cli">geotrans.cli</a>
-</li>
-        <li><a href="apidoc/geotrans.html#module-geotrans.modify">geotrans.modify</a>
-</li>
-        <li><a href="apidoc/geotrans.html#module-geotrans.transform">geotrans.transform</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#module-fractopo.tval.trace_validators">fractopo.tval.trace_validators</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.tval.trace_builder.html#fractopo.tval.trace_builder.multi_line_generator">multi_line_generator() (in module fractopo.tval.trace_builder)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator">MultiJunctionValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultiJunctionValidator">MultiJunctionValidator (class in fractopo.tval.trace_validators)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator">MultipleCrosscutValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultipleCrosscutValidator">MultipleCrosscutValidator (class in fractopo.tval.trace_validators)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.analysis_and_plotting.html#fractopo.analysis.analysis_and_plotting.MultiTargetAreaAnalysis">MultiTargetAreaAnalysis (class in fractopo.analysis.analysis_and_plotting)</a>
 </li>
@@ -1004,34 +947,22 @@
       <ul>
         <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.ReportDfCols.name">(fractopo.analysis.tools.ReportDfCols attribute)</a>
 </li>
+        <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.name">(fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
       </ul></li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network">Network (class in fractopo.analysis.network)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.node_counts">node_counts() (fractopo.analysis.network.Network property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.node_counts_to_point">node_counts_to_point() (in module fractopo.analysis.parameters)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.node_gdf">node_gdf (fractopo.analysis.network.Network attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.node_id_data_both">node_id_data_both (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.node_id_data_endpoints">node_id_data_endpoints (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.node_id_data_interactions">node_id_data_interactions (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.node_series">node_series() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.node_types">node_types() (fractopo.analysis.network.Network property)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.nodes_calculated">nodes_calculated (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.nodes_of_interaction_both">nodes_of_interaction_both (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.nodes_of_interaction_endpoints">nodes_of_interaction_endpoints (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.nodes_of_interaction_interactions">nodes_of_interaction_interactions (fractopo.tval.trace_validator.BaseValidator attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.general.html#fractopo.general.Param.NUMBER_OF_BRANCHES">NUMBER_OF_BRANCHES (fractopo.general.Param attribute)</a>
 </li>
@@ -1043,7 +974,7 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.OVERLAP_DETECTION_MULTIPLIER">OVERLAP_DETECTION_MULTIPLIER (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.OVERLAP_DETECTION_MULTIPLIER">OVERLAP_DETECTION_MULTIPLIER (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1081,6 +1012,8 @@
         <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.plot_azimuth_plot">(in module fractopo.analysis.tools)</a>
 </li>
       </ul></li>
+      <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.plot_azimuth_set_count">plot_azimuth_set_count() (fractopo.analysis.line_data.LineData method)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_azimuth_weighted">plot_azimuth_weighted() (fractopo.analysis.target_area.TargetAreaLines method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_azimuths">plot_azimuths() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
@@ -1090,6 +1023,14 @@
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_azimuths_weighted">plot_azimuths_weighted() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_branch">plot_branch() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_branch_azimuth">plot_branch_azimuth() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_branch_azimuth_set_count">plot_branch_azimuth_set_count() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_branch_length_set_count">plot_branch_length_set_count() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_branch_lengths">plot_branch_lengths() (fractopo.analysis.network.Network method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.plot_branch_plot">plot_branch_plot() (in module fractopo.analysis.parameters)</a>
 </li>
@@ -1123,10 +1064,10 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.length_distributions.html#fractopo.analysis.length_distributions.plot_length_data_on_ax">plot_length_data_on_ax() (in module fractopo.analysis.length_distributions)</a>
 </li>
-      <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution">plot_length_distribution() (fractopo.analysis.target_area.TargetAreaLines static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution">plot_length_distribution() (fractopo.analysis.target_area.TargetAreaLines static method)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_ax">plot_length_distribution_ax() (fractopo.analysis.target_area.TargetAreaLines static method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_fit">plot_length_distribution_fit() (fractopo.analysis.target_area.TargetAreaLines static method)</a>
@@ -1134,6 +1075,8 @@
       <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaLines.plot_length_distribution_with_all_fits">plot_length_distribution_with_all_fits() (fractopo.analysis.target_area.TargetAreaLines static method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_length_fit_cut_ax">plot_length_fit_cut_ax() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.plot_length_set_count">plot_length_set_count() (fractopo.analysis.line_data.LineData method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.line_data.html#fractopo.analysis.line_data.LineData.plot_lengths">plot_lengths() (fractopo.analysis.line_data.LineData method)</a>
 
@@ -1147,11 +1090,19 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.analysis_and_plotting.html#fractopo.analysis.analysis_and_plotting.MultiTargetAreaAnalysis.plot_results">plot_results() (fractopo.analysis.analysis_and_plotting.MultiTargetAreaAnalysis method)</a>
 </li>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.plot_set_count">plot_set_count() (in module fractopo.analysis.parameters)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.plot_ternary_point">plot_ternary_point() (in module fractopo.analysis.parameters)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_topology">plot_topology() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_trace_azimuth">plot_trace_azimuth() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_trace_azimuth_set_count">plot_trace_azimuth_set_count() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_trace_length_crosscut_abutting_relationships">plot_trace_length_crosscut_abutting_relationships() (fractopo.analysis.network.Network method)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_trace_length_set_count">plot_trace_length_set_count() (fractopo.analysis.network.Network method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.plot_trace_lengths">plot_trace_lengths() (fractopo.analysis.network.Network method)</a>
 </li>
@@ -1170,12 +1121,8 @@
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.plot_xyi_ternary">plot_xyi_ternary() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.plotting_directories">plotting_directories() (in module fractopo.analysis.tools)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.plotting_directories">(in module fractopo.general)</a>
 </li>
-      </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.point_to_xy">point_to_xy() (in module fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.point_to_xy">point_to_xy() (in module fractopo.general)</a>
 </li>
       <li><a href="apidoc/fractopo.contour_grid.html#fractopo.contour_grid.populate_sample_cell">populate_sample_cell() (in module fractopo.contour_grid)</a>
 </li>
@@ -1214,22 +1161,18 @@
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.remove_identical_sindex">remove_identical_sindex() (in module fractopo.branches_and_nodes)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.report_powerlaw_fit_statistics_df">report_powerlaw_fit_statistics_df() (in module fractopo.analysis.tools)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.report_powerlaw_fit_statistics_df">(in module fractopo.general)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.ReportDfCols">ReportDfCols (class in fractopo.analysis.tools)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.reset_length_data">reset_length_data() (fractopo.analysis.network.Network method)</a>
 </li>
       <li><a href="apidoc/fractopo.contour_grid.html#fractopo.contour_grid.run_grid_sampling">run_grid_sampling() (in module fractopo.contour_grid)</a>
 </li>
       <li><a href="apidoc/fractopo.fractopo_utils.html#fractopo.fractopo_utils.LineMerge.run_loop">run_loop() (fractopo.fractopo_utils.LineMerge static method)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.cli.run_transform">run_transform() (in module geotrans.cli)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.run_validation">run_validation() (fractopo.tval.trace_validation.Validation method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1239,53 +1182,51 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="apidoc/fractopo.contour_grid.html#fractopo.contour_grid.sample_grid">sample_grid() (in module fractopo.contour_grid)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.save_files">save_files() (in module geotrans.transform)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.executor.html#fractopo.tval.executor.save_validated_gdfs">save_validated_gdfs() (in module fractopo.tval.executor)</a>
-</li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.sd_calc">sd_calc() (in module fractopo.analysis.tools)</a>
 
       <ul>
         <li><a href="apidoc/fractopo.general.html#fractopo.general.sd_calc">(in module fractopo.general)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.segment_within_buffer">segment_within_buffer() (fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.segment_within_buffer">segment_within_buffer() (in module fractopo.tval.trace_validation_utils)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.segmentize_linestring">segmentize_linestring() (fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.segmentize_linestring">segmentize_linestring() (in module fractopo.tval.trace_validation_utils)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.set_snap_threshold_and_multipliers">set_snap_threshold_and_multipliers() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.set_general_nodes">set_general_nodes() (fractopo.tval.trace_validation.Validation method)</a>
 </li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.setup_ax_for_ld">setup_ax_for_ld() (in module fractopo.analysis.tools)</a>
+      <li><a href="apidoc/fractopo.analysis.length_distributions.html#fractopo.analysis.length_distributions.setup_ax_for_ld">setup_ax_for_ld() (in module fractopo.analysis.length_distributions)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.general.html#fractopo.general.setup_ax_for_ld">(in module fractopo.general)</a>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.setup_ax_for_ld">(in module fractopo.analysis.tools)</a>
 </li>
       </ul></li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.setup_powerlaw_axlims">setup_powerlaw_axlims() (in module fractopo.analysis.tools)</a>
 </li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.SHARP_AVG_THRESHOLD">SHARP_AVG_THRESHOLD (fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.SHARP_PREV_SEG_THRESHOLD">SHARP_PREV_SEG_THRESHOLD (fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.SHARP_AVG_THRESHOLD">SHARP_AVG_THRESHOLD (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SharpCornerValidator">SharpCornerValidator (class in fractopo.tval.trace_validators)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.SHARP_PREV_SEG_THRESHOLD">SHARP_PREV_SEG_THRESHOLD (fractopo.tval.trace_validator.BaseValidator attribute)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator">SharpCornerValidator (class in fractopo.tval.trace_validator)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SimpleGeometryValidator">SimpleGeometryValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SimpleGeometryValidator">SimpleGeometryValidator (class in fractopo.tval.trace_validators)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.snap_threshold">snap_threshold (fractopo.analysis.network.Network attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.SNAP_THRESHOLD">SNAP_THRESHOLD (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD">SNAP_THRESHOLD (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.SNAP_THRESHOLD_ERROR_MULTIPLIER">SNAP_THRESHOLD_ERROR_MULTIPLIER (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD_ERROR_MULTIPLIER">SNAP_THRESHOLD_ERROR_MULTIPLIER (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.snap_traces">snap_traces() (in module fractopo.branches_and_nodes)</a>
 </li>
       <li><a href="apidoc/fractopo.branches_and_nodes.html#fractopo.branches_and_nodes.snap_traces_alternative">snap_traces_alternative() (in module fractopo.branches_and_nodes)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.split_to_determine_triangle_errors">split_to_determine_triangle_errors() (fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.spatial_index">spatial_index() (fractopo.tval.trace_validation.Validation property)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator">StackedTracesValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation_utils.html#fractopo.tval.trace_validation_utils.split_to_determine_triangle_errors">split_to_determine_triangle_errors() (in module fractopo.tval.trace_validation_utils)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.StackedTracesValidator">StackedTracesValidator (class in fractopo.tval.trace_validators)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.config.html#fractopo.analysis.config.styling_plots">styling_plots() (in module fractopo.analysis.config)</a>
 </li>
@@ -1299,23 +1240,29 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.target_area.html#fractopo.analysis.target_area.TargetAreaNodes">TargetAreaNodes (class in fractopo.analysis.target_area)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.TargetAreaSnapValidator">TargetAreaSnapValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.TargetAreaSnapValidator">TargetAreaSnapValidator (class in fractopo.tval.trace_validators)</a>
 </li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_plot_branch_lines">tern_plot_branch_lines() (in module fractopo.analysis.tools)</a>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.tern_plot_branch_lines">tern_plot_branch_lines() (in module fractopo.analysis.parameters)</a>
 
       <ul>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_plot_branch_lines">(in module fractopo.analysis.tools)</a>
+</li>
         <li><a href="apidoc/fractopo.general.html#fractopo.general.tern_plot_branch_lines">(in module fractopo.general)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_plot_the_fing_lines">tern_plot_the_fing_lines() (in module fractopo.analysis.tools)</a>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.tern_plot_the_fing_lines">tern_plot_the_fing_lines() (in module fractopo.analysis.parameters)</a>
 
       <ul>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_plot_the_fing_lines">(in module fractopo.analysis.tools)</a>
+</li>
         <li><a href="apidoc/fractopo.general.html#fractopo.general.tern_plot_the_fing_lines">(in module fractopo.general)</a>
 </li>
       </ul></li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_yi_func">tern_yi_func() (in module fractopo.analysis.tools)</a>
+      <li><a href="apidoc/fractopo.analysis.parameters.html#fractopo.analysis.parameters.tern_yi_func">tern_yi_func() (in module fractopo.analysis.parameters)</a>
 
       <ul>
+        <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.tern_yi_func">(in module fractopo.analysis.tools)</a>
+</li>
         <li><a href="apidoc/fractopo.general.html#fractopo.general.tern_yi_func">(in module fractopo.general)</a>
 </li>
       </ul></li>
@@ -1331,6 +1278,8 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_azimuth_set_array">trace_azimuth_set_array() (fractopo.analysis.network.Network property)</a>
 </li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_azimuth_set_counts">trace_azimuth_set_counts() (fractopo.analysis.network.Network property)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_gdf">trace_gdf (fractopo.analysis.network.Network attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_length_array">trace_length_array() (fractopo.analysis.network.Network property)</a>
@@ -1338,6 +1287,8 @@
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_length_cut_off">trace_length_cut_off (fractopo.analysis.network.Network attribute)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_length_set_array">trace_length_set_array() (fractopo.analysis.network.Network property)</a>
+</li>
+      <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_length_set_counts">trace_length_set_counts() (fractopo.analysis.network.Network property)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_length_set_names">trace_length_set_names (fractopo.analysis.network.Network attribute)</a>
 </li>
@@ -1347,7 +1298,9 @@
 </li>
       <li><a href="apidoc/fractopo.analysis.network.html#fractopo.analysis.network.Network.trace_series">trace_series() (fractopo.analysis.network.Network property)</a>
 </li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.TRIANGLE_ERROR_SNAP_MULTIPLIER">TRIANGLE_ERROR_SNAP_MULTIPLIER (fractopo.tval.trace_validator.BaseValidator attribute)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.traces">traces (fractopo.tval.trace_validation.Validation attribute)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.TRIANGLE_ERROR_SNAP_MULTIPLIER">TRIANGLE_ERROR_SNAP_MULTIPLIER (fractopo.tval.trace_validation.Validation attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1355,19 +1308,17 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.UnderlappingSnapValidator">UnderlappingSnapValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.UnderlappingSnapValidator">UnderlappingSnapValidator (class in fractopo.tval.trace_validators)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.multiple_target_areas.html#fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS.unified">unified() (fractopo.analysis.multiple_target_areas.MultiTargetAreaQGIS method)</a>
 </li>
-      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.unify_lds">unify_lds() (in module fractopo.analysis.tools)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.unify_lds">unify_lds() (in module fractopo.analysis.tools)</a>
+</li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.unify_nds">unify_nds() (in module fractopo.analysis.tools)</a>
 </li>
       <li><a href="apidoc/fractopo.analysis.tools.html#fractopo.analysis.tools.unite_areaframes">unite_areaframes() (in module fractopo.analysis.tools)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator.update_error_column">update_error_column() (fractopo.tval.trace_validator.MultiJunctionValidator class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1375,53 +1326,37 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.validate">validate() (fractopo.tval.trace_validator.BaseValidator class method)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation">Validation (class in fractopo.tval.trace_validation)</a>
+</li>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.BaseValidator.validation_method">validation_method() (fractopo.tval.trace_validators.BaseValidator static method)</a>
 
       <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.EmptyGeometryValidator.validate">(fractopo.tval.trace_validator.EmptyGeometryValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomNullValidator.validation_method">(fractopo.tval.trace_validators.GeomNullValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomNullValidator.validate">(fractopo.tval.trace_validator.GeomNullValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.GeomTypeValidator.validation_method">(fractopo.tval.trace_validators.GeomTypeValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator.validate">(fractopo.tval.trace_validator.GeomTypeValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultiJunctionValidator.validation_method">(fractopo.tval.trace_validators.MultiJunctionValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator.validate">(fractopo.tval.trace_validator.MultiJunctionValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.MultipleCrosscutValidator.validation_method">(fractopo.tval.trace_validators.MultipleCrosscutValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator.validate">(fractopo.tval.trace_validator.MultipleCrosscutValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SharpCornerValidator.validation_method">(fractopo.tval.trace_validators.SharpCornerValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator.validate">(fractopo.tval.trace_validator.SharpCornerValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.SimpleGeometryValidator.validation_method">(fractopo.tval.trace_validators.SimpleGeometryValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SimpleGeometryValidator.validate">(fractopo.tval.trace_validator.SimpleGeometryValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.StackedTracesValidator.validation_method">(fractopo.tval.trace_validators.StackedTracesValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.StackedTracesValidator.validate">(fractopo.tval.trace_validator.StackedTracesValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.TargetAreaSnapValidator.validation_method">(fractopo.tval.trace_validators.TargetAreaSnapValidator static method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.TargetAreaSnapValidator.validate">(fractopo.tval.trace_validator.TargetAreaSnapValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.UnderlappingSnapValidator.validation_method">(fractopo.tval.trace_validators.UnderlappingSnapValidator class method)</a>
 </li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.UnderlappingSnapValidator.validate">(fractopo.tval.trace_validator.UnderlappingSnapValidator class method)</a>
-</li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.VNodeValidator.validate">(fractopo.tval.trace_validator.VNodeValidator class method)</a>
+        <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.VNodeValidator.validation_method">(fractopo.tval.trace_validators.VNodeValidator static method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/geotrans.html#geotrans.cli.validate_inputs">validate_inputs() (in module geotrans.cli)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validation.html#fractopo.tval.trace_validation.Validation.vnodes">vnodes() (fractopo.tval.trace_validation.Validation property)</a>
 </li>
-      <li><a href="apidoc/geotrans.html#geotrans.transform.validate_loaded_geodataframes">validate_loaded_geodataframes() (in module geotrans.transform)</a>
-</li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.EmptyGeometryValidator.validation_function">validation_function() (fractopo.tval.trace_validator.EmptyGeometryValidator class method)</a>
-
-      <ul>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.GeomTypeValidator.validation_function">(fractopo.tval.trace_validator.GeomTypeValidator class method)</a>
-</li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultiJunctionValidator.validation_function">(fractopo.tval.trace_validator.MultiJunctionValidator class method)</a>
-</li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.MultipleCrosscutValidator.validation_function">(fractopo.tval.trace_validator.MultipleCrosscutValidator class method)</a>
-</li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SharpCornerValidator.validation_function">(fractopo.tval.trace_validator.SharpCornerValidator class method)</a>
-</li>
-        <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.SimpleGeometryValidator.validation_function">(fractopo.tval.trace_validator.SimpleGeometryValidator class method)</a>
-</li>
-      </ul></li>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.VNodeValidator">VNodeValidator (class in fractopo.tval.trace_validator)</a>
+      <li><a href="apidoc/fractopo.tval.trace_validators.html#fractopo.tval.trace_validators.VNodeValidator">VNodeValidator (class in fractopo.tval.trace_validators)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1429,7 +1364,7 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="apidoc/fractopo.tval.trace_validator.html#fractopo.tval.trace_validator.BaseValidator.zip_equal">zip_equal() (fractopo.tval.trace_validator.BaseValidator static method)</a>
+      <li><a href="apidoc/fractopo.general.html#fractopo.general.zip_equal">zip_equal() (in module fractopo.general)</a>
 </li>
   </ul></td>
 </tr></table>

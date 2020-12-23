@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -90,15 +89,11 @@
 <li><a class="reference internal" href="#multiplecrosscutvalidator">MultipleCrosscutValidator</a></li>
 <li><a class="reference internal" href="#underlappingsnapvalidator">UnderlappingSnapValidator</a></li>
 <li><a class="reference internal" href="#targetareasnapvalidator">TargetAreaSnapValidator</a></li>
-<li><a class="reference internal" href="#geomnullvalidator">GeomNullValidator</a><ul>
-<li><a class="reference internal" href="#under-development">UNDER DEVELOPMENT</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#geomnullvalidator">GeomNullValidator</a></li>
 <li><a class="reference internal" href="#stackedtracesvalidator">StackedTracesValidator</a></li>
 <li><a class="reference internal" href="#simplegeometryvalidator">SimpleGeometryValidator</a></li>
-<li><a class="reference internal" href="#emptygeometryvalidator">EmptyGeometryValidator</a></li>
 <li><a class="reference internal" href="#sharpcornervalidator">SharpCornerValidator</a><ul>
-<li><a class="reference internal" href="#id1">UNDER DEVELOPMENT</a></li>
+<li><a class="reference internal" href="#under-development">UNDER DEVELOPMENT</a></li>
 </ul>
 </li>
 </ul>
@@ -239,12 +234,13 @@ kept in the error column and the user should fix the issue.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;MULTI JUNCTION&quot;</span>
 </pre></div>
 </div>
-<p>Two error types can occur in digitization resulting in this error string:</p>
+<p>Three error types can occur in digitization resulting in this error string:</p>
 <ol class="simple">
 <li><p>More than two traces must not cross in the same point or too close to the
 same point.</p></li>
 <li><p>An overlapping Y-node i.e. a trace overlaps the trace it “is supposed” to end
 at too much.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">V</span> <span class="pre">NODE</span></code> errors might also be detected as <code class="docutils literal notranslate"><span class="pre">MULTI</span> <span class="pre">JUNCTION</span></code> errors.</p></li>
 </ol>
 <p><img alt="Multi junction error examples." src="../_images/MultiJunctionValidator.png" /></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
@@ -286,8 +282,16 @@ more than two common coordinate points.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;UNDERLAPPING SNAP&quot;</span>
 </pre></div>
 </div>
-<p>A trace ends very close to another trace but not near enough. The abutting might
-not be registered as a Y-node.</p>
+<p>Or:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;OVERLAPPING SNAP&quot;</span>
+</pre></div>
+</div>
+<p>Underlapping error can occur when a trace ends very close to another trace but
+not near enough. The abutting might not be registered as a Y-node.</p>
+<p>Overlapping error can occur when a trace overlaps another only very slightly
+resulting in a dangling end. Such dangling ends might not be registered as
+Y-nodes and might cause spatial/topological analysis problems later.</p>
+<p>Overlapping snap might also be registered as a <code class="docutils literal notranslate"><span class="pre">MULTI</span> <span class="pre">JUNCTION</span></code> error.</p>
 <p><img alt="Underlapping snap error examples." src="../_images/UnderlappingSnapValidator.png" /></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
 </pre></div>
@@ -314,16 +318,19 @@ extend over the target area edge.</p>
 </div>
 <div class="section" id="geomnullvalidator">
 <h1>GeomNullValidator<a class="headerlink" href="#geomnullvalidator" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="under-development">
-<h2>UNDER DEVELOPMENT<a class="headerlink" href="#under-development" title="Permalink to this headline">¶</a></h2>
-<p>No error string because the error is automatically handled. A Null geometry
-means that a row in a GeoDataFrame contains no geometry.</p>
-<p>These rows are subsequently removed. This will change in the future to avoid
-loss of data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+<p>The error string is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;NULL GEOMETRY&quot;</span>
 </pre></div>
 </div>
+<p>Rows with geometry set to None or equivalent type that is not a valid GIS geometry or
+rows with empty geometries.</p>
+<p>These rows could be automatically removed but these are most likely rare
+occurrences and deleting the row would cause all attribute data associated with
+the row to be consequently removed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
+</pre></div>
 </div>
+<p>Fix by</p>
 </div>
 <div class="section" id="stackedtracesvalidator">
 <h1>StackedTracesValidator<a class="headerlink" href="#stackedtracesvalidator" title="Permalink to this headline">¶</a></h1>
@@ -352,24 +359,10 @@ triangles.</p>
 </div>
 <p>Fix by removing self-intersections.</p>
 </div>
-<div class="section" id="emptygeometryvalidator">
-<h1>EmptyGeometryValidator<a class="headerlink" href="#emptygeometryvalidator" title="Permalink to this headline">¶</a></h1>
-<p>The error string is:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;IS EMPTY&quot;</span>
-</pre></div>
-</div>
-<p>A GeoDataFrame row contains a geometry but that geometry is empty.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">*</span> <span class="p">[</span> <span class="p">]</span> <span class="n">Automatic</span> <span class="n">fix</span>
-</pre></div>
-</div>
-<p>To make sure new geometry is properly created delete the row and make a new
-geometry. The needed action might depend on the GIS-software of choice, safest
-way is always to delete the erroneous row and make a new one as replacement.</p>
-</div>
 <div class="section" id="sharpcornervalidator">
 <h1>SharpCornerValidator<a class="headerlink" href="#sharpcornervalidator" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2>UNDER DEVELOPMENT<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="under-development">
+<h2>UNDER DEVELOPMENT<a class="headerlink" href="#under-development" title="Permalink to this headline">¶</a></h2>
 <p>The error string is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;SHARP TURNS&quot;</span>
 </pre></div>

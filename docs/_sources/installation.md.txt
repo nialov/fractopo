@@ -6,8 +6,8 @@
   [pipenv](https://pipenv.pypa.io/en/latest/)
 
 ~~~bash
-git clone https://github.com/nialov/geotransform.git
-cd geotransform
+git clone https://github.com/nialov/fractopo.git
+cd fractopo
 pipenv sync
 pipenv shell
 ~~~
@@ -22,10 +22,10 @@ pipenv shell
 tox
 ~~~
 
-Script now accessible as geotrans inside the pipenv
+Trace validation script now accessible as tracevalidate inside the pipenv
 
 ~~~bash
-geotrans --help
+tracevalidate --help
 ~~~
 
 ## Install into your Python environment of choice with pip

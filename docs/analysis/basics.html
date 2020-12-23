@@ -29,7 +29,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -85,10 +84,7 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Topological and geometric trace network analysis</a><ul>
 <li><a class="reference internal" href="#description">Description</a></li>
-<li><a class="reference internal" href="#example-plots">Example plots</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dependencies-and-references">Dependencies and References</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
@@ -190,13 +186,32 @@ abundance and topological parameters from two-dimensional lineament and
 fracture trace, branch and node data. The results will be given as
 graphical plots.</p>
 </div>
-<div class="section" id="example-plots">
-<h2>Example plots<a class="headerlink" href="#example-plots" title="Permalink to this headline">¶</a></h2>
-<p><img alt="image" src="../_images/analysis_collage.png" /></p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Usage is demonstrated in complementary Jupyter Notebooks.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../notebooks/fractopo_network_1.html"><span class="doc">Network analysis</span></a></p>
+<ul>
+<li><p>Loading data for analysis with geopandas</p></li>
+<li><p>Visualizing traces and target area</p></li>
+<li><p>Extracting branches and nodes</p></li>
+<li><p>Visualizing branches and nodes</p></li>
+<li><p>Azimuth rose plots</p></li>
+<li><p>Length distribution analysis</p></li>
+<li><p>Crosscutting and abutting relationships between azimuth sets</p></li>
+<li><p>Node and branch proportions</p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="../notebooks/fractopo_validation_1.html"><span class="doc">Trace data validation 1</span></a> and
+<a class="reference internal" href="../notebooks/fractopo_validation_2.html"><span class="doc">Trace data validation 2</span></a></p>
+<ul>
+<li><p>Loading data for analysis with geopandas</p></li>
+<li><p>Trace validation</p></li>
+<li><p>Visualizing found validation errors with geopandas and matplotlib</p></li>
+</ul>
+</li>
+</ul>
 </div>
-</div>
-<div class="section" id="dependencies-and-references">
-<h1>Dependencies and References<a class="headerlink" href="#dependencies-and-references" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <p>For the definition of traces, branches and nodes along with the
