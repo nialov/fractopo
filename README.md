@@ -11,8 +11,8 @@ lineament and fracture trace maps (fracture networks).
 
 ## Full documentation
 
-* Documentation hosted on GitHub pages:
-  * [Documentation](https://nialov.github.io/fractopo/index.html)
+* Documentation hosted on Read the Docs:
+  * [Documentation](https://fractopo.readthedocs.io/en/latest/index.html)
 
 ## Installation
 
@@ -34,11 +34,47 @@ pip install git+https://github.com/nialov/fractopo#egg=fractopo
 
 ## Usage
 
-Usage guide is WIP.
+See [Notebooks with examples](https://tinyurl.com/yb4tj47e) for more advanced
+usage guidance and examples.
+
+### Geometric and topological trace network analysis
+
+Trace and target area data (GeoDataFrames) are passed into a `Network` object
+which has properties and functions for returning and visualizing different
+parameters and attributes of trace data.
+
+~~~python
+from fractopo.analysis.network import Network
+network = Network(
+    trace_data, area_data, name="mynetwork", determine_branches_nodes=True,
+)
+
+# Properties are easily accessible
+# e.g.
+network.branch_counts
+network.node_counts
+
+# Plotting is done by plot_ methods
+network.plot_trace_lengths()
+
+~~~
 
 ### Trace validation
 
-Trace validation is accessible as a console script, `tracevalidate`
+Trace and target area data can be validated for further analysis
+with a `Validation` object.
+
+~~~python
+from fractopo.tval.trace_validation import Validation
+validation = Validation(
+    trace_data, area_data, name="mytraces", allow_fix=True,
+)
+
+# Validation is done with `run_validation` method
+validated_trace_data = validation.run_validation()
+~~~
+
+Trace validation is also accessible as a console script, `tracevalidate`
 
 Trace validation always requires the target area that delineates trace data.
 
