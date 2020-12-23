@@ -122,8 +122,20 @@ The error string is:
 "UNDERLAPPING SNAP"
 ~~~
 
-A trace ends very close to another trace but not near enough. The abutting might
-not be registered as a Y-node.
+Or:
+
+~~~python
+"OVERLAPPING SNAP"
+~~~
+
+Underlapping error can occur when a trace ends very close to another trace but
+not near enough. The abutting might not be registered as a Y-node.
+
+Overlapping error can occur when a trace overlaps another only very slightly
+resulting in a dangling end. Such dangling ends might not be registered as
+Y-nodes and might cause spatial/topological analysis problems later.
+
+Overlapping snap might also be registered as a `MULTI JUNCTION` error.
 
 ![Underlapping snap error examples.](../imgs/UnderlappingSnapValidator.png "Underlapping snap error examples.")
 

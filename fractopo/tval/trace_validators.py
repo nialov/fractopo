@@ -33,6 +33,7 @@ from fractopo.general import (
 from fractopo.tval.trace_validation_utils import (
     segment_within_buffer,
     split_to_determine_triangle_errors,
+    is_underlapping,
 )
 
 
@@ -44,13 +45,13 @@ class BaseValidator:
     ERROR = "BASE ERROR"
     INTERACTION_NODES_COLUMN = "IP"
     # Default snap threshold
-    SNAP_THRESHOLD = 0.01
-    SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
-    AREA_EDGE_SNAP_MULTIPLIER = 1.0
-    TRIANGLE_ERROR_SNAP_MULTIPLIER = 10.0
-    OVERLAP_DETECTION_MULTIPLIER = 50.0
-    SHARP_AVG_THRESHOLD = 80
-    SHARP_PREV_SEG_THRESHOLD = 70
+    # SNAP_THRESHOLD = 0.01
+    # SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
+    # AREA_EDGE_SNAP_MULTIPLIER = 1.0
+    # TRIANGLE_ERROR_SNAP_MULTIPLIER = 10.0
+    # OVERLAP_DETECTION_MULTIPLIER = 50.0
+    # SHARP_AVG_THRESHOLD = 80
+    # SHARP_PREV_SEG_THRESHOLD = 70
 
     LINESTRING_ONLY = True
 
@@ -273,9 +274,12 @@ class UnderlappingSnapValidator(BaseValidator):
     """
 
     ERROR = "UNDERLAPPING SNAP"
+    _OVERLAPPING = "OVERLAPPING SNAP"
+    _UNDERLAPPING = "UNDERLAPPING SNAP"
 
-    @staticmethod
+    @classmethod
     def validation_method(
+        cls,
         geom: LineString,
         trace_candidates: gpd.GeoSeries,
         snap_threshold: float,
@@ -310,15 +314,31 @@ class UnderlappingSnapValidator(BaseValidator):
 
         endpoints = get_trace_endpoints(geom)
         for endpoint in endpoints:
-            if any(
-                [
+            for trace in trace_candidates.geometry.values:
+                if (
                     snap_threshold
                     < trace.distance(endpoint)
                     < snap_threshold * snap_threshold_error_multiplier
-                    for trace in trace_candidates.geometry.values
-                ]
-            ):
-                return False
+                ):
+                    # Determine if its underlappings or overlapping
+                    is_ul_result = is_underlapping(
+                        geom,
+                        trace,
+                        endpoint,
+                        snap_threshold,
+                        snap_threshold_error_multiplier,
+                    )
+                    if is_ul_result is None:
+                        # TODO: Why not resolvable?
+                        continue
+                    if is_ul_result:
+                        # Underlapping
+                        cls.ERROR = cls._UNDERLAPPING
+                        return False
+                    else:
+                        cls.ERROR = cls._OVERLAPPING
+                        return False
+
         return True
 
 

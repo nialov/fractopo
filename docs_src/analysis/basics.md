@@ -7,6 +7,23 @@ abundance and topological parameters from two-dimensional lineament and
 fracture trace, branch and node data. The results will be given as
 graphical plots.
 
+## Usage
+
+Usage is demonstrated in complementary Jupyter Notebooks.
+
+* (Network analysis)[../notebooks/fractopo_network_1]
+
+  * Loading data for analysis with geopandas
+  * Extracting branches and nodes
+  * Azimuth rose plots
+  * Length distribution analysis
+  * Crosscutting and abutting relationships between azimuth sets
+  * Node and branch proportions
+
+* (Trace data validation)[../notebooks/fractopo_validation_1]
+
+  * Loading data for analysis with geopandas
+
 ## Example plots
 
 ![image](../imgs/analysis_collage.png)

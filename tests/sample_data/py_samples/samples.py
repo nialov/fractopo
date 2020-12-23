@@ -1522,3 +1522,22 @@ results_in_multijunction_list_of_ls = [
 ]
 
 assert all([isinstance(val, LineString) for val in results_in_multijunction_list_of_ls])
+
+results_in_false_positive_underlapping_wkts = [
+    "LineString (466020.3203989751636982 6691575.83373027481138706, "
+    "466020.43678473867475986 6691575.92454206943511963, 466020.57172250747680664 "
+    "6691576.06278713792562485)",
+    "LineString (466020.47713377606123686 6691575.95133118890225887, "
+    "466020.42210033535957336 6691576.0444647055119276, 466020.31626679096370935 "
+    "6691576.22014838643372059, 466020.21254991460591555 "
+    "6691576.35984867438673973)",
+]
+
+results_in_false_positive_underlapping_ls = [
+    loads(wkt) for wkt in results_in_false_positive_underlapping_wkts
+]
+
+
+assert all(
+    [isinstance(val, LineString) for val in results_in_false_positive_underlapping_ls]
+)

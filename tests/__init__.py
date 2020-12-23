@@ -49,6 +49,9 @@ from fractopo.general import (
 import fractopo.tval.trace_validation as trace_validation
 
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
+from tests.sample_data.py_samples.samples import (
+    results_in_false_positive_underlapping_ls,
+)
 
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
@@ -739,6 +742,10 @@ class ValidationHelpers:
         ),
     ]
 
+    known_non_underlaping_gdfs = [
+        gpd.GeoDataFrame(geometry=results_in_false_positive_underlapping_ls)
+    ]
+
     known_null_gdfs = [gpd.GeoDataFrame(geometry=[None, LineString()])]
 
     known_errors[MultiJunctionValidator.ERROR] = known_multi_junction_gdfs
@@ -747,6 +754,7 @@ class ValidationHelpers:
     known_errors[VNodeValidator.ERROR] = known_vnode_gdfs
     known_errors[StackedTracesValidator.ERROR] = known_stacked_gdfs
     known_errors[GeomNullValidator.ERROR] = known_null_gdfs
+    known_errors[UnderlappingSnapValidator._OVERLAPPING] = known_non_underlaping_gdfs
 
     # False Positives
     # ===============
@@ -758,6 +766,9 @@ class ValidationHelpers:
     ]
 
     known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
+    known_false_positives[
+        UnderlappingSnapValidator._UNDERLAPPING
+    ] = known_non_underlaping_gdfs
 
     # Class methods to generate pytest params for parametrization
     # ===========================================================

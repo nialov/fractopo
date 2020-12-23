@@ -150,3 +150,34 @@ def determine_trace_candidates(
         [isinstance(geom, LineString) for geom in candidate_traces.geometry.values]
     ]
     return candidate_traces
+
+
+def is_underlapping(
+    geom: LineString,
+    trace: LineString,
+    endpoint: Point,
+    snap_threshold: float,
+    snap_threshold_error_multiplier: float,
+) -> Optional[bool]:
+    split_results = list(split(geom, trace))
+    if len(split_results) == 1:
+        # Do not intersect
+        return True
+    elif len(split_results) > 1:
+        for segment in split_results:
+            if (
+                segment.distance(endpoint)
+                < snap_threshold * snap_threshold_error_multiplier
+            ):
+                # Dangling end, overlapping
+                return False
+    else:
+        logging.error(
+            "Expected is_underlapping to be resolvable.\n"
+            f"{geom=}\n"
+            f"{trace=}\n"
+            f"{endpoint=}\n"
+            f"{snap_threshold=}\n"
+            f"{snap_threshold_error_multiplier=}"
+        )
+        return None
