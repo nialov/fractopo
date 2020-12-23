@@ -37,6 +37,7 @@ from fractopo.general import (
     get_trace_coord_points,
     crop_to_target_areas,
     mls_to_ls,
+    determine_valid_intersection_points,
 )
 
 
@@ -678,6 +679,10 @@ def branches_and_nodes(
             )
 
     traces_geosrs = crop_to_target_areas(traces_geosrs, areas_geosrs)
+    # Remove too small geometries.
+    traces_geosrs = traces_geosrs.loc[
+        traces_geosrs.geometry.length > snap_threshold * 2.01
+    ]
     # TODO: Works but inefficient. Waiting for refactor.
     nodes, _ = determine_nodes(
         gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs}),
@@ -688,7 +693,9 @@ def branches_and_nodes(
     node_identities = get_node_identities(
         traces_geosrs, nodes_geosrs, areas_geosrs, snap_threshold
     )
-    branches = gpd.GeoSeries([b for b in traces_geosrs.unary_union])
+    branches = gpd.GeoSeries(
+        [b for b in traces_geosrs.unary_union if b.length > snap_threshold * 2.01]
+    )
     branch_identities = get_branch_identities(
         branches, nodes_geosrs, node_identities, snap_threshold
     )
@@ -743,7 +750,7 @@ def determine_nodes(
         intersection_geoms = trace_candidates.intersection(geom)
         if interactions:
             nodes_of_interaction.extend(
-                determine_valid_interaction_points(intersection_geoms)
+                determine_valid_intersection_points(intersection_geoms)
             )
         # Add trace endpoints to nodes_of_interaction
         if endpoints:
@@ -773,19 +780,3 @@ def determine_nodes(
     if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
         logging.error("Both nodes_of_interaction and node_id_data are empty...")
     return nodes_of_interaction, node_id_data
-
-
-def determine_valid_interaction_points(
-    intersection_geoms: gpd.GeoSeries,
-) -> List[Point]:
-    assert isinstance(intersection_geoms, gpd.GeoSeries)
-    valid_interaction_points = []
-    for geom in intersection_geoms.geometry.values:
-        if isinstance(geom, Point):
-            valid_interaction_points.append(geom)
-        elif isinstance(geom, MultiPoint):
-            valid_interaction_points.extend([p for p in geom])
-        else:
-            pass
-    assert all([isinstance(p, Point) for p in valid_interaction_points])
-    return valid_interaction_points
