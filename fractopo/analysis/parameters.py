@@ -18,9 +18,9 @@ from fractopo.general import (
     CI_branch,
     II_branch,
     Param,
+    styled_prop,
 )
 from fractopo.analysis import tools
-import fractopo.analysis.config as config
 from textwrap import wrap
 
 
@@ -346,7 +346,7 @@ def plot_parameters_plot(
 
     """
     log_scale_columns = Param.log_scale_columns()
-    prop = config.prop
+    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
 
     columns_to_plot = [param.value for param in Param]
     figs, axes = [], []

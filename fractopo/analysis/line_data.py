@@ -1,3 +1,5 @@
+from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
+import logging
 from pathlib import Path
 from textwrap import wrap
 from dataclasses import dataclass, field
@@ -20,15 +22,10 @@ import powerlaw
 from scipy.interpolate import CubicSpline
 
 # Own code imports
-import fractopo.analysis.tools as tools
-import fractopo.analysis.config as config
 from fractopo.general import determine_azimuth, determine_set, Col
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis import length_distributions, azimuth, parameters
-
 from fractopo.general import POWERLAW, LOGNORMAL, EXPONENTIAL
-from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
-import logging
 
 
 def _column_array_property(

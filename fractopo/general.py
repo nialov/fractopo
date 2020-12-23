@@ -2,17 +2,18 @@
 Contains general calculation and plotting tools.
 """
 from itertools import accumulate, chain, zip_longest
+import logging
 from bisect import bisect
 from enum import Enum, unique
+from typing import Tuple, Dict, List, Union, Final, Set, Any
+from textwrap import wrap
+from pathlib import Path
+import os
+
 import powerlaw
 import geopandas as gpd
 import pandas as pd
 import math
-from typing import Tuple, Dict, List, Union, Final, Set, Any
-import math
-from textwrap import wrap
-import os
-from pathlib import Path
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import matplotlib
@@ -33,11 +34,8 @@ from shapely.geometry import (
 from shapely.ops import linemerge
 from shapely.affinity import scale
 from shapely import prepared
-import logging
 from sklearn.linear_model import LinearRegression
 
-# Own code imports
-from fractopo.analysis import target_area as ta, config
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
