@@ -62,7 +62,7 @@ def decorate_xyi_ax(
         weight="roman",
         verticalalignment="top",
         bbox=prop,
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         ha="center",
     )
 
@@ -159,7 +159,7 @@ def plot_xyi_plot_ax(
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -236,7 +236,7 @@ def plot_branch_plot_ax(
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -265,7 +265,7 @@ def decorate_branch_ax(
         weight="roman",
         verticalalignment="top",
         bbox=prop,
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         ha="center",
     )
     initialize_ternary_branches_points(ax, tax)
@@ -273,7 +273,7 @@ def decorate_branch_ax(
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.1, 1.05),
-        prop={"family": "Calibri", "weight": "heavy", "size": "x-large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
         edgecolor="black",
         ncol=2,
         columnspacing=0.7,
@@ -378,7 +378,7 @@ def plot_parameters_plot(
         ax.set_ylabel(
             column + " " + f"({Param.get_unit_for_column(column)})",
             fontsize="xx-large",
-            fontfamily="Calibri",
+            fontfamily="DejaVu Sans",
             style="italic",
         )
         ax.set_title(
@@ -475,7 +475,7 @@ def initialize_ternary_points(ax, tax):
     fdict = {
         "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
         "color": "white",
-        "family": "Calibri",
+        "family": "DejaVu Sans",
         "size": fontsize,
         "weight": "bold",
     }
@@ -562,7 +562,7 @@ def initialize_ternary_branches_points(ax, tax):
     fdict = {
         "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
         "color": "w",
-        "family": "Calibri",
+        "family": "DejaVu Sans",
         "size": fontsize,
         "weight": "bold",
     }

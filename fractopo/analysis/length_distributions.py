@@ -1,5 +1,6 @@
 from enum import Enum, unique
 from typing import Tuple, Dict, List, Union, Optional, Literal
+from textwrap import wrap
 
 import powerlaw
 import geopandas as gpd
@@ -128,7 +129,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     ax.set_xlabel(
         label,
         fontsize="xx-large",
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         style="italic",
         labelpad=16,
     )
@@ -138,7 +139,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     ax.set_ylabel(
         "Complementary Cumulative Number " + ccm_unit,
         fontsize="xx-large",
-        fontfamily="Calibri",
+        fontfamily="DejaVu Sans",
         style="italic",
     )
     # TICKS
@@ -156,7 +157,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         ncol=2,
         columnspacing=0.3,
         shadow=True,
-        prop={"family": "Calibri", "weight": "heavy", "size": "large"},
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "large"},
     )
     for lh in lgnd.legendHandles:
         # lh._sizes = [750]
