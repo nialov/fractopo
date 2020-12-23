@@ -158,7 +158,7 @@ class Validation:
             )
         return self._vnodes
 
-    def run_validation(self, first_pass=True):
+    def run_validation(self, first_pass=True) -> gpd.GeoDataFrame:
         """
         Main entrypoint for validation.
 
