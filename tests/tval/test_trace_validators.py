@@ -1,5 +1,6 @@
 import pytest
 import geopandas as gpd
+from shapely.geometry import Point, LineString, MultiLineString
 
 from tests import Helpers
 from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
@@ -49,3 +50,28 @@ def test_determine_faulty_junctions_with_known_false_pos():
     #     validation.intersect_nodes,
     # )
     # return fpls, intersect_nodes, endpoint_nodes, faulty_junctions
+
+
+class TestTargetAreaSnapValidator:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "geom,area,snap_threshold,"
+        "snap_threshold_error_multiplier,area_edge_snap_multiplier,"
+        "assume_result",
+        Helpers.test_testtargetareasnapvalidator_validation_method,
+    )
+    def test_validation_method(
+        geom: LineString,
+        area: gpd.GeoDataFrame,
+        snap_threshold: float,
+        snap_threshold_error_multiplier: float,
+        area_edge_snap_multiplier: float,
+        assume_result: bool,
+    ):
+        assert assume_result == TargetAreaSnapValidator.validation_method(
+            geom=geom,
+            area=area,
+            snap_threshold=snap_threshold,
+            snap_threshold_error_multiplier=snap_threshold_error_multiplier,
+            area_edge_snap_multiplier=area_edge_snap_multiplier,
+        )

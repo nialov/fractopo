@@ -658,6 +658,56 @@ class Helpers:
         (gpd.GeoSeries([line_1])),
     ]
 
+    test_testtargetareasnapvalidator_validation_method = [
+        (
+            LineString([(0.5, 0), (0.5, 0.5)]),  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[
+                    MultiPolygon(
+                        [
+                            Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                            Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                        ]
+                    )
+                ]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            2.5,  # area_edge_snap_multiplier: float,
+            True,  # assumed_result: bool,
+        ),
+        (
+            LineString([(0.5, 0.01 * 1.05), (0.5, 0.5)]),  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[
+                    MultiPolygon(
+                        [
+                            Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                            Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                        ]
+                    )
+                ]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            2.5,  # area_edge_snap_multiplier: float,
+            False,  # assumed_result: bool,
+        ),
+        (
+            LineString([(0.5, 0), (0.5, 0.5)]),  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                    Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                ]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            2.5,  # area_edge_snap_multiplier: float,
+            True,  # assumed_result: bool,
+        ),
+    ]
+
 
 class ValidationHelpers:
 
