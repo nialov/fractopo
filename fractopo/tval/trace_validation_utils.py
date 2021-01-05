@@ -138,6 +138,9 @@ def determine_trace_candidates(
     traces: gpd.GeoDataFrame,
     spatial_index: Optional[PyGEOSSTRTreeIndex],
 ):
+    """
+    Determine potentially intersecting traces with spatial index.
+    """
     if spatial_index is None:
         logging.error("Expected spatial_index not be None.")
         return gpd.GeoSeries()
@@ -159,6 +162,9 @@ def is_underlapping(
     snap_threshold: float,
     snap_threshold_error_multiplier: float,
 ) -> Optional[bool]:
+    """
+    Determine if a geom is underlapping.
+    """
     split_results = list(split(geom, trace))
     if len(split_results) == 1:
         # Do not intersect
