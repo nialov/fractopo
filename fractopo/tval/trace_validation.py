@@ -50,8 +50,8 @@ class Validation:
     TRIANGLE_ERROR_SNAP_MULTIPLIER: float = 10.0
     OVERLAP_DETECTION_MULTIPLIER: float = 50.0
     # TODO: Separate SHARP TURNS to major and minor
-    SHARP_AVG_THRESHOLD: float = 89.0
-    SHARP_PREV_SEG_THRESHOLD: float = 89.0
+    SHARP_AVG_THRESHOLD: float = 135.0
+    SHARP_PREV_SEG_THRESHOLD: float = 100.0
     ERROR_COLUMN: str = "VALIDATION_ERRORS"
     GEOMETRY_COLUMN: Final[str] = "geometry"
 
