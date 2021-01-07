@@ -115,14 +115,20 @@ def determine_middle_in_triangle(
 
     The middle segment always intersects the other two.
     """
-    buffered = [
-        ls.buffer(snap_threshold * snap_threshold_error_multiplier) for ls in segments
-    ]
     candidates = []
-    for idx, (buffer, linestring) in enumerate(zip(buffered, segments)):
-        others = buffered.copy()
+    for idx, linestring in enumerate(segments):
+        others = segments.copy()
         others.pop(idx)
-        if sum([buffer.intersects(other) for other in others]) >= 2:
+        if (
+            sum(
+                [
+                    linestring.distance(other)
+                    < snap_threshold * snap_threshold_error_multiplier
+                    for other in others
+                ]
+            )
+            >= 2
+        ):
             candidates.append(segments[idx])
     return candidates
 
