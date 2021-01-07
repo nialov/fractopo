@@ -798,7 +798,7 @@ class ValidationHelpers:
         ),
     ]
 
-    known_non_underlaping_gdfs = [
+    known_non_underlaping_gdfs_but_overlapping = [
         gpd.GeoDataFrame(geometry=results_in_false_positive_underlapping_ls)
     ]
 
@@ -810,7 +810,9 @@ class ValidationHelpers:
     known_errors[VNodeValidator.ERROR] = known_vnode_gdfs
     known_errors[StackedTracesValidator.ERROR] = known_stacked_gdfs
     known_errors[GeomNullValidator.ERROR] = known_null_gdfs
-    known_errors[UnderlappingSnapValidator._OVERLAPPING] = known_non_underlaping_gdfs
+    known_errors[
+        UnderlappingSnapValidator._OVERLAPPING
+    ] = known_non_underlaping_gdfs_but_overlapping
 
     # False Positives
     # ===============
@@ -821,10 +823,17 @@ class ValidationHelpers:
         gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
     ]
 
+    known_non_overlapping_gdfs = [
+        gpd.GeoDataFrame(geometry=results_in_overlapping_ls_list)
+    ]
+
     known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
     known_false_positives[
         UnderlappingSnapValidator._UNDERLAPPING
-    ] = known_non_underlaping_gdfs
+    ] = known_non_underlaping_gdfs_but_overlapping
+    known_false_positives[
+        UnderlappingSnapValidator._OVERLAPPING
+    ] = known_non_overlapping_gdfs
 
     # Class methods to generate pytest params for parametrization
     # ===========================================================
@@ -836,7 +845,16 @@ class ValidationHelpers:
             if not false_positive
             else cls.known_false_positives[error]
         )
-        amounts = [gdf.shape[0] for gdf in knowns]
+        amounts = [
+            gdf.shape[0]
+            if error
+            not in (
+                UnderlappingSnapValidator._UNDERLAPPING,
+                UnderlappingSnapValidator._OVERLAPPING,
+            )
+            else 1
+            for gdf in knowns
+        ]
         try:
             areas = [
                 gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns
@@ -863,9 +881,14 @@ class ValidationHelpers:
 
     @classmethod
     def get_all_errors(cls):
-        all_error_types = [
-            validator.ERROR for validator in trace_validation.ALL_VALIDATORS
-        ]
+        # TODO: UnderlappingSnapValidator doesn't follow protocol
+        all_error_types = set(
+            [validator.ERROR for validator in trace_validation.ALL_VALIDATORS]
+            + [
+                UnderlappingSnapValidator._OVERLAPPING,
+                UnderlappingSnapValidator._UNDERLAPPING,
+            ]
+        )
         all_errs = []
         for err in all_error_types:
             try:
@@ -879,3 +902,4 @@ class ValidationHelpers:
 
         assert len(all_errs) > 0
         return all_errs
+

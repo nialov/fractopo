@@ -307,6 +307,11 @@ class UnderlappingSnapValidator(BaseValidator):
 
         endpoints = get_trace_endpoints(geom)
         for endpoint in endpoints:
+
+            # Check that if endpoint is well snapped to one trace another trace
+            # won't have chance to cause a validation error (false positive).
+            if any(trace_candidates.distance(endpoint) < snap_threshold):
+                continue
             for trace in trace_candidates.geometry.values:
                 if (
                     snap_threshold
@@ -598,3 +603,4 @@ ALL_VALIDATORS = MAJOR_VALIDATORS + MINOR_VALIDATORS
 
 MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)
 ValidatorClass = Type[BaseValidator]
+
