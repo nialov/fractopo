@@ -5,6 +5,7 @@ from tests import Helpers, ValidationHelpers
 import geopandas as gpd
 import pytest
 from fractopo.tval.trace_validation import Validation
+from fractopo.tval.trace_validators import SharpCornerValidator
 
 
 @pytest.mark.parametrize(
@@ -26,7 +27,15 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
     Helpers.test_validation_params,
 )
 def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
-    validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
+    additional_kwargs = dict()
+    if assume_errors and SharpCornerValidator.ERROR in assume_errors:
+        additional_kwargs = dict(
+            SHARP_AVG_THRESHOLD=80.0, SHARP_PREV_SEG_THRESHOLD=70.0
+        )
+
+    validated_gdf = Validation(
+        traces, area, name, allow_fix, **additional_kwargs
+    ).run_validation()
     assert isinstance(validated_gdf, gpd.GeoDataFrame)
     assert Validation.ERROR_COLUMN in validated_gdf.columns.values
     if assume_errors is not None:
