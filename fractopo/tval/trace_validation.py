@@ -4,26 +4,25 @@ Contains main entrypoint class for validating trace data, Validation.
 Create Validation objects from traces and their target areas to validate
 the traces for further analysis (branch and node determination).
 """
-from dataclasses import dataclass
-from typing import List, Dict, Tuple, Optional, Final, Any, Type, Union, Set
-from pathlib import Path
 import logging
+from dataclasses import dataclass
 from itertools import chain
+from pathlib import Path
+from typing import Any, Dict, Final, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
-from shapely.geometry import Point, LineString, MultiLineString
-from geopandas.sindex import PyGEOSSTRTreeIndex
-
-import fractopo.tval.trace_validators as trace_validators
-from fractopo.tval.trace_validators import (
-    MAJOR_VALIDATORS,
-    ALL_VALIDATORS,
-    ValidatorClass,
-    MAJOR_ERRORS,
-)
-
 from fractopo.general import determine_general_nodes
+from fractopo.tval import trace_validators
 from fractopo.tval.trace_validation_utils import determine_trace_candidates
+from fractopo.tval.trace_validators import (
+    ALL_VALIDATORS,
+    MAJOR_ERRORS,
+    MAJOR_VALIDATORS,
+    ValidatorClass,
+)
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import LineString, MultiLineString, Point
+
 
 logging.basicConfig(
     level=logging.WARNING, format="%(process)d-%(levelname)s-%(message)s"
@@ -307,3 +306,4 @@ class Validation:
                 ignore_geom = True
 
         return geom, current_errors, ignore_geom
+

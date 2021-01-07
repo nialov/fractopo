@@ -1,40 +1,33 @@
 import ast
-from typing import Union, Tuple, List, Optional, Any, Set, Type
-from abc import abstractmethod
 import logging
-from itertools import chain, accumulate, zip_longest
+from abc import abstractmethod
 from bisect import bisect
+from itertools import accumulate, chain, zip_longest
+from typing import Any, List, Optional, Set, Tuple, Type, Union
+
+import numpy as np
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry.base import BaseGeometry
-from shapely.geometry import (
-    MultiPoint,
-    Point,
-    LineString,
-    MultiLineString,
-    Polygon,
-)
-from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.ops import split, linemerge
-import numpy as np
-
-
 from fractopo.general import (
-    get_trace_coord_points,
-    point_to_xy,
-    get_trace_endpoints,
-    flatten_tuples,
-    determine_node_junctions,
-    zip_equal,
     compare_unit_vector_orientation,
     create_unit_vector,
+    determine_node_junctions,
+    flatten_tuples,
+    get_trace_coord_points,
+    get_trace_endpoints,
+    point_to_xy,
+    zip_equal,
 )
 from fractopo.tval.trace_validation_utils import (
+    is_underlapping,
     segment_within_buffer,
     split_to_determine_triangle_errors,
-    is_underlapping,
 )
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import linemerge, split
 
 
 class BaseValidator:

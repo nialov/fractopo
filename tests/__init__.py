@@ -1,57 +1,63 @@
-from typing import List
-import pandas as pd
-import geopandas as gpd
-import shapely
-from shapely.ops import linemerge
-from shapely.wkt import loads
-from shapely.geometry import Point, LineString, MultiLineString, Polygon, MultiPolygon
-import numpy as np
-import hypothesis
 from pathlib import Path
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    sets,
-    lists,
-    tuples,
-    one_of,
-    text,
-    integers,
-)
-from hypothesis import given
-from hypothesis_geometry import planar
-import pytest
+from typing import List
 
-from fractopo.tval.trace_validators import (
-    BaseValidator,
-    GeomTypeValidator,
-    MultiJunctionValidator,
-    VNodeValidator,
-    MultipleCrosscutValidator,
-    TargetAreaSnapValidator,
-    UnderlappingSnapValidator,
-    GeomNullValidator,
-    StackedTracesValidator,
-    SimpleGeometryValidator,
-    SharpCornerValidator,
+import numpy as np
+from tests.sample_data.py_samples.samples import (
+    results_in_false_positive_underlapping_ls,
+    results_in_overlapping_ls_list,
 )
-from fractopo.tval import trace_builder
-from fractopo.analysis import tools, parameters
+from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
+
+import geopandas as gpd
+import hypothesis
+import pandas as pd
+import pytest
+import shapely
+from fractopo.analysis import parameters, tools
 from fractopo.general import (
     CC_branch,
     CI_branch,
     II_branch,
+    I_node,
     X_node,
     Y_node,
-    I_node,
     bounding_polygon,
 )
-import fractopo.tval.trace_validation as trace_validation
-
-from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
-from tests.sample_data.py_samples.samples import (
-    results_in_false_positive_underlapping_ls,
+from fractopo.tval import trace_builder, trace_validation
+from fractopo.tval.trace_validators import (
+    BaseValidator,
+    GeomNullValidator,
+    GeomTypeValidator,
+    MultiJunctionValidator,
+    MultipleCrosscutValidator,
+    SharpCornerValidator,
+    SimpleGeometryValidator,
+    StackedTracesValidator,
+    TargetAreaSnapValidator,
+    UnderlappingSnapValidator,
+    VNodeValidator,
 )
+from hypothesis import given
+from hypothesis.strategies import (
+    booleans,
+    floats,
+    integers,
+    lists,
+    one_of,
+    sets,
+    text,
+    tuples,
+)
+from hypothesis_geometry import planar
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
+from shapely.ops import linemerge
+from shapely.wkt import loads
 
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN

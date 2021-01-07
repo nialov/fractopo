@@ -1,25 +1,24 @@
-import pytest
-import geopandas as gpd
-from shapely.geometry import Point, LineString, MultiLineString
-
 from tests import Helpers
 from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
 
+import geopandas as gpd
+import pytest
+from fractopo import general
+from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import (
     BaseValidator,
     GeomNullValidator,
     GeomTypeValidator,
-    SimpleGeometryValidator,
     MultiJunctionValidator,
-    VNodeValidator,
     MultipleCrosscutValidator,
-    UnderlappingSnapValidator,
-    TargetAreaSnapValidator,
-    StackedTracesValidator,
     SharpCornerValidator,
+    SimpleGeometryValidator,
+    StackedTracesValidator,
+    TargetAreaSnapValidator,
+    UnderlappingSnapValidator,
+    VNodeValidator,
 )
-import fractopo.general as general
-from fractopo.tval.trace_validation import Validation
+from shapely.geometry import LineString, MultiLineString, Point
 
 
 @pytest.mark.parametrize(
@@ -75,3 +74,4 @@ class TestTargetAreaSnapValidator:
             snap_threshold_error_multiplier=snap_threshold_error_multiplier,
             area_edge_snap_multiplier=area_edge_snap_multiplier,
         )
+

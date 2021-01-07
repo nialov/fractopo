@@ -1,19 +1,14 @@
-from typing import Union, Tuple, List, Optional, Any, Set, Type
 import logging
+from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import numpy as np
-from shapely.ops import split
-from shapely.geometry import (
-    MultiPoint,
-    Point,
-    LineString,
-    MultiLineString,
-    Polygon,
-)
-import geopandas as gpd
-from geopandas.sindex import PyGEOSSTRTreeIndex
 
-from fractopo.general import point_to_xy, get_trace_endpoints
+import geopandas as gpd
+from fractopo.general import get_trace_endpoints, point_to_xy
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
+from shapely.ops import split
+
 
 # Order is important
 
@@ -187,3 +182,4 @@ def is_underlapping(
             f"{snap_threshold_error_multiplier=}"
         )
         return None
+
