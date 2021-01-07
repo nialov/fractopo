@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 from tests.sample_data.py_samples.samples import (
+    results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
     results_in_overlapping_ls_list,
 )
@@ -821,6 +822,7 @@ class ValidationHelpers:
 
     known_non_stacked_gdfs = [
         gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
+        gpd.GeoDataFrame(geometry=results_in_false_positive_stacked_traces_list),
     ]
 
     known_non_overlapping_gdfs = [
@@ -874,7 +876,7 @@ class ValidationHelpers:
                 [error],
                 amount,
                 false_positive,
-                id=f"{error}, {amount}",
+                id=f"{error}_{amount}".replace(" ", "_"),
             )
             for known, area, amount in zip(knowns, areas, amounts)
         ]

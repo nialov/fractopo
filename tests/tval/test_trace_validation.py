@@ -1,9 +1,9 @@
 from typing import List, Optional
 
-import pytest
-import geopandas as gpd
-
 from tests import Helpers, ValidationHelpers
+
+import geopandas as gpd
+import pytest
 from fractopo.tval.trace_validation import Validation
 
 
@@ -74,3 +74,4 @@ def test_validation_known(
                     sum([err == assumed_error for err in flat_validated_gdf_errors])
                     == error_amount
                 )
+
