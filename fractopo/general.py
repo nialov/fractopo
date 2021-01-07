@@ -1,40 +1,38 @@
 """
 Contains general calculation and plotting tools.
 """
-from itertools import accumulate, chain, zip_longest
 import logging
+import math
+import os
 from bisect import bisect
 from enum import Enum, unique
-from typing import Tuple, Dict, List, Union, Final, Set, Any
-from textwrap import wrap
+from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-import os
+from textwrap import wrap
+from typing import Any, Dict, Final, List, Set, Tuple, Union
 
-import powerlaw
-import geopandas as gpd
-import pandas as pd
-import math
-import matplotlib.patheffects as path_effects
-import matplotlib.pyplot as plt
-import matplotlib
 import numpy as np
+from sklearn.linear_model import LinearRegression
+
+import geopandas as gpd
+import matplotlib
 import pandas as pd
+import powerlaw
 import seaborn as sns
 import shapely
 import ternary
-from shapely import strtree
+from matplotlib import patheffects as path_effects, pyplot as plt
+from shapely import prepared, strtree
+from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
-    Point,
     MultiLineString,
     MultiPoint,
+    Point,
     Polygon,
     box,
 )
 from shapely.ops import linemerge
-from shapely.affinity import scale
-from shapely import prepared
-from sklearn.linear_model import LinearRegression
 
 
 styled_text_dict = {
@@ -860,7 +858,7 @@ def determine_node_junctions(
             if sum(intersection_data) == 0:
                 continue
 
-            # Different error counts for endpoints and intersections
+            # Different error thresholds for endpoints and intersections
             if sum(intersection_data) >= error_threshold:
                 # Add idx of current trace
                 indexes_with_junctions.add(idx)
@@ -1008,3 +1006,4 @@ def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.Geo
     ]
     as_linestrings = mls_to_ls(ct_multilinestrings)
     return gpd.GeoSeries(clipped_traces_linestrings + as_linestrings)
+
