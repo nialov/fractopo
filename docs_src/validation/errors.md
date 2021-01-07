@@ -187,7 +187,9 @@ the row to be consequently removed.
 * [ ] Automatic fix
 ~~~
 
-Fix by
+Fix by deleting the row or creating a geometry for the row. GIS software can be
+fickle with these, make sure that if you create a new geometry it gets
+associated to the row in question.
 
 # StackedTracesValidator
 
@@ -204,8 +206,8 @@ Also finds cases in which two traces form a very small triangle intersection
 * [ ] Automatic fix
 ~~~
 
-Fix by traces do not stack or intersect in a way to create extremely small
-triangles.
+Fix by editing traces do that they do not stack or intersect in a way to create
+extremely small triangles.
 
 # SimpleGeometryValidator
 
