@@ -13,6 +13,9 @@
 import os
 import sys
 
+import recommonmark
+
+
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("."))
 
@@ -29,7 +32,6 @@ release = "0.1"
 # -- General configuration ---------------------------------------------------
 
 # TODO: Documentation with rtd
-import recommonmark
 
 extensions = [
     "recommonmark",
@@ -83,3 +85,4 @@ if not "READTHEDOCS" in os.environ:
 else:
     # Do not always execute notebooks on ReadtheDocs
     nbsphinx_execute = "auto"
+

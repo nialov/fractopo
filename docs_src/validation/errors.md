@@ -6,21 +6,26 @@ by the checkmarks:
 
 No automatic fixing:
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
 Some cases can be automatically fixed:
 
-~~~
+~~~markdown
 * [o] Automatic fix
 ~~~
 
 All cases can be automatically fixed:
 
-~~~
+~~~markdown
 * [X] Automatic fix
 ~~~
+
+This page additionally serves as a reminder on what interpretations to avoid
+while digitizing traces. Most of the validation errors displayed here cause
+issues in further analyses and should be fixed before attempting to e.g.
+determine branches and nodes.
 
 # GeomTypeValidator
 
@@ -37,7 +42,7 @@ MultiLineString can consist of multiple LineStrings i.e. a MultiLineString can
 consist of disjointed traces. A LineString only consists of a single continuous
 trace.
 
-~~~
+~~~markdown
 * [o] Automatic fix:
   * Mergeable MultiLineStrings
   * MultiLineStrings with a single LineString
@@ -45,12 +50,13 @@ trace.
 
 Most of the time MultiLineStrings are created instead of LineStrings by the
 GIS-software and the MultiLineStrings actually only consist of a single
-LineString and conversion from a MultiLineString with a single LineString can
-be done automatically. If the MultiLineString does consist of multiple
-LineStrings they can be automatically merged if they are not disjointed i.e.
-the contained LineStrings join together into a single LineString. If they
-cannot be automatically merged no automatic fix is performed and the error is
-kept in the error column and the user should fix the issue.
+LineString and conversion from a MultiLineString with a single LineString to a
+LineString can be done automatically. If the MultiLineString does consist of
+multiple LineStrings they can be automatically merged if they are not
+disjointed i.e. the contained LineStrings join together into a single
+LineString. If they cannot be automatically merged no automatic fix is
+performed and the error is kept in the error column and the user should fix the
+issue.
 
 # MultiJunctionValidator
 
@@ -62,15 +68,17 @@ The error string is:
 
 Three error types can occur in digitization resulting in this error string:
 
-1. More than two traces must not cross in the same point or too close to the
+1. More than two traces must not cross in the same point or **too close** to the
    same point.
+
 2. An overlapping Y-node i.e. a trace overlaps the trace it "is supposed" to end
-   at too much.
-3. `V NODE` errors might also be detected as `MULTI JUNCTION` errors.
+   at too much (alternatively detected by [UnderlappingSnapValidator](#underlappingsnapvalidator)).
+
+3. [`V NODE`](#vnodevalidator) errors might also be detected as `MULTI JUNCTION` errors.
 
 ![Multi junction error examples.](../imgs/MultiJunctionValidator.png "Multi junction error examples")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -89,7 +97,7 @@ endpoint.
 
 ![V-node error examples.](../imgs/VNodeValidator.png "V-node error examples.")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -108,7 +116,7 @@ more than two common coordinate points.
 
 ![Multiple crosscut error examples.](../imgs/MultipleCrosscutValidator.png "Multiple crosscut error examples.")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -135,11 +143,13 @@ Overlapping error can occur when a trace overlaps another only very slightly
 resulting in a dangling end. Such dangling ends might not be registered as
 Y-nodes and might cause spatial/topological analysis problems later.
 
-Overlapping snap might also be registered as a `MULTI JUNCTION` error.
+Overlapping snap might also be registered as a [`MULTI
+JUNCTION`](#multijunctionvalidator) error.
 
-![Underlapping snap error examples.](../imgs/UnderlappingSnapValidator.png "Underlapping snap error examples.")
+![Underlapping snap error examples.](../imgs/UnderlappingSnapValidator.png
+"Underlapping snap error examples.")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -160,7 +170,7 @@ undetermined.
 
 ![Target area snap error examples.](../imgs/TargetAreaSnapValidator.png "Target area snap error examples.")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -183,7 +193,7 @@ These rows could be automatically removed but these are most likely rare
 occurrences and deleting the row would cause all attribute data associated with
 the row to be consequently removed.
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
@@ -200,14 +210,14 @@ The error string is:
 ~~~
 
 Two (or more) traces are stacked partially or completely on top of each other.
-Also finds cases in which two traces form a very small triangle intersection
+Also finds cases in which two traces form a very small triangle intersection.
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
 Fix by editing traces do that they do not stack or intersect in a way to create
-extremely small triangles.
+small triangles.
 
 # SimpleGeometryValidator
 
@@ -221,15 +231,13 @@ A trace intersects itself.
 
 ![Trace intersects itself.](../imgs/SimpleGeometryValidator.png "Trace intersects itself")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
 Fix by removing self-intersections.
 
 # SharpCornerValidator
-
-## UNDER DEVELOPMENT
 
 The error string is:
 
@@ -244,10 +252,13 @@ subjective**. But if a segment of a trace has a direction change of over 180
 degrees compared to the previous there's probably no natural way for a natural
 bedrock structure to do that.
 
+`SHARP TURNS` -errors rarely cause issues in further analyses. Therefore fixing
+these issues is not critical.
+
 ![Erratic trace segment direction change examples.](../imgs/SharpCornerValidator.png "Erratic trace segment direction change examples.")
 
-~~~
+~~~markdown
 * [ ] Automatic fix
 ~~~
 
-Fix by making less sharp turns and making sure the trace is sublinear.
+Fix (if desired) by making less sharp turns and making sure the trace is sublinear.
