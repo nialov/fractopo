@@ -1,12 +1,12 @@
-from typing import Union, Dict
 import logging
-from pathlib import Path
 from itertools import chain
+from pathlib import Path
+from typing import Dict, Union
 
 import click
-import geopandas as gpd
-import fiona
 
+import fiona
+import geopandas as gpd
 from fractopo.tval.trace_validation import Validation
 
 
@@ -32,21 +32,26 @@ def describe_results(validated: gpd.GeoDataFrame, error_column: str):
 
 
 @click.command()
-@click.argument("trace_path", **get_click_path_args())  # type: ignore
-@click.argument("area_path", **get_click_path_args())  # type: ignore
+@click.argument("trace_file", **get_click_path_args())  # type: ignore
+@click.argument("area_file", **get_click_path_args())  # type: ignore
 @click.option(
-    "output_path", "--output", **get_click_path_args(exists=False, writable=True)
+    "output_path",
+    "--output",
+    **get_click_path_args(exists=False, writable=True),
+    default=None,
 )  # type: ignore
 @click.option("allow_fix", "--fix", is_flag=True, help="Allow automatic fixing.")
 @click.option(
     "summary", "--summary", is_flag=True, help="Print summary of validation results"
 )
+@click.option("snap_threshold", "--snap-threshold", type=float, default=0.01)
 def tracevalidate(
-    trace_path: Union[Path, str],
-    area_path: Union[Path, str],
+    trace_file: str,
+    area_file: str,
     allow_fix: bool,
     summary: bool,
-    output_path: Union[Path, None] = None,
+    snap_threshold: float,
+    output_path: Union[Path, None],
 ):
     """
     Validate trace data delineated by target area data.
@@ -54,26 +59,46 @@ def tracevalidate(
     If allow_fix is True, some automatic fixing will be done to e.g. convert
     MultiLineStrings to LineStrings.
     """
-    trace_path = Path(trace_path)
-    # Get input crs
-    input_crs = gpd.read_file(trace_path).crs
-    area_path = Path(area_path)
+    trace_path = Path(trace_file)
+
+    area_path = Path(area_file)
+
+    # Resolve output_path if not explicitly given
     if output_path is None:
         output_path = (
             trace_path.parent / f"{trace_path.stem}_validated{trace_path.suffix}"
         )
-    print(f"Validating with snap threshold of {Validation.SNAP_THRESHOLD}.")
+    print(f"Validating with snap threshold of {snap_threshold}.")
+
+    # Assert that read files result in GeoDataFrames
+    traces: gpd.GeoDataFrame = gpd.read_file(trace_path)  # type: ignore
+    areas: gpd.GeoDataFrame = gpd.read_file(area_path)  # type: ignore
+    if not all([isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)]):
+        raise TypeError(
+            "Expected trace and area data to be resolvable as GeoDataFrame."
+        )
+
+    # Get input crs
+    input_crs = traces.crs
+
     # Validate
     validation = Validation(
-        gpd.read_file(trace_path), gpd.read_file(area_path), trace_path.stem, allow_fix
+        traces,
+        areas,
+        trace_path.stem,
+        allow_fix,
+        SNAP_THRESHOLD=snap_threshold,
     )
     validated_trace = validation.run_validation()
+
     # Set same crs as input if input had crs
     if input_crs is not None:
         validated_trace.crs = input_crs
+
     # Get input driver to use as save driver
-    with fiona.open(trace_path) as trace_file:
-        save_driver = trace_file.driver
+    with fiona.open(trace_path) as open_trace_file:
+        save_driver = open_trace_file.driver
+
     # Change validation_error column to type: `string` and consequently save
     # the GeoDataFrame.
     validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
@@ -81,3 +106,4 @@ def tracevalidate(
     )
     if summary:
         describe_results(validated_trace, validation.ERROR_COLUMN)
+
