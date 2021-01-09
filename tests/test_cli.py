@@ -1,10 +1,12 @@
 from pathlib import Path
-import geopandas as gpd
+
 from click.testing import CliRunner
-from fractopo import cli
-import pytest
-from fractopo.tval.trace_validation import Validation
 from tests import Helpers
+
+import geopandas as gpd
+import pytest
+from fractopo import cli
+from fractopo.tval.trace_validation import Validation
 
 
 @pytest.mark.parametrize(
@@ -25,6 +27,8 @@ def test_tracevalidate(
         "--output",
         str(output_file),
         "--summary",
+        "--snap-threshold",
+        "0.01",
     ]
     result = clirunner.invoke(cli.tracevalidate, cli_args)
     # Check that exit code is 0 (i.e. ran succesfully.)
@@ -38,3 +42,4 @@ def test_tracevalidate(
     if "--summary" in cli_args:
         assert "Out of" in result.output
         assert "There were" in result.output
+
