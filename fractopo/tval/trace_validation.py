@@ -31,6 +31,7 @@ logging.basicConfig(
 
 @dataclass
 class Validation:
+
     """
     Validate traces data delineated by target area(s).
 

@@ -106,4 +106,3 @@ def tracevalidate(
     )
     if summary:
         describe_results(validated_trace, validation.ERROR_COLUMN)
-

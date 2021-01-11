@@ -1,19 +1,13 @@
-import ast
-import logging
+"""Contains Validator classes which each have their own error to handle and mark."""
 from abc import abstractmethod
-from bisect import bisect
-from itertools import accumulate, chain, zip_longest
+from itertools import chain, zip_longest
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
-import numpy as np
-
 import geopandas as gpd
-import pandas as pd
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
     determine_node_junctions,
-    flatten_tuples,
     get_trace_coord_points,
     get_trace_endpoints,
     point_to_xy,
@@ -24,7 +18,6 @@ from fractopo.tval.trace_validation_utils import (
     segment_within_buffer,
     split_to_determine_triangle_errors,
 )
-from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, split
@@ -490,8 +483,14 @@ class StackedTracesValidator(BaseValidator):
 
         """
 
+        # Cannot overlap if nothing to overlap
         if len(trace_candidates) == 0:
             return True
+
+        # Test for simple shapely overlap
+        # TODO: Redundant with check in segment_within_buffer?
+        if any([geom.overlaps(other) for other in trace_candidates.geometry.values]):
+            return False
 
         trace_candidates_multils = MultiLineString(
             [
