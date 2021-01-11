@@ -57,12 +57,21 @@ class Validation:
     GEOMETRY_COLUMN: Final[str] = "geometry"
 
     def __post_init__(self):
+        """
+        Initialize private attributes used for caching.
+        """
         # Private caching attributes
         self._endpoint_nodes: Optional[List[Tuple[Point, ...]]] = None
         self._intersect_nodes: Optional[List[Tuple[Point, ...]]] = None
         self._spatial_index: Optional[PyGEOSSTRTreeIndex] = None
         self._faulty_junctions: Optional[Set[int]] = None
         self._vnodes: Optional[Set[int]] = None
+
+        self.ERROR_COLUMN_TRUNC = (
+            self.ERROR_COLUMN[0:10]
+            if len(self.ERROR_COLUMN) > 9
+            else self.ERROR_COLUMN[0 : len(self.ERROR_COLUMN)]
+        )
 
         # Validate trace and area inputs
         # for geom in self.area.geometry.values:
@@ -87,7 +96,7 @@ class Validation:
         """
         if self._endpoint_nodes is None:
             self.set_general_nodes()
-        if not self._endpoint_nodes is None:
+        if self._endpoint_nodes is not None:
             return self._endpoint_nodes
         else:
             raise TypeError("Expected self._endpoint_nodes to not be None.")
@@ -103,7 +112,7 @@ class Validation:
         """
         if self._intersect_nodes is None:
             self.set_general_nodes()
-        if not self._intersect_nodes is None:
+        if self._intersect_nodes is not None:
             return self._intersect_nodes
         else:
             raise TypeError("Expected self._intersect_nodes to not be None.")
@@ -161,25 +170,17 @@ class Validation:
 
     def run_validation(self, first_pass=True) -> gpd.GeoDataFrame:
         """
-        Main entrypoint for validation.
+        Run validation.
 
-        Returns validated traces GeoDataFrame.
+        Main entrypoint for validation. Returns validated traces GeoDataFrame.
         """
+        for err_col in (self.ERROR_COLUMN, self.ERROR_COLUMN_TRUNC):
+            if err_col in self.traces.columns:
+                logging.info(
+                    "Dropping existing validation columns from traces GeoDataFrame."
+                )
+                self.traces: gpd.GeoDataFrame = self.traces.drop(columns=(err_col))
 
-        # Validations that if are invalid will break all other validation:
-        # - GeomNullValidator (also checks for empty)
-        # - GeomTypeValidator
-        # If these pass the geometry is LineString
-
-        # Non-invasive errors:
-        # - SimpleGeometryValidator
-        # - MultiJunctionValidator
-        # - VNodeValidator
-        # - MultipleCrosscutValidator
-        # - UnderlappingSnapValidator
-        # - TargetAreaSnapValidator
-        # - StackedTracesValidator
-        # - SharpCornerValidator
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
         for idx, geom in enumerate(self.traces.geometry.values):
