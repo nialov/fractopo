@@ -79,7 +79,7 @@ Trace validation is also accessible as a console script, `tracevalidate`
 Trace validation always requires the target area that delineates trace data.
 
 ~~~bash
-# Get script help
+# Get full up-to-date script help
 
 tracevalidate --help
 
@@ -87,7 +87,14 @@ tracevalidate --help
 # --fix is recommended, probably won't work without it.
 # --output can be omitted. By default the same spatial filetype
 # as the input is used and the output is saved as e.g.
-# /path/to/trace_data_validated.shp
+# /path/to/validated/trace_data_validated.shp
+# i.e. a new folder is created (or used) for validated data
+# --summary can be given to print out summary data of validation
+# i.e. error types and error counts
 
 tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --output /path/to/output_data.shp
+
+# Or with automatic saving to validated/ directory
+
+tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --summary
 ~~~
