@@ -1,4 +1,4 @@
-import logging
+import time
 from itertools import chain
 from pathlib import Path
 from typing import Dict, Union
@@ -29,6 +29,34 @@ def describe_results(validated: gpd.GeoDataFrame, error_column: str):
         type_string += error_type + "\n"
     print(count_string)
     print(type_string)
+
+
+def make_output_dir(trace_path: Path) -> Path:
+    """
+    Make timestamped output dir.
+    """
+    localtime = time.localtime()
+    min = localtime.tm_min
+    hour = localtime.tm_hour
+    day = localtime.tm_mday
+    month = localtime.tm_mon
+    year = localtime.tm_year
+    timestr = "_".join(
+        map(
+            str,
+            [
+                day,
+                month,
+                year,
+                hour,
+                min,
+            ],
+        )
+    )
+    output_dir = trace_path.parent / f"validated_{timestr}"
+    if not output_dir.exists():
+        output_dir.mkdir()
+    return output_dir
 
 
 @click.command()
@@ -65,8 +93,11 @@ def tracevalidate(
 
     # Resolve output_path if not explicitly given
     if output_path is None:
+        output_dir = make_output_dir(trace_path)
         output_path = (
-            trace_path.parent / f"{trace_path.stem}_validated{trace_path.suffix}"
+            trace_path.parent
+            / output_dir
+            / f"{trace_path.stem}_validated{trace_path.suffix}"
         )
     print(f"Validating with snap threshold of {snap_threshold}.")
 
@@ -106,3 +137,4 @@ def tracevalidate(
     )
     if summary:
         describe_results(validated_trace, validation.ERROR_COLUMN)
+

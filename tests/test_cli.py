@@ -43,3 +43,9 @@ def test_tracevalidate(
         assert "Out of" in result.output
         assert "There were" in result.output
 
+
+def test_make_output_dir(tmp_path):
+    some_file = Path(tmp_path) / "some.file"
+    output_dir = cli.make_output_dir(some_file)
+    assert output_dir.exists()
+    assert output_dir.is_dir()
