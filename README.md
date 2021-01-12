@@ -17,11 +17,15 @@ lineament and fracture trace maps (fracture networks).
 
 ## Installation
 
+Omit `--dev` or `[dev]` for regular installation. Keep if you want to test/develop
+or otherwise install all development python dependencies.
+
 ### Pipenv
 
 ~~~bash
 git clone https://github.com/nialov/fractopo --depth 1
 cd fractopo
+# Omit --dev from end if you do not want installation for development
 pipenv sync --dev
 ~~~
 
@@ -30,7 +34,17 @@ pipenv sync --dev
 The module is not on pypi currently. But pip can install from github.
 
 ~~~bash
+# Non-development installation
 pip install git+https://github.com/nialov/fractopo#egg=fractopo
+~~~
+
+Or locally
+
+~~~bash
+git clone https://github.com/nialov/fractopo --depth 1
+cd fractopo
+# Omit [dev] from end if you do not want installation for development
+pip install --editable .[dev]
 ~~~
 
 ## Usage
@@ -40,7 +54,7 @@ usage guidance and examples.
 
 ### Geometric and topological trace network analysis
 
-Trace and target area data (GeoDataFrames) are passed into a `Network` object
+Trace and target area data (`GeoDataFrame`s) are passed into a `Network` object
 which has properties and functions for returning and visualizing different
 parameters and attributes of trace data.
 
@@ -55,7 +69,7 @@ network = Network(
 network.branch_counts
 network.node_counts
 
-# Plotting is done by plot_ methods
+# Plotting is done by plot_ -affixed methods
 network.plot_trace_lengths()
 
 ~~~
@@ -75,9 +89,9 @@ validation = Validation(
 validated_trace_data = validation.run_validation()
 ~~~
 
-Trace validation is also accessible as a console script, `tracevalidate`
+Trace validation is also accessible as a command-line script, `tracevalidate`
 
-Trace validation always requires the target area that delineates trace data.
+`tracevalidate` always requires the target area that delineates trace data.
 
 ~~~bash
 # Get full up-to-date script help
@@ -85,7 +99,8 @@ Trace validation always requires the target area that delineates trace data.
 tracevalidate --help
 
 # Basic usage:
-# --fix is recommended, probably won't work without it.
+# --fix is recommended due to automatic fixing being very minor in effect
+# currently
 # --output can be omitted. By default the same spatial filetype
 # as the input is used and the output is saved as e.g.
 # /path/to/validated/trace_data_validated.shp
