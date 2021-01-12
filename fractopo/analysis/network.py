@@ -3,53 +3,42 @@ Analyse and plot trace map data with Network.
 """
 
 # Python Windows co-operation imports
-from pathlib import Path
+import logging
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
 
 import geopandas as gpd
 import matplotlib
-
-# Math and analysis imports
-# Plotting imports
-# DataFrame analysis imports
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import ternary
 import powerlaw
-
-# Own code imports
-from fractopo.general import (
-    determine_azimuth,
-    determine_set,
-    CLASS_COLUMN,
-    CONNECTION_COLUMN,
-    POWERLAW,
-    LOGNORMAL,
-    EXPONENTIAL,
+import ternary
+from fractopo import SetRangeTuple
+from fractopo.analysis.anisotropy import (
+    determine_anisotropy_sum,
+    plot_anisotropy_plot,
 )
-from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
-    plot_xyi_plot,
-    plot_branch_plot,
-    determine_node_classes,
     determine_branch_classes,
+    determine_node_classes,
     determine_topology_parameters,
+    plot_branch_plot,
     plot_parameters_plot,
+    plot_xyi_plot,
 )
-from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
     plot_crosscut_abutting_relationships_plot,
 )
-
-from typing import Dict, Tuple, Union, List, Optional, Literal, Callable, Any
-import logging
+from fractopo.branches_and_nodes import branches_and_nodes
+from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN
 
 
 @dataclass
 class Network:
+
     """
     Trace network.
 
@@ -68,7 +57,7 @@ class Network:
 
     # Azimuth sets
     # ============
-    azimuth_set_ranges: Tuple[Tuple[float, float], ...] = (
+    azimuth_set_ranges: SetRangeTuple = (
         (0, 60),
         (60, 120),
         (120, 180),
@@ -80,11 +69,11 @@ class Network:
 
     # Trace length
     trace_length_set_names: Optional[Tuple[str, ...]] = None
-    trace_length_set_ranges: Optional[Tuple[Tuple[float, float], ...]] = None
+    trace_length_set_ranges: Optional[SetRangeTuple] = None
 
     # Branch length
     branch_length_set_names: Optional[Tuple[str, ...]] = None
-    branch_length_set_ranges: Optional[Tuple[Tuple[float, float], ...]] = None
+    branch_length_set_ranges: Optional[SetRangeTuple] = None
 
     # Branches and nodes
     # ==================
@@ -115,6 +104,13 @@ class Network:
         return tuple(as_gen)
 
     def __setattr__(self, name: str, value: Any) -> None:
+        """
+        Override default __setattr__ to force DataFrame copying.
+
+        Normally DataFrames are passed as references instead of passing
+        reference allowing side-effects. Also resets LineData for branch
+        data when setting it.
+        """
         if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
             self.__dict__[name] = value.copy()
             if name == "branch_gdf":
@@ -129,10 +125,12 @@ class Network:
             self.__dict__[name] = value
 
     def __post_init__(self):
+        """
+        Copy GeoDataFrames instead of changing inputs.
 
-        # Copy GeoDataFrames instead of changing inputs.
-        # If the data is passed later to attribute __setattr__ will also
-        # handle copying.
+        If the data is passed later to attribute __setattr__ will also
+        handle copying.
+        """
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
         self.trace_data = LineData(
@@ -165,6 +163,9 @@ class Network:
         self.node_gdf = self.node_gdf.copy() if self.node_gdf is not None else None
 
     def reset_length_data(self):
+        """
+        Reset LineData attributes.
+        """
         self.trace_data = LineData(
             self.trace_gdf,
             self.azimuth_set_ranges,
@@ -520,3 +521,4 @@ class Network:
         if label is None:
             label = self.name
         return self.branch_data.plot_length_set_count(label=label)
+

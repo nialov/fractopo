@@ -21,6 +21,7 @@ import powerlaw
 import seaborn as sns
 import shapely
 import ternary
+from fractopo import SetRangeTuple
 from matplotlib import patheffects as path_effects, pyplot as plt
 from shapely import prepared, strtree
 from shapely.affinity import scale
@@ -131,7 +132,7 @@ class Param(Enum):
 
 def determine_set(
     value: float,
-    value_ranges: Tuple[Tuple[float, float], ...],
+    value_ranges: SetRangeTuple,
     set_names: Tuple[str, ...],
     loop_around: bool,
 ) -> np.ndarray:
