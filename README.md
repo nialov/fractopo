@@ -8,6 +8,7 @@ lineament and fracture trace maps (fracture networks).
 ## Development status
 
 * In development.
+* Many legacy python files are still in fractopo/ directory and subdirectories.
 
 ## Full documentation
 
