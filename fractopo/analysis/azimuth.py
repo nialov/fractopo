@@ -4,7 +4,7 @@ Functions for plotting rose plots.
 
 import math
 from textwrap import wrap
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
 
@@ -14,7 +14,8 @@ from matplotlib import pyplot as plt
 
 def _calc_ideal_bin_width(n: Union[int, float], axial=True) -> float:
     """
-    Calculate ideal bin width. axial or vector data
+    Calculate ideal bin width. axial or vector data.
+
     Reference:
         Sanderson, D.J., Peacock, D.C.P., 2020.
         Making rose diagrams fit-for-purpose. Earth-Science Reviews.
@@ -54,7 +55,6 @@ def _calc_bins(ideal_bin_width: float) -> Tuple[np.ndarray, float]:
     >>> _calc_bins(25.554235)
     (array([  0. ,  22.5,  45. ,  67.5,  90. , 112.5, 135. , 157.5, 180. ]), 22.5)
     """
-
     div = 180 / ideal_bin_width
     rounded_div = math.ceil(div)
     bin_width = 180 / rounded_div
@@ -129,6 +129,9 @@ def plot_azimuth_ax(
     bin_heights: np.ndarray,
     ax: matplotlib.axes.Axes,  # type: ignore
 ):
+    """
+    Plot azimuth rose plot to ax.
+    """
     # Rose type always equal-area
     number_of_azimuths = np.sqrt(bin_heights)  # type: ignore
 
@@ -219,6 +222,9 @@ def decorate_azimuth_ax(
     set_array: np.ndarray,
     set_names: Tuple[str, ...],
 ):
+    """
+    Decorate azimuth rose plot ax.
+    """
     # Title is the name of the target area or group
     prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
     title = "\n".join(wrap(f"{label}", 10))
@@ -257,7 +263,7 @@ def plot_azimuth_plot(
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
     label: str,
-) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:
     """
     Plot azimuth rose plot to its own figure.
 
