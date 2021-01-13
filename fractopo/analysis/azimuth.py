@@ -2,13 +2,14 @@
 Functions for plotting rose plots.
 """
 
-from typing import Tuple, Optional, List, Dict
 import math
 from textwrap import wrap
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
 import matplotlib
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 
 def _calc_ideal_bin_width(n: int, axial=True) -> float:
@@ -124,8 +125,6 @@ def plot_azimuth_ax(
     bin_heights: np.ndarray,
     ax: matplotlib.axes.Axes,  # type: ignore
 ):
-    """"""
-
     # Rose type always equal-area
     number_of_azimuths = np.sqrt(bin_heights)  # type: ignore
 
@@ -154,35 +153,37 @@ def plot_azimuth_ax(
     ax.set_thetamin(0)
     ax.set_thetamax(180)
     # The average of number_of_azimuths is displayed as a radial grid-line.
+    # TODO: Cannot modify theta lines or r lines
     rlines, _ = ax.set_rgrids(
-        radii=[number_of_azimuths.mean()],
+        radii=(number_of_azimuths.mean(),),  # type: ignore
         angle=0,
-        fmt="",
         fontsize=1,
         alpha=0.8,
+        fmt="",
         ha="left",
     )
-    if isinstance(rlines, list):
-        rline: plt.Line2D
-        for rline in rlines:
-            rline.set_linestyle("dashed")
+    # TODO: No effect
+    # if isinstance(rlines, list):
+    #     rline: plt.Line2D
+    #     for rline in rlines:
+    #         rline.set_linestyle("dashed")
+    #         rline.set_linewidth(1)
+    #         rline.set_color("black")
 
-    ax.grid(linewidth=1, color="k", alpha=0.8)
-
-    # Fractions of length for each set in a separate box
     # Tick labels
     labels = ax.get_xticklabels()
     for label in labels:
-        label._y = -0.01
+        label._y = -0.03
         label._fontproperties._size = 15
         label._fontproperties._weight = "bold"
+    return ax
 
 
 def _create_azimuth_set_text(
     length_array: np.ndarray, set_array: np.ndarray, set_names: Tuple[str, ...]
 ) -> str:
     """
-    Creates azimuth set statistics for figure.
+    Create azimuth set statistics for figure.
 
     E.g.
 
@@ -260,7 +261,8 @@ def plot_azimuth_plot(
     """
     azimuth_bin_dict = determine_azimuth_bins(azimuth_array, length_array)
     fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))
-    plot_azimuth_ax(**azimuth_bin_dict, ax=ax)
+    ax = plot_azimuth_ax(**azimuth_bin_dict, ax=ax)
+    # TODO: Is length_array always required
     decorate_azimuth_ax(
         ax=ax,
         label=label,
@@ -273,3 +275,4 @@ def plot_azimuth_plot(
         fig,
         ax,
     )
+
