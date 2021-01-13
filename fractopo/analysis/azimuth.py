@@ -4,7 +4,7 @@ Functions for plotting rose plots.
 
 import math
 from textwrap import wrap
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -12,7 +12,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 
-def _calc_ideal_bin_width(n: int, axial=True) -> float:
+def _calc_ideal_bin_width(n: Union[int, float], axial=True) -> float:
     """
     Calculate ideal bin width. axial or vector data
     Reference:
@@ -87,7 +87,9 @@ def _calc_locs(bin_width: float) -> np.ndarray:
 
 
 def determine_azimuth_bins(
-    azimuth_array: np.ndarray, length_array: Optional[np.ndarray] = None
+    azimuth_array: np.ndarray,
+    length_array: Optional[np.ndarray] = None,
+    bin_multiplier: Union[float, int] = 1,
 ) -> Dict[str, np.ndarray]:
     """
     Calculate azimuth bins for plotting azimuth rose plots.
@@ -104,7 +106,9 @@ def determine_azimuth_bins(
 
     """
     # Ideal width of rose plot bin based on sample size.
+    # Lower bin size with bin_multiplier (result no longer ideal!)
     ideal_bin_width = _calc_ideal_bin_width(len(azimuth_array))
+    ideal_bin_width = ideal_bin_width * bin_multiplier
     # True rose plot width.
     bin_edges, bin_width = _calc_bins(ideal_bin_width)
     # Location of rose plot bins.

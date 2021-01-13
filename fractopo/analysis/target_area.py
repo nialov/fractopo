@@ -4,30 +4,29 @@ grouped target areas.
 """
 
 # Python Windows co-operation imports
+import logging
 from pathlib import Path
 from textwrap import wrap
+from typing import Dict, Tuple, Union
+
+import numpy as np
+from scipy.interpolate import CubicSpline
 
 import geopandas as gpd
-import matplotlib.patches as patches
+import pandas as pd
+import powerlaw
+import ternary
+from fractopo.analysis import config, tools
+from fractopo.analysis.config import EXPONENTIAL, LOGNORMAL, POWERLAW
+from matplotlib import patches, pyplot as plt
+
 
 # Math and analysis imports
 # Plotting imports
 # DataFrame analysis imports
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import ternary
-import powerlaw
 
-from scipy.interpolate import CubicSpline
 
 # Own code imports
-import fractopo.analysis.tools as tools
-import fractopo.analysis.config as config
-
-from fractopo.analysis.config import POWERLAW, LOGNORMAL, EXPONENTIAL
-from typing import Dict, Tuple, Union
-import logging
 
 
 # Classes
@@ -243,7 +242,9 @@ class TargetAreaLines:
         fit_distributions=[],
     ):
         """
-        Plots a length distribution to its own figure along with powerlaw, lognormal and exponential fits.
+        Plot a length distribution to its own figure along with powerlaw fits.
+
+        Fits = powerlaw, lognormal and exponential.
 
         :param unified: Is data from target area or grouped data?
         :type unified: bool
@@ -264,7 +265,8 @@ class TargetAreaLines:
             powerlaw_cut_off=fit.power_law.xmin,
         )
         if not len(fit_distributions) == 0:
-            # Plot the given fit_distributions along with the scatter plot with original length data.
+            # Plot the given fit_distributions along with the scatter plot
+            # with original length data.
             [
                 TargetAreaLines.plot_length_distribution_fit(fit, fit_distribution, ax)
                 for fit_distribution in fit_distributions
@@ -1201,3 +1203,4 @@ class TargetAreaNodes:
             if node_type not in node_dict:
                 node_dict[node_type] = 0
         return node_dict
+
