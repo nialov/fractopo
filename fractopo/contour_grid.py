@@ -1,34 +1,20 @@
 """
-File: contour_grid.py
-Author: Nikolas Ovaskainen
-Github: https://github.com/nialov
-Description: Scripts for creating sample grids for fracture trace, branch and
-node data
+Scripts for creating sample grids for fracture trace, branch and node data.
 """
-import geopandas as gpd
-import fiona
-import shapely
-from shapely.geometry import Polygon, LineString, Point
-from pathlib import Path
-import matplotlib.pyplot as plt
+from typing import Dict, Optional
+
 import numpy as np
 
-from typing import Dict, Tuple, List, Optional
-
-from fractopo.general import (
-    X_node,
-    Y_node,
-    I_node,
-    E_node,
-    CONNECTION_COLUMN,
-    CLASS_COLUMN,
-    GEOMETRY_COLUMN,
-)
+import geopandas as gpd
+from fractopo.general import GEOMETRY_COLUMN, I_node, X_node, Y_node
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import Polygon
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
-    Creates an empty polygon grid for sampling fracture branch data.
+    Create an empty polygon grid for sampling fracture branch data.
+
     Grid is created to always contain all given branches.
 
     E.g.
@@ -90,14 +76,13 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
 def populate_sample_cell(
     sample_cell: Polygon,
     sample_cell_area: float,
-    traces_sindex: gpd.sindex.PyGEOSSTRTreeIndex,
-    nodes_sindex: gpd.sindex.PyGEOSSTRTreeIndex,
+    traces_sindex: PyGEOSSTRTreeIndex,
+    nodes_sindex: PyGEOSSTRTreeIndex,
     traces: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
 ) -> Dict[str, float]:
     """
-    Takes a single grid polygon and populates it with parameters usings the
-    other inputs.
+    Take a single grid polygon and populate it with parameters.
 
     E.g.
 
@@ -361,3 +346,4 @@ def run_grid_sampling(
         grid = create_grid(cell_width, branches)
     sampled_grid = sample_grid(grid, traces, nodes)
     return sampled_grid
+
