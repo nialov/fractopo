@@ -116,7 +116,7 @@ def determine_azimuth_bins(
     if length_array is None:
         # If no length_array is passed weight of 1.0 for all means equal
         # weights.
-        length_array = np.array([1.0 for _ in range(len(azimuth_array))])
+        length_array = np.array([1.0] * (len(azimuth_array)))
     # Height of rose plot bins.
     bin_heights, _ = np.histogram(azimuth_array, bin_edges, weights=length_array)
 
