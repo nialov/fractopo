@@ -12,7 +12,6 @@
 
 click
 geopandas
-geotrans
 matplotlib
 numpy
 openpyxl

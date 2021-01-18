@@ -15,9 +15,12 @@ coverage
 descartes
 hypothesis
 hypothesis-geometry
+invoke
 jupyterlab
 mypy
 nbsphinx
+nox
+pipenv-setup
 pipenv-to-requirements
 pytest
 pytest-regressions
