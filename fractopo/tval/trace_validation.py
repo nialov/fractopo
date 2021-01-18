@@ -17,6 +17,7 @@ from fractopo.tval.trace_validators import (
     ALL_VALIDATORS,
     MAJOR_ERRORS,
     MAJOR_VALIDATORS,
+    VALIDATION_REQUIRES_NODES,
     ValidatorClass,
 )
 from geopandas.sindex import PyGEOSSTRTreeIndex
@@ -53,7 +54,9 @@ class Validation:
     SHARP_AVG_THRESHOLD: float = 135.0
     SHARP_PREV_SEG_THRESHOLD: float = 100.0
     ERROR_COLUMN: str = "VALIDATION_ERRORS"
-    GEOMETRY_COLUMN: Final[str] = "geometry"
+    GEOMETRY_COLUMN: str = "geometry"
+
+    determine_validation_nodes: bool = True
 
     def __post_init__(self):
         """
@@ -138,11 +141,11 @@ class Validation:
         return self._spatial_index
 
     @property
-    def faulty_junctions(self) -> Set[int]:
+    def faulty_junctions(self) -> Optional[Set[int]]:
         """
         Determine indexes with Multi Junctions.
         """
-        if self._faulty_junctions is None:
+        if self._faulty_junctions is None and self.determine_validation_nodes:
             all_nodes = [
                 tuple(chain(first, second))
                 for first, second in zip(self.intersect_nodes, self.endpoint_nodes)
@@ -155,11 +158,11 @@ class Validation:
         return self._faulty_junctions
 
     @property
-    def vnodes(self) -> Set[int]:
+    def vnodes(self) -> Optional[Set[int]]:
         """
         Determine indexes with V-Nodes.
         """
-        if self._vnodes is None:
+        if self._vnodes is None and self.determine_validation_nodes:
             self._vnodes = trace_validators.VNodeValidator.determine_v_nodes(
                 endpoint_nodes=self.endpoint_nodes,
                 snap_threshold=self.SNAP_THRESHOLD,
@@ -167,7 +170,11 @@ class Validation:
             )
         return self._vnodes
 
-    def run_validation(self, first_pass=True) -> gpd.GeoDataFrame:
+    def run_validation(
+        self,
+        first_pass=True,
+        choose_validators: Optional[List[ValidatorClass]] = None,
+    ) -> gpd.GeoDataFrame:
         """
         Run validation.
 
@@ -180,6 +187,17 @@ class Validation:
                 )
                 self.traces: gpd.GeoDataFrame = self.traces.drop(columns=(err_col))
 
+        # There's an option to choose the validators
+        validators = ALL_VALIDATORS
+        if choose_validators is not None:
+            validators = choose_validators
+            # Check if chosen validators require determining nodes.
+            self.determine_validation_nodes = any(
+                [
+                    validator in VALIDATION_REQUIRES_NODES
+                    for validator in choose_validators
+                ]
+            )
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
         for idx, geom in enumerate(self.traces.geometry.values):
@@ -191,12 +209,13 @@ class Validation:
             ignore_geom: bool = False
             trace_candidates: Optional[gpd.GeoSeries] = None
             # validation loop
-            validators = MAJOR_VALIDATORS if first_pass else ALL_VALIDATORS
+
+            validators = MAJOR_VALIDATORS if first_pass else validators
             for validator in validators:
                 if ignore_geom:
                     # Break out of validation loop. See above comments
                     break
-                delicate_kwargs = dict()
+                # delicate_kwargs = dict()
                 if isinstance(geom, LineString) and not geom.is_empty:
                     # Some conditionals to avoid try-except loop
                     # trace candidates that are nearby to geom based on spatial index
@@ -239,7 +258,9 @@ class Validation:
         validated_gdf[self.GEOMETRY_COLUMN] = all_geoms
         if first_pass:
             self.traces = validated_gdf
-            validated_gdf = self.run_validation(first_pass=False)
+            validated_gdf = self.run_validation(
+                first_pass=False, choose_validators=choose_validators
+            )
 
         return validated_gdf
 

@@ -603,3 +603,4 @@ ALL_VALIDATORS = MAJOR_VALIDATORS + MINOR_VALIDATORS
 MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)
 ValidatorClass = Type[BaseValidator]
 
+VALIDATION_REQUIRES_NODES = (MultiJunctionValidator, VNodeValidator)
