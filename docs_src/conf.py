@@ -31,8 +31,6 @@ release = "0.1"
 
 # -- General configuration ---------------------------------------------------
 
-# TODO: Documentation with rtd
-
 extensions = [
     "recommonmark",
     "sphinx.ext.autodoc",
@@ -79,7 +77,7 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-if not "READTHEDOCS" in os.environ:
+if "READTHEDOCS" not in os.environ:
     # Always execute notebooks locally (to test that they work!)
     nbsphinx_execute = "always"
 else:
