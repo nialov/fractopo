@@ -36,7 +36,7 @@ def test_tracevalidate(
     # Checks if output is saved
     assert output_file.exists()
     output_gdf = gpd.read_file(output_file)
-    if not Validation.ERROR_COLUMN in output_gdf.columns:
+    if Validation.ERROR_COLUMN not in output_gdf.columns:
         assert "shp" in trace_path.suffix
         assert "VALID" in str(output_gdf.columns) or "valid" in str(output_gdf.columns)
     if "--summary" in cli_args:
@@ -49,3 +49,20 @@ def test_make_output_dir(tmp_path):
     output_dir = cli.make_output_dir(some_file)
     assert output_dir.exists()
     assert output_dir.is_dir()
+
+
+@pytest.mark.parametrize("args", Helpers.test_tracevalidate_only_area_params)
+def test_tracevalidate_only_area(args, tmp_path):
+    """
+    Test tracevalidate script with --only-area-validation.
+    """
+    outputs_cmds = ["--output", str(tmp_path / "output_traces")]
+    clirunner = CliRunner()
+    result = clirunner.invoke(cli.tracevalidate, args + outputs_cmds)
+    # Check that exit code is 0 (i.e. ran succesfully.)
+    if not result.exit_code == 0:
+        print(result.stderr)
+        assert False
+
+    assert Path(outputs_cmds[1]).exists()
+    assert Validation.ERROR_COLUMN[0:10] in gpd.read_file(outputs_cmds[1]).columns

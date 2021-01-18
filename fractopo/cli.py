@@ -11,6 +11,7 @@ import click
 import fiona
 import geopandas as gpd
 from fractopo.tval.trace_validation import Validation
+from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -76,6 +77,9 @@ def make_output_dir(trace_path: Path) -> Path:
     "summary", "--summary", is_flag=True, help="Print summary of validation results"
 )
 @click.option("snap_threshold", "--snap-threshold", type=float, default=0.01)
+@click.option(
+    "only_area_validation", "--only-area-validation", is_flag=True, default=False
+)
 def tracevalidate(
     trace_file: str,
     area_file: str,
@@ -83,6 +87,7 @@ def tracevalidate(
     summary: bool,
     snap_threshold: float,
     output_path: Union[Path, None],
+    only_area_validation: bool,
 ):
     """
     Validate trace data delineated by target area data.
@@ -123,7 +128,11 @@ def tracevalidate(
         allow_fix,
         SNAP_THRESHOLD=snap_threshold,
     )
-    validated_trace = validation.run_validation()
+    if only_area_validation:
+        choose_validators = [TargetAreaSnapValidator]
+    else:
+        choose_validators = None
+    validated_trace = validation.run_validation(choose_validators=choose_validators)
 
     # Set same crs as input if input had crs
     if input_crs is not None:
@@ -133,6 +142,9 @@ def tracevalidate(
     with fiona.open(trace_path) as open_trace_file:
         save_driver = open_trace_file.driver
 
+    # Remove file if one exists at output_path
+    if Path(output_path).exists():
+        Path(output_path).unlink()
     # Change validation_error column to type: `string` and consequently save
     # the GeoDataFrame.
     validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
