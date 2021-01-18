@@ -8,7 +8,7 @@ import numpy as np
 import geopandas as gpd
 from fractopo.general import GEOMETRY_COLUMN, I_node, X_node, Y_node
 from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -49,10 +49,10 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     YbottomOrigin = ymax - cell_height
     polygons = []
     # Create grid cell polygons
-    for i in range(cols):
+    for _ in range(cols):
         Ytop = YtopOrigin
         Ybottom = YbottomOrigin
-        for j in range(rows):
+        for _ in range(rows):
             polygons.append(
                 Polygon(
                     [
@@ -252,21 +252,21 @@ def sample_grid(
     ...     }
     ... )
     >>> grid = create_grid(cell_width=0.5, branches=branches)
-    >>> sample_grid(grid, branches, nodes).loc[5]
-    geometry                  POLYGON ((1.5 2.5, 2 2.5, 2 2, 1.5 2, 1.5 2.5))
-    Sample_Area                                                       1.76431
-    Total_Length                                                      1.32287
-    Average_Trace_Length                                                    0
+    >>> sample_grid(grid, branches, nodes).loc[5].sort_index()
     Average_Branch_Length                                            0.661437
-    Branch_Frequency                                                  1.13359
-    Trace_Frequency                                                         0
+    Average_Trace_Length                                                    0
+    B22                                                              0.495944
+    Branch_Frequency                                                 1.133589
+    Connection_Frequency                                             0.566794
+    Connections_Per_Branch                                           2.000000
+    Connections_Per_Trace                                                   0
     Node_Frequency                                                   0.566794
     P21                                                              0.749798
-    P22                                                                     0
-    B22                                                              0.495944
-    Connections_Per_Branch                                                  2
-    Connections_Per_Trace                                                   0
-    Connection_Frequency                                             0.566794
+    P22                                                              0.000000
+    Sample_Area                                                      1.764309
+    Total_Length                                                     1.322875
+    Trace_Frequency                                                  0.000000
+    geometry                  POLYGON ((1.5 2.5, 2 2.5, 2 2, 1.5 2, 1.5 2.5))
     Name: 5, dtype: object
 
     """

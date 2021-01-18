@@ -1,42 +1,43 @@
-import geopandas as gpd
-import shapely
-import shapely.wkt as wkt
-from shapely.geometry import (
-    LineString,
-    Point,
-    MultiPoint,
-    Polygon,
-    MultiLineString,
-    box,
-)
-from shapely.ops import snap, split
-import shapely
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import List
-from hypothesis.strategies import tuples, floats, integers
-from hypothesis import given, assume, settings, HealthCheck
-from hypothesis_geometry import planar
 from pathlib import Path
-import pytest
+from typing import List
 
-# Import trace_validator
-from fractopo import branches_and_nodes
-import fractopo.tval.trace_builder as trace_builder
+import numpy as np
+from tests import Helpers
+from tests.sample_data.py_samples import samples
+
+import geopandas as gpd
+import pandas as pd
+import pytest
+import shapely
+from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import (
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+    EE_branch,
+    E_node,
     I_node,
     X_node,
     Y_node,
-    E_node,
-    CONNECTION_COLUMN,
-    CLASS_COLUMN,
-    EE_branch,
 )
-import fractopo.general as general
+from fractopo.tval import trace_builder
+from hypothesis import HealthCheck, assume, given, settings
+from hypothesis.strategies import floats, integers, tuples
+from hypothesis_geometry import planar
+from matplotlib import pyplot as plt
+from shapely import wkt
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    Point,
+    Polygon,
+    box,
+)
+from shapely.ops import snap, split
 
-import tests.sample_data.py_samples.samples as samples
-from tests import Helpers
+
+# Import trace_validator
+
 
 
 def test_remove_identical_sindex():

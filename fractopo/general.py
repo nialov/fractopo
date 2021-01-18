@@ -3,27 +3,20 @@ Contains general calculation and plotting tools.
 """
 import logging
 import math
-import os
 from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
-from pathlib import Path
-from textwrap import wrap
-from typing import Any, Dict, Final, List, Set, Tuple, Union
+from typing import Any, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
 import geopandas as gpd
-import matplotlib
 import pandas as pd
-import powerlaw
 import seaborn as sns
-import shapely
-import ternary
 from fractopo import SetRangeTuple
 from matplotlib import patheffects as path_effects, pyplot as plt
-from shapely import prepared, strtree
+from shapely import prepared
 from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
@@ -33,7 +26,6 @@ from shapely.geometry import (
     Polygon,
     box,
 )
-from shapely.ops import linemerge
 
 
 styled_text_dict = {

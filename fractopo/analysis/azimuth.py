@@ -285,4 +285,3 @@ def plot_azimuth_plot(
         fig,
         ax,
     )
-

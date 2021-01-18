@@ -7,8 +7,7 @@ the traces for further analysis (branch and node determination).
 import logging
 from dataclasses import dataclass
 from itertools import chain
-from pathlib import Path
-from typing import Any, Dict, Final, List, Optional, Set, Tuple, Type, Union
+from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
 from fractopo.general import determine_general_nodes
