@@ -174,22 +174,6 @@ class Helpers:
         nice_tuple,
     )
 
-    @classmethod
-    def get_multi_polyline_strategy(cls):
-        multi_polyline_strategy = tuples(
-            *tuple(
-                [
-                    planar.polylines(
-                        x_coordinates=cls.nice_integer_coordinates,
-                        min_size=2,
-                        max_size=5,
-                    )
-                    for _ in range(5)
-                ]
-            )
-        )
-        return multi_polyline_strategy
-
     snap_threshold = 0.001
     geosrs_identicals = gpd.GeoSeries(
         [Point(1, 1), Point(1, 1), Point(2, 1), Point(2, 1), Point(3, 1), Point(2, 3)]
@@ -239,9 +223,6 @@ class Helpers:
     )
     nice_point = planar.points(nice_integer_coordinates)
     # TODO: Is not really nice...
-    nice_polyline = planar.polylines(nice_integer_coordinates).filter(
-        lambda x: LineString(x).is_valid
-    )
 
     @classmethod
     def get_nice_traces(cls):
@@ -713,6 +694,17 @@ class Helpers:
             2.5,  # area_edge_snap_multiplier: float,
             True,  # assumed_result: bool,
         ),
+    ]
+
+    test_tracevalidate_only_area_params = [
+        (
+            [
+                "tests/sample_data/KB7/KB7_tulkinta_50.shp",  # cut 0-50
+                "tests/sample_data/KB7/KB7_tulkinta_alue.shp",
+                "--fix",
+                "--only-area-validation",
+            ]  # args
+        )
     ]
 
 

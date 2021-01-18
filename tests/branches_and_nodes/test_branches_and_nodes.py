@@ -209,20 +209,6 @@ def test_snap_traces():
             is_in_ls = True
 
 
-@given(Helpers.get_multi_polyline_strategy())
-def test_snap_traces_hypothesis(multi_polyline_strategy):
-    geosrs = gpd.GeoSeries(
-        [LineString(segments) for segments in multi_polyline_strategy]
-    )
-    snapped_traces, any_changed_applied = branches_and_nodes.snap_traces(
-        geosrs, Helpers.snap_threshold
-    )
-    while any_changed_applied:
-        snapped_traces, any_changed_applied = branches_and_nodes.snap_traces(
-            snapped_traces, Helpers.snap_threshold
-        )
-
-
 def assert_result_insert_point_to_linestring(result, point):
     # Assert it is in list
     assert tuple(*point.coords) in list(result.coords)
@@ -250,15 +236,15 @@ def test_insert_point_to_linestring(linestring, point, assert_result):
     assert_result(result, point)
 
 
-@settings(suppress_health_check=(HealthCheck.filter_too_much,))
-@given(Helpers.nice_polyline, Helpers.nice_point)
-def test_insert_point_to_linestring_hypothesis(linestring, point):
-    linestring = LineString(linestring)
-    assume(linestring.is_valid)
-    assume(linestring.is_simple)
-    point = Point(point)
-    assume(not any([point.intersects(Point(xy)) for xy in linestring.coords]))
-    result = branches_and_nodes.insert_point_to_linestring(linestring, point)
+# @settings(suppress_health_check=(HealthCheck.filter_too_much,))
+# @given(Helpers.nice_polyline, Helpers.nice_point)
+# def test_insert_point_to_linestring_hypothesis(linestring, point):
+#     linestring = LineString(linestring)
+#     assume(linestring.is_valid)
+#     assume(linestring.is_simple)
+#     point = Point(point)
+#     assume(not any([point.intersects(Point(xy)) for xy in linestring.coords]))
+#     result = branches_and_nodes.insert_point_to_linestring(linestring, point)
 
 
 def test_additional_snapping_func():
@@ -397,3 +383,4 @@ def test_with_known_mls_error():
 
 def test_branches_and_nodes_regression(file_regression):
     pass
+

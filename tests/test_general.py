@@ -1,12 +1,12 @@
-from hypothesis.strategies._internal.core import booleans, floats
-import fractopo.general as general
-from shapely.geometry import Point, LineString, Polygon
-import geopandas as gpd
 import numpy as np
-
-from hypothesis import given
 from tests import Helpers
+
+import geopandas as gpd
 import pytest
+from fractopo import general
+from hypothesis import given
+from hypothesis.strategies._internal.core import booleans, floats
+from shapely.geometry import LineString, Point, Polygon
 
 
 @pytest.mark.parametrize(
@@ -39,12 +39,12 @@ def test_is_azimuth_close(first, second, tolerance, halved):
     assert isinstance(result, bool)
 
 
-@given(Helpers.nice_polyline)
-def test_determine_regression_azimuth(line: LineString):
-    trace = LineString(line)
-    result = general.determine_regression_azimuth(trace)
-    assert isinstance(result, float)
-    assert not np.isnan(result)  # type: ignore
+# @given(Helpers.nice_polyline)
+# def test_determine_regression_azimuth(line: LineString):
+#     trace = LineString(line)
+#     result = general.determine_regression_azimuth(trace)
+#     assert isinstance(result, float)
+#     assert not np.isnan(result)  # type: ignore
 
 
 # @given()
@@ -74,3 +74,4 @@ def test_bounding_polygon(geoseries):
     for geom in geoseries:
         assert not geom.intersects(result.boundary)
         assert geom.within(result)
+
