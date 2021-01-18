@@ -18,6 +18,9 @@ nbsphinx = "*"
 recommonmark = "*"
 sphinx-rtd-theme = "*"
 black = "*"
+nox = "*"
+invoke = "*"
+pipenv-setup = "*"
 
 [packages]
 geopandas = "*"
@@ -34,7 +37,6 @@ xlrd = "*"
 seaborn = "*"
 matplotlib = "*"
 click = "*"
-geotrans = "*"
 
 [requires]
 python_version = "3.8"
