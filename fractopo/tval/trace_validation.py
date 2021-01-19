@@ -171,9 +171,7 @@ class Validation:
         return self._vnodes
 
     def run_validation(
-        self,
-        first_pass=True,
-        choose_validators: Optional[List[ValidatorClass]] = None,
+        self, first_pass=True, choose_validators: Optional[List[ValidatorClass]] = None,
     ) -> gpd.GeoDataFrame:
         """
         Run validation.

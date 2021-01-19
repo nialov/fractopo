@@ -162,6 +162,7 @@ class MultiJunctionValidator(BaseValidator):
 
 
 class VNodeValidator(BaseValidator):
+
     """
     Finds V-nodes within trace data.
     """
@@ -171,6 +172,7 @@ class VNodeValidator(BaseValidator):
     @staticmethod
     def validation_method(*args, idx: int, vnodes: Set[int], **kwargs) -> bool:
         """
+        Validate for V-nodes.
 
         >>> VNodeValidator.validation_method(idx=1, vnodes=set([1, 2]))
         False
@@ -188,6 +190,7 @@ class VNodeValidator(BaseValidator):
         snap_threshold_error_multiplier: float,
     ) -> Set[int]:
         """
+        Determine V-node errors.
 
         >>> endpoint_nodes = [
         ...     (Point(0, 0), Point(1, 1)),
@@ -210,6 +213,7 @@ class VNodeValidator(BaseValidator):
 
 
 class MultipleCrosscutValidator(BaseValidator):
+
     """
     Find traces that cross-cut each other multiple times.
 
@@ -220,11 +224,10 @@ class MultipleCrosscutValidator(BaseValidator):
 
     @staticmethod
     def validation_method(
-        geom: LineString,
-        trace_candidates: gpd.GeoSeries,
-        **kwargs,
+        geom: LineString, trace_candidates: gpd.GeoSeries, **kwargs,
     ) -> bool:
         """
+        Validation method for MultipleCrosscutValidator.
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -1)])
         >>> trace_candidates = gpd.GeoSeries(
@@ -255,8 +258,9 @@ class MultipleCrosscutValidator(BaseValidator):
 
 class UnderlappingSnapValidator(BaseValidator):
     """
-    Find snapping errors of underlapping traces by using a multiple of the
-    given snap_threshold
+    Find snapping errors of underlapping traces.
+
+    Uses a multiple of the given snap_threshold.
     """
 
     ERROR = "UNDERLAPPING SNAP"
@@ -604,3 +608,4 @@ MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)
 ValidatorClass = Type[BaseValidator]
 
 VALIDATION_REQUIRES_NODES = (MultiJunctionValidator, VNodeValidator)
+
