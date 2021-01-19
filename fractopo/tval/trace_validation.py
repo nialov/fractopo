@@ -47,7 +47,7 @@ class Validation:
     # Default thresholds
     SNAP_THRESHOLD: float = 0.01
     SNAP_THRESHOLD_ERROR_MULTIPLIER: float = 1.1
-    AREA_EDGE_SNAP_MULTIPLIER: float = 2.5
+    AREA_EDGE_SNAP_MULTIPLIER: float = 1.5
     TRIANGLE_ERROR_SNAP_MULTIPLIER: float = 10.0
     OVERLAP_DETECTION_MULTIPLIER: float = 50.0
     # TODO: Separate SHARP TURNS to major and minor
