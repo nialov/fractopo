@@ -623,9 +623,7 @@ def match_crs(
         return first, second
 
 
-def get_trace_endpoints(
-    trace: LineString,
-) -> Tuple[Point, Point]:
+def get_trace_endpoints(trace: LineString,) -> Tuple[Point, Point]:
     """
     Return endpoints (shapely.geometry.Point) of a given LineString
     """
@@ -635,13 +633,7 @@ def get_trace_endpoints(
             f"trace: {trace}"
         )
     return tuple(
-        (
-            endpoint
-            for endpoint in (
-                Point(trace.coords[0]),
-                Point(trace.coords[-1]),
-            )
-        )
+        (endpoint for endpoint in (Point(trace.coords[0]), Point(trace.coords[-1]),))
     )
 
 
@@ -801,14 +793,18 @@ def determine_node_junctions(
 
     # Collect nodes into GeoSeries
     flattened_nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
+
     # Create spatial index of nodes
     nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
+
     # Set collection for indexes with junctions
     indexes_with_junctions: Set[int] = set()
+
     # Iterate over node tuples i.e. points is a tuple with Points
     # The node tuple indexes represent the trace indexes
     for idx, points in enumerate(nodes):
         associated_point_count = len(points)
+
         # Because node indexes represent traces, we can remove all nodes of the
         # current trace by using the idx.
         other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
@@ -816,8 +812,10 @@ def determine_node_junctions(
         ]
         if len(points) == 0:
             continue
+
         # Iterate over the actual Points of the current trace
         for i, point in enumerate(points):
+
             # Get node candidates from spatial index
             node_candidates_idx: List[int] = list(  # type: ignore
                 nodes_geoseries_sindex.intersection(
@@ -826,9 +824,11 @@ def determine_node_junctions(
                     ).bounds
                 )
             )
+
             # Shift returned indexes by associated_point_count to match to
             # correct points
             remaining_idxs = set(other_nodes_geoseries.index.values)
+
             # Only choose node candidates that are not part of current traces
             # nodes
             node_candidates_idx = [

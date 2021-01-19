@@ -183,7 +183,7 @@ class Validation:
                 logging.info(
                     "Dropping existing validation columns from traces GeoDataFrame."
                 )
-                self.traces: gpd.GeoDataFrame = self.traces.drop(columns=(err_col))
+                self.traces: gpd.GeoDataFrame = self.traces.drop(columns=err_col)
 
         # There's an option to choose the validators
         validators = ALL_VALIDATORS

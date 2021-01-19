@@ -108,7 +108,7 @@ def tracevalidate(
     areas: gpd.GeoDataFrame = gpd.read_file(area_path)  # type: ignore
     if not all([isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)]):
         raise TypeError(
-            "Expected trace and area data to be resolvable as GeoDataFrame."
+            "Expected trace and area data to be resolvable as GeoDataFrames."
         )
 
     # Get input crs

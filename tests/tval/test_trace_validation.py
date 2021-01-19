@@ -5,7 +5,10 @@ from tests import Helpers, ValidationHelpers
 import geopandas as gpd
 import pytest
 from fractopo.tval.trace_validation import Validation
-from fractopo.tval.trace_validators import SharpCornerValidator
+from fractopo.tval.trace_validators import (
+    MultiJunctionValidator,
+    SharpCornerValidator,
+)
 
 
 @pytest.mark.parametrize(
@@ -23,8 +26,7 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,allow_fix,assume_errors",
-    Helpers.test_validation_params,
+    "traces,area,name,allow_fix,assume_errors", Helpers.test_validation_params,
 )
 def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
     additional_kwargs = dict()

@@ -1,7 +1,10 @@
 """Contains Validator classes which each have their own error to handle and mark."""
+import logging
 from abc import abstractmethod
 from itertools import chain, zip_longest
 from typing import Any, List, Optional, Set, Tuple, Type, Union
+
+import numpy as np
 
 import geopandas as gpd
 from fractopo.general import (
@@ -18,7 +21,14 @@ from fractopo.tval.trace_validation_utils import (
     segment_within_buffer,
     split_to_determine_triangle_errors,
 )
-from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, split
 
