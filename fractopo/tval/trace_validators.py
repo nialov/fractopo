@@ -395,9 +395,12 @@ class TargetAreaSnapValidator(BaseValidator):
         endpoints = get_trace_endpoints(geom)
         for endpoint in endpoints:
             for area_polygon in area.geometry.values:
-                if endpoint.within(area_polygon):
-                    # Point is completely within the area, does not intersect
-                    # its edge.
+                if TargetAreaSnapValidator.is_candidate_underlapping(
+                    endpoint, geom, area_polygon, snap_threshold=snap_threshold,
+                ):
+                    # if endpoint.within(area_polygon) and geom.within(area_polygon):
+                    # Point and trace completely within the area, does not
+                    # intersect its edge.
                     if (
                         snap_threshold
                         <= endpoint.distance(area_polygon.boundary)
@@ -408,8 +411,58 @@ class TargetAreaSnapValidator(BaseValidator):
                         return False
         return True
 
+    @staticmethod
+    def is_candidate_underlapping(
+        endpoint: Point,
+        geom: LineString,
+        area_polygon: Union[Polygon, MultiPolygon],
+        snap_threshold: float,
+    ):
+        """
+        Determine if endpoint is candidate for Underlapping error.
+        """
+        # If not even inside target area, not a candidate
+        if not endpoint.within(area_polygon):
+            return False
+
+        # Easy case: endpoint within target area and trace completely inside
+        # target area
+        if endpoint.within(area_polygon) and geom.within(area_polygon):
+            return True
+
+        # Split trace with area polygon
+        geom_split = list(split(geom, area_polygon))
+
+        # If not splittable, not a candidate
+        if len(geom_split) == 1:
+            return False
+
+        # Filter segments that do not intersect endpoint
+        endpoint_segments = [
+            segment
+            for segment in geom_split
+            if segment.distance(endpoint) < snap_threshold
+        ]
+
+        # More than 1 shouldn't intersect one endpoint
+        if not len(endpoint_segments) == 1:
+            logging.error("Expected only one segment to be close to endpoint.")
+            return False
+        endpoint_segment = endpoint_segments[0]
+
+        # Make sure result of split is LineString
+        if not isinstance(endpoint_segment, LineString):
+            logging.error("Expected endpoint_segment to be of type LineString.")
+            return False
+
+        # If the LineString intersects polygon boundary -> not a candidate
+        if endpoint_segment.distance(area_polygon.boundary) < snap_threshold:
+            return False
+        return True
+
 
 class GeomNullValidator(BaseValidator):
+
     """
     Validate the geometry for NULL GEOMETRY errors.
     """

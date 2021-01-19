@@ -1,3 +1,6 @@
+"""
+Test parameters i.e. sample data, known past errors, etc.
+"""
 from pathlib import Path
 from typing import List
 
@@ -5,15 +8,15 @@ import numpy as np
 from tests.sample_data.py_samples.samples import (
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
+    results_in_multijunction_why_ls_list,
+    results_in_multijunction_why_ls_list_2,
     results_in_overlapping_ls_list,
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 import geopandas as gpd
-import hypothesis
 import pandas as pd
 import pytest
-import shapely
 from fractopo.analysis import parameters, tools
 from fractopo.general import (
     CC_branch,
@@ -164,15 +167,8 @@ class Helpers:
     nice_float = floats(
         allow_nan=False, allow_infinity=False, min_value=-1e5, max_value=1e5
     )
-    nice_tuple = tuples(
-        nice_float,
-        nice_float,
-    )
-    triple_tuples = tuples(
-        nice_tuple,
-        nice_tuple,
-        nice_tuple,
-    )
+    nice_tuple = tuples(nice_float, nice_float,)
+    triple_tuples = tuples(nice_tuple, nice_tuple, nice_tuple,)
 
     snap_threshold = 0.001
     geosrs_identicals = gpd.GeoSeries(
@@ -212,15 +208,8 @@ class Helpers:
     nice_float = floats(
         allow_nan=False, allow_infinity=False, min_value=-1e5, max_value=1e5
     )
-    nice_tuple = tuples(
-        nice_float,
-        nice_float,
-    )
-    triple_tuples = tuples(
-        nice_tuple,
-        nice_tuple,
-        nice_tuple,
-    )
+    nice_tuple = tuples(nice_float, nice_float,)
+    triple_tuples = tuples(nice_tuple, nice_tuple, nice_tuple,)
     nice_point = planar.points(nice_integer_coordinates)
     # TODO: Is not really nice...
 
@@ -248,12 +237,7 @@ class Helpers:
     line_1_ep = Point(list(line_1.coords)[-1])
     line_2_ep = Point(list(line_2.coords)[-1])
     halved_azimuths = [
-        tools.azimu_half(tools.calc_azimu(l))
-        for l in (
-            line_1,
-            line_2,
-            line_3,
-        )
+        tools.azimu_half(tools.calc_azimu(l)) for l in (line_1, line_2, line_3,)
     ]
     branch_frame = gpd.GeoDataFrame(
         {
@@ -483,11 +467,7 @@ class Helpers:
             mergeable_geom_multilinestring,  # geom
             [],  # current_errors
             True,  # allow_fix
-            [
-                loads("LINESTRING (0 0, 1 1, 2 2)"),
-                [],
-                False,
-            ],  # assumed_result
+            [loads("LINESTRING (0 0, 1 1, 2 2)"), [], False,],  # assumed_result
         ),
     ]
     intersect_nodes = [
@@ -565,12 +545,7 @@ class Helpers:
                         ]
                     ),
                     Polygon(
-                        [
-                            Point(2, 2),
-                            Point(2, 6.011),
-                            Point(6, 6.011),
-                            Point(6, 2),
-                        ]
+                        [Point(2, 2), Point(2, 6.011), Point(6, 6.011), Point(6, 2),]
                     ),
                 ]
             ),  # area
@@ -694,6 +669,26 @@ class Helpers:
             2.5,  # area_edge_snap_multiplier: float,
             True,  # assumed_result: bool,
         ),
+        (
+            LineString([(10, 0), (4.991, 0)]),  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            1.5,  # area_edge_snap_multiplier: float,
+            True,  # assumed_result: bool,
+        ),  # Test that traces coming from outside area are not marked as underlapping
+        (
+            LineString([(10, 0), (5.011, 0)]),  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            1.5,  # area_edge_snap_multiplier: float,
+            True,  # assumed_result: bool,
+        ),  # Test that traces coming from outside area are not marked as underlapping
     ]
 
     test_tracevalidate_only_area_params = [
@@ -741,12 +736,7 @@ class ValidationHelpers:
         gpd.GeoDataFrame(
             geometry=[
                 LineString([Point(-2, 2), Point(-4, 2)]),
-                LineString(
-                    [
-                        Point(-3, 1),
-                        Point(-3, 2 + 0.01 + 0.0001),
-                    ]
-                ),
+                LineString([Point(-3, 1), Point(-3, 2 + 0.01 + 0.0001),]),
             ]
         ),
     ]
@@ -774,19 +764,8 @@ class ValidationHelpers:
     known_stacked_gdfs = [
         gpd.GeoDataFrame(
             geometry=[
-                LineString(
-                    [
-                        Point(0, -7),
-                        Point(0, -5),
-                    ]
-                ),
-                LineString(
-                    [
-                        Point(-1, -7),
-                        Point(0 + 0.01, -6),
-                        Point(-1, -5),
-                    ]
-                ),
+                LineString([Point(0, -7), Point(0, -5)]),
+                LineString([Point(-1, -7), Point(0 + 0.01, -6), Point(-1, -5)]),
             ]
         ),
     ]
@@ -821,6 +800,11 @@ class ValidationHelpers:
         gpd.GeoDataFrame(geometry=results_in_overlapping_ls_list)
     ]
 
+    known_non_multijunction_gdfs = [
+        gpd.GeoDataFrame(geometry=results_in_multijunction_why_ls_list),
+        gpd.GeoDataFrame(geometry=results_in_multijunction_why_ls_list_2),
+    ]
+
     known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
     known_false_positives[
         UnderlappingSnapValidator._UNDERLAPPING
@@ -828,6 +812,7 @@ class ValidationHelpers:
     known_false_positives[
         UnderlappingSnapValidator._OVERLAPPING
     ] = known_non_overlapping_gdfs
+    known_false_positives[MultiJunctionValidator.ERROR] = known_non_multijunction_gdfs
 
     # Class methods to generate pytest params for parametrization
     # ===========================================================
