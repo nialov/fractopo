@@ -42,8 +42,9 @@ def nox_parallel(c):
         c.run(f"nox --session {nox_test} --no-color", asynchronous=True, timeout=240,)
         for nox_test in nox_tests
     ]
-    for promise in promises:
-        promise.join()
+    results = [promise.join() for promise in promises]
+    for result in results:
+        print(result)
 
 
 @task(pre=[requirements, nox])
