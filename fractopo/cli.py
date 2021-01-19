@@ -15,6 +15,9 @@ from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
 
 def get_click_path_args(exists=True, **kwargs):
+    """
+    Get basic click path args.
+    """
     path_args = dict(
         type=click.Path(
             exists=exists, file_okay=True, dir_okay=False, resolve_path=True, **kwargs
@@ -25,6 +28,9 @@ def get_click_path_args(exists=True, **kwargs):
 
 
 def describe_results(validated: gpd.GeoDataFrame, error_column: str):
+    """
+    Describe validation results to stdout.
+    """
     error_count = sum([len(val) != 0 for val in validated[error_column]])  # type: ignore
     error_types = set([c for c in chain(*validated[error_column].to_list())])  # type: ignore
     count_string = f"Out of {validated.shape[0]} traces, {error_count} were invalid."
@@ -45,18 +51,7 @@ def make_output_dir(trace_path: Path) -> Path:
     day = localtime.tm_mday
     month = localtime.tm_mon
     year = localtime.tm_year
-    timestr = "_".join(
-        map(
-            str,
-            [
-                day,
-                month,
-                year,
-                hour,
-                min,
-            ],
-        )
-    )
+    timestr = "_".join(map(str, [day, month, year, hour, min,],))
     output_dir = trace_path.parent / f"validated_{timestr}"
     if not output_dir.exists():
         output_dir.mkdir()
@@ -96,7 +91,6 @@ def tracevalidate(
     MultiLineStrings to LineStrings.
     """
     trace_path = Path(trace_file)
-
     area_path = Path(area_file)
 
     # Resolve output_path if not explicitly given
@@ -122,11 +116,7 @@ def tracevalidate(
 
     # Validate
     validation = Validation(
-        traces,
-        areas,
-        trace_path.stem,
-        allow_fix,
-        SNAP_THRESHOLD=snap_threshold,
+        traces, areas, trace_path.stem, allow_fix, SNAP_THRESHOLD=snap_threshold,
     )
     if only_area_validation:
         choose_validators = [TargetAreaSnapValidator]
@@ -145,6 +135,7 @@ def tracevalidate(
     # Remove file if one exists at output_path
     if Path(output_path).exists():
         Path(output_path).unlink()
+
     # Change validation_error column to type: `string` and consequently save
     # the GeoDataFrame.
     validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
