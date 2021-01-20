@@ -1,10 +1,7 @@
 """Contains Validator classes which each have their own error to handle and mark."""
 import logging
 from abc import abstractmethod
-from itertools import chain, zip_longest
 from typing import Any, List, Optional, Set, Tuple, Type, Union
-
-import numpy as np
 
 import geopandas as gpd
 from fractopo.general import (
@@ -13,8 +10,6 @@ from fractopo.general import (
     determine_node_junctions,
     get_trace_coord_points,
     get_trace_endpoints,
-    point_to_xy,
-    zip_equal,
 )
 from fractopo.tval.trace_validation_utils import (
     is_underlapping,
@@ -34,6 +29,7 @@ from shapely.ops import linemerge, split
 
 
 class BaseValidator:
+
     """
     Base validator that all classes inherit.
     """
@@ -53,18 +49,26 @@ class BaseValidator:
 
     @staticmethod
     @abstractmethod
-    def fix_method(*args, **kwargs) -> Optional[LineString]:
+    def fix_method(**_) -> Optional[LineString]:
+        """
+        Abstract fix method.
+        """
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def validation_method(*args, **kwargs) -> bool:
+    def validation_method(**_) -> bool:
+        """
+        Abstract validation method.
+        """
         raise NotImplementedError
 
 
 class GeomTypeValidator(BaseValidator):
+
     """
-    Validates the geometry.
+    Validates the geometry type.
+
     Validates that all traces are LineStrings. Tries to use shapely.ops.linemerge
     to merge MultiLineStrings into LineStrings.
     """
@@ -73,19 +77,21 @@ class GeomTypeValidator(BaseValidator):
     LINESTRING_ONLY = False
 
     @staticmethod
-    def fix_method(geom: Any, **kwargs) -> Optional[LineString]:
+    def fix_method(geom: Any, **_) -> Optional[LineString]:
         """
+        Fix mergeable MultiLineStrings to LineStrings.
+
         E.g. mergeable MultiLineString
 
         >>> mls = MultiLineString(
         ...         [((0, 0), (1, 1)), ((1, 1), (2, 2))]
         ... )
-        >>> GeomTypeValidator.fix_method(mls).wkt
+        >>> GeomTypeValidator.fix_method(geom=mls).wkt
         'LINESTRING (0 0, 1 1, 2 2)'
 
         Unhandled types will just return as None.
 
-        >>> GeomTypeValidator.fix_method(Point(1,1)) is None
+        >>> GeomTypeValidator.fix_method(geom=Point(1,1)) is None
         True
 
         """
@@ -97,8 +103,10 @@ class GeomTypeValidator(BaseValidator):
         return fixed_geom if isinstance(fixed_geom, LineString) else None
 
     @staticmethod
-    def validation_method(geom: Any, **kwargs) -> bool:
+    def validation_method(geom: Any, **_) -> bool:
         """
+        Validate geometries.
+
         E.g. Anything but LineString
 
         >>> GeomTypeValidator.validation_method(Point(1,1))
@@ -114,18 +122,17 @@ class GeomTypeValidator(BaseValidator):
 
 
 class MultiJunctionValidator(BaseValidator):
+
     """
-    Validates that junctions consists of a maximum of two lines crossing,
-    never more.
+    Validates that junctions consists of a maximum of two lines crossing.
     """
 
     ERROR = "MULTI JUNCTION"
 
     @staticmethod
-    def validation_method(
-        *args, idx: int, faulty_junctions: Set[int], **kwargs
-    ) -> bool:
+    def validation_method(idx: int, faulty_junctions: Set[int], **_) -> bool:
         """
+        Validate for multi junctions between traces.
 
         >>> MultiJunctionValidator.validation_method(idx=1, faulty_junctions=set([1, 2]))
         False
@@ -140,8 +147,10 @@ class MultiJunctionValidator(BaseValidator):
         snap_threshold_error_multiplier: float,
     ) -> Set[int]:
         """
-        Determines when a point of interest represents a multi junction i.e.
-        when there are more than 2 points within the buffer distance of each other.
+        Determine when a point of interest represents a multi junction.
+
+        I.e. when there are more than 2 points within the buffer distance of
+        each other.
 
         Two points is the limit because an intersection point between two traces
         is added to the list of interest points twice, once for each trace.
@@ -180,7 +189,7 @@ class VNodeValidator(BaseValidator):
     ERROR = "V NODE"
 
     @staticmethod
-    def validation_method(*args, idx: int, vnodes: Set[int], **kwargs) -> bool:
+    def validation_method(idx: int, vnodes: Set[int], **_) -> bool:
         """
         Validate for V-nodes.
 
@@ -234,10 +243,10 @@ class MultipleCrosscutValidator(BaseValidator):
 
     @staticmethod
     def validation_method(
-        geom: LineString, trace_candidates: gpd.GeoSeries, **kwargs,
+        geom: LineString, trace_candidates: gpd.GeoSeries, **_,
     ) -> bool:
         """
-        Validation method for MultipleCrosscutValidator.
+        Validate for multiple crosscuts.
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -1)])
         >>> trace_candidates = gpd.GeoSeries(
@@ -267,6 +276,7 @@ class MultipleCrosscutValidator(BaseValidator):
 
 
 class UnderlappingSnapValidator(BaseValidator):
+
     """
     Find snapping errors of underlapping traces.
 
@@ -284,9 +294,10 @@ class UnderlappingSnapValidator(BaseValidator):
         trace_candidates: gpd.GeoSeries,
         snap_threshold: float,
         snap_threshold_error_multiplier: float,
-        **kwargs,
+        **_,
     ) -> bool:
         """
+        Validate for UnderlappingSnapValidator errors.
 
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
@@ -319,6 +330,7 @@ class UnderlappingSnapValidator(BaseValidator):
             # won't have chance to cause a validation error (false positive).
             if any(trace_candidates.distance(endpoint) < snap_threshold):
                 continue
+            trace: LineString
             for trace in trace_candidates.geometry.values:
                 if (
                     snap_threshold
@@ -334,8 +346,7 @@ class UnderlappingSnapValidator(BaseValidator):
                         snap_threshold_error_multiplier,
                     )
                     if is_ul_result is None:
-                        # TODO: Why not resolvable?
-                        continue
+                        raise ValueError("Expected is_ul_result to not be None.")
                     if is_ul_result:
                         # Underlapping
                         cls.ERROR = cls._UNDERLAPPING
@@ -349,6 +360,10 @@ class UnderlappingSnapValidator(BaseValidator):
 
 class TargetAreaSnapValidator(BaseValidator):
 
+    """
+    Validator for traces that underlap the target area.
+    """
+
     ERROR = "TRACE UNDERLAPS TARGET AREA"
 
     @staticmethod
@@ -358,9 +373,10 @@ class TargetAreaSnapValidator(BaseValidator):
         snap_threshold: float,
         snap_threshold_error_multiplier: float,
         area_edge_snap_multiplier: float,
-        **kwargs,
+        **_,
     ) -> bool:
         """
+        Validate for trace underlaps.
 
         >>> geom = LineString([(0, 0), (0, 1)])
         >>> area = gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])])
@@ -391,7 +407,6 @@ class TargetAreaSnapValidator(BaseValidator):
         False
 
         """
-
         endpoints = get_trace_endpoints(geom)
         for endpoint in endpoints:
             for area_polygon in area.geometry.values:
@@ -471,8 +486,9 @@ class GeomNullValidator(BaseValidator):
     LINESTRING_ONLY = False
 
     @staticmethod
-    def validation_method(geom: Any, **kwargs) -> bool:
+    def validation_method(geom: Any, **_) -> bool:
         """
+        Validate for empty and null geometries.
 
         E.g. some validations are handled by GeomTypeValidator
 
@@ -498,6 +514,7 @@ class GeomNullValidator(BaseValidator):
 
 
 class StackedTracesValidator(BaseValidator):
+
     """
     Find stacked traces and small triangle intersections.
     """
@@ -512,9 +529,10 @@ class StackedTracesValidator(BaseValidator):
         snap_threshold_error_multiplier: float,
         overlap_detection_multiplier: float,
         triangle_error_snap_multiplier: float,
-        **kwargs,
+        **_,
     ) -> bool:
         """
+        Validate for stacked traces and small triangle intersections.
 
         >>> geom = LineString([(0, 0), (0, 1)])
         >>> trace_candidates = gpd.GeoSeries([LineString([(0, -1), (0, 2)])])
@@ -549,15 +567,9 @@ class StackedTracesValidator(BaseValidator):
         True
 
         """
-
         # Cannot overlap if nothing to overlap
         if len(trace_candidates) == 0:
             return True
-
-        # Test for simple shapely overlap
-        # TODO: Redundant with check in segment_within_buffer?
-        if any([geom.overlaps(other) for other in trace_candidates.geometry.values]):
-            return False
 
         trace_candidates_multils = MultiLineString(
             [
@@ -582,6 +594,7 @@ class StackedTracesValidator(BaseValidator):
             return False
 
         # Test for small triangles created by the intersection of two traces.
+        splitter_trace: LineString
         for splitter_trace in trace_candidates.geometry.values:
             if split_to_determine_triangle_errors(
                 geom,
@@ -595,19 +608,25 @@ class StackedTracesValidator(BaseValidator):
 
 
 class SimpleGeometryValidator(BaseValidator):
+
     """
-    Use shapely is_simple and is_ring attributes to check that LineString does
-    not cut itself.
+    Use shapely is_simple and is_ring attributes to validate LineString.
+
+    Checks that trace does not cut itself.
     """
 
     ERROR = "CUTS ITSELF"
 
     @staticmethod
-    def validation_method(geom: LineString, **kwargs) -> bool:
+    def validation_method(geom: LineString, **_) -> bool:
+        """
+        Validate for self-intersections.
+        """
         return geom.is_simple and not geom.is_ring
 
 
 class SharpCornerValidator(BaseValidator):
+
     """
     Find sharp cornered traces.
     """
@@ -619,8 +638,11 @@ class SharpCornerValidator(BaseValidator):
         geom: LineString,
         sharp_avg_threshold: float,
         sharp_prev_seg_threshold: float,
-        **kwargs,
+        **_,
     ) -> bool:
+        """
+        Validate for sharp cornered traces.
+        """
         geom_coords = get_trace_coord_points(geom)
         if len(geom_coords) == 2:
             # If LineString consists of two Points -> No sharp corners.

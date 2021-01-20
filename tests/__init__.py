@@ -732,7 +732,6 @@ class ValidationHelpers:
                 LineString([Point(-3.5, 3.5), Point(-2.5, 4.5)]),
             ]
         ),
-        # TODO: Relies on SNAP_THRESHOLD and SNAP_THRESHOLD_ERROR_MULTIPLIER
         gpd.GeoDataFrame(
             geometry=[
                 LineString([Point(-2, 2), Point(-4, 2)]),

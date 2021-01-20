@@ -67,7 +67,21 @@ def test_validation_known(
     error_amount,
     false_positive: bool,
 ):
-    validated_gdf = Validation(traces, area, name, allow_fix).run_validation()
+    # Thresholds are passed explicitly to avoid error changes with threshold
+    # changes.
+    validated_gdf = Validation(
+        traces,
+        area,
+        name,
+        allow_fix,
+        SNAP_THRESHOLD=0.01,
+        SNAP_THRESHOLD_ERROR_MULTIPLIER=1.1,
+        AREA_EDGE_SNAP_MULTIPLIER=1.1,
+        TRIANGLE_ERROR_SNAP_MULTIPLIER=10.0,
+        OVERLAP_DETECTION_MULTIPLIER=50.0,
+        SHARP_AVG_THRESHOLD=135.0,
+        SHARP_PREV_SEG_THRESHOLD=100.0,
+    ).run_validation()
     assert isinstance(validated_gdf, gpd.GeoDataFrame)
     assert Validation.ERROR_COLUMN in validated_gdf.columns.values
     if assume_errors is not None:

@@ -302,7 +302,7 @@ class Validation:
             # or empty geom rows.
             return geom, current_errors, True
         elif (
-            not validator.validation_method(geom, **kwargs)
+            not validator.validation_method(geom=geom, **kwargs)
             and validator.ERROR not in current_errors
         ):
             # geom is invalid
@@ -312,7 +312,7 @@ class Validation:
                 try:
                     # fixed is None if fix is not succesful but no error
                     # is raised
-                    fixed = validator.fix_method(geom, **kwargs)
+                    fixed = validator.fix_method(geom=geom, **kwargs)
                 except NotImplementedError:
                     # No fix implemented for validator
                     fixed = None
