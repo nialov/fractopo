@@ -16,6 +16,7 @@ from fractopo.tval.trace_validation_utils import (
     segment_within_buffer,
     split_to_determine_triangle_errors,
 )
+from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -443,6 +444,14 @@ class TargetAreaSnapValidator(BaseValidator):
         # Easy case: endpoint within target area and trace completely inside
         # target area
         if endpoint.within(area_polygon) and geom.within(area_polygon):
+            return True
+
+        # Does an affine scale to catch traces that intersect the target area
+        # edge at their other endpoint. This check overlaps with previous but
+        # shapely.affinity.scale is not completely 'stable'
+        if endpoint.within(area_polygon) and geom.within(
+            scale(area_polygon, xfact=1 + snap_threshold, yfact=1 + snap_threshold)
+        ):
             return True
 
         # Split trace with area polygon

@@ -11,6 +11,8 @@ from tests.sample_data.py_samples.samples import (
     results_in_multijunction_why_ls_list,
     results_in_multijunction_why_ls_list_2,
     results_in_overlapping_ls_list,
+    should_result_in_target_area_underlapping_ls,
+    should_result_in_target_area_underlapping_poly,
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
@@ -688,6 +690,16 @@ class Helpers:
             1.1,  # snap_threshold_error_multiplier: float,
             1.5,  # area_edge_snap_multiplier: float,
             True,  # assumed_result: bool,
+        ),  # Test that traces coming from outside area are not marked as underlapping
+        (
+            should_result_in_target_area_underlapping_ls,  # geom: LineString,
+            gpd.GeoDataFrame(
+                geometry=[should_result_in_target_area_underlapping_poly]
+            ),  # area:gpd.GeoDataFrame
+            0.01,  # snap_threshold: float,
+            1.1,  # snap_threshold_error_multiplier: float,
+            2.5,  # area_edge_snap_multiplier: float,
+            False,  # assumed_result: bool,
         ),  # Test that traces coming from outside area are not marked as underlapping
     ]
 
