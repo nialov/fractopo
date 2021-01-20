@@ -1,27 +1,25 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
-from typing import Dict, Tuple, Optional, List, Union
-from functools import lru_cache
+from textwrap import wrap
+from typing import Dict, List, Optional, Tuple
 
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patheffects as path_effects
+
 import matplotlib
+import pandas as pd
 import ternary
 from fractopo.general import (
-    X_node,
-    Y_node,
-    I_node,
-    E_node,
     CC_branch,
     CI_branch,
+    E_node,
     II_branch,
+    I_node,
     Param,
-    styled_prop,
+    X_node,
+    Y_node,
 )
-from textwrap import wrap
+from matplotlib import patheffects as path_effects, pyplot as plt
 
 
 def determine_node_classes(node_types: np.ndarray) -> Dict[str, int]:
@@ -105,6 +103,11 @@ def plot_xyi_plot(
 
 
 def node_counts_to_point(node_counts: Dict[str, int]):
+    """
+    Create ternary point from node_counts.
+
+    The order is important (x, i, y).
+    """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
     sumcount = xcount + ycount + icount
     if sumcount == 0:
@@ -118,6 +121,11 @@ def node_counts_to_point(node_counts: Dict[str, int]):
 
 
 def branch_counts_to_point(branch_counts: Dict[str, int]):
+    """
+    Create ternary point from branch_counts.
+
+    The order is important (cc, ii, ci)
+    """
     cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     sumcount = cc_count + ci_count + ii_count
     if sumcount == 0:
@@ -131,6 +139,9 @@ def branch_counts_to_point(branch_counts: Dict[str, int]):
 
 
 def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
+    """
+    Return tuple of node counts from dict of node counts.
+    """
     xcount = node_counts[X_node]
     ycount = node_counts[Y_node]
     icount = node_counts[I_node]
@@ -138,6 +149,9 @@ def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
 
 
 def _get_branch_class_counts(branch_counts: Dict[str, int]) -> Tuple[int, int, int]:
+    """
+    Return tuple of branch counts from dict of branch counts.
+    """
     cc_count = branch_counts[CC_branch]
     ci_count = branch_counts[CI_branch]
     ii_count = branch_counts[II_branch]
@@ -150,6 +164,9 @@ def plot_xyi_plot_ax(
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
 ):
+    """
+    Plot XYI pointst to given ternary axis (tax).
+    """
     if color is None:
         color = "black"
     xcount, ycount, icount = _get_xyi_counts(node_counts)
@@ -211,13 +228,7 @@ def plot_ternary_point(
     s: float = 25,
 ):
     tax.scatter(
-        point,
-        marker=marker,
-        label=label,
-        alpha=1,
-        zorder=4,
-        s=s,
-        color=color,
+        point, marker=marker, label=label, alpha=1, zorder=4, s=s, color=color,
     )
 
 
@@ -436,8 +447,7 @@ def determine_set_counts(
 
 
 def plot_set_count(
-    set_counts: Dict[str, int],
-    label: str,
+    set_counts: Dict[str, int], label: str,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     fig, ax = plt.subplots(figsize=(7, 7))
     wedges, label_texts, count_texts = ax.pie(
@@ -630,3 +640,4 @@ def tern_yi_func(c, x):
     y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
     i = 1 - x - y
     return x, i, y
+
