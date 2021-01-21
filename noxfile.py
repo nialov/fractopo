@@ -3,7 +3,7 @@ Nox test suite.
 """
 
 from pathlib import Path
-from shutil import rmtree
+from shutil import copy2, copytree, rmtree
 
 import nox
 
@@ -13,12 +13,23 @@ docs_dir_path = Path("docs")
 
 
 @nox.session(python="3.8")
-def tests_strict(session):
+def tests_strict(session: nox.Session):
     """
     Run strict test suite.
     """
+    tmp_dir = session.create_tmp()
+    for to_copy in ("fractopo", "tests", "Pipfile.lock"):
+        if Path(to_copy).is_dir():
+            copytree(to_copy, Path(tmp_dir) / to_copy)
+        elif Path(to_copy).is_file():
+            copy2(to_copy, tmp_dir)
+        elif Path(to_copy).exists():
+            ValueError("File not dir or file.")
+        else:
+            FileNotFoundError("Expected file to be found.")
+    session.chdir(tmp_dir)
     session.install("pipenv")
-    session.run(*"pipenv sync --dev --bare".split(" "))
+    session.run(*f"pipenv sync --python {session.python} --dev --bare".split(" "))
     session.run(
         "pipenv",
         "run",
@@ -58,11 +69,7 @@ def rstcheck_docs(session):
     """
     session.install("rstcheck", "sphinx")
     session.run(
-        "rstcheck",
-        "-r",
-        "docs_src",
-        "--ignore-directives",
-        "automodule",
+        "rstcheck", "-r", "docs_src", "--ignore-directives", "automodule",
     )
 
 
@@ -81,10 +88,6 @@ def docs(session):
         rmtree(docs_dir_path)
     session.run("sphinx-apidoc", "-o", "./docs_src/apidoc", "./fractopo", "-e", "-f")
     session.run(
-        "sphinx-build",
-        "./docs_src",
-        "./docs",
-        "-b",
-        "html",
+        "sphinx-build", "./docs_src", "./docs", "-b", "html",
     )
 
