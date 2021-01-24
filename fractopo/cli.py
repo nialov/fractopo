@@ -4,7 +4,7 @@ Command-line integration of fractopo with click.
 import time
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 
 import click
 
