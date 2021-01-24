@@ -127,7 +127,7 @@ setup(
         "pandas",
         "numpy",
         "shapely",
-        "pygeos",
+        "pygeos==0.8",
         "scipy",
         "powerlaw",
         "python-ternary",
