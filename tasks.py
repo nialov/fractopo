@@ -1,6 +1,8 @@
 """
 Invoke tasks.
 """
+from pathlib import Path
+
 from invoke import task
 
 
@@ -11,6 +13,9 @@ nox_tests = (
     "rstcheck_docs",
     "docs",
 )
+
+conda_requirements_txt = Path("requirements-conda.txt")
+requirements_txt = Path("docs_src/requirements.txt")
 
 
 @task
@@ -23,6 +28,15 @@ def requirements(c):
         "-o docs_src/requirements.txt -d docs_src/requirements-dev.txt"
     )
     c.run("pipenv run pipenv-setup sync --pipfile --dev")
+
+    # Make custom conda requirements
+    req_contents: str = requirements_txt.read_text()
+    if not isinstance(req_contents, str):
+        raise TypeError("Expected requirements.txt to have text contents.")
+    # sklearn is named scikit-learn in conda
+    req_contents = req_contents.replace("sklearn", "scikit-learn")
+    conda_requirements_txt.write_text(req_contents)
+    print("requirements-conda.txt successfully updated.")
 
 
 @task
