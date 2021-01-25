@@ -171,7 +171,10 @@ class Validation:
         return self._vnodes
 
     def run_validation(
-        self, first_pass=True, choose_validators: Optional[List[ValidatorClass]] = None,
+        self,
+        first_pass=True,
+        choose_validators: Optional[List[ValidatorClass]] = None,
+        allow_empty_area: bool = True,
     ) -> gpd.GeoDataFrame:
         """
         Run validation.
@@ -196,6 +199,17 @@ class Validation:
                     for validator in choose_validators
                 ]
             )
+
+        # Check that target area is not completely void of traces
+        if not allow_empty_area:
+            if not any(self.traces.intersects(self.area)):
+                logging.error("No traces within target area.")
+                empty_gdf: gpd.GeoDataFrame = self.traces.copy()
+                empty_gdf[self.ERROR_COLUMN] = [
+                    "EMPTY TARGET AREA"
+                ] * self.traces.shape[0]
+                return empty_gdf
+
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
         for idx, geom in enumerate(self.traces.geometry.values):
