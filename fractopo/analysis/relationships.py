@@ -2,28 +2,25 @@
 Functions for plotting cross-cutting and abutting relationships.
 """
 
-from typing import Tuple, Optional, List, Dict
-import math
-from textwrap import wrap
-from itertools import combinations, chain
 import logging
+from itertools import chain, combinations
+from typing import List, Tuple
 
-import numpy as np
-import pandas as pd
 import geopandas as gpd
 import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
-from shapely.geometry import LineString, Point, MultiLineString
-from shapely import prepared
-from shapely.strtree import STRtree
-
+import numpy as np
+import pandas as pd
 from fractopo.general import (
     X_node,
     Y_node,
-    prepare_geometry_traces,
     get_trace_endpoints,
+    prepare_geometry_traces,
 )
+from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from shapely import prepared
+from shapely.geometry import LineString, Point
+from shapely.strtree import STRtree
 
 
 def determine_crosscut_abutting_relationships(
@@ -66,8 +63,9 @@ def determine_crosscut_abutting_relationships(
     """
     assert len(set_array) == len(trace_series)
     assert len(node_series) == len(node_types)
+    assert all([isinstance(val, LineString) for val in trace_series.geometry.values])
     # Determines xy relations and dynamically creates a dataframe as an aid for plotting the relations
-    #
+
     relations_df = pd.DataFrame(
         columns=["name", "sets", "x", "y", "y-reverse", "error-count"]
     )
@@ -482,3 +480,4 @@ def plot_crosscut_abutting_relationships_plot(
             figs.append(fig)
             fig_axes.append(axes)
     return figs, fig_axes
+
