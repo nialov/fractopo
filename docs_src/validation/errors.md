@@ -27,6 +27,18 @@ while digitizing traces. Most of the validation errors displayed here cause
 issues in further analyses and should be fixed before attempting to e.g.
 determine branches and nodes.
 
+Only exception to the normal validation procedure is the check for empty
+target areas (when target area is passed without any traces intersecting it)
+and `allow_empty_area` is set to `False` (defaults to `True` i.e. no check).
+
+In this case the error string is in all traces.
+
+The empty area error string is:
+
+~~~python
+"EMPTY TARGET AREA"
+~~~
+
 # GeomTypeValidator
 
 The error string is:
