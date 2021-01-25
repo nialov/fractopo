@@ -75,7 +75,7 @@ def make_output_dir(trace_path: Path) -> Path:
 @click.option(
     "only_area_validation", "--only-area-validation", is_flag=True, default=False
 )
-@click.option("allow_empty_area", "--allow-empty-area", is_flag=True, default=True)
+@click.option("allow_empty_area", "--no-empty-area", is_flag=True, default=True)
 def tracevalidate(
     trace_file: str,
     area_file: str,

@@ -8,10 +8,8 @@ from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from typing import Any, List, Set, Tuple, Union
 
-import numpy as np
-from sklearn.linear_model import LinearRegression
-
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from fractopo import SetRangeTuple
@@ -26,6 +24,7 @@ from shapely.geometry import (
     Polygon,
     box,
 )
+from sklearn.linear_model import LinearRegression
 
 
 styled_text_dict = {
@@ -999,4 +998,17 @@ def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.Geo
     ]
     as_linestrings = mls_to_ls(ct_multilinestrings)
     return gpd.GeoSeries(clipped_traces_linestrings + as_linestrings)
+
+
+def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):
+    """
+    Check if any traces intersect the area(s) in area GeoDataFrame.
+    """
+    for area in area.geometry.values:
+        for trace in traces.geometry.values:
+            # Only one trace intersect required. No need to loop
+            # through all traces if one found.
+            if trace.intersects(area):
+                return False
+    return True
 

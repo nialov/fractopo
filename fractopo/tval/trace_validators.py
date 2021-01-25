@@ -683,6 +683,17 @@ class SharpCornerValidator(BaseValidator):
         return True
 
 
+class EmptyTargetAreaValidator:
+
+    """
+    Stub validator for empty target area.
+
+    Validation for this error occurs at the start of run_validation.
+    """
+
+    ERROR = "EMPTY TARGET AREA"
+
+
 MINOR_VALIDATORS = (
     SimpleGeometryValidator,
     MultiJunctionValidator,

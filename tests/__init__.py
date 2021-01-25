@@ -4,7 +4,6 @@ Test parameters i.e. sample data, known past errors, etc.
 from pathlib import Path
 from typing import List
 
-import numpy as np
 from tests.sample_data.py_samples.samples import (
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
@@ -17,6 +16,7 @@ from tests.sample_data.py_samples.samples import (
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pytest
 from fractopo.analysis import parameters, tools
@@ -32,6 +32,7 @@ from fractopo.general import (
 from fractopo.tval import trace_builder, trace_validation
 from fractopo.tval.trace_validators import (
     BaseValidator,
+    EmptyTargetAreaValidator,
     GeomNullValidator,
     GeomTypeValidator,
     MultiJunctionValidator,

@@ -10,7 +10,7 @@ from itertools import chain
 from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
-from fractopo.general import determine_general_nodes
+from fractopo.general import determine_general_nodes, is_empty_area
 from fractopo.tval import trace_validators
 from fractopo.tval.trace_validation_utils import determine_trace_candidates
 from fractopo.tval.trace_validators import (
@@ -18,6 +18,7 @@ from fractopo.tval.trace_validators import (
     MAJOR_ERRORS,
     MAJOR_VALIDATORS,
     VALIDATION_REQUIRES_NODES,
+    EmptyTargetAreaValidator,
     ValidatorClass,
 )
 from geopandas.sindex import PyGEOSSTRTreeIndex
@@ -200,15 +201,14 @@ class Validation:
                 ]
             )
 
-        # Check that target area is not completely void of traces
-        if not allow_empty_area:
-            if not any(self.traces.intersects(self.area)):
-                logging.error("No traces within target area.")
-                empty_gdf: gpd.GeoDataFrame = self.traces.copy()
-                empty_gdf[self.ERROR_COLUMN] = [
-                    "EMPTY TARGET AREA"
-                ] * self.traces.shape[0]
-                return empty_gdf
+        # Check if target area is completely void of traces
+        if not allow_empty_area and is_empty_area(area=self.area, traces=self.traces):
+            logging.error("No traces within target area.")
+            empty_gdf: gpd.GeoDataFrame = self.traces.copy()
+            empty_gdf[self.ERROR_COLUMN] = [
+                [EmptyTargetAreaValidator.ERROR]
+            ] * self.traces.shape[0]
+            return empty_gdf
 
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
