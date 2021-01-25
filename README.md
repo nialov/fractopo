@@ -69,7 +69,7 @@ network = Network(
 network.branch_counts
 network.node_counts
 
-# Plotting is done by plot_ -affixed methods
+# Plotting is done by plot_ -prefixed methods
 network.plot_trace_lengths()
 
 ~~~

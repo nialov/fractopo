@@ -51,7 +51,7 @@ def make_output_dir(trace_path: Path) -> Path:
     day = localtime.tm_mday
     month = localtime.tm_mon
     year = localtime.tm_year
-    timestr = "_".join(map(str, [day, month, year, hour, min,],))
+    timestr = "_".join(map(str, [day, month, year, hour, min]))
     output_dir = trace_path.parent / f"validated_{timestr}"
     if not output_dir.exists():
         output_dir.mkdir()

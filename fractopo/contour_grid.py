@@ -3,9 +3,8 @@ Scripts for creating sample grids for fracture trace, branch and node data.
 """
 from typing import Dict, Optional
 
-import numpy as np
-
 import geopandas as gpd
+import numpy as np
 from fractopo.general import GEOMETRY_COLUMN, I_node, X_node, Y_node
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, Point, Polygon
@@ -224,9 +223,7 @@ def populate_sample_cell(
 
 
 def sample_grid(
-    grid: gpd.GeoDataFrame,
-    traces: gpd.GeoDataFrame,
-    nodes: gpd.GeoDataFrame,
+    grid: gpd.GeoDataFrame, traces: gpd.GeoDataFrame, nodes: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """
     Populates a sample polygon grid with geometrical and topological fracture
@@ -326,7 +323,8 @@ def run_grid_sampling(
     precursor_grid: Optional[gpd.GeoDataFrame] = None,
 ) -> gpd.GeoDataFrame:
     """
-    Runs the contour grid sampling to passed trace, branch and node data.
+    Run the contour grid sampling to passed trace, branch and node data.
+
     The grid extents are determined by using the passed branches unless
     precursor_grid is passed.
 
