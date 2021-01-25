@@ -75,6 +75,7 @@ def make_output_dir(trace_path: Path) -> Path:
 @click.option(
     "only_area_validation", "--only-area-validation", is_flag=True, default=False
 )
+@click.option("allow_empty_area", "--allow-empty-area", is_flag=True, default=True)
 def tracevalidate(
     trace_file: str,
     area_file: str,
@@ -83,6 +84,7 @@ def tracevalidate(
     snap_threshold: float,
     output_path: Union[Path, None],
     only_area_validation: bool,
+    allow_empty_area: bool,
 ):
     """
     Validate trace data delineated by target area data.
@@ -122,7 +124,9 @@ def tracevalidate(
         choose_validators = [TargetAreaSnapValidator]
     else:
         choose_validators = None
-    validated_trace = validation.run_validation(choose_validators=choose_validators)
+    validated_trace = validation.run_validation(
+        choose_validators=choose_validators, allow_empty_area=allow_empty_area
+    )
 
     # Set same crs as input if input had crs
     if input_crs is not None:
