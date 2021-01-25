@@ -7,7 +7,6 @@ verify_ssl = true
 hypothesis = "*"
 pytest = "*"
 tox = "*"
-descartes = "*"
 jupyterlab = "*"
 pipenv-to-requirements = "*"
 coverage = "*"
@@ -38,6 +37,7 @@ xlrd = "*"
 seaborn = "*"
 matplotlib = "*"
 click = "*"
+descartes = "*"
 
 [requires]
 python_version = "3.8"

@@ -12,10 +12,10 @@
 
 black
 coverage
-descartes
 hypothesis
 hypothesis-geometry
 invoke
+jedi==0.17.2
 jupyterlab
 mypy
 nbsphinx

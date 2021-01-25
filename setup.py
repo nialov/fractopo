@@ -137,6 +137,7 @@ setup(
         "seaborn",
         "matplotlib",
         "click",
+        "descartes",
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -151,7 +152,6 @@ setup(
             "hypothesis",
             "pytest",
             "tox",
-            "descartes",
             "jupyterlab",
             "pipenv-to-requirements",
             "coverage",
@@ -165,6 +165,7 @@ setup(
             "nox",
             "invoke",
             "pipenv-setup",
+            "jedi==0.17.2",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be
