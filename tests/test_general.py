@@ -1,7 +1,9 @@
-import numpy as np
+from pathlib import Path
+
 from tests import Helpers
 
 import geopandas as gpd
+import numpy as np
 import pytest
 from fractopo import general
 from hypothesis import given
@@ -74,4 +76,31 @@ def test_bounding_polygon(geoseries):
     for geom in geoseries:
         assert not geom.intersects(result.boundary)
         assert geom.within(result)
+
+
+def test_crop_to_target_areas(file_regression):
+    """
+    Test cropping traces to target area with known right example data results.
+
+    Also does regression testing with known right data.
+    """
+    trace_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/traces.gpkg"))
+    area_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/mls_area.gpkg"))
+    cropped_traces = general.crop_to_target_areas(traces=trace_data, areas=area_data)
+    assert isinstance(cropped_traces, gpd.GeoDataFrame)
+    file_regression.check(cropped_traces.sort_index().to_json())
+
+
+def test_dissolve_multi_part_traces(file_regression):
+    """
+    Test dissolving MultiLineString containing GeoDataFrame.
+
+    Dissolve should copy all attribute data to new dissolved LineStrings.
+    """
+    trace_data = gpd.read_file(
+        Path("tests/sample_data/mls_crop_samples/mls_traces.gpkg")
+    )
+    dissolved_traces = general.dissolve_multi_part_traces(trace_data)
+    assert isinstance(dissolved_traces, gpd.GeoDataFrame)
+    file_regression.check(dissolved_traces.sort_index().to_json())
 

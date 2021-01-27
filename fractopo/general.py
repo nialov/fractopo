@@ -966,7 +966,10 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
     return linestrings
 
 
-def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.GeoSeries:
+def crop_to_target_areas(
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
     Crop traces to the area polygons.
 
@@ -986,18 +989,79 @@ def crop_to_target_areas(traces: gpd.GeoSeries, areas: gpd.GeoSeries) -> gpd.Geo
     ['LINESTRING (-1.9 4.924998124953124, -2 5)']
 
     """
+    # Only handle LineStrings
     if not all([isinstance(trace, LineString) for trace in traces.geometry.values]):
-        logging.error("Expected no MultiLineStrings in crop_to_target_areas.")
+        raise TypeError(
+            "Expected no MultiLineString geometries in crop_to_target_areas."
+        )
+    # Match the crs
     traces, areas = match_crs(traces, areas)
+
+    # Clip traces to target areas
     clipped_traces = gpd.clip(traces, areas)
-    clipped_traces_linestrings = [
-        trace for trace in clipped_traces if isinstance(trace, LineString)
+
+    # Clipping might result in Point geometries
+    # Filter to only LineStrings and MultiLineStrings
+    clipped_traces = clipped_traces.loc[
+        [
+            isinstance(geom, (LineString, MultiLineString))
+            for geom in clipped_traces.geometry.values
+        ]
     ]
-    ct_multilinestrings = [
-        mls for mls in clipped_traces if isinstance(mls, MultiLineString)
+
+    # Some traces might be converted to MultiLineStrings if they become
+    # disjointed with the clip.
+    # This presents a data management problem -> Data is either lost or
+    # duplicated to different parts of a MultiLineString converted trace
+    clipped_and_dissolved_traces = dissolve_multi_part_traces(clipped_traces)
+    assert (
+        clipped_and_dissolved_traces.shape[0] >= clipped_and_dissolved_traces.shape[0]
+    )
+    return clipped_and_dissolved_traces
+
+
+def dissolve_multi_part_traces(
+    traces: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
+    """
+    Dissolve MultiLineStrings in GeoDataFrame or GeoSeries.
+
+    Copies all attribute data of rows with MultiLineStrings to new LineStrings.
+    """
+    # Get MultiLineString rows
+    mls_bools = [isinstance(trace, MultiLineString) for trace in traces.geometry.values]
+    mls_traces = traces.loc[
+        [isinstance(trace, MultiLineString) for trace in traces.geometry.values]
     ]
-    as_linestrings = mls_to_ls(ct_multilinestrings)
-    return gpd.GeoSeries(clipped_traces_linestrings + as_linestrings)
+    # If no MultiLineString geoms -> return original
+    if mls_traces.shape[0] == 0:
+        return traces
+
+    # Gather LineString geoms
+    ls_traces = traces.loc[[not val for val in mls_bools]]
+
+    # Dissolve MultiLineString geoms but keep same row data
+    dissolved_rows = []
+
+    for _, row in mls_traces.iterrows():
+        as_linestrings = mls_to_ls([row.geometry])
+        if len(as_linestrings) == 0:
+            raise ValueError("Expected atleast one geom from mls_to_ls.")
+
+        for new_geom in as_linestrings:
+            # Do not modify mls_traces inplace
+            new_row = row.copy()
+            new_row[GEOMETRY_COLUMN] = new_geom
+            dissolved_rows.append(new_row)
+
+    # Merge with ls_traces
+    dissolved_traces = pd.concat([ls_traces, gpd.GeoDataFrame(dissolved_rows)])
+
+    if not all(
+        [isinstance(val, LineString) for val in dissolved_traces.geometry.values]
+    ):
+        raise TypeError("Expected all LineStrings in dissolved_traces.")
+    return dissolved_traces
 
 
 def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):

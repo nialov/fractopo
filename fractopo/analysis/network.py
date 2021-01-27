@@ -7,10 +7,9 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import numpy as np
-
 import geopandas as gpd
 import matplotlib
+import numpy as np
 import pandas as pd
 import powerlaw
 import ternary
@@ -33,7 +32,7 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
-from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN
+from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN, crop_to_target_areas
 
 
 @dataclass
@@ -54,6 +53,10 @@ class Network:
 
     # Name the network for e.g. plot titles
     name: str = "Network"
+
+    # The traces can be cut to end at the boundary of the target area
+    # Defaults to True
+    truncate_traces: bool = True
 
     # Azimuth sets
     # ============
@@ -133,6 +136,14 @@ class Network:
         """
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
+
+        if self.truncate_traces:
+            self.trace_gdf = gpd.GeoDataFrame(
+                crop_to_target_areas(self.trace_gdf, self.area_geoseries)
+            )
+            if self.trace_gdf.shape[0] == 0:
+                raise ValueError("Empty trace GeoDataFrame after crop_to_target_areas.")
+
         self.trace_data = LineData(
             self.trace_gdf,
             self.azimuth_set_ranges,
@@ -325,16 +336,14 @@ class Network:
         if not self._is_branch_gdf_defined:
             return None
         if self._trace_length_set_relationships is None:
-            self._trace_length_set_relationships = (
-                determine_crosscut_abutting_relationships(
-                    trace_series=self.trace_series,
-                    node_series=self.node_series,  # type: ignore
-                    node_types=self.node_types,
-                    set_array=self.trace_data.length_set_array,
-                    set_names=self.trace_data.length_set_names,  # type: ignore
-                    buffer_value=0.001,
-                    label=self.name,
-                )
+            self._trace_length_set_relationships = determine_crosscut_abutting_relationships(
+                trace_series=self.trace_series,
+                node_series=self.node_series,  # type: ignore
+                node_types=self.node_types,
+                set_array=self.trace_data.length_set_array,
+                set_names=self.trace_data.length_set_names,  # type: ignore
+                buffer_value=0.001,
+                label=self.name,
             )
         return self._trace_length_set_relationships
 
