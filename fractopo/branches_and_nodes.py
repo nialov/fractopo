@@ -1,44 +1,38 @@
+"""
+Functions for extracting branches and nodes from trace maps.
+
+branches_and_nodes is the main entrypoint.
+"""
 import logging
 from typing import List, Tuple, Union
 
 import geopandas as gpd
-import pandas as pd
-import shapely
-from shapely.geometry import (
-    MultiPoint,
-    Point,
-    LineString,
-    MultiLineString,
-    MultiPolygon,
-    Polygon,
-)
 import numpy as np
-
-
-# Setup
-
+import pandas as pd
 from fractopo.general import (
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+    GEOMETRY_COLUMN,
     CC_branch,
     CE_branch,
     CI_branch,
+    EE_branch,
+    E_node,
+    Error_branch,
     IE_branch,
     II_branch,
-    EE_branch,
-    Error_branch,
+    I_node,
     X_node,
     Y_node,
-    I_node,
-    E_node,
-    CONNECTION_COLUMN,
-    CLASS_COLUMN,
-    GEOMETRY_COLUMN,
-    match_crs,
-    get_trace_endpoints,
-    get_trace_coord_points,
     crop_to_target_areas,
-    mls_to_ls,
     determine_valid_intersection_points,
+    get_trace_coord_points,
+    get_trace_endpoints,
 )
+from shapely.geometry import LineString, MultiPoint, MultiPolygon, Point, Polygon
+
+
+# Setup
 
 
 def remove_identical_sindex(
@@ -96,7 +90,10 @@ def get_node_identities(
     ['X', 'I', 'I', 'I', 'E']
 
     """
-    assert all([isinstance(trace, LineString) for trace in traces])
+    assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
+    assert all(
+        [isinstance(area, (Polygon, MultiPolygon)) for area in areas.geometry.values]
+    )
     identities = []
     trace_sindex = traces.sindex
     # nodes_sindex = nodes.sindex
@@ -133,10 +130,7 @@ def get_node_identities(
 
         all_inter_endpoints = [
             pt
-            for sublist in map(
-                get_trace_endpoints,
-                inter_with_traces_geoms,
-            )
+            for sublist in map(get_trace_endpoints, inter_with_traces_geoms,)
             for pt in sublist
         ]
         assert all([isinstance(pt, Point) for pt in all_inter_endpoints])
@@ -780,3 +774,4 @@ def determine_nodes(
     if len(nodes_of_interaction) == 0 or len(node_id_data) == 0:
         logging.error("Both nodes_of_interaction and node_id_data are empty...")
     return nodes_of_interaction, node_id_data
+

@@ -1,11 +1,11 @@
 from pathlib import Path
 from typing import List
 
-import numpy as np
 from tests import Helpers
 from tests.sample_data.py_samples import samples
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pytest
 import shapely
@@ -37,7 +37,6 @@ from shapely.ops import snap, split
 
 
 # Import trace_validator
-
 
 
 def test_remove_identical_sindex():
@@ -151,9 +150,7 @@ def test_branches_and_nodes(file_regression):
 
 @pytest.mark.parametrize(
     "traces_geosrs, areas_geosrs",
-    [
-        (Helpers.get_traces_geosrs(), Helpers.get_areas_geosrs()),
-    ],
+    [(Helpers.get_traces_geosrs(), Helpers.get_areas_geosrs()),],
 )
 def test_get_branch_identities(traces_geosrs, areas_geosrs):
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
@@ -175,10 +172,7 @@ def test_get_branch_identities(traces_geosrs, areas_geosrs):
     assert all(
         [
             branch in result
-            for branch in (
-                branches_and_nodes.CC_branch,
-                branches_and_nodes.CI_branch,
-            )
+            for branch in (branches_and_nodes.CC_branch, branches_and_nodes.CI_branch,)
         ]
     )
 
@@ -278,7 +272,9 @@ def test_nice_traces():
 
 
 def test_crop_to_target_area():
-
+    """
+    Test crop to target area.
+    """
     (
         valid_geoseries,
         invalid_geoseries,
@@ -286,15 +282,13 @@ def test_crop_to_target_area():
         invalid_areas_geoseries,
     ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
     valid_result = general.crop_to_target_areas(valid_geoseries, valid_areas_geoseries)
-    invalid_result = general.crop_to_target_areas(
-        invalid_geoseries, invalid_areas_geoseries
-    )
+    try:
+        _ = general.crop_to_target_areas(invalid_geoseries, invalid_areas_geoseries)
+        assert False
+    except TypeError:
+        pass
     assert isinstance(valid_result, gpd.GeoSeries)
-    assert isinstance(invalid_result, gpd.GeoSeries)
     assert valid_geoseries.geometry.length.mean() > valid_result.geometry.length.mean()
-    assert (
-        invalid_geoseries.geometry.length.mean() > invalid_result.geometry.length.mean()
-    )
 
 
 @given(Helpers.triple_tuples)

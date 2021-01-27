@@ -1,6 +1,6 @@
 .mypy_cache
 .ipynb_checkpoints/
-dev
+dev/
 trace_validator.egg-info
 .tox
 **/__pycache__
