@@ -48,7 +48,9 @@ def test_length_set_relationships_regression(file_regression):
     "traces,area,name,determine_branches_nodes,truncate_traces",
     Helpers.test_network_params,
 )
-def test_network(traces, area, name, determine_branches_nodes, truncate_traces):
+def test_network(
+    traces, area, name, determine_branches_nodes, truncate_traces, file_regression
+):
     """
     Test Network object creation with general datasets.
     """
@@ -59,3 +61,6 @@ def test_network(traces, area, name, determine_branches_nodes, truncate_traces):
         determine_branches_nodes=determine_branches_nodes,
         truncate_traces=truncate_traces,
     )
+
+    file_regression.check(network.branch_gdf.sort_index().to_json())
+
