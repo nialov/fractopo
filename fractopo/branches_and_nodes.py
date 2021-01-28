@@ -638,11 +638,12 @@ def branches_and_nodes(
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     snap_threshold: float,
     allowed_loops=10,
+    already_clipped: bool = False,
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """
     Determine branches and nodes of given traces.
 
-    The traces will be cropped to the given target area(s) to correctly
+    The traces will be cropped to the given target area(s).
     """
     traces_geosrs: gpd.GeoSeries = traces.geometry
     areas_geosrs: gpd.GeoSeries = areas.geometry
@@ -661,18 +662,21 @@ def branches_and_nodes(
         logging.info(f"Loop :{ loops }")
         if loops >= 10:
             logging.warning(
-                f"""
-                    10 or more loops have passed without resolved snapped
-                    traces_geosrs. Snapped traces_geosrs might not possibly be resolved.
-                    """
+                f"{loops} loops have passed without resolved snapped"
+                " traces_geosrs. Snapped traces_geosrs might not"
+                " possibly be resolved."
             )
         if loops > allowed_loops:
             raise RecursionError(
-                f"More loops have passed than allowed by allowed_loops "
-                "({allowed_loops})) for snapping traces_geosrs for branch determination."
+                f"More loops have passed ({loops}) than allowed by allowed_loops "
+                f"({allowed_loops})) for snapping traces_geosrs for"
+                " branch determination."
             )
 
-    traces_geosrs = crop_to_target_areas(traces_geosrs, areas_geosrs)
+    if not already_clipped:
+        traces_geosrs = crop_to_target_areas(
+            traces_geosrs, areas_geosrs, snap_threshold=snap_threshold
+        )
     # Remove too small geometries.
     traces_geosrs = traces_geosrs.loc[
         traces_geosrs.geometry.length > snap_threshold * 2.01

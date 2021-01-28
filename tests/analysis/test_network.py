@@ -43,3 +43,19 @@ def test_length_set_relationships_regression(file_regression):
     ).azimuth_set_relationships
     file_regression.check(relations_df.to_string())
 
+
+@pytest.mark.parametrize(
+    "traces,area,name,determine_branches_nodes,truncate_traces",
+    Helpers.test_network_params,
+)
+def test_network(traces, area, name, determine_branches_nodes, truncate_traces):
+    """
+    Test Network object creation with general datasets.
+    """
+    network = Network(
+        trace_gdf=traces,
+        area_geoseries=area,
+        name=name,
+        determine_branches_nodes=determine_branches_nodes,
+        truncate_traces=truncate_traces,
+    )

@@ -139,7 +139,11 @@ class Network:
 
         if self.truncate_traces:
             self.trace_gdf = gpd.GeoDataFrame(
-                crop_to_target_areas(self.trace_gdf, self.area_geoseries)
+                crop_to_target_areas(
+                    self.trace_gdf,
+                    self.area_geoseries,
+                    snap_threshold=self.snap_threshold,
+                )
             )
             if self.trace_gdf.shape[0] == 0:
                 raise ValueError("Empty trace GeoDataFrame after crop_to_target_areas.")
@@ -366,7 +370,10 @@ class Network:
     def assign_branches_nodes(self):
         if self.area_geoseries is not None:
             branches, nodes = branches_and_nodes(
-                self.trace_gdf, self.area_geoseries, self.snap_threshold
+                self.trace_gdf,
+                self.area_geoseries,
+                self.snap_threshold,
+                already_clipped=self.truncate_traces,
             )
             if self.trace_gdf.crs is not None:
                 branches.set_crs(self.trace_gdf.crs, inplace=True)

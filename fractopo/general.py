@@ -969,6 +969,7 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    snap_threshold: float,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
     Crop traces to the area polygons.
@@ -984,7 +985,7 @@ def crop_to_target_areas(
     ...            Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
     ...     ]
     ... )
-    >>> cropped_traces = crop_to_target_areas(traces, areas)
+    >>> cropped_traces = crop_to_target_areas(traces, areas, 0.01)
     >>> print([trace.wkt for trace in cropped_traces])
     ['LINESTRING (-1.9 4.924998124953124, -2 5)']
 
@@ -1017,6 +1018,15 @@ def crop_to_target_areas(
     assert (
         clipped_and_dissolved_traces.shape[0] >= clipped_and_dissolved_traces.shape[0]
     )
+
+    # Remove small traces that might cause topology errors
+    clipped_and_dissolved_traces = clipped_and_dissolved_traces.loc[
+        clipped_and_dissolved_traces.geometry.length > snap_threshold * 2.01
+    ]
+
+    # Reset index
+    clipped_and_dissolved_traces.reset_index(inplace=True, drop=True)
+
     return clipped_and_dissolved_traces
 
 

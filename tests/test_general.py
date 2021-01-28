@@ -86,7 +86,9 @@ def test_crop_to_target_areas(file_regression):
     """
     trace_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/traces.gpkg"))
     area_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/mls_area.gpkg"))
-    cropped_traces = general.crop_to_target_areas(traces=trace_data, areas=area_data)
+    cropped_traces = general.crop_to_target_areas(
+        traces=trace_data, areas=area_data, snap_threshold=0.01
+    )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
     file_regression.check(cropped_traces.sort_index().to_json())
 

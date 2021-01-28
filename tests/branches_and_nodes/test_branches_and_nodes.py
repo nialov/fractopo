@@ -281,9 +281,13 @@ def test_crop_to_target_area():
         valid_areas_geoseries,
         invalid_areas_geoseries,
     ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
-    valid_result = general.crop_to_target_areas(valid_geoseries, valid_areas_geoseries)
+    valid_result = general.crop_to_target_areas(
+        valid_geoseries, valid_areas_geoseries, snap_threshold=0.01
+    )
     try:
-        _ = general.crop_to_target_areas(invalid_geoseries, invalid_areas_geoseries)
+        _ = general.crop_to_target_areas(
+            invalid_geoseries, invalid_areas_geoseries, snap_threshold=0.01
+        )
         assert False
     except TypeError:
         pass

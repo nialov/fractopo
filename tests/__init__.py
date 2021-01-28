@@ -715,6 +715,19 @@ class Helpers:
         )
     ]
 
+    test_network_params = [
+        (
+            gpd.read_file(
+                "tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg"
+            ),  # traces
+            gpd.read_file(
+                "tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg"
+            ),  # area
+            "Geta1_1",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+        ),
+    ]
 
 
 class ValidationHelpers:
