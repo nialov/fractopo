@@ -50,7 +50,6 @@ def test_remove_identical_sindex():
 
 def test_remove_snapping_in_remove_identicals():
     snap_thresholds = [
-        0,
         Helpers.snap_threshold,
         Helpers.snap_threshold * 2,
         Helpers.snap_threshold * 4,
