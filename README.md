@@ -7,21 +7,21 @@ analysing lineament and fracture trace maps (fracture networks).
 
 ## Development status
 
--   In constant development.
+  - In constant development.
 
--   Many legacy python files are still in fractopo/ directory and
+  - Many legacy python files are still in fractopo/ directory and
     subdirectories.
 
--   Critical issues:
-
-    -   Verify E-node determination for branches and nodes
-    -   Verify that E-connected branches are correctly filtered or
+  - Critical issues:
+    
+      - Verify E-node determination for branches and nodes
+      - Verify that E-connected branches are correctly filtered or
         unfiltered.
 
 ## Full documentation
 
--   Documentation hosted on Read the Docs:
-    -   [Documentation](https://fractopo.readthedocs.io/en/latest/index.html)
+  - Documentation hosted on Read the Docs:
+      - [Documentation](https://fractopo.readthedocs.io/en/latest/index.html)
 
 ## Installation
 
@@ -30,7 +30,7 @@ test/develop or otherwise install all development python dependencies.
 
 ### Pipenv
 
-``` {.bash}
+``` bash
 git clone https://github.com/nialov/fractopo --depth 1
 cd fractopo
 # Omit --dev from end if you do not want installation for development
@@ -41,14 +41,14 @@ pipenv sync --dev
 
 The module is not on pypi currently. But pip can install from github.
 
-``` {.bash}
+``` bash
 # Non-development installation
 pip install git+https://github.com/nialov/fractopo#egg=fractopo
 ```
 
 Or locally
 
-``` {.bash}
+``` bash
 git clone https://github.com/nialov/fractopo --depth 1
 cd fractopo
 # Omit [dev] from end if you do not want installation for development
@@ -66,7 +66,7 @@ Trace and target area data (`GeoDataFrame`s) are passed into a `Network`
 object which has properties and functions for returning and visualizing
 different parameters and attributes of trace data.
 
-``` {.python}
+``` python
 from fractopo.analysis.network import Network
 network = Network(
     trace_data, area_data, name="mynetwork", determine_branches_nodes=True,
@@ -86,7 +86,7 @@ network.plot_trace_lengths()
 Trace and target area data can be validated for further analysis with a
 `Validation` object.
 
-``` {.python}
+``` python
 from fractopo.tval.trace_validation import Validation
 validation = Validation(
     trace_data, area_data, name="mytraces", allow_fix=True,
@@ -102,7 +102,7 @@ Trace validation is also accessible as a command-line script,
 `tracevalidate` always requires the target area that delineates trace
 data.
 
-``` {.bash}
+``` bash
 # Get full up-to-date script help
 
 tracevalidate --help
