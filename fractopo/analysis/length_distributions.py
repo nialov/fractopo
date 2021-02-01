@@ -1,18 +1,23 @@
 from enum import Enum, unique
-from typing import Tuple, Dict, List, Union, Optional, Literal
 from textwrap import wrap
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
-import powerlaw
 import geopandas as gpd
-import pandas as pd
-import numpy as np
-import matplotlib.axes
 import matplotlib
-import matplotlib.pyplot as plt
+import matplotlib.axes
+import numpy as np
+import pandas as pd
+import powerlaw
+from matplotlib import pyplot as plt
 
 
 @unique
 class Dist(Enum):
+
+    """
+    Enums of powerlaw model types.
+    """
+
     POWERLAW = "powerlaw"
     LOGNORMAL = "lognormal"
     EXPONENTIAL = "exponential"
@@ -22,7 +27,7 @@ def determine_fit(
     length_array: np.ndarray, cut_off: Optional[float] = None
 ) -> powerlaw.Fit:
     """
-    Determines powerlaw (along other) length distribution fits for given data.
+    Determine powerlaw (along other) length distribution fits for given data.
     """
     fit = (
         powerlaw.Fit(length_array, xmin=cut_off)
@@ -38,11 +43,13 @@ def plot_length_data_on_ax(
     ccm_array: np.ndarray,
     label: str,
 ):
+    """
+    Plot length data on given ax.
+
+    Sets ax scales to logarithmic.
+    """
     ax.scatter(
-        x=length_array,
-        y=ccm_array,
-        s=50,
-        label=label,
+        x=length_array, y=ccm_array, s=50, label=label,
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -52,7 +59,10 @@ def plot_fit_on_ax(
     ax: matplotlib.axes.Axes,
     fit: powerlaw.Fit,
     fit_distribution: Literal[Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW],
-):
+) -> None:
+    """
+    Plot powerlaw model to ax.
+    """
     if fit_distribution == Dist.POWERLAW:
         fit.power_law.plot_ccdf(ax=ax, label="Powerlaw", linestyle="--", color="red")
     elif fit_distribution == Dist.LOGNORMAL:
@@ -61,6 +71,8 @@ def plot_fit_on_ax(
         fit.exponential.plot_ccdf(
             ax=ax, label="Exponential", linestyle="--", color="blue"
         )
+    else:
+        raise ValueError(f"Expected fit_distribution to be one of {list(Dist)}")
     return
 
 
@@ -70,9 +82,12 @@ def _setup_length_plot_axlims(
     ccm_array: np.ndarray,
     cut_off: float,
 ):
-    truncated_length_array = (
-        length_array[length_array > cut_off] if cut_off is not None else length_array
-    )
+    """
+    Set ax limits for length plotting.
+    """
+    # truncated_length_array = (
+    #     length_array[length_array > cut_off] if cut_off is not None else length_array
+    # )
 
     left = length_array.min() / 10
     right = length_array.max() * 10
@@ -87,10 +102,20 @@ def _setup_length_plot_axlims(
 
 
 def plot_distribution_fits(
-    length_array: np.ndarray, label: str, cut_off: Optional[float] = None
+    length_array: np.ndarray,
+    label: str,
+    cut_off: Optional[float] = None,
+    fit: Optional[powerlaw.Fit] = None,
 ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
-    # Determine powerlaw, exponential, lognormal fits
-    fit = determine_fit(length_array, cut_off)
+    """
+    Plot length distribution and `powerlaw` fits.
+
+    If a powerlaw.Fit is not given it will be automatically determined (using
+    the optionally given cut_off).
+    """
+    if fit is None:
+        # Determine powerlaw, exponential, lognormal fits
+        fit = determine_fit(length_array, cut_off)
     # Get fit xmin
     xmin = xmin if isinstance((xmin := fit.xmin), (int, float)) else 0.0
     # Create figure, ax
@@ -115,7 +140,7 @@ def plot_distribution_fits(
 
 def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     """
-    Function to setup ax for length distribution plots.
+    Configure ax for length distribution plots.
 
     :param ax_for_setup: Ax to setup.
     :type ax_for_setup: matplotlib.axes.Axes
@@ -163,3 +188,4 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         # lh._sizes = [750]
         lh.set_linewidth(3)
     ax.grid(zorder=-10, color="black", alpha=0.5)
+

@@ -5,10 +5,9 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
 
-import numpy as np
-
 import geopandas as gpd
 import matplotlib
+import numpy as np
 import powerlaw
 from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
@@ -41,7 +40,7 @@ class LineData:
 
     The line_gdf reference is passed and LineData will modify the input
     line_gdf instead of copying the input frame. This means line_gdf
-    columns are accesible in the passed input reference.
+    columns are accesible in the passed input reference upstream.
     """
 
     line_gdf: gpd.GeoDataFrame
@@ -52,14 +51,7 @@ class LineData:
     length_set_ranges: Optional[SetRangeTuple]
     length_set_names: Optional[Tuple[str, ...]]
 
-    # def __post_init__(self):
-    #     self.line_gdf = self.line_gdf.copy()
-
-    # def __setattr__(self, name: str, value: Any) -> None:
-    #     if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
-    #         self.__dict__[name] = value.copy()
-    #     else:
-    #         self.__dict__[name] = value
+    _automatic_fit: Optional[powerlaw.Fit] = None
 
     @property
     def azimuth_array(self):
@@ -136,7 +128,7 @@ class LineData:
     @property
     def azimuth_set_counts(self) -> Dict[str, int]:
         """
-        Dictionary of azimuth set counts.
+        Get dictionary of azimuth set counts.
         """
         return parameters.determine_set_counts(
             self.azimuth_set_names, self.azimuth_set_array
@@ -145,20 +137,50 @@ class LineData:
     @property
     def length_set_counts(self) -> Dict[str, int]:
         """
-        Dictionary of length set counts.
+        Get dictionary of length set counts.
         """
         return parameters.determine_set_counts(
             self.length_set_names, self.length_set_array
         )
 
+    @property
+    def automatic_fit(self) -> powerlaw.Fit:
+        """
+        Get automatic powerlaw Fit.
+        """
+        if self._automatic_fit is None:
+            self._automatic_fit = length_distributions.determine_fit(self.length_array)
+        return self._automatic_fit
+
+    def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
+        """
+        Get manually determined Fit with set cut off.
+        """
+        return length_distributions.determine_fit(self.length_array, cut_off=cut_off)
+
+    def cut_off_proportion_of_data(self, fit: Optional[powerlaw.Fit] = None) -> float:
+        """
+        Get the proportion of data cut off by `powerlaw` cut off.
+
+        If no fit is passed the cut off is the one used in `automatic_fit`.
+        """
+        fit = self.automatic_fit if fit is None else fit
+        return (
+            sum(self.length_array < fit.xmin) / len(self.length_array)
+            if len(self.length_array) > 0
+            else 0.0
+        )
+
     def plot_lengths(
-        self, label: str, cut_off: Optional[float] = None
+        self, label: str, fit: Optional[powerlaw.Fit] = None,
     ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
         """
         Plot length data with powerlaw fit.
         """
         return length_distributions.plot_distribution_fits(
-            self.length_array, label=label, cut_off=cut_off
+            self.length_array,
+            label=label,
+            fit=self.automatic_fit if fit is None else fit,
         )
 
     def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
