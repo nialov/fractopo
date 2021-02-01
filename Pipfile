@@ -19,8 +19,9 @@ sphinx-rtd-theme = "*"
 black = "*"
 nox = "*"
 invoke = "*"
-pipenv-setup = "*"
 jedi = "==0.17.2"
+black-nb = "*"
+importanize = "*"
 
 [packages]
 geopandas = "*"

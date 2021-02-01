@@ -12,7 +12,6 @@ hypothesis
 concurrency.ipynb
 sampleproject.egg-info/
 fractopo.egg-info/
-notebooks/*
 .esri.gz
 docs/
 README.html
