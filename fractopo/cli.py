@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Union
 
 import click
-
 import fiona
 import geopandas as gpd
+
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
