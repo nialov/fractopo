@@ -27,6 +27,7 @@ def requirements(c):
         "pipenv run pipenv_to_requirements "
         "-o docs_src/requirements.txt -d docs_src/requirements-dev.txt"
     )
+    # Uses nox
     c.run("nox --session pipenv_setup_sync")
 
     # Make custom conda requirements
@@ -78,4 +79,3 @@ def make(_):
     """
     Test and make everything.
     """
-
