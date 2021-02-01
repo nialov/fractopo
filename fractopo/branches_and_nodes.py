@@ -151,7 +151,10 @@ def get_node_identities(
 
         all_inter_endpoints = [
             pt
-            for sublist in map(get_trace_endpoints, inter_with_traces_geoms,)
+            for sublist in map(
+                get_trace_endpoints,
+                inter_with_traces_geoms,
+            )
             for pt in sublist
         ]
         assert all([isinstance(pt, Point) for pt in all_inter_endpoints])
@@ -828,21 +831,3 @@ def branches_and_nodes(
         {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
     )
     return branch_gdf, node_gdf
-
-
-def main():
-    """
-    TODO: For debugging only.
-    """
-    from tests import Helpers
-
-    traces = Helpers.geta_1_traces.iloc[0:500]
-    areas = Helpers.geta_1_1_area
-    # print(f"Traces: {traces.shape[0]}")
-
-    branches, nodes = branches_and_nodes(
-        traces=traces, areas=areas, snap_threshold=0.01
-    )
-
-    return branches, nodes
-

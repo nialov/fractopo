@@ -12,6 +12,10 @@ import numpy as np
 import pandas as pd
 import powerlaw
 import ternary
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
+
 from fractopo import SetRangeTuple
 from fractopo.analysis.anisotropy import (
     determine_anisotropy_sum,
@@ -32,9 +36,6 @@ from fractopo.analysis.relationships import (
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN, crop_to_target_areas
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 
 @dataclass
@@ -303,7 +304,6 @@ class Network:
         if self._parameters is None:
             self._parameters = determine_topology_parameters(
                 trace_length_array=self.trace_length_array,
-                branch_length_array=self.branch_length_array,
                 node_counts=self.node_counts,  # type: ignore
                 area=self.total_area,
             )
@@ -342,14 +342,16 @@ class Network:
         if not self._is_branch_gdf_defined():
             return None
         if self._trace_length_set_relationships is None:
-            self._trace_length_set_relationships = determine_crosscut_abutting_relationships(
-                trace_series=self.trace_series,
-                node_series=self.node_series,  # type: ignore
-                node_types=self.node_types,
-                set_array=self.trace_data.length_set_array,
-                set_names=self.trace_data.length_set_names,  # type: ignore
-                buffer_value=0.001,
-                label=self.name,
+            self._trace_length_set_relationships = (
+                determine_crosscut_abutting_relationships(
+                    trace_series=self.trace_series,
+                    node_series=self.node_series,  # type: ignore
+                    node_types=self.node_types,
+                    set_array=self.trace_data.length_set_array,
+                    set_names=self.trace_data.length_set_names,  # type: ignore
+                    buffer_value=0.001,
+                    label=self.name,
+                )
             )
         return self._trace_length_set_relationships
 
@@ -454,7 +456,10 @@ class Network:
         """
         if label is None:
             label = self.name
-        return self.branch_data.plot_lengths(label=label, fit=fit,)
+        return self.branch_data.plot_lengths(
+            label=label,
+            fit=fit,
+        )
 
     def plot_trace_azimuth(
         self, label: Optional[str] = None

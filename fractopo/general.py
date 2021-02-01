@@ -12,7 +12,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from fractopo import SetRangeTuple
 from matplotlib import patheffects as path_effects, pyplot as plt
 from shapely import prepared
 from shapely.affinity import scale
@@ -25,6 +24,8 @@ from shapely.geometry import (
     box,
 )
 from sklearn.linear_model import LinearRegression
+
+from fractopo import SetRangeTuple
 
 
 styled_text_dict = {
@@ -92,6 +93,7 @@ class Param(Enum):
     TRACE_MEAN_LENGTH_MAULDON = "Trace Mean Length (Mauldon)"
     FRACTURE_INTENSITY_MAULDON = "Fracture Intensity (Mauldon)"
     FRACTURE_DENSITY_MAULDON = "Fracture Density (Mauldon)"
+    CONNECTION_FREQUENCY = "Connection Frequency"
 
     @classmethod
     def log_scale_columns(cls) -> List[str]:
@@ -134,6 +136,7 @@ class Param(Enum):
             cls.TRACE_MEAN_LENGTH_MAULDON.value: "m",
             cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
             cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
+            cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
         }
         assert len(units_for_columns) == len([param for param in cls])
         return units_for_columns[column]
@@ -640,7 +643,9 @@ def match_crs(
         return first, second
 
 
-def get_trace_endpoints(trace: LineString,) -> Tuple[Point, Point]:
+def get_trace_endpoints(
+    trace: LineString,
+) -> Tuple[Point, Point]:
     """
     Return endpoints (shapely.geometry.Point) of a given LineString
     """
@@ -650,7 +655,13 @@ def get_trace_endpoints(trace: LineString,) -> Tuple[Point, Point]:
             f"trace: {trace}"
         )
     return tuple(
-        (endpoint for endpoint in (Point(trace.coords[0]), Point(trace.coords[-1]),))
+        (
+            endpoint
+            for endpoint in (
+                Point(trace.coords[0]),
+                Point(trace.coords[-1]),
+            )
+        )
     )
 
 

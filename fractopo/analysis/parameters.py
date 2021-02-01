@@ -8,6 +8,8 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import ternary
+from matplotlib import patheffects as path_effects, pyplot as plt
+
 from fractopo.general import (
     CC_branch,
     CI_branch,
@@ -18,7 +20,6 @@ from fractopo.general import (
     X_node,
     Y_node,
 )
-from matplotlib import patheffects as path_effects, pyplot as plt
 
 
 def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
@@ -223,7 +224,13 @@ def plot_ternary_point(
     s: float = 25,
 ):
     tax.scatter(
-        point, marker=marker, label=label, alpha=1, zorder=4, s=s, color=color,
+        point,
+        marker=marker,
+        label=label,
+        alpha=1,
+        zorder=4,
+        s=s,
+        color=color,
     )
 
 
@@ -289,7 +296,6 @@ def decorate_branch_ax(
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    branch_length_array: np.ndarray,
     node_counts: Dict[str, int],
     area: float,
 ):
@@ -299,18 +305,23 @@ def determine_topology_parameters(
     Number of traces and branches are determined by node counting.
     """
     assert isinstance(trace_length_array, np.ndarray)
-    assert isinstance(branch_length_array, np.ndarray)
     assert isinstance(node_counts, dict)
     assert isinstance(area, float)
     number_of_traces = (node_counts[Y_node] + node_counts[I_node]) / 2
     number_of_branches = (
         (node_counts[X_node] * 4) + (node_counts[Y_node] * 3) + node_counts[I_node]
     ) / 2
-    fracture_intensity = branch_length_array.sum() / area
+    fracture_intensity = trace_length_array.sum() / area
     aerial_frequency_traces = number_of_traces / area
     aerial_frequency_branches = number_of_branches / area
-    characteristic_length_traces = trace_length_array.mean()
-    characteristic_length_branches = branch_length_array.mean()
+    characteristic_length_traces = (
+        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
+    )
+    characteristic_length_branches = (
+        (trace_length_array.sum() / number_of_branches)
+        if number_of_branches > 0
+        else 0.0
+    )
     dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
     dimensionless_intensity_branches = (
         fracture_intensity * characteristic_length_branches
@@ -337,6 +348,7 @@ def determine_topology_parameters(
     )
     fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
     fracture_intensity_mauldon = trace_mean_length_mauldon * fracture_density_mauldon
+    connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
     topology_parameters = {
         Param.NUMBER_OF_TRACES.value: number_of_traces,
         Param.NUMBER_OF_BRANCHES.value: number_of_branches,
@@ -353,6 +365,7 @@ def determine_topology_parameters(
         Param.FRACTURE_INTENSITY_MAULDON.value: fracture_intensity_mauldon,
         Param.FRACTURE_DENSITY_MAULDON.value: fracture_density_mauldon,
         Param.TRACE_MEAN_LENGTH_MAULDON.value: trace_mean_length_mauldon,
+        Param.CONNECTION_FREQUENCY.value: connection_frequency,
     }
     return topology_parameters
 
@@ -457,7 +470,8 @@ def determine_set_counts(
 
 
 def plot_set_count(
-    set_counts: Dict[str, int], label: str,
+    set_counts: Dict[str, int],
+    label: str,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     fig, ax = plt.subplots(figsize=(7, 7))
     wedges, label_texts, count_texts = ax.pie(
@@ -650,4 +664,3 @@ def tern_yi_func(c, x):
     y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
     i = 1 - x - y
     return x, i, y
-

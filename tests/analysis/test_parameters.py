@@ -1,18 +1,16 @@
+import matplotlib
 import numpy as np
 import powerlaw
-import matplotlib
-import matplotlib.pyplot as plt
-import ternary
 import pytest
+import ternary
 from hypothesis import given, settings
 from hypothesis.extra import numpy
 from hypothesis.strategies import floats
-
-import fractopo.analysis.parameters as parameters
-from fractopo.general import Param
-
-
+from matplotlib import pyplot as plt
 from tests import Helpers
+
+from fractopo.analysis import parameters
+from fractopo.general import Param
 
 
 @pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)
@@ -40,18 +38,16 @@ def test_plot_branch_plot(branch_counts_list, labels):
 
 
 @pytest.mark.parametrize(
-    "trace_length_array, branch_length_array, node_counts, area",
+    "trace_length_array, node_counts, area",
     Helpers.test_determine_topology_parameters_params,
 )
 def test_determine_topology_parameters(
     trace_length_array,
-    branch_length_array,
     node_counts,
     area,
 ):
     topology_parameters = parameters.determine_topology_parameters(
         trace_length_array,
-        branch_length_array,
         node_counts,
         area,
     )
