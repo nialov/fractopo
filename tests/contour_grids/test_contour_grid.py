@@ -62,13 +62,11 @@ def test_create_grid():
 
 
 def test_sample_grid():
-    import warnings
-
-    warnings.filterwarnings("ignore", "GeoSeries.notna", UserWarning)
     grid = test_create_grid()
-    grid_with_topo = contour_grid.sample_grid(grid, branches, nodes)
+    grid_with_topo = contour_grid.sample_grid(
+        grid, branches, nodes, snap_threshold=0.01
+    )
     assert isinstance(grid_with_topo, gpd.GeoDataFrame)
-    assert "P21" in grid_with_topo.columns
 
 
 def test_sample_grid_with_regressions(file_regression):
@@ -84,5 +82,7 @@ def test_sample_grid_with_regressions(file_regression):
         trace_gdf.geometry, area_gdf.geometry, 0.0001
     )
     sample_grid = contour_grid.create_grid(10000, trace_gdf)
-    populated_grid = contour_grid.sample_grid(sample_grid, trace_gdf, nodes)
-    file_regression.check(str(populated_grid))
+    populated_grid = contour_grid.sample_grid(
+        sample_grid, trace_gdf, nodes, snap_threshold=0.01
+    )
+    file_regression.check(populated_grid.to_json())

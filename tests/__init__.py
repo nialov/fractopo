@@ -4,6 +4,31 @@ Test parameters i.e. sample data, known past errors, etc.
 from pathlib import Path
 from typing import List
 
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import pytest
+from hypothesis import given
+from hypothesis.strategies import (
+    booleans,
+    floats,
+    integers,
+    lists,
+    one_of,
+    sets,
+    text,
+    tuples,
+)
+from hypothesis_geometry import planar
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
+from shapely.ops import linemerge
+from shapely.wkt import loads
 from tests.sample_data.py_samples.samples import (
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
@@ -15,10 +40,6 @@ from tests.sample_data.py_samples.samples import (
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
-import geopandas as gpd
-import numpy as np
-import pandas as pd
-import pytest
 from fractopo.analysis import parameters, tools
 from fractopo.general import (
     CC_branch,
@@ -45,27 +66,6 @@ from fractopo.tval.trace_validators import (
     UnderlappingSnapValidator,
     VNodeValidator,
 )
-from hypothesis import given
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    integers,
-    lists,
-    one_of,
-    sets,
-    text,
-    tuples,
-)
-from hypothesis_geometry import planar
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
-from shapely.ops import linemerge
-from shapely.wkt import loads
 
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
@@ -171,8 +171,15 @@ class Helpers:
     nice_float = floats(
         allow_nan=False, allow_infinity=False, min_value=-1e5, max_value=1e5
     )
-    nice_tuple = tuples(nice_float, nice_float,)
-    triple_tuples = tuples(nice_tuple, nice_tuple, nice_tuple,)
+    nice_tuple = tuples(
+        nice_float,
+        nice_float,
+    )
+    triple_tuples = tuples(
+        nice_tuple,
+        nice_tuple,
+        nice_tuple,
+    )
 
     snap_threshold = 0.001
     geosrs_identicals = gpd.GeoSeries(
@@ -212,8 +219,15 @@ class Helpers:
     nice_float = floats(
         allow_nan=False, allow_infinity=False, min_value=-1e5, max_value=1e5
     )
-    nice_tuple = tuples(nice_float, nice_float,)
-    triple_tuples = tuples(nice_tuple, nice_tuple, nice_tuple,)
+    nice_tuple = tuples(
+        nice_float,
+        nice_float,
+    )
+    triple_tuples = tuples(
+        nice_tuple,
+        nice_tuple,
+        nice_tuple,
+    )
     nice_point = planar.points(nice_integer_coordinates)
     # TODO: Is not really nice...
 
@@ -241,7 +255,12 @@ class Helpers:
     line_1_ep = Point(list(line_1.coords)[-1])
     line_2_ep = Point(list(line_2.coords)[-1])
     halved_azimuths = [
-        tools.azimu_half(tools.calc_azimu(l)) for l in (line_1, line_2, line_3,)
+        tools.azimu_half(tools.calc_azimu(l))
+        for l in (
+            line_1,
+            line_2,
+            line_3,
+        )
     ]
     branch_frame = gpd.GeoDataFrame(
         {
@@ -338,13 +357,11 @@ class Helpers:
     test_determine_topology_parameters_params = [
         (
             np.array([10, 10, 10, 10]),  # trace_length_array
-            np.array([5, 5, 5, 5, 5, 5, 5, 5]),  # branch_length_array
             {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             10.0,  # area
         ),
         (
             np.array([1, 1, 1, 1]),  # trace_length_array
-            np.array([1, 1, 1, 1, 1, 1, 1, 1]),  # branch_length_array
             {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             1.0,  # area
         ),
@@ -471,7 +488,11 @@ class Helpers:
             mergeable_geom_multilinestring,  # geom
             [],  # current_errors
             True,  # allow_fix
-            [loads("LINESTRING (0 0, 1 1, 2 2)"), [], False,],  # assumed_result
+            [
+                loads("LINESTRING (0 0, 1 1, 2 2)"),
+                [],
+                False,
+            ],  # assumed_result
         ),
     ]
     intersect_nodes = [
@@ -549,7 +570,12 @@ class Helpers:
                         ]
                     ),
                     Polygon(
-                        [Point(2, 2), Point(2, 6.011), Point(6, 6.011), Point(6, 2),]
+                        [
+                            Point(2, 2),
+                            Point(2, 6.011),
+                            Point(6, 6.011),
+                            Point(6, 2),
+                        ]
                     ),
                 ]
             ),  # area
@@ -766,7 +792,12 @@ class ValidationHelpers:
         gpd.GeoDataFrame(
             geometry=[
                 LineString([Point(-2, 2), Point(-4, 2)]),
-                LineString([Point(-3, 1), Point(-3, 2 + 0.01 + 0.0001),]),
+                LineString(
+                    [
+                        Point(-3, 1),
+                        Point(-3, 2 + 0.01 + 0.0001),
+                    ]
+                ),
             ]
         ),
     ]
