@@ -4,9 +4,8 @@ Analysis and plotting of geometric and topological parameters.
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple
 
-import numpy as np
-
 import matplotlib
+import numpy as np
 import pandas as pd
 import ternary
 from fractopo.general import (
@@ -22,20 +21,16 @@ from fractopo.general import (
 from matplotlib import patheffects as path_effects, pyplot as plt
 
 
-def determine_node_classes(node_types: np.ndarray) -> Dict[str, int]:
+def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
     return {
-        str(node_class): amount
-        if (amount := sum(node_types == node_class)) is not None
-        else 0
+        str(node_class): sum(node_types == node_class)
         for node_class in (X_node, Y_node, I_node, E_node)
     }
 
 
-def determine_branch_classes(branch_types: np.ndarray) -> Dict[str, int]:
+def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
     return {
-        str(branch_class): amount
-        if (amount := sum(branch_types == branch_class)) is not None
-        else 0
+        str(branch_class): sum(branch_types == branch_class)
         for branch_class in (CC_branch, CI_branch, II_branch)
     }
 
@@ -330,6 +325,18 @@ def determine_topology_parameters(
         if number_of_branches > 0
         else 0.0
     )
+
+    radius = np.sqrt(area / np.pi)
+    trace_mean_length_mauldon = (
+        (
+            ((np.pi * radius) / 2)
+            * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
+        )
+        if node_counts[I_node] + node_counts[Y_node] > 0
+        else 0.0
+    )
+    fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
+    fracture_intensity_mauldon = trace_mean_length_mauldon * fracture_density_mauldon
     topology_parameters = {
         Param.NUMBER_OF_TRACES.value: number_of_traces,
         Param.NUMBER_OF_BRANCHES.value: number_of_branches,
@@ -343,6 +350,9 @@ def determine_topology_parameters(
         Param.DIMENSIONLESS_INTENSITY_B22.value: dimensionless_intensity_branches,
         Param.CONNECTIONS_PER_TRACE.value: connections_per_trace,
         Param.CONNECTIONS_PER_BRANCH.value: connections_per_branch,
+        Param.FRACTURE_INTENSITY_MAULDON.value: fracture_intensity_mauldon,
+        Param.FRACTURE_DENSITY_MAULDON.value: fracture_density_mauldon,
+        Param.TRACE_MEAN_LENGTH_MAULDON.value: trace_mean_length_mauldon,
     }
     return topology_parameters
 

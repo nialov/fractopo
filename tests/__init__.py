@@ -23,6 +23,7 @@ from fractopo.analysis import parameters, tools
 from fractopo.general import (
     CC_branch,
     CI_branch,
+    E_node,
     II_branch,
     I_node,
     X_node,
@@ -338,13 +339,13 @@ class Helpers:
         (
             np.array([10, 10, 10, 10]),  # trace_length_array
             np.array([5, 5, 5, 5, 5, 5, 5, 5]),  # branch_length_array
-            {X_node: 3, Y_node: 5, I_node: 8},  # node_counts dict
+            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             10.0,  # area
         ),
         (
             np.array([1, 1, 1, 1]),  # trace_length_array
             np.array([1, 1, 1, 1, 1, 1, 1, 1]),  # branch_length_array
-            {X_node: 3, Y_node: 5, I_node: 8},  # node_counts dict
+            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             1.0,  # area
         ),
     ]

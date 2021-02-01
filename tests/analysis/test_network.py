@@ -49,7 +49,13 @@ def test_length_set_relationships_regression(file_regression):
     Helpers.test_network_params,
 )
 def test_network(
-    traces, area, name, determine_branches_nodes, truncate_traces, file_regression
+    traces,
+    area,
+    name,
+    determine_branches_nodes,
+    truncate_traces,
+    file_regression,
+    data_regression,
 ):
     """
     Test Network object creation with general datasets.
@@ -63,4 +69,25 @@ def test_network(
     )
 
     file_regression.check(network.branch_gdf.sort_index().to_json())
+
+    network_attributes = dict()
+    for attribute in ("node_counts", "branch_counts"):
+        # network_attributes[attribute] = getattr(network, attribute)
+        for key, value in getattr(network, attribute).items():
+            network_attributes[key] = int(value)
+
+    network_attributes["trace_lengths_powerlaw_fit_cut_off"] = float(
+        round(network.trace_lengths_powerlaw_fit().xmin, 4)
+    )
+    network_attributes["branch_lengths_powerlaw_fit_cut_off"] = float(
+        round(network.branch_lengths_powerlaw_fit().xmin, 4)
+    )
+    network_attributes["trace_lengths_powerlaw_fit_alpha"] = float(
+        round(network.trace_lengths_powerlaw_fit().alpha, 4)
+    )
+    network_attributes["branch_lengths_powerlaw_fit_alpha"] = float(
+        round(network.branch_lengths_powerlaw_fit().alpha, 4)
+    )
+
+    data_regression.check(network_attributes)
 

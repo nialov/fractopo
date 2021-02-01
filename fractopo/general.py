@@ -73,6 +73,9 @@ class Col(Enum):
 
 @unique
 class Param(Enum):
+    """
+    Column names for geometric and topological parameters.
+    """
 
     NUMBER_OF_TRACES = "Number of Traces"
     NUMBER_OF_BRANCHES = "Number of Branches"
@@ -86,9 +89,15 @@ class Param(Enum):
     AREAL_FREQUENCY_P20 = "Areal Frequency P20"
     FRACTURE_INTENSITY_P21 = "Fracture Intensity P21"
     DIMENSIONLESS_INTENSITY_P22 = "Dimensionless Intensity P22"
+    TRACE_MEAN_LENGTH_MAULDON = "Trace Mean Length (Mauldon)"
+    FRACTURE_INTENSITY_MAULDON = "Fracture Intensity (Mauldon)"
+    FRACTURE_DENSITY_MAULDON = "Fracture Density (Mauldon)"
 
     @classmethod
     def log_scale_columns(cls) -> List[str]:
+        """
+        Return collection of column names that can/should be plotted in log.
+        """
         return [
             param.value
             for param in (
@@ -98,11 +107,17 @@ class Param(Enum):
                 cls.FRACTURE_INTENSITY_B21,
                 cls.FRACTURE_INTENSITY_P21,
                 cls.AREAL_FREQUENCY_P20,
+                cls.TRACE_MEAN_LENGTH_MAULDON,
+                cls.FRACTURE_INTENSITY_MAULDON,
+                cls.FRACTURE_DENSITY_MAULDON,
             )
         ]
 
     @classmethod
     def get_unit_for_column(cls, column: str) -> str:
+        """
+        Return unit for parameter name.
+        """
         units_for_columns = {
             cls.NUMBER_OF_TRACES.value: "-",
             cls.NUMBER_OF_BRANCHES.value: "-",
@@ -116,6 +131,9 @@ class Param(Enum):
             cls.FRACTURE_INTENSITY_B21.value: r"$\frac{m}{m^2}$",
             cls.FRACTURE_INTENSITY_P21.value: r"$\frac{m}{m^2}$",
             cls.DIMENSIONLESS_INTENSITY_B22.value: "-",
+            cls.TRACE_MEAN_LENGTH_MAULDON.value: "m",
+            cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
+            cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
         }
         assert len(units_for_columns) == len([param for param in cls])
         return units_for_columns[column]
