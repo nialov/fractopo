@@ -164,8 +164,9 @@ setup(
             "black",
             "nox",
             "invoke",
-            "pipenv-setup",
             "jedi==0.17.2",
+            "black-nb",
+            "importanize",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be

@@ -27,7 +27,7 @@ def requirements(c):
         "pipenv run pipenv_to_requirements "
         "-o docs_src/requirements.txt -d docs_src/requirements-dev.txt"
     )
-    c.run("pipenv run pipenv-setup sync --pipfile --dev")
+    c.run("nox --session pipenv_setup_sync")
 
     # Make custom conda requirements
     req_contents: str = requirements_txt.read_text()
@@ -53,7 +53,11 @@ def nox_parallel(c):
     Run nox suite in parallel.
     """
     promises = [
-        c.run(f"nox --session {nox_test} --no-color", asynchronous=True, timeout=240,)
+        c.run(
+            f"nox --session {nox_test} --no-color",
+            asynchronous=True,
+            timeout=240,
+        )
         for nox_test in nox_tests
     ]
     results = [promise.join() for promise in promises]
@@ -61,7 +65,15 @@ def nox_parallel(c):
         print(result)
 
 
-@task(pre=[requirements, nox])
+@task
+def format_notebooks(c):
+    """
+    Format complementary notebooks.
+    """
+    c.run("black-nb notebooks docs_src/notebooks")
+
+
+@task(pre=[requirements, nox, format_notebooks])
 def make(_):
     """
     Test and make everything.
