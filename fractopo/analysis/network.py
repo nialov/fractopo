@@ -11,7 +11,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
-import ternary
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
@@ -86,7 +85,7 @@ class Network:
     branch_gdf: Optional[gpd.GeoDataFrame] = None
     node_gdf: Optional[gpd.GeoDataFrame] = None
     determine_branches_nodes: bool = False
-    snap_threshold: float = 0.001
+    snap_threshold: float = 0.01
 
     # Length distributions
     # ====================
@@ -585,4 +584,3 @@ class Network:
         if label is None:
             label = self.name
         return self.branch_data.plot_length_set_count(label=label)
-

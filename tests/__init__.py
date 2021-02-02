@@ -756,6 +756,7 @@ class Helpers:
             "Geta1_1",  # name
             True,  # determine_branches_nodes
             True,  # truncate_traces
+            0.001,  # snap_threshold
         ),
     ]
 

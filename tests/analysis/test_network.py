@@ -45,7 +45,7 @@ def test_length_set_relationships_regression(file_regression):
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,determine_branches_nodes,truncate_traces",
+    "traces,area,name,determine_branches_nodes,truncate_traces,snap_threshold",
     Helpers.test_network_params,
 )
 def test_network(
@@ -54,6 +54,7 @@ def test_network(
     name,
     determine_branches_nodes,
     truncate_traces,
+    snap_threshold,
     file_regression,
     data_regression,
 ):
@@ -66,6 +67,7 @@ def test_network(
         name=name,
         determine_branches_nodes=determine_branches_nodes,
         truncate_traces=truncate_traces,
+        snap_threshold=snap_threshold,
     )
 
     file_regression.check(network.branch_gdf.sort_index().to_json())
@@ -90,4 +92,3 @@ def test_network(
     )
 
     data_regression.check(network_attributes)
-
