@@ -1,21 +1,21 @@
 """
 Miscellaneous utilities and scripts of fractopo.
 """
+from itertools import count
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
+
 import geopandas as gpd
+import numpy as np
+from fractopo.general import (
+    compare_unit_vector_orientation,
+    create_unit_vector,
+    get_trace_endpoints,
+    is_azimuth_close,
+)
+from shapely.geometry import LineString, Point, Polygon
 from shapely.geometry.multilinestring import MultiLineString
 from shapely.ops import linemerge
-from shapely.geometry import Polygon, LineString, Point
-from pathlib import Path
-from typing import Dict, Tuple, List, Optional, Union
-import numpy as np
-from itertools import count
-
-from fractopo.general import (
-    is_azimuth_close,
-    get_trace_endpoints,
-    create_unit_vector,
-    compare_unit_vector_orientation,
-)
 
 
 class LineMerge:

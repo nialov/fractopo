@@ -2,18 +2,17 @@
 Contains general calculation and plotting tools.
 """
 import logging
-from shapely.ops import split
 import math
 from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from typing import Any, List, Set, Tuple, Union
-from shapely.wkt import loads
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from fractopo import SetRangeTuple
 from matplotlib import patheffects as path_effects, pyplot as plt
 from shapely import prepared
 from shapely.affinity import scale
@@ -25,9 +24,9 @@ from shapely.geometry import (
     Polygon,
     box,
 )
+from shapely.ops import split
+from shapely.wkt import loads
 from sklearn.linear_model import LinearRegression
-
-from fractopo import SetRangeTuple
 
 
 styled_text_dict = {
@@ -68,6 +67,10 @@ NULL_SET = "-1"
 @unique
 class Col(Enum):
 
+    """
+    GeoDataFrame column names for attributes.
+    """
+
     LENGTH = "length"
     AZIMUTH = "azimuth"
     AZIMUTH_SET = "azimuth_set"
@@ -76,6 +79,7 @@ class Col(Enum):
 
 @unique
 class Param(Enum):
+
     """
     Column names for geometric and topological parameters.
     """

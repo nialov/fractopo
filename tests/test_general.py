@@ -105,4 +105,3 @@ def test_dissolve_multi_part_traces(file_regression):
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
     file_regression.check(dissolved_traces.sort_index().to_json())
-

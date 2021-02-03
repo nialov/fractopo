@@ -2,7 +2,6 @@
 import logging
 from abc import abstractmethod
 from typing import Any, List, Optional, Set, Tuple, Type, Union
-from shapely.wkt import loads
 
 import geopandas as gpd
 from fractopo.general import (
@@ -28,6 +27,7 @@ from shapely.geometry import (
 )
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, split
+from shapely.wkt import loads
 
 
 class BaseValidator:

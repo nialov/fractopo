@@ -172,7 +172,9 @@ class LineData:
         )
 
     def plot_lengths(
-        self, label: str, fit: Optional[powerlaw.Fit] = None,
+        self,
+        label: str,
+        fit: Optional[powerlaw.Fit] = None,
     ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
         """
         Plot length data with powerlaw fit.
@@ -210,4 +212,3 @@ class LineData:
         Plot length set counts.
         """
         return parameters.plot_set_count(self.length_set_counts, label=label)
-

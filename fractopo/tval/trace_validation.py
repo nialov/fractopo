@@ -341,4 +341,3 @@ class Validation:
                 ignore_geom = True
 
         return geom, current_errors, ignore_geom
-

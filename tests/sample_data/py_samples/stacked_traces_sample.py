@@ -1,7 +1,9 @@
 from typing import List
-from shapely.ops import linemerge
+
 from shapely.geometry import LineString
+from shapely.ops import linemerge
 from shapely.wkt import loads
+
 
 stacked_traces_mls_wkt = [
     "MultiLineString ((466028.36491891089826822 6691581.61812139861285686, "

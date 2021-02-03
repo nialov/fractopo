@@ -11,10 +11,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from ternary.ternary_axes_subplot import TernaryAxesSubplot
-
 from fractopo import SetRangeTuple
 from fractopo.analysis.anisotropy import (
     determine_anisotropy_sum,
@@ -34,7 +30,14 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
-from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN, crop_to_target_areas
+from fractopo.general import (
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+    crop_to_target_areas,
+)
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 
 @dataclass

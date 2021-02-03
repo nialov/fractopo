@@ -4,16 +4,13 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
-from typing import List, Tuple, Union, Optional
 from itertools import combinations
-from shapely.ops import split, substring, linemerge
+from typing import List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
 from fractopo.general import (
-    resolve_split_to_ls,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     GEOMETRY_COLUMN,
@@ -30,19 +27,22 @@ from fractopo.general import (
     Y_node,
     crop_to_target_areas,
     determine_valid_intersection_points,
+    get_next_point_in_trace,
     get_trace_coord_points,
     get_trace_endpoints,
-    get_next_point_in_trace,
     mls_to_ls,
+    resolve_split_to_ls,
 )
+from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
 from shapely.geometry import (
     LineString,
+    MultiLineString,
     MultiPoint,
     MultiPolygon,
     Point,
     Polygon,
-    MultiLineString,
 )
+from shapely.ops import linemerge, split, substring
 
 
 # Setup

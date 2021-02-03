@@ -1,16 +1,16 @@
+from tests import Helpers
+
 import matplotlib
 import numpy as np
 import powerlaw
 import pytest
 import ternary
+from fractopo.analysis import parameters
+from fractopo.general import Param
 from hypothesis import given, settings
 from hypothesis.extra import numpy
 from hypothesis.strategies import floats
 from matplotlib import pyplot as plt
-from tests import Helpers
-
-from fractopo.analysis import parameters
-from fractopo.general import Param
 
 
 @pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)

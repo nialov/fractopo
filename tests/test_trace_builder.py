@@ -1,6 +1,5 @@
-import shapely
 import geopandas as gpd
-
+import shapely
 from fractopo.tval import trace_builder
 
 

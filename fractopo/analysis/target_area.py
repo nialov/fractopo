@@ -9,16 +9,15 @@ from pathlib import Path
 from textwrap import wrap
 from typing import Dict, Tuple, Union
 
-import numpy as np
-from scipy.interpolate import CubicSpline
-
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import powerlaw
 import ternary
 from fractopo.analysis import config, tools
 from fractopo.analysis.config import EXPONENTIAL, LOGNORMAL, POWERLAW
 from matplotlib import patches, pyplot as plt
+from scipy.interpolate import CubicSpline
 
 
 # Math and analysis imports
@@ -1203,4 +1202,3 @@ class TargetAreaNodes:
             if node_type not in node_dict:
                 node_dict[node_type] = 0
         return node_dict
-

@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Union
 
 import click
+
 import fiona
 import geopandas as gpd
-
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
@@ -118,7 +118,11 @@ def tracevalidate(
 
     # Validate
     validation = Validation(
-        traces, areas, trace_path.stem, allow_fix, SNAP_THRESHOLD=snap_threshold,
+        traces,
+        areas,
+        trace_path.stem,
+        allow_fix,
+        SNAP_THRESHOLD=snap_threshold,
     )
     if only_area_validation:
         choose_validators = [TargetAreaSnapValidator]
@@ -147,4 +151,3 @@ def tracevalidate(
     )
     if summary:
         describe_results(validated_trace, validation.ERROR_COLUMN)
-

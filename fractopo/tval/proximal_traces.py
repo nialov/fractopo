@@ -6,15 +6,16 @@ of LineString geometries and returns a GeoDataFrame with a new
 column `Merge` which has values of True or False depending on if
 nearby proximal traces were found.
 """
-import geopandas as gpd
-from typing import Union, Dict, List
-from shapely.geometry import Point, LineString, Polygon
+from typing import Dict, List, Union
 
+import geopandas as gpd
 from fractopo.general import (
     determine_azimuth,
     determine_regression_azimuth,
     is_azimuth_close,
 )
+from shapely.geometry import LineString, Point, Polygon
+
 
 MERGE_COLUMN = "Merge"
 

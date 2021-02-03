@@ -6,9 +6,8 @@ import math
 from textwrap import wrap
 from typing import Dict, Optional, Tuple, Union
 
-import numpy as np
-
 import matplotlib
+import numpy as np
 from matplotlib import pyplot as plt
 
 

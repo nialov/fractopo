@@ -2,32 +2,29 @@
 Contains calculation and plotting tools.
 """
 
+import logging
 import math
-from textwrap import wrap
 import os
 from pathlib import Path
+from textwrap import wrap
+from typing import Tuple, Union
 
 import geopandas as gpd
-import matplotlib.patheffects as path_effects
-import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import pandas as pd
+import powerlaw
 import seaborn as sns
 import shapely
 import ternary
-from shapely import strtree
-from shapely.geometry import LineString
-from shapely.geometry import Point
+from fractopo.analysis import config, target_area as ta
+from matplotlib import patheffects as path_effects, pyplot as plt
+from shapely import prepared, strtree
+from shapely.geometry import LineString, Point
 from shapely.ops import linemerge
-from shapely import prepared
-import powerlaw
-import logging
-from typing import Tuple, Union
 
 
 # Own code imports
-from fractopo.analysis import target_area as ta, config
 
 style = config.styled_text_dict
 prop = config.styled_prop

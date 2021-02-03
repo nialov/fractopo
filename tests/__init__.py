@@ -4,45 +4,24 @@ Test parameters i.e. sample data, known past errors, etc.
 from pathlib import Path
 from typing import List
 
-import geopandas as gpd
-import numpy as np
-import pandas as pd
-import pytest
-from hypothesis import given
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    integers,
-    lists,
-    one_of,
-    sets,
-    text,
-    tuples,
-)
-from hypothesis_geometry import planar
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
-from shapely.ops import linemerge
-from shapely.wkt import loads
 from tests.sample_data.py_samples.samples import (
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
     results_in_multijunction_why_ls_list,
     results_in_multijunction_why_ls_list_2,
     results_in_overlapping_ls_list,
+    should_result_in_multij_ls_list,
+    should_result_in_some_error_ls_list,
     should_result_in_target_area_underlapping_ls,
     should_result_in_target_area_underlapping_poly,
-    should_result_in_some_error_ls_list,
-    should_result_in_multij_ls_list,
     should_result_in_vnode_ls_list,
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import pytest
 from fractopo.analysis import parameters, tools
 from fractopo.general import (
     CC_branch,
@@ -69,6 +48,27 @@ from fractopo.tval.trace_validators import (
     UnderlappingSnapValidator,
     VNodeValidator,
 )
+from hypothesis import given
+from hypothesis.strategies import (
+    booleans,
+    floats,
+    integers,
+    lists,
+    one_of,
+    sets,
+    text,
+    tuples,
+)
+from hypothesis_geometry import planar
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
+from shapely.ops import linemerge
+from shapely.wkt import loads
 
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN

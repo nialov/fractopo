@@ -480,4 +480,3 @@ def plot_crosscut_abutting_relationships_plot(
             figs.append(fig)
             fig_axes.append(axes)
     return figs, fig_axes
-

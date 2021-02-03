@@ -1,10 +1,9 @@
-import numpy as np
-import matplotlib
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-from scipy.interpolate import CubicSpline
-
 from typing import Dict, Optional, Tuple, Union
+
+import matplotlib
+import numpy as np
+from matplotlib import patches, pyplot as plt
+from scipy.interpolate import CubicSpline
 
 
 def determine_anisotropy_classification(c) -> int:

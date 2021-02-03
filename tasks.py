@@ -49,6 +49,22 @@ def nox(c):
 
 
 @task
+def format(c):
+    """
+    Format everything.
+    """
+    c.run("nox --session format")
+
+
+@task(pre=[format])
+def lint(c):
+    """
+    Lint everything.
+    """
+    c.run("nox --session lint")
+
+
+@task
 def nox_parallel(c):
     """
     Run nox suite in parallel.

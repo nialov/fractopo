@@ -1,18 +1,17 @@
-import pytest
-import hypothesis
-import geopandas as gpd
-import fiona
-import shapely
-from shapely.geometry import Polygon, LineString, Point
 from pathlib import Path
-import matplotlib.pyplot as plt
+from typing import Dict, List, Tuple
+
+import fiona
+import geopandas as gpd
+import hypothesis
 import numpy as np
-
-from typing import Dict, Tuple, List
-
-import fractopo.contour_grid as contour_grid
-import fractopo.branches_and_nodes as branches_and_nodes
+import pytest
+import shapely
+from fractopo import branches_and_nodes, contour_grid
 from fractopo.general import CC_branch, CI_branch, II_branch
+from matplotlib import pyplot as plt
+from shapely.geometry import LineString, Point, Polygon
+
 
 cell_width = 0.10
 branches = gpd.GeoDataFrame(

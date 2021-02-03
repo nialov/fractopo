@@ -8,17 +8,16 @@ from pathlib import Path
 from textwrap import wrap
 from typing import Dict, List, Tuple, Union
 
-import numpy as np
-from numpy.linalg import LinAlgError
-from sklearn import metrics as sklm
-
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import powerlaw
 import shapely
 import ternary
 from fractopo.analysis import config, target_area as ta, tools
 from matplotlib import pyplot as plt
+from numpy.linalg import LinAlgError
+from sklearn import metrics as sklm
 
 
 # Python Windows co-operation imports
@@ -26,7 +25,6 @@ from matplotlib import pyplot as plt
 # Math and analysis imports
 # Plotting imports
 # DataFrame analysis imports
-
 
 
 # from . import target_area as ta
@@ -1687,4 +1685,3 @@ class MultiTargetAreaQGIS:
                     Path(savefolder + f"/{row.TargetAreaLines.name}_anisotropy.xlsx")
                 )
             plt.close()
-

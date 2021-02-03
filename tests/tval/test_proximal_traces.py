@@ -1,48 +1,48 @@
-import pandas as pd
-import geopandas as gpd
-import shapely
 from typing import Union
-from shapely.geometry import Point, LineString, MultiLineString
-import shapely.wkt as wkt
-import numpy as np
-import hypothesis
-import pytest
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    sets,
-    lists,
-    tuples,
-    one_of,
-    text,
-    integers,
-)
-from hypothesis import given
-from hypothesis_geometry import planar
 
 from tests import (
-    Helpers,
+    AREA_EDGE_SNAP_MULTIPLIER,
+    ERROR_COLUMN,
+    GEOMETRY_COLUMN,
     SNAP_THRESHOLD,
     SNAP_THRESHOLD_ERROR_MULTIPLIER,
-    AREA_EDGE_SNAP_MULTIPLIER,
-    GEOMETRY_COLUMN,
-    ERROR_COLUMN,
     BaseValidator,
+    GeomNullValidator,
     GeomTypeValidator,
+    Helpers,
     MultiJunctionValidator,
-    VNodeValidator,
     MultipleCrosscutValidator,
+    SharpCornerValidator,
+    SimpleGeometryValidator,
+    StackedTracesValidator,
     TargetAreaSnapValidator,
     UnderlappingSnapValidator,
-    GeomNullValidator,
-    StackedTracesValidator,
-    SimpleGeometryValidator,
-    SharpCornerValidator,
+    VNodeValidator,
 )
 from tests.sample_data import stacked_test
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
-import fractopo.tval.proximal_traces as proximal_traces
+import geopandas as gpd
+import hypothesis
+import numpy as np
+import pandas as pd
+import pytest
+import shapely
+from fractopo.tval import proximal_traces
+from hypothesis import given
+from hypothesis.strategies import (
+    booleans,
+    floats,
+    integers,
+    lists,
+    one_of,
+    sets,
+    text,
+    tuples,
+)
+from hypothesis_geometry import planar
+from shapely import wkt
+from shapely.geometry import LineString, MultiLineString, Point
 
 
 @pytest.mark.parametrize(

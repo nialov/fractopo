@@ -1,10 +1,9 @@
-import geopandas as gpd
-import shapely
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 from pathlib import Path
 from typing import List
 
+import geopandas as gpd
+import shapely
+from matplotlib import pyplot as plt, ticker
 from shapely.geometry import LineString, MultiLineString, Point
 
 

@@ -2,11 +2,12 @@
 Configuration file.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patheffects as patheffects
-import seaborn as sns
 from typing import List
+
+import numpy as np
+import seaborn as sns
+from matplotlib import patheffects, pyplot as plt
+
 
 # Switch to 'False' to disable the analysis from running
 choose_your_analyses = {

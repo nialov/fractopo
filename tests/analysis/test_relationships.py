@@ -1,22 +1,22 @@
-from typing import Tuple, Optional, List, Dict
-
-import numpy as np
-import pytest
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import MultiLineString
-from shapely.prepared import PreparedGeometry
-import matplotlib
-import matplotlib.pyplot as plt
+from typing import Dict, List, Optional, Tuple
 
 from tests import Helpers
-from fractopo.general import prepare_geometry_traces
+
+import geopandas as gpd
+import matplotlib
+import numpy as np
+import pandas as pd
+import pytest
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
-    determine_nodes_intersecting_sets,
     determine_intersects,
+    determine_nodes_intersecting_sets,
     plot_crosscut_abutting_relationships_plot,
 )
+from fractopo.general import prepare_geometry_traces
+from matplotlib import pyplot as plt
+from shapely.geometry import MultiLineString
+from shapely.prepared import PreparedGeometry
 
 
 @pytest.mark.parametrize(

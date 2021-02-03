@@ -1,27 +1,27 @@
-from hypothesis.strategies import floats, lists
-from hypothesis import given, settings
-import shapely
-from shapely.geometry import Point, LineString, Polygon
-from shapely.prepared import PreparedGeometry
-from shapely import strtree
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-import ternary
-import powerlaw
-import matplotlib.pyplot as plt
 import logging
 from pathlib import Path
 
-import fractopo.branches_and_nodes as branches_and_nodes
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import powerlaw
+import shapely
+import ternary
+from fractopo import branches_and_nodes
 from fractopo.analysis import (
-    tools,
-    multiple_target_areas,
-    config,
     analysis_and_plotting,
-    target_area,
+    config,
     main,
+    multiple_target_areas,
+    target_area,
+    tools,
 )
+from hypothesis import given, settings
+from hypothesis.strategies import floats, lists
+from matplotlib import pyplot as plt
+from shapely import strtree
+from shapely.geometry import LineString, Point, Polygon
+from shapely.prepared import PreparedGeometry
 
 
 def test_main_regression_kb11(tmp_path: Path, only_lds=False, full_data=False):

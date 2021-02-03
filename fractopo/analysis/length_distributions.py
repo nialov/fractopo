@@ -49,7 +49,10 @@ def plot_length_data_on_ax(
     Sets ax scales to logarithmic.
     """
     ax.scatter(
-        x=length_array, y=ccm_array, s=50, label=label,
+        x=length_array,
+        y=ccm_array,
+        s=50,
+        label=label,
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
@@ -188,4 +191,3 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         # lh._sizes = [750]
         lh.set_linewidth(3)
     ax.grid(zorder=-10, color="black", alpha=0.5)
-

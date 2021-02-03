@@ -4,4 +4,3 @@ from fractopo import analysis
 
 
 SetRangeTuple = Tuple[Tuple[float, float], ...]
-

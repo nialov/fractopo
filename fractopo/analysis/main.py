@@ -3,11 +3,11 @@ Main module for the control of analysis and plotting.
 """
 import logging
 from pathlib import Path
-import pandas as pd
-import geopandas as gpd
-from typing import List, Dict, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
-from fractopo.analysis import analysis_and_plotting as taaq, tools as tools, config
+import geopandas as gpd
+import pandas as pd
+from fractopo.analysis import analysis_and_plotting as taaq, config, tools
 
 
 def main_multi_target_area(

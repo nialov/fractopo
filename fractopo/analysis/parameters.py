@@ -8,8 +8,6 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import ternary
-from matplotlib import patheffects as path_effects, pyplot as plt
-
 from fractopo.general import (
     CC_branch,
     CI_branch,
@@ -20,6 +18,7 @@ from fractopo.general import (
     X_node,
     Y_node,
 )
+from matplotlib import patheffects as path_effects, pyplot as plt
 
 
 def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:

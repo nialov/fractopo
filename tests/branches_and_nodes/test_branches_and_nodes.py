@@ -149,7 +149,9 @@ def test_branches_and_nodes(file_regression):
 
 @pytest.mark.parametrize(
     "traces_geosrs, areas_geosrs",
-    [(Helpers.get_traces_geosrs(), Helpers.get_areas_geosrs()),],
+    [
+        (Helpers.get_traces_geosrs(), Helpers.get_areas_geosrs()),
+    ],
 )
 def test_get_branch_identities(traces_geosrs, areas_geosrs):
     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces(
@@ -171,7 +173,10 @@ def test_get_branch_identities(traces_geosrs, areas_geosrs):
     assert all(
         [
             branch in result
-            for branch in (branches_and_nodes.CC_branch, branches_and_nodes.CI_branch,)
+            for branch in (
+                branches_and_nodes.CC_branch,
+                branches_and_nodes.CI_branch,
+            )
         ]
     )
 
@@ -380,4 +385,3 @@ def test_with_known_mls_error():
 
 def test_branches_and_nodes_regression(file_regression):
     pass
-
