@@ -2,11 +2,13 @@
 Contains general calculation and plotting tools.
 """
 import logging
+from shapely.ops import split
 import math
 from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from typing import Any, List, Set, Tuple, Union
+from shapely.wkt import loads
 
 import geopandas as gpd
 import numpy as np
@@ -643,6 +645,25 @@ def match_crs(
         return first, second
 
 
+def replace_coord_in_trace(trace, index, replacement):
+    coord_points = get_trace_coord_points(trace)
+    coord_points.pop(index)
+    coord_points.insert(index, replacement)
+    new_linestring = LineString(coord_points)
+    return new_linestring
+
+
+def get_next_point_in_trace(trace, point):
+    coord_points = get_trace_coord_points(trace)
+    assert point in coord_points
+    if point == coord_points[-1]:
+        return coord_points[-2]
+    elif point == coord_points[0]:
+        return coord_points[1]
+    else:
+        raise ValueError("Expected point to be a coord in trace.")
+
+
 def get_trace_endpoints(
     trace: LineString,
 ) -> Tuple[Point, Point]:
@@ -723,17 +744,20 @@ def determine_general_nodes(
         trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
         # trace_candidates.index = trace_candidates_idx
         # TODO: Is intersection enough? Most Y-intersections might be underlapping.
-        intersection_geoms = trace_candidates.intersection(geom)
-        intersect_nodes.append(
-            tuple(determine_valid_intersection_points(intersection_geoms))
+        intersection_geoms = determine_valid_intersection_points(
+            trace_candidates.intersection(geom)
         )
+        intersect_nodes.append(tuple(intersection_geoms))
         endpoints = tuple(
             (
                 endpoint
                 for endpoint in get_trace_endpoints(geom)
                 if not any(
                     [
-                        endpoint.distance(intersection_geom) < snap_threshold
+                        # TODO: Intersection results in inaccurate geoms ->
+                        # tolerance is actually close to a snap_threshold
+                        # This represents a hard limit to snapping threshold.
+                        np.isclose(endpoint.distance(intersection_geom), 0, atol=1e-3)
                         for intersection_geom in intersection_geoms
                         if not intersection_geom.is_empty
                     ]
@@ -741,6 +765,12 @@ def determine_general_nodes(
             )
         )
         endpoint_nodes.append(endpoints)
+        # if geom.intersects(
+        #     loads("Point (466027.78791597596136853 6691582.99600719381123781)").buffer(
+        #         0.001
+        #     )
+        # ):
+        #     assert False
     return intersect_nodes, endpoint_nodes
 
 
@@ -754,7 +784,11 @@ def determine_valid_intersection_points(
             valid_interaction_points.append(geom)
         elif isinstance(geom, MultiPoint):
             valid_interaction_points.extend([p for p in geom.geoms])
+        elif geom.is_empty:
+            pass
         else:
+            # TODO: LineStrings occur here due to stacked traces. These can
+            # occur because of validation.
             pass
     assert all([isinstance(p, Point) for p in valid_interaction_points])
     return valid_interaction_points
@@ -832,14 +866,14 @@ def determine_node_junctions(
     # The node tuple indexes represent the trace indexes
     for idx, points in enumerate(nodes):
         associated_point_count = len(points)
+        if associated_point_count == 0:
+            continue
 
         # Because node indexes represent traces, we can remove all nodes of the
         # current trace by using the idx.
         other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
             [idx_reference != idx for idx_reference in flattened_idx_reference]
         ]
-        if len(points) == 0:
-            continue
 
         # Iterate over the actual Points of the current trace
         for i, point in enumerate(points):
@@ -1115,3 +1149,15 @@ def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):
                 return False
     return True
 
+
+def resolve_split_to_ls(geom, splitter):
+    split_current = list(split(geom, splitter))
+    linestrings = [
+        geom
+        for geom in split_current
+        if isinstance(geom, LineString) and not geom.is_empty
+    ]
+    linestrings.extend(
+        mls_to_ls([geom for geom in split_current if isinstance(geom, MultiLineString)])
+    )
+    return linestrings
