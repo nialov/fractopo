@@ -15,8 +15,16 @@ analysing lineament and fracture trace maps (fracture networks).
   - Critical issues:
     
       - Verify E-node determination for branches and nodes
+    
       - Verify that E-connected branches are correctly filtered or
         unfiltered.
+    
+      - `snap_traces` in branch and node determination is not completely
+        stable. Some edge cases cause artifacts which only sometimes are
+        recognized as error branches.
+        
+          - Pending rework.
+          - Issue mostly avoided with a `snap_threshold` of \[0.001\]
 
 ## Full documentation
 

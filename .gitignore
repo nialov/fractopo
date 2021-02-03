@@ -15,3 +15,7 @@ fractopo.egg-info/
 .esri.gz
 docs/
 README.html
+network_profile.py
+network_profiling.profile
+venv
+notebooks/fractopo_network_debug.ipynb
