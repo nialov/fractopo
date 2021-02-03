@@ -39,6 +39,7 @@ from tests.sample_data.py_samples.samples import (
     should_result_in_target_area_underlapping_poly,
     should_result_in_some_error_ls_list,
     should_result_in_multij_ls_list,
+    should_result_in_vnode_ls_list,
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
@@ -827,7 +828,8 @@ class ValidationHelpers:
                 LineString([Point(0, 0), Point(1.0001, 1)]),
                 LineString([Point(1, 0), Point(1.0001, 0.9999)]),
             ]
-        )
+        ),
+        gpd.GeoDataFrame(geometry=should_result_in_vnode_ls_list),
     ]
     known_stacked_gdfs = [
         gpd.GeoDataFrame(

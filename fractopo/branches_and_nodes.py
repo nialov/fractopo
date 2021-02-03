@@ -4,7 +4,7 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 from itertools import combinations
 from shapely.ops import split, substring, linemerge
 
@@ -535,7 +535,10 @@ def additional_snapping_func(
 
 
 def snap_traces(
-    traces: gpd.GeoSeries, snap_threshold: float
+    traces: gpd.GeoSeries,
+    snap_threshold: float,
+    areas: Optional[Union[gpd.GeoDataFrame, gpd.GeoSeries]] = None,
+    final_allowed_loop: bool = False,
 ) -> Tuple[gpd.GeoSeries, bool]:
     """
     Snap traces to end exactly at other traces.
@@ -551,7 +554,11 @@ def snap_traces(
     1       LINESTRING (2.00000 2.00000, -2.00000 5.00000)
     dtype: geometry, True)
 
+    TODO: Too complex and messy. But works...
+
     """
+    if areas is None:
+        logging.warning("Areas not given to snap_traces. Results may vary.")
     traces.reset_index(drop=True, inplace=True)
     any_changed_applied = False
     traces_spatial_index = traces.sindex
@@ -581,6 +588,15 @@ def snap_traces(
         snapped_endpoints = []
         n: Point
         for n in endpoints:
+            if areas is not None and any(
+                [
+                    n.distance(area.boundary) < snap_threshold
+                    for area in areas.geometry.values
+                ]
+            ):
+                # Do not try to snap traces near target area boundary
+                snapped_endpoints.append(n)
+                continue
             how_many_n_intersects = sum(trace_candidates.intersects(n))
             if how_many_n_intersects == 1:
                 snapped_endpoints.append(n)
@@ -642,6 +658,10 @@ def snap_traces(
         trace_coords[-1] = tuple(*snapped_endpoints[-1].coords)
         snapped_traces.append(LineString(trace_coords))
 
+    if final_allowed_loop:
+        # Print debugging information before execution is stopped upstream.
+        logging.error("In final loop and still snapping.")
+        logging.error(f"{additional_snapping=}")
     # Handle additional_snapping
     if len(additional_snapping) != 0:
         snapped_traces = list(
@@ -999,13 +1019,20 @@ def branches_and_nodes(
     ):
         raise TypeError("Expected all geometries to be of type LineString.")
     # TODO: snap_traces to snap_traces_alternative
-    traces_geosrs, any_changes_applied = snap_traces(traces_geosrs, snap_threshold)
     loops = 0
+    traces_geosrs, any_changes_applied = snap_traces(
+        traces_geosrs, snap_threshold, areas=areas
+    )
     # Snapping causes changes that might cause new errors. The snapping is looped
     # as many times as there are changed made to the data.
     # If loop count reaches allowed_loops, error is raised.
     while any_changes_applied:
-        traces_geosrs, any_changes_applied = snap_traces(traces_geosrs, snap_threshold)
+        traces_geosrs, any_changes_applied = snap_traces(
+            traces_geosrs,
+            snap_threshold,
+            final_allowed_loop=loops == allowed_loops,
+            areas=areas,
+        )
         loops += 1
         logging.info(f"Loop :{ loops }")
         if loops >= 10:
@@ -1015,6 +1042,20 @@ def branches_and_nodes(
                 " possibly be resolved."
             )
         if loops > allowed_loops:
+            from fractopo.tval.trace_validation import Validation
+
+            Validation(
+                traces=gpd.GeoDataFrame(geometry=traces_geosrs),
+                area=areas
+                if isinstance(areas, gpd.GeoDataFrame)
+                else gpd.GeoDataFrame(geometry=areas),
+                name="loop",
+                allow_fix=True,
+                SNAP_THRESHOLD=0.01,
+            ).run_validation().astype({Validation.ERROR_COLUMN: str}).to_file(
+                "/mnt/f/Users/nikke/Documents/projects/Misc/dump/loop.gpkg",
+                driver="GPKG",
+            )
             raise RecursionError(
                 f"More loops have passed ({loops}) than allowed by allowed_loops "
                 f"({allowed_loops})) for snapping traces_geosrs for"

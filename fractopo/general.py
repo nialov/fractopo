@@ -744,8 +744,8 @@ def determine_general_nodes(
         trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
         # trace_candidates.index = trace_candidates_idx
         # TODO: Is intersection enough? Most Y-intersections might be underlapping.
-        intersection_geoms = determine_valid_intersection_points(
-            trace_candidates.intersection(geom)
+        intersection_geoms = determine_valid_intersection_points_no_vnode(
+            trace_candidates, geom
         )
         intersect_nodes.append(tuple(intersection_geoms))
         endpoints = tuple(
@@ -765,18 +765,42 @@ def determine_general_nodes(
             )
         )
         endpoint_nodes.append(endpoints)
-        # if geom.intersects(
-        #     loads("Point (466027.78791597596136853 6691582.99600719381123781)").buffer(
-        #         0.001
-        #     )
-        # ):
-        #     assert False
     return intersect_nodes, endpoint_nodes
+
+
+def determine_valid_intersection_points_no_vnode(
+    trace_candidates: gpd.GeoSeries, geom: LineString
+) -> List[Point]:
+    """
+    Filter intersection points between trace candidates and geom with no vnodes.
+
+    V-node intersections are validated by looking at the endpoints. If V-nodes
+    were kept as intersection points the VNodeValidator could not find V-node
+    errors.
+    """
+    inter = determine_valid_intersection_points(trace_candidates.intersection(geom))
+    geom_endpoints = get_trace_endpoints(geom)
+    for trace_candidate in trace_candidates.geometry.values:
+        candidate_endpoints = get_trace_endpoints(trace_candidate)
+        for ce in candidate_endpoints:
+            for ge in geom_endpoints:
+                for p in inter:
+                    if np.isclose(ce.distance(ge), 0, atol=1e-4) and np.isclose(
+                        ge.distance(p), 0, atol=1e-4
+                    ):
+                        inter.remove(p)
+    return inter
 
 
 def determine_valid_intersection_points(
     intersection_geoms: gpd.GeoSeries,
 ) -> List[Point]:
+    """
+    Filter intersection points between trace candidates and geom.
+
+    Only allows Point geometries as intersections. LineString intersections
+    would be possible if geometries are stacked.
+    """
     assert isinstance(intersection_geoms, gpd.GeoSeries)
     valid_interaction_points = []
     for geom in intersection_geoms.geometry.values:
