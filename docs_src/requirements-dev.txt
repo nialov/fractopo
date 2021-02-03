@@ -11,16 +11,17 @@
 ################################################################################
 
 black
+black-nb
 coverage
 hypothesis
 hypothesis-geometry
+importanize
 invoke
 jedi==0.17.2
 jupyterlab
 mypy
 nbsphinx
 nox
-pipenv-setup
 pipenv-to-requirements
 pytest
 pytest-regressions

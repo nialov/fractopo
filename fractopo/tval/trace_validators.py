@@ -2,6 +2,7 @@
 import logging
 from abc import abstractmethod
 from typing import Any, List, Optional, Set, Tuple, Type, Union
+from shapely.wkt import loads
 
 import geopandas as gpd
 from fractopo.general import (
@@ -244,7 +245,9 @@ class MultipleCrosscutValidator(BaseValidator):
 
     @staticmethod
     def validation_method(
-        geom: LineString, trace_candidates: gpd.GeoSeries, **_,
+        geom: LineString,
+        trace_candidates: gpd.GeoSeries,
+        **_,
     ) -> bool:
         """
         Validate for multiple crosscuts.
@@ -412,7 +415,10 @@ class TargetAreaSnapValidator(BaseValidator):
         for endpoint in endpoints:
             for area_polygon in area.geometry.values:
                 if TargetAreaSnapValidator.is_candidate_underlapping(
-                    endpoint, geom, area_polygon, snap_threshold=snap_threshold,
+                    endpoint,
+                    geom,
+                    area_polygon,
+                    snap_threshold=snap_threshold,
                 ):
                     # if endpoint.within(area_polygon) and geom.within(area_polygon):
                     # Point and trace completely within the area, does not
@@ -713,4 +719,3 @@ MAJOR_ERRORS = (GeomTypeValidator.ERROR, GeomNullValidator.ERROR)
 ValidatorClass = Type[BaseValidator]
 
 VALIDATION_REQUIRES_NODES = (MultiJunctionValidator, VNodeValidator)
-
