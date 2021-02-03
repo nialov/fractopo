@@ -12,6 +12,7 @@
 
 black
 black-nb
+bleach>=3.3.0
 coverage
 hypothesis
 hypothesis-geometry

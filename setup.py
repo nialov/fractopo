@@ -167,6 +167,7 @@ setup(
             "jedi==0.17.2",
             "black-nb",
             "importanize",
+            "bleach>=3.3.0",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be
