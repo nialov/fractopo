@@ -22,6 +22,7 @@ def test_azimuth_set_relationships_regression(file_regression):
         determine_branches_nodes=True,
         azimuth_set_ranges=azimuth_set_ranges,
         azimuth_set_names=azimuth_set_names,
+        snap_threshold=0.001,
     ).azimuth_set_relationships
     file_regression.check(relations_df.to_string())
 
@@ -40,6 +41,7 @@ def test_length_set_relationships_regression(file_regression):
         determine_branches_nodes=True,
         trace_length_set_names=trace_length_set_names,
         trace_length_set_ranges=trace_length_set_ranges,
+        snap_threshold=0.001,
     ).azimuth_set_relationships
     file_regression.check(relations_df.to_string())
 

@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from tests import Helpers, ValidationHelpers
 
+from shapely.wkt import loads
 import geopandas as gpd
 import pytest
 from fractopo.tval.trace_validation import Validation
@@ -26,7 +27,8 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,allow_fix,assume_errors", Helpers.test_validation_params,
+    "traces,area,name,allow_fix,assume_errors",
+    Helpers.test_validation_params,
 )
 def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
     additional_kwargs = dict()
@@ -67,8 +69,8 @@ def test_validation_known(
     error_amount,
     false_positive: bool,
 ):
-    # Thresholds are passed explicitly to avoid error changes with threshold
-    # changes.
+    # Thresholds are passed explicitly to avoid error changes with default
+    # threshold changes.
     validated_gdf = Validation(
         traces,
         area,
@@ -99,4 +101,3 @@ def test_validation_known(
                     sum([err == assumed_error for err in flat_validated_gdf_errors])
                     == error_amount
                 )
-

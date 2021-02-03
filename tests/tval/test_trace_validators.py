@@ -81,4 +81,3 @@ class TestTargetAreaSnapValidator:
             snap_threshold_error_multiplier=snap_threshold_error_multiplier,
             area_edge_snap_multiplier=area_edge_snap_multiplier,
         )
-

@@ -37,6 +37,8 @@ from tests.sample_data.py_samples.samples import (
     results_in_overlapping_ls_list,
     should_result_in_target_area_underlapping_ls,
     should_result_in_target_area_underlapping_poly,
+    should_result_in_some_error_ls_list,
+    should_result_in_multij_ls_list,
 )
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
@@ -801,6 +803,10 @@ class ValidationHelpers:
                 ),
             ]
         ),
+        gpd.GeoDataFrame(geometry=should_result_in_some_error_ls_list),
+        gpd.GeoDataFrame(geometry=should_result_in_multij_ls_list),
+        # TODO: Is this a validation or snapping error.
+        # gpd.read_file(Path("tests/sample_data/KB11/KB11_last_validation.geojson")),
     ]
 
     known_multilinestring_gdfs = [
@@ -943,4 +949,3 @@ class ValidationHelpers:
 
         assert len(all_errs) > 0
         return all_errs
-
