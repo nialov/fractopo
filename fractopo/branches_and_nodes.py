@@ -4,7 +4,7 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
-from itertools import combinations
+from itertools import chain, combinations
 from typing import List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -36,15 +36,13 @@ from fractopo.general import (
 from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
 from shapely.geometry import (
     LineString,
+    MultiLineString,
     MultiPoint,
     MultiPolygon,
     Point,
     Polygon,
 )
-from shapely.ops import linemerge, substring
-
-
-# Setup
+from shapely.ops import linemerge, substring, unary_union
 
 
 def remove_identical_sindex(
@@ -1000,6 +998,66 @@ def determine_nodes(
     return nodes_of_interaction, node_id_data
 
 
+def safer_unary_union(
+    traces_geosrs: gpd.GeoSeries, snap_threshold: float, size_threshold: int
+) -> MultiLineString:
+    """
+    Perform unary union to transform traces to branch segments.
+
+    unary_union is not completely stable but problem can be alleviated
+    by dividing analysis to parts.
+    """
+    if size_threshold < 100:
+        raise ValueError(
+            "Expected size_threshold to be higher than 100. Union might be impossible."
+        )
+    trace_count = traces_geosrs.shape[0]
+    if trace_count == 1:
+        return MultiLineString([traces_geosrs.geometry.values[0]])
+    if trace_count < size_threshold:
+        full_union = traces_geosrs.unary_union
+        if len(full_union.geoms) > trace_count:
+            # This is not a certain check but smaller datasets should not cause
+            # problems
+            if isinstance(full_union, MultiLineString):
+                return full_union
+            else:
+                raise TypeError(
+                    f"Expected MultiLineString from unary_union. Got {full_union}"
+                )
+    div = int(np.ceil(trace_count / size_threshold))
+    part_count = int(np.ceil(trace_count / div))
+    part_unions = []
+    for i in range(1, div + 1):
+        if i == 1:
+            part = traces_geosrs.iloc[0:part_count]
+        elif i == div:
+            part = traces_geosrs.iloc[part_count * i - 1 :]
+        else:
+            part = traces_geosrs.iloc[part_count * i - 1 : part_count * i]
+        part_union = part.unary_union
+        if (
+            not isinstance(part_union, MultiLineString)
+            or len(part_union.geoms) < part.shape[0]
+        ):
+            # Still fails -> Try with lower threshold for part
+            part_unions.append(
+                safer_unary_union(
+                    part, snap_threshold, size_threshold=size_threshold // 2
+                )
+            )
+        else:
+            # assume success
+            part_unions.append(part_union)
+    assert len(part_unions) == div
+
+    full_union = unary_union(MultiLineString(list(chain(*part_unions))))
+    if isinstance(full_union, MultiLineString):
+        return full_union
+    else:
+        raise TypeError(f"Expected MultiLineString from unary_union. Got {full_union}")
+
+
 def branches_and_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -1082,8 +1140,19 @@ def branches_and_nodes(
         traces_geosrs, nodes_geosrs, areas_geosrs, snap_threshold
     )
     branches = gpd.GeoSeries(
-        [b for b in traces_geosrs.unary_union if b.length > snap_threshold * 1.01]
+        [
+            b
+            for b in safer_unary_union(
+                traces_geosrs, snap_threshold=snap_threshold, size_threshold=5000
+            ).geoms
+            if b.length > snap_threshold * 1.01
+        ]
     )
+    if len(branches) < len(traces_geosrs):
+        # unary_union can fail with too large datasets
+        raise ValueError(
+            "Expected more branches than traces. Possible unary_union failure."
+        )
     branch_identities = get_branch_identities(
         branches, nodes_geosrs, node_identities, snap_threshold
     )
