@@ -20,6 +20,7 @@ from fractopo.tval.trace_validators import (
     VALIDATION_REQUIRES_NODES,
     EmptyTargetAreaValidator,
     ValidatorClass,
+    MultiJunctionValidator,
 )
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, Point
@@ -151,7 +152,7 @@ class Validation:
                 tuple(chain(first, second))
                 for first, second in zip(self.intersect_nodes, self.endpoint_nodes)
             ]
-            self._faulty_junctions = trace_validators.MultiJunctionValidator.determine_faulty_junctions(
+            self._faulty_junctions = MultiJunctionValidator.determine_faulty_junctions(
                 all_nodes,
                 snap_threshold=self.SNAP_THRESHOLD,
                 snap_threshold_error_multiplier=self.SNAP_THRESHOLD_ERROR_MULTIPLIER,
@@ -314,6 +315,8 @@ class Validation:
             # Do not pass invalid geometry types to most validators. There's
             # already a error string in current_errors for e.g. MultiLineString
             # or empty geom rows.
+            if isinstance(geom, MultiLineString):
+                logging.debug("MultiLineString geometry with validator ls only.")
             return geom, current_errors, True
         elif (
             not validator.validation_method(geom=geom, **kwargs)

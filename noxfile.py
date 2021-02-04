@@ -116,8 +116,6 @@ def lint(session):
     session.run(
         "importanize",
         "--ci",
-        # "--config",
-        # importanize_config,
         package_name,
         tests_name,
         tasks_name,

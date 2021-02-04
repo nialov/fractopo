@@ -27,7 +27,6 @@ from shapely.geometry import (
 )
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, split
-from shapely.wkt import loads
 
 
 class BaseValidator:

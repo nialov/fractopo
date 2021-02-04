@@ -1,12 +1,15 @@
 """
-Handles multiple given target areas and makes groups of them based on user inputs using a MultiTargetAreaQGIS class.
-MultiTargetAreaQGIS-objects are made separately for trace and branch data. Both contain the same node data.
+Deprecated QGIS plugin module.
+
+Handle multiple given target areas and makes groups of them based on user
+inputs using a MultiTargetAreaQGIS class.  MultiTargetAreaQGIS-objects are made
+separately for trace and branch data. Both contain the same node data.
 """
 
 import itertools
 from pathlib import Path
 from textwrap import wrap
-from typing import Dict, List, Tuple, Union
+from typing import Dict, Union
 
 import geopandas as gpd
 import numpy as np
@@ -39,9 +42,16 @@ from sklearn import metrics as sklm
 
 
 class MultiTargetAreaQGIS:
+
+    """
+    Qgis plugin utility.
+    """
+
     def __init__(self, table_df, gnames_cutoffs_df, branches, logger):
         """
-        Class for operations with multiple target areas. Handles grouping,
+        Class for operations with multiple target areas.
+
+        Handles grouping,
         analysis and plotting of both individual target areas and grouped data.
 
         :param table_df: DataFrame with user inputs
@@ -184,9 +194,9 @@ class MultiTargetAreaQGIS:
 
     def calc_attributes_for_all(self):
         """
-        Calculates attributes for all target areas.
+        Calculate attributes for all target areas.
         """
-        for idx, row in self.df.iterrows():
+        for _, row in self.df.iterrows():
             row["TargetAreaLines"].calc_attributes()
         self.df_lineframe_main_concat = pd.concat(
             [srs.lineframe_main for srs in self.df.TargetAreaLines], sort=True
@@ -219,7 +229,9 @@ class MultiTargetAreaQGIS:
 
     def unified(self):
         """
-        Creates new datasets (TargetAreaLines + TargetAreaNodes for each group) based on groupings by user.
+        Create new datasets (TargetAreaLines + TargetAreaNodes for each group).
+
+        based on groupings by user.
 
         :raise ValueError: When there are groups without any target areas.
         """
@@ -332,23 +344,12 @@ class MultiTargetAreaQGIS:
 
     def plot_length_fit_cut_ax(self, ax, unified: bool):
         """
-        Plots the numerical power-law fit to a cut length distribution to a given ax.
-
-        :param ax: ax to plot to.
-        :type ax: matplotlib.axes.Axes
-        :param unified: Whether to plot for target area or grouped data.
-        :type unified: bool
-        :raise ValueError: When there are too many values from np.polyfit i.e. values != 2.
+        Plot the numerical power-law fit to a cut distribution to a given ax.
         """
 
         def create_text(lineframe_for_text, ax_for_text, unified, logger):
             """
-            Sub-method to create Texts based on the length distribution DataFrame to a given ax.'
-
-            :param lineframe_for_text: Length distribution.
-            :type lineframe_for_text: pd.DataFrame | gpd.GeoDataFrame
-            :param ax_for_text: Ax to create texts to.
-            :type ax_for_text: matplotlib.axes.Axes
+            Sub-method to create Texts based on the length distribution.
             """
             msle = sklm.mean_squared_log_error(
                 lineframe_for_text.y.values, lineframe_for_text.y_fit.values
@@ -394,7 +395,8 @@ class MultiTargetAreaQGIS:
             # Save statistics to logfile
             grouped_or_individual = "grouped" if unified else "all"
             logger.info(
-                f"Statistics for {grouped_or_individual} length distribution power-law fit plot: \n"
+                f"Statistics for {grouped_or_individual} length"
+                " distribution power-law fit plot: \n"
                 f"MSLE: {msle}, R_squared: {r2score}"
             )
             return
@@ -465,7 +467,7 @@ class MultiTargetAreaQGIS:
 
     def plot_lengths(self, unified: bool, save=False, savefolder="", use_sets=False):
         """
-        Plots length distributions.
+        Plot length distributions.
 
         :param unified: Plot unified datasets or individual target areas
         :type unified: bool
@@ -661,16 +663,7 @@ class MultiTargetAreaQGIS:
 
     def plot_azimuths(self, unified: bool, rose_type: str, save=False, savefolder=""):
         """
-        Plots azimuths.
-
-        :param unified: Plot unified datasets or individual target areas
-        :type unified: bool
-        :param rose_type: Whether to plot equal-radius or equal-area rose plot e.g. 'equal-radius' or 'equal-area'
-        :type rose_type: str
-        :param save: Whether to save
-        :type save: bool
-        :param savefolder: Folder to save to
-        :type savefolder: str
+        Plot azimuths.
         """
         branches = self.using_branches
 
@@ -738,16 +731,7 @@ class MultiTargetAreaQGIS:
         self, unified: bool, rose_type: str, save=False, savefolder=""
     ):
         """
-        Plots azimuths.
-
-        :param unified: Plot unified datasets or individual target areas
-        :type unified: bool
-        :param rose_type: Whether to plot equal-radius or equal-area rose plot e.g. 'equal-radius' or 'equal-area'
-        :type rose_type: str
-        :param save: Whether to save
-        :type save: bool
-        :param savefolder: Folder to save to
-        :type savefolder: str
+        Plot azimuths.
         """
         branches = self.using_branches
 
@@ -861,13 +845,13 @@ class MultiTargetAreaQGIS:
                 plt.savefig(savename, dpi=150, bbox_inches="tight")
                 plt.close()
 
-    # noinspection PyArgumentList
     def determine_crosscut_abutting_relationships(
         self, unified: bool, use_length_sets=False
     ):
         """
-        Determines cross-cutting and abutting relationships between all
-        inputted sets by using spatial intersects
+        Determine cross-cutting and abutting relationships.
+
+        Determination between all inputted sets by using spatial intersects
         between node and trace data. Sets result as a class parameter
         self.relations_df that is used for plotting.
 
@@ -876,7 +860,8 @@ class MultiTargetAreaQGIS:
         :raise ValueError: When there's only one set defined.
             You cannot determine cross-cutting and abutting relationships from only one set.
         """
-        # Determines xy relations and dynamically creates a dataframe as an aid for plotting the relations
+        # Determines xy relations and dynamically creates a dataframe as an aid
+        # for plotting the relations
         # TODO: No within set relations.....yet... Problem?
         if self.using_branches:
             raise TypeError(

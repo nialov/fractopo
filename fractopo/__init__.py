@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Set, Tuple, Union
-
-from fractopo import analysis
+"""
+Main package with general utilites and analysis and validation tools in 
+subpackages.
+"""
+from typing import Tuple
 
 
 SetRangeTuple = Tuple[Tuple[float, float], ...]

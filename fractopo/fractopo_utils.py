@@ -2,20 +2,15 @@
 Miscellaneous utilities and scripts of fractopo.
 """
 from itertools import count
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Union
 
 import geopandas as gpd
-import numpy as np
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
     get_trace_endpoints,
-    is_azimuth_close,
 )
-from shapely.geometry import LineString, Point, Polygon
-from shapely.geometry.multilinestring import MultiLineString
-from shapely.ops import linemerge
+from shapely.geometry import LineString
 
 
 class LineMerge:
@@ -24,7 +19,9 @@ class LineMerge:
         first: LineString, second: LineString, tolerance: float, buffer_value: float
     ) -> Union[None, LineString]:
         """
-        Merges two LineStrings (first and second) if:
+        Conditionally merge two LineStrings (first and second).
+
+        Merge occurs if:
             1. Their endpoints are within buffer_value of each other.
             2. Their total orientations are within tolerance (degrees) of each
                other.
@@ -101,7 +98,9 @@ class LineMerge:
         new_traces = []
         modified_idx = []
         for i, trace in enumerate(traces.geometry):
-            trace_candidates_idx: List[int] = list(spatial_index.intersection(trace.bounds))  # type: ignore
+            trace_candidates_idx: List[int] = list(
+                spatial_index.intersection(trace.bounds)
+            )
             trace_candidates_idx.remove(i)
             if len(trace_candidates_idx) == 0 or i in modified_idx:
                 continue

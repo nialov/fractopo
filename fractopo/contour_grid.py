@@ -12,14 +12,11 @@ from fractopo.analysis.parameters import (
 from fractopo.general import (
     CLASS_COLUMN,
     GEOMETRY_COLUMN,
-    I_node,
     Param,
-    X_node,
-    Y_node,
     crop_to_target_areas,
 )
 from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, Polygon
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -48,6 +45,7 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     """
     assert cell_width > 0
     assert len(branches) > 0
+    assert all([isinstance(val, LineString) for val in branches.geometry.values])
     # Get total bounds of branches
     xmin, ymin, xmax, ymax = branches.total_bounds
     cell_height = cell_width

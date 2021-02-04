@@ -1,21 +1,17 @@
 import logging
-from typing import Any, List, Optional, Set, Tuple, Type, Union
+from typing import List, Optional
 
 import geopandas as gpd
 import numpy as np
-from fractopo.general import get_trace_endpoints, point_to_xy
+from fractopo.general import get_trace_endpoints
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import (
     LineString,
     MultiLineString,
-    MultiPoint,
     Point,
     Polygon,
 )
 from shapely.ops import split
-
-
-# Order is important
 
 
 def segment_within_buffer(
@@ -26,7 +22,9 @@ def segment_within_buffer(
     overlap_detection_multiplier: float,
 ):
     """
-    First checks if given linestring completely overlaps any part of
+    Check if segment is within buffer of multilinestring.
+
+    First check if given linestring completely overlaps any part of
     multilinestring and if it does, returns True.
 
     Next it starts to segmentize the multilinestring to smaller
@@ -64,8 +62,12 @@ def segment_within_buffer(
     return False
 
 
-def segmentize_linestring(linestring: LineString, threshold_length: float):
-    start_point, end_point = get_trace_endpoints(linestring)
+def segmentize_linestring(
+    linestring: LineString, threshold_length: float
+) -> List[LineString]:
+    """
+    Segmentize LineString to smaller parts.
+    """
     segments = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
         start = linestring.interpolate(dist)
@@ -83,6 +85,9 @@ def split_to_determine_triangle_errors(
     snap_threshold: float,
     triangle_error_snap_multiplier: float,
 ):
+    """
+    Split trace with splitter_trace to determine triangle intersections.
+    """
     assert isinstance(trace, LineString)
     assert isinstance(splitter_trace, LineString)
     try:

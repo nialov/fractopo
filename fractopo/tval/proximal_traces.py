@@ -6,7 +6,7 @@ of LineString geometries and returns a GeoDataFrame with a new
 column `Merge` which has values of True or False depending on if
 nearby proximal traces were found.
 """
-from typing import Dict, List, Union
+from typing import List, Union
 
 import geopandas as gpd
 from fractopo.general import (
@@ -14,7 +14,7 @@ from fractopo.general import (
     determine_regression_azimuth,
     is_azimuth_close,
 )
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, Point
 
 
 MERGE_COLUMN = "Merge"
@@ -129,7 +129,7 @@ def determine_proximal_traces(
             spatial_index.intersection(trace.buffer(buffer_value * 5).bounds)
         )
         candidate_idxs.remove(idx)  # type: ignore
-        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces_as_gdf.iloc[  # type: ignore
+        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces_as_gdf.iloc[
             candidate_idxs
         ]
         candidate_traces = candidate_traces.loc[  # type: ignore
@@ -147,5 +147,5 @@ def determine_proximal_traces(
                     if i not in proximal_traces
                 ]
             )
-    traces_as_gdf[MERGE_COLUMN] = [i in proximal_traces for i in traces_as_gdf.index]  # type: ignore
+    traces_as_gdf[MERGE_COLUMN] = [i in proximal_traces for i in traces_as_gdf.index]
     return traces_as_gdf

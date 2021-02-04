@@ -36,13 +36,12 @@ from fractopo.general import (
 from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
 from shapely.geometry import (
     LineString,
-    MultiLineString,
     MultiPoint,
     MultiPolygon,
     Point,
     Polygon,
 )
-from shapely.ops import linemerge, split, substring
+from shapely.ops import linemerge, substring
 
 
 # Setup
@@ -223,8 +222,9 @@ def determine_branch_identity(
     number_of_I_nodes: int, number_of_XY_nodes: int, number_of_E_nodes: int
 ) -> str:
     """
-    Determine the identity of a branch based on the amount of I-, XY- and E-nodes
-    and return it as a string.
+    Determine the identity of a branch.
+
+    Is based on the amount of I-, XY- and E-nodes and returns it as a string.
 
     E.g.
 
@@ -265,8 +265,9 @@ def get_branch_identities(
     snap_threshold: float,
 ) -> List[str]:
     """
-    Determine the type of branch i.e. C-C, C-I or I-I for all branches of a
-    GeoSeries.
+    Determine the types of branches for a GeoSeries of branches.
+
+    i.e. C-C, C-I or I-I, + (C-E, E-E, I-E)
 
     >>> branches = gpd.GeoSeries(
     ...     [
@@ -336,9 +337,10 @@ def angle_to_point(
     point: Point, nearest_point: Point, comparison_point: Point
 ) -> float:
     """
-    Calculate the angle between two vectors which are made from the given
-    points: Both vectors have the same first point, nearest_point, and second
-    point is either point or comparison_point.
+    Calculate the angle between two vectors.
+
+    Vectors are made from the given points: Both vectors have the same first
+    point, nearest_point, and second point is either point or comparison_point.
 
     Returns angle in degrees.
 
@@ -395,7 +397,7 @@ def angle_to_point(
         else:
             logging.error(unit_vector_1, unit_vector_2, unit_vector_sum_len)
             raise ValueError(
-                "Could not detemine point relationships." f"Vectors printed above."
+                "Could not detemine point relationships. Vectors printed above."
             )
     assert 360 >= np.rad2deg(rad_angle) >= 0
     return np.rad2deg(rad_angle)
@@ -943,7 +945,6 @@ def determine_nodes(
 
     TODO: Waiting for branches and nodes refactor.
     """
-
     # nodes_of_interaction contains all intersection points between
     # trace_geodataframe traces.
     nodes_of_interaction: List[Point] = []
@@ -1093,11 +1094,3 @@ def branches_and_nodes(
         {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
     )
     return branch_gdf, node_gdf
-
-
-def main():
-    traces = gpd.GeoSeries(
-        [LineString([(-2, 0), (2, 0)]), LineString([(0, 2), (0, -0.005)])]
-    )
-    snapped = snap_traces_alternative(traces, snap_threshold=0.01)
-    return snapped

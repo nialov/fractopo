@@ -1,15 +1,21 @@
+"""
+Utility for trace validation.
+
+TODO: Deprecated.
+"""
 from pathlib import Path
 from typing import List
 
 import geopandas as gpd
-import shapely
 from matplotlib import pyplot as plt, ticker
-from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 
 
 def main(plot_figs=False, snap_threshold=0.001, snap_threshold_error_multiplier=1.1):
     """
-    Creates two GeoSeries of traces. Saves plots of these traces into ./figs.
+    Create two GeoSeries of traces.
+
+    Saves plots of these traces into ./figs.
 
     Returns a list of traces, where:
         1. Valid traces
@@ -45,8 +51,7 @@ def main(plot_figs=False, snap_threshold=0.001, snap_threshold_error_multiplier=
 
 def line_generator(points: list):
     """
-    Creates a shapely.geometry.LineString from a list of
-    shapely.geometry.Point objects
+    Create a .LineString from a list of Points.
     """
     assert all([isinstance(point, Point) for point in points])
     linestring = LineString(points)
@@ -55,8 +60,7 @@ def line_generator(points: list):
 
 def multi_line_generator(point_lists: list):
     """
-    Creates a shapely.geometry.MultiLineString from a list of
-    shapely.geometry.Point in another list
+    Create a MultiLineString from a list of list of Points.
     """
     line_list = []
     for point_list in point_lists:
@@ -69,6 +73,9 @@ def multi_line_generator(point_lists: list):
 def plot_geoseries(
     geoseries: gpd.GeoSeries, area_geoseries: gpd.GeoSeries, savepath: Path
 ):
+    """
+    Plot trace geoseries.
+    """
     fig, ax = plt.subplots()
     geoseries.plot(ax=ax)
     area_geoseries.plot(ax=ax, edgecolor="red", facecolor="none", linewidth=2)
@@ -78,10 +85,13 @@ def plot_geoseries(
     plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(base=1.0))
 
     plt.grid()
-    plt.savefig(savepath)
+    fig.savefig(savepath)
 
 
 def make_valid_traces() -> List[LineString]:
+    """
+    Make bunch of valid traces.
+    """
     traces = [
         line_generator([Point(-1, 1), Point(3, 1)]),
         line_generator([Point(-2, 0), Point(0, 0)]),
@@ -99,14 +109,20 @@ def make_valid_traces() -> List[LineString]:
 
 
 def make_valid_target_areas():
+    """
+    Make valid target areas.
+    """
     areas = [
-        shapely.geometry.Polygon([(-3, 4), (3, 4), (3, -3), (-3, -3)]),
-        shapely.geometry.Polygon([(-3, -3.5), (3, -3.5), (3, -5), (-3, -5)]),
+        Polygon([(-3, 4), (3, 4), (3, -3), (-3, -3)]),
+        Polygon([(-3, -3.5), (3, -3.5), (3, -5), (-3, -5)]),
     ]
     return areas
 
 
 def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
+    """
+    Make invalid traces.
+    """
     traces = [
         # Horizontal (triple junction)
         line_generator([Point(-2, 0), Point(2, 0)]),
@@ -202,10 +218,13 @@ def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
 
 
 def make_invalid_target_areas():
+    """
+    Make invalid target areas for invalid traces.
+    """
     # Two target areas, both contain a trace that underlaps
     areas = [
-        shapely.geometry.Polygon([(-8, 4), (-5, 4), (-5, 0), (-8, 0)]),
-        shapely.geometry.Polygon([(-8, -1), (-5, -1), (-5, -5), (-8, -5)]),
+        Polygon([(-8, 4), (-5, 4), (-5, 0), (-8, 0)]),
+        Polygon([(-8, -1), (-5, -1), (-5, -5), (-8, -5)]),
     ]
     return areas
 

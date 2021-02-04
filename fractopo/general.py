@@ -1,7 +1,6 @@
 """
 Contains general calculation and plotting tools.
 """
-import logging
 import math
 from bisect import bisect
 from enum import Enum, unique
@@ -25,7 +24,6 @@ from shapely.geometry import (
     box,
 )
 from shapely.ops import split
-from shapely.wkt import loads
 from sklearn.linear_model import LinearRegression
 
 
@@ -189,7 +187,7 @@ def is_set(
     value: Union[float, int], value_range: Tuple[float, float], loop_around: bool
 ) -> bool:
     """
-    Determines if value fits within the given value_range.
+    Determine if value fits within the given value_range.
 
     If the value range has the possibility of looping around loop_around can be
     set to true.
@@ -280,7 +278,7 @@ def determine_regression_azimuth(line: LineString) -> float:
 
 def determine_azimuth(line: LineString, halved: bool) -> float:
     """
-    Calculates azimuth of given line.
+    Calculate azimuth of given line.
 
     If halved -> return is in range [0, 180]
     Else -> [0, 360]
@@ -317,8 +315,9 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
 
 def calc_strike(dip_direction):
     """
-    Calculates strike from dip direction. Right-handed rule.
-    Examples:
+    Calculate strike from dip direction. Right-handed rule.
+
+    E.g.:
 
     >>> calc_strike(50)
     320
@@ -339,7 +338,7 @@ def calc_strike(dip_direction):
 
 def azimu_half(degrees):
     """
-    Transforms azimuths from 180-360 range to range 0-180
+    Transform azimuth from 180-360 range to range 0-180.
 
     :param degrees: Degrees in range 0 - 360
     :type degrees: float
@@ -353,6 +352,8 @@ def azimu_half(degrees):
 
 def sd_calc(data):
     """
+    Calculate standard deviation for radial data.
+
     TODO: Wrong results atm. Needs to take into account real length, not just
     orientation of unit vector.  Calculates standard deviation for radial data
     (degrees)
@@ -367,7 +368,6 @@ def sd_calc(data):
     :return: Standard deviation
     :rtype: float
     """
-
     n = len(data)
     if n <= 1:
         return 0.0
@@ -385,7 +385,12 @@ def sd_calc(data):
 
 
 def avg_calc(data):
-    # TODO: Should take length into calculations.......................... not real average atm
+    """
+    Calculate average for radial data.
+
+    TODO: Should take length into calculations.......................... not
+    real average atm
+    """
     n, mean = len(data), 0.0
 
     if n <= 1:
@@ -408,7 +413,7 @@ def avg_calc(data):
 
 def tern_yi_func(c, x):
     """
-    Function for plotting *Connections per branch* line to branch ternary plot. Absolute values.
+    Plot Connections Per Branch values to branch ternary plot.
     """
     temp = 6 * (1 - 0.5 * c)
     temp2 = 3 - (3 / 2) * c
@@ -420,7 +425,7 @@ def tern_yi_func(c, x):
 
 def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
     """
-    Plots *connections per branch* parameter to XYI-plot.
+    Plot *connections per branch* parameter to XYI-plot.
 
     :param tax: Ternary axis to plot to
     :type tax: ternary.TernaryAxesSubplot
@@ -476,7 +481,8 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
 
 def tern_plot_branch_lines(tax):
     """
-    Plot line of random assignment of nodes to branches to a given branch ternary tax.
+    Plot line of random assignment of nodes to a given branch ternary tax.
+
     Line positions taken from NetworkGT open source code.
     Credit to:
     https://github.com/BjornNyberg/NetworkGT
@@ -524,12 +530,18 @@ def tern_plot_branch_lines(tax):
 
 
 def calc_xlims(lineframe) -> Tuple[float, float]:
+    """
+    Calculate x limits for length distribution plot.
+    """
     left = lineframe.length.min() / 50
     right = lineframe.length.max() * 50
     return left, right
 
 
 def calc_ylims(lineframe) -> Tuple[float, float]:
+    """
+    Calculate y limits for length distribution plot.
+    """
     # TODO: Take y series instead of while dataframe...
     top = lineframe.y.max() * 50
     bottom = lineframe.y.min() / 50
@@ -538,7 +550,7 @@ def calc_ylims(lineframe) -> Tuple[float, float]:
 
 def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     """
-    Defines sets based on the length of the traces or branches.
+    Define sets based on the length of the traces or branches.
     """
     if length < 0:
         raise ValueError("length value wasnt positive.\n Value: {length}")
@@ -555,6 +567,11 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
 
 
 def curviness(linestring):
+    """
+    Determine curviness of LineString.
+
+    TODO: Invalid.
+    """
     try:
         coords = list(linestring.coords)
     except NotImplementedError:
@@ -579,33 +596,6 @@ def curviness(linestring):
     return azimu_std
 
 
-def curviness_initialize_sub_plotting(filecount, ncols=4):
-    nrows = filecount
-    width = 20
-    height = (width / 4) * nrows
-    fig, axes = plt.subplots(
-        nrows=nrows,
-        ncols=ncols,
-        figsize=(width, height),
-        gridspec_kw=dict(wspace=0.45, hspace=0.3),
-    )
-    fig.patch.set_facecolor("#CDFFE6")
-    return fig, axes, nrows, ncols
-
-
-def plot_curv_plot(lineframe, ax=plt.gca(), name=""):
-    lineframe["curviness"] = lineframe.geometry.apply(curviness)
-
-    # labels = ["{0} - {1}".format(i, i + 9) for i in range(0, 180, 9)]
-    lineframe["group"] = pd.cut(lineframe.halved, range(0, 181, 30), right=False)
-
-    sns.boxplot(data=lineframe, x="curviness", y="group", notch=True, ax=ax)
-    ax.set_title(name, fontsize=14, fontweight="heavy", fontfamily="Times New Roman")
-    ax.set_ylabel("Set (°)", fontfamily="Times New Roman")
-    ax.set_xlabel("Curvature (°)", fontfamily="Times New Roman", style="italic")
-    ax.grid(True, color="k", linewidth=0.3)
-
-
 def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeometry:
     """
     Prepare trace_series geometries for a faster spatial analysis.
@@ -613,7 +603,7 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     Assumes geometries are LineStrings which are consequently collected into
     a single MultiLineString which is prepared with shapely.prepared.prep.
 
-    >>> traces = gpd.GeoSeries([LineString([(0,0), (1, 1)]), LineString([(0,1), (0, -1)])])
+    >>> traces = gpd.GeoSeries([LineString([(0,0),(1,1)]),LineString([(0,1),(0,-1)])])
     >>> prepare_geometry_traces(traces).context.wkt
     'MULTILINESTRING ((0 0, 1 1), (0 1, 0 -1))'
 
@@ -631,6 +621,9 @@ def match_crs(
 ) -> Tuple[
     Union[gpd.GeoSeries, gpd.GeoDataFrame], Union[gpd.GeoSeries, gpd.GeoDataFrame]
 ]:
+    """
+    Match crs between two geopandas data structures.
+    """
     all_crs = [crs for crs in (first.crs, second.crs) if crs is not None]
     if len(all_crs) == 0:
         # No crs in either input
@@ -649,7 +642,12 @@ def match_crs(
         return first, second
 
 
-def replace_coord_in_trace(trace, index, replacement):
+def replace_coord_in_trace(
+    trace: LineString, index: int, replacement: Point
+) -> LineString:
+    """
+    Replace coordinate Point of LineString at index with replacement Point.
+    """
     coord_points = get_trace_coord_points(trace)
     coord_points.pop(index)
     coord_points.insert(index, replacement)
@@ -657,7 +655,10 @@ def replace_coord_in_trace(trace, index, replacement):
     return new_linestring
 
 
-def get_next_point_in_trace(trace, point):
+def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
+    """
+    Determine next coordinate point towards middle of LineString from point.
+    """
     coord_points = get_trace_coord_points(trace)
     assert point in coord_points
     if point == coord_points[-1]:
@@ -672,7 +673,7 @@ def get_trace_endpoints(
     trace: LineString,
 ) -> Tuple[Point, Point]:
     """
-    Return endpoints (shapely.geometry.Point) of a given LineString
+    Return endpoints (shapely.geometry.Point) of a given LineString.
     """
     if not isinstance(trace, LineString):
         raise TypeError(
@@ -705,6 +706,9 @@ def get_trace_coord_points(trace: LineString) -> List[Point]:
 
 
 def point_to_xy(point: Point) -> Tuple[float, float]:
+    """
+    Get x and y coordinates of Point.
+    """
     x, y = point.xy
     x, y = [val[0] for val in (x, y)]
     return (x, y)
@@ -718,7 +722,6 @@ def determine_general_nodes(
 
     The points are linked to the indexes of the traces.
     """
-
     if traces.shape[0] == 0 or traces.empty:
         raise ValueError("Expected non-empty dataset in determine_nodes.")
     if not (
@@ -745,7 +748,7 @@ def determine_general_nodes(
         )
         # Remove current geometry from candidates
         trace_candidates_idx.remove(idx)
-        trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]  # type: ignore
+        trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]
         # trace_candidates.index = trace_candidates_idx
         # TODO: Is intersection enough? Most Y-intersections might be underlapping.
         intersection_geoms = determine_valid_intersection_points_no_vnode(
@@ -854,6 +857,7 @@ def determine_node_junctions(
     error_threshold: int,
 ) -> Set[int]:
     """
+    Determine faulty trace junctions using nodes.
 
     E.g.
 
@@ -872,7 +876,6 @@ def determine_node_junctions(
     {0, 1, 3}
 
     """
-
     if len(nodes) == 0:
         return set()
 
@@ -899,7 +902,7 @@ def determine_node_junctions(
 
         # Because node indexes represent traces, we can remove all nodes of the
         # current trace by using the idx.
-        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[  # type: ignore
+        other_nodes_geoseries: gpd.GeoSeries = flattened_nodes_geoseries.loc[
             [idx_reference != idx for idx_reference in flattened_idx_reference]
         ]
 
@@ -955,6 +958,9 @@ def determine_node_junctions(
 
 
 def zip_equal(*iterables):
+    """
+    Zip iterables of only equal lengths.
+    """
     sentinel = object()
     for combo in zip_longest(*iterables, fillvalue=sentinel):
         if sentinel in combo:
@@ -1178,7 +1184,10 @@ def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):
     return True
 
 
-def resolve_split_to_ls(geom, splitter):
+def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineString]:
+    """
+    Resolve split between two LineStrings to only LineString results.
+    """
     split_current = list(split(geom, splitter))
     linestrings = [
         geom
