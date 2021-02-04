@@ -1012,8 +1012,8 @@ def safer_unary_union(
             "Expected size_threshold to be higher than 100. Union might be impossible."
         )
     trace_count = traces_geosrs.shape[0]
-    if trace_count == 1:
-        return MultiLineString([traces_geosrs.geometry.values[0]])
+    if trace_count < 2:
+        return MultiLineString([geom for geom in traces_geosrs.geometry.values])
     if trace_count < size_threshold:
         full_union = traces_geosrs.unary_union
         if len(full_union.geoms) > trace_count:
