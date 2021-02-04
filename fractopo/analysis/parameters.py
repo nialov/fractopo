@@ -10,8 +10,11 @@ import pandas as pd
 import ternary
 from fractopo.general import (
     CC_branch,
+    CE_branch,
     CI_branch,
+    EE_branch,
     E_node,
+    IE_branch,
     II_branch,
     I_node,
     Param,
@@ -31,7 +34,14 @@ def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
 def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
     return {
         str(branch_class): sum(branch_types == branch_class)
-        for branch_class in (CC_branch, CI_branch, II_branch)
+        for branch_class in (
+            CC_branch,
+            CI_branch,
+            II_branch,
+            CE_branch,
+            IE_branch,
+            EE_branch,
+        )
     }
 
 
