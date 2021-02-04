@@ -19,8 +19,8 @@ from fractopo.tval.trace_validators import (
     MAJOR_VALIDATORS,
     VALIDATION_REQUIRES_NODES,
     EmptyTargetAreaValidator,
-    ValidatorClass,
     MultiJunctionValidator,
+    ValidatorClass,
 )
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, Point

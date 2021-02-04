@@ -5,12 +5,7 @@ import geopandas as gpd
 import numpy as np
 from fractopo.general import get_trace_endpoints
 from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    Point,
-    Polygon,
-)
+from shapely.geometry import LineString, MultiLineString, Point, Polygon
 from shapely.ops import split
 
 
