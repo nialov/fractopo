@@ -171,6 +171,14 @@ class LineData:
             else 0.0
         )
 
+    def describe_fit(self, label: Optional[str] = None):
+        """
+        Return short description of automatic powerlaw fit.
+        """
+        return length_distributions.describe_powerlaw_fit(
+            self.automatic_fit, label=label
+        )
+
     def plot_lengths(
         self,
         label: str,

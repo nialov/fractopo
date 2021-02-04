@@ -1,14 +1,20 @@
+"""
+Utilities for analyzing and plotting length distributions for line data.
+"""
 from enum import Enum, unique
 from textwrap import wrap
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple
 
-import geopandas as gpd
 import matplotlib
 import matplotlib.axes
 import numpy as np
-import pandas as pd
 import powerlaw
 from matplotlib import pyplot as plt
+
+
+ALPHA = "alpha"
+EXPONENT = "exponent"
+CUT_OFF = "cut-off"
 
 
 @unique
@@ -191,3 +197,14 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         # lh._sizes = [750]
         lh.set_linewidth(3)
     ax.grid(zorder=-10, color="black", alpha=0.5)
+
+
+def describe_powerlaw_fit(fit: powerlaw.Fit, label: Optional[str] = None):
+    """
+    Return short dict of fit powerlaw attributes.
+    """
+    base = {ALPHA: fit.alpha, EXPONENT: -(fit.alpha - 1), CUT_OFF: fit.xmin}
+    if label is None:
+        return base
+    else:
+        return {f"{label} {key}": value for key, value in base.items()}

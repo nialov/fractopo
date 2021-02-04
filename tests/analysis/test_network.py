@@ -61,7 +61,7 @@ def test_network(
     data_regression,
 ):
     """
-    Test Network object creation with general datasets.
+    Test Network object creation and attributes with general datasets.
     """
     network = Network(
         trace_gdf=traces,
@@ -72,7 +72,11 @@ def test_network(
         snap_threshold=snap_threshold,
     )
 
-    file_regression.check(network.branch_gdf.sort_index().to_json())
+    assert area.shape[0] == len(network.representative_points())
+    assert isinstance(network.numerical_network_description(), dict)
+
+    if network.branch_gdf.shape[0] < 500:
+        file_regression.check(network.branch_gdf.sort_index().to_json())
 
     network_attributes = dict()
     for attribute in ("node_counts", "branch_counts"):

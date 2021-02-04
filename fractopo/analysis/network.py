@@ -37,6 +37,7 @@ from fractopo.general import (
 )
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from shapely.geometry import Point
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 
@@ -373,6 +374,51 @@ class Network:
     def branch_length_set_counts(self) -> Dict[str, int]:
         return self.branch_data.length_set_counts
 
+    @property
+    def trace_lengths_powerlaw_fit_description(self) -> Dict[str, float]:
+        """
+        Short numerical description dict of trace length powerlaw fit.
+        """
+        return self.trace_data.describe_fit(label="trace")
+
+    @property
+    def branch_lengths_powerlaw_fit_description(self) -> Dict[str, float]:
+        """
+        Short numerical description dict of branch length powerlaw fit.
+        """
+        return self.branch_data.describe_fit(label="branch")
+
+    def numerical_network_description(self) -> Dict[str, Union[float, int]]:
+        """
+        Collect numerical network attributes and return them as a dictionary.
+        """
+        parameters = self.parameters if self.parameters is not None else {}
+        branch_counts = self.branch_counts if self.branch_counts is not None else {}
+        node_counts = self.node_counts if self.node_counts is not None else {}
+        description = {
+            **node_counts,
+            **branch_counts,
+            **self.trace_lengths_powerlaw_fit_description,
+            **self.branch_lengths_powerlaw_fit_description,
+            **parameters,
+        }
+
+        func_descriptors = [
+            "trace_lengths_cut_off_proportion",
+            "branch_lengths_cut_off_proportion",
+        ]
+
+        for descriptor in func_descriptors:
+            description[descriptor.replace("_", " ")] = getattr(self, descriptor)()
+
+        return description
+
+    def representative_points(self) -> List[Point]:
+        """
+        Get representative point(s) of target area(s).
+        """
+        return self.area_geoseries.representative_point().to_list()
+
     def trace_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
     ) -> powerlaw.Fit:
@@ -479,7 +525,7 @@ class Network:
 
     def plot_xyi(
         self, label: Optional[str] = None
-    ) -> Optional[Tuple[Figure, Axes, TernaryAxesSubplot,]]:
+    ) -> Optional[Tuple[Figure, Axes, TernaryAxesSubplot]]:
         """
         Plot ternary plot of node types.
         """
