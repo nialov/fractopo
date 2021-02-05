@@ -12,7 +12,8 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib import patheffects as path_effects, pyplot as plt
+from matplotlib import patheffects as path_effects
+from matplotlib import pyplot as plt
 from shapely import prepared
 from shapely.affinity import scale
 from shapely.geometry import (
@@ -27,7 +28,6 @@ from shapely.ops import split
 from sklearn.linear_model import LinearRegression
 
 from fractopo import SetRangeTuple
-
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],

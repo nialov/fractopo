@@ -2,7 +2,8 @@ from typing import Dict, Optional, Tuple, Union
 
 import matplotlib
 import numpy as np
-from matplotlib import patches, pyplot as plt
+from matplotlib import patches
+from matplotlib import pyplot as plt
 from scipy.interpolate import CubicSpline
 
 

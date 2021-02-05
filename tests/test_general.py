@@ -6,9 +6,9 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies._internal.core import booleans, floats
 from shapely.geometry import LineString, Point, Polygon
-from tests import Helpers
 
 from fractopo import general
+from tests import Helpers
 
 
 @pytest.mark.parametrize(

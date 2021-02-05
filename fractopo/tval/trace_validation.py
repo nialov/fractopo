@@ -26,7 +26,6 @@ from fractopo.tval.trace_validators import (
     ValidatorClass,
 )
 
-
 logging.basicConfig(
     level=logging.WARNING, format="%(process)d-%(levelname)s-%(message)s"
 )

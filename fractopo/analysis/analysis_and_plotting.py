@@ -2,7 +2,9 @@
 Handles analysis and plotting using a MultiTargetAreaAnalysis class. Analysis (i.e. heavy calculations)
 and plotting have been separated into two different methods.
 """
-from fractopo.analysis import config, multiple_target_areas as mta, tools
+from fractopo.analysis import config
+from fractopo.analysis import multiple_target_areas as mta
+from fractopo.analysis import tools
 
 
 class MultiTargetAreaAnalysis:

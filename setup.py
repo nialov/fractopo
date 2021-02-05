@@ -138,6 +138,7 @@ setup(
         "matplotlib",
         "click",
         "descartes",
+        "pydantic",
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -151,22 +152,15 @@ setup(
         "dev": [
             "hypothesis",
             "pytest",
-            "tox",
             "jupyterlab",
             "pipenv-to-requirements",
             "coverage",
             "hypothesis-geometry",
             "pytest-regressions",
-            "mypy",
-            "nbsphinx",
-            "recommonmark",
-            "sphinx-rtd-theme",
-            "black",
             "nox",
             "invoke",
             "jedi==0.17.2",
             "black-nb",
-            "importanize",
             "bleach>=3.3.0",
         ]
     },  # Optional

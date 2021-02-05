@@ -4,5 +4,4 @@ subpackages.
 """
 from typing import Tuple
 
-
 SetRangeTuple = Tuple[Tuple[float, float], ...]

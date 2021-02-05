@@ -12,12 +12,7 @@ from fractopo.analysis.parameters import (
     determine_node_type_counts,
     determine_topology_parameters,
 )
-from fractopo.general import (
-    CLASS_COLUMN,
-    GEOMETRY_COLUMN,
-    Param,
-    crop_to_target_areas,
-)
+from fractopo.general import CLASS_COLUMN, GEOMETRY_COLUMN, Param, crop_to_target_areas
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

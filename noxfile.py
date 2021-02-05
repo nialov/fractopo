@@ -7,14 +7,12 @@ from shutil import copy2, copytree, rmtree
 
 import nox
 
-
 docs_apidoc_dir_path = Path("docs_src/apidoc")
 docs_dir_path = Path("docs")
 package_name = "fractopo"
 tests_name = "tests"
 pipfile_lock = "Pipfile.lock"
 notebooks_name = "notebooks"
-importanize_config = "importanize.ini"
 tasks_name = "tasks.py"
 noxfile_name = "noxfile.py"
 pylama_config = "pylama.ini"
@@ -80,12 +78,12 @@ def format(session):
     """
     Format python files, notebooks and docs_src.
     """
-    session.install("black", "black-nb", "importanize")
+    session.install("black", "black-nb", "isort")
     # Format python files
     session.run("black", package_name, tests_name, tasks_name, noxfile_name)
     # Format python file imports
     session.run(
-        "importanize",
+        "isort",
         package_name,
         tests_name,
         tasks_name,
@@ -100,7 +98,7 @@ def lint(session):
     """
     Lint python files, notebooks and docs_src.
     """
-    session.install("rstcheck", "sphinx", "black", "black-nb", "importanize", "pylama")
+    session.install("rstcheck", "sphinx", "black", "black-nb", "isort", "pylama")
     # Lint docs
     session.run(
         "rstcheck",
@@ -112,8 +110,8 @@ def lint(session):
     # Lint python files with black (all should be formatted.)
     session.run("black", "--check", package_name, tests_name, tasks_name, noxfile_name)
     session.run(
-        "importanize",
-        "--ci",
+        "isort",
+        "--check-only",
         package_name,
         tests_name,
         tasks_name,

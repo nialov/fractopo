@@ -3,10 +3,10 @@ from pathlib import Path
 import geopandas as gpd
 import pytest
 from click.testing import CliRunner
-from tests import Helpers
 
 from fractopo import cli
 from fractopo.tval.trace_validation import Validation
+from tests import Helpers
 
 
 @pytest.mark.parametrize(

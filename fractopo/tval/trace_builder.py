@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import List
 
 import geopandas as gpd
-from matplotlib import pyplot as plt, ticker
+from matplotlib import pyplot as plt
+from matplotlib import ticker
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 
 

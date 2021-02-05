@@ -8,17 +8,18 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import ternary
-from matplotlib import patheffects as path_effects, pyplot as plt
+from matplotlib import patheffects as path_effects
+from matplotlib import pyplot as plt
 
 from fractopo.general import (
     CC_branch,
     CE_branch,
     CI_branch,
-    EE_branch,
     E_node,
+    EE_branch,
+    I_node,
     IE_branch,
     II_branch,
-    I_node,
     Param,
     X_node,
     Y_node,

@@ -14,7 +14,6 @@ from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
 from fractopo.general import Col, determine_azimuth, determine_set
 
-
 # Math and analysis imports
 # Plotting imports
 # DataFrame analysis imports

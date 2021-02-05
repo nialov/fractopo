@@ -7,10 +7,10 @@ from hypothesis import given, settings
 from hypothesis.extra import numpy
 from hypothesis.strategies import floats
 from matplotlib import pyplot as plt
-from tests import Helpers
 
 from fractopo.analysis import parameters
 from fractopo.general import Param
+from tests import Helpers
 
 
 @pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)

@@ -1,7 +1,6 @@
 from shapely.geometry import LineString, Point
 from shapely.wkt import loads
 
-
 results_in_non_simple_from_branches_and_nodes_wkt_list = [
     "LineString (346898.82220000028610229 6659415.30949999950826168, "
     "346899.08420000039041042 6659415.57139999978244305, 346899.3080000001937151 "

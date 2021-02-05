@@ -8,7 +8,6 @@ import pytest
 from matplotlib import pyplot as plt
 from shapely.geometry import MultiLineString
 from shapely.prepared import PreparedGeometry
-from tests import Helpers
 
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
@@ -17,6 +16,7 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.general import prepare_geometry_traces
+from tests import Helpers
 
 
 @pytest.mark.parametrize(

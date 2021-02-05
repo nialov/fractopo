@@ -8,7 +8,8 @@ from typing import Dict, List, Tuple, Union
 import geopandas as gpd
 import pandas as pd
 
-from fractopo.analysis import analysis_and_plotting as taaq, config, tools
+from fractopo.analysis import analysis_and_plotting as taaq
+from fractopo.analysis import config, tools
 
 
 def main_multi_target_area(

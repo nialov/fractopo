@@ -18,10 +18,7 @@ from shapely.geometry import Point
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo import SetRangeTuple
-from fractopo.analysis.anisotropy import (
-    determine_anisotropy_sum,
-    plot_anisotropy_plot,
-)
+from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
     determine_branch_type_counts,
@@ -36,11 +33,7 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
-from fractopo.general import (
-    CLASS_COLUMN,
-    CONNECTION_COLUMN,
-    crop_to_target_areas,
-)
+from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN, crop_to_target_areas
 
 
 @dataclass

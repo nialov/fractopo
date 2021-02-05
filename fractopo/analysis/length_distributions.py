@@ -11,7 +11,6 @@ import numpy as np
 import powerlaw
 from matplotlib import pyplot as plt
 
-
 ALPHA = "alpha"
 EXPONENT = "exponent"
 CUT_OFF = "cut-off"

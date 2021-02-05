@@ -21,8 +21,9 @@ from matplotlib import pyplot as plt
 from numpy.linalg import LinAlgError
 from sklearn import metrics as sklm
 
-from fractopo.analysis import config, target_area as ta, tools
-
+from fractopo.analysis import config
+from fractopo.analysis import target_area as ta
+from fractopo.analysis import tools
 
 # Python Windows co-operation imports
 

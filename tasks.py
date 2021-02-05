@@ -5,7 +5,6 @@ from pathlib import Path
 
 from invoke import task
 
-
 nox_tests = (
     "tests_strict",
     "tests_lazy",

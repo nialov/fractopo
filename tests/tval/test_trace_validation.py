@@ -3,13 +3,10 @@ from typing import List, Optional
 import geopandas as gpd
 import pytest
 from shapely.wkt import loads
-from tests import Helpers, ValidationHelpers
 
 from fractopo.tval.trace_validation import Validation
-from fractopo.tval.trace_validators import (
-    MultiJunctionValidator,
-    SharpCornerValidator,
-)
+from fractopo.tval.trace_validators import MultiJunctionValidator, SharpCornerValidator
+from tests import Helpers, ValidationHelpers
 
 
 @pytest.mark.parametrize(

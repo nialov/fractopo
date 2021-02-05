@@ -13,7 +13,6 @@ from matplotlib import pyplot as plt
 from shapely import strtree
 from shapely.geometry import LineString, Point, Polygon
 from shapely.prepared import PreparedGeometry
-from tests import Helpers
 
 from fractopo.analysis import (
     analysis_and_plotting,
@@ -23,6 +22,7 @@ from fractopo.analysis import (
     target_area,
     tools,
 )
+from tests import Helpers
 
 
 class TestTools:

@@ -18,6 +18,7 @@ numpy
 openpyxl
 pandas
 powerlaw
+pydantic
 pygeos==0.8
 python-ternary
 scipy

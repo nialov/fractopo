@@ -20,21 +20,20 @@ from shapely.geometry import (
     box,
 )
 from shapely.ops import snap, split
-from tests import Helpers
-from tests.sample_data.py_samples import samples
 
 from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import (
     CLASS_COLUMN,
     CONNECTION_COLUMN,
-    EE_branch,
     E_node,
+    EE_branch,
     I_node,
     X_node,
     Y_node,
 )
 from fractopo.tval import trace_builder
-
+from tests import Helpers
+from tests.sample_data.py_samples import samples
 
 # Import trace_validator
 

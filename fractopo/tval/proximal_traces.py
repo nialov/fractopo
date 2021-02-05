@@ -17,7 +17,6 @@ from fractopo.general import (
     is_azimuth_close,
 )
 
-
 MERGE_COLUMN = "Merge"
 
 

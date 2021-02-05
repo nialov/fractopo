@@ -10,22 +10,15 @@
 # `Pipfile.lock` and then regenerate `requirements*.txt`.
 ################################################################################
 
-black
 black-nb
 bleach>=3.3.0
 coverage
 hypothesis
 hypothesis-geometry
-importanize
 invoke
 jedi==0.17.2
 jupyterlab
-mypy
-nbsphinx
 nox
 pipenv-to-requirements
 pytest
 pytest-regressions
-recommonmark
-sphinx-rtd-theme
-tox

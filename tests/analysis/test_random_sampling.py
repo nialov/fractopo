@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
-from tests import Helpers
 
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler
 from fractopo.general import Error_branch
+from tests import Helpers
 
 
 @pytest.mark.parametrize(

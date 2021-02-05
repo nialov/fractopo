@@ -13,7 +13,6 @@ from shapely.geometry import LineString, Point, Polygon
 from fractopo import branches_and_nodes, contour_grid
 from fractopo.general import CC_branch, CI_branch, II_branch
 
-
 cell_width = 0.10
 branches = gpd.GeoDataFrame(
     {

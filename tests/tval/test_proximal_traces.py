@@ -20,6 +20,8 @@ from hypothesis.strategies import (
 from hypothesis_geometry import planar
 from shapely import wkt
 from shapely.geometry import LineString, MultiLineString, Point
+
+from fractopo.tval import proximal_traces
 from tests import (
     AREA_EDGE_SNAP_MULTIPLIER,
     ERROR_COLUMN,
@@ -41,8 +43,6 @@ from tests import (
 )
 from tests.sample_data import stacked_test
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
-
-from fractopo.tval import proximal_traces
 
 
 @pytest.mark.parametrize(
