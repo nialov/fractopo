@@ -32,7 +32,9 @@ def describe_results(validated: gpd.GeoDataFrame, error_column: str):
     Describe validation results to stdout.
     """
     error_count = sum([len(val) != 0 for val in validated[error_column]])  # type: ignore
-    error_types = set([c for c in chain(*validated[error_column].to_list())])
+    error_types = set(
+        [c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)]
+    )
     count_string = f"Out of {validated.shape[0]} traces, {error_count} were invalid."
     type_string = f"There were {len(error_types)} error types. These were:\n"
     for error_type in error_types:

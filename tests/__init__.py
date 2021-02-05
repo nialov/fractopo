@@ -763,6 +763,15 @@ class Helpers:
         ),
     ]
 
+    test_network_random_sampler_params = [
+        (
+            geta_1_traces,  # trace_gdf
+            geta_1_1_area,  # area_gdf
+            10,  # min_radius
+            0.001,  # snap_threshold
+        )
+    ]
+
 
 class ValidationHelpers:
 

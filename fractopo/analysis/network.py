@@ -37,6 +37,7 @@ from fractopo.general import (
 )
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
 from shapely.geometry import Point
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
@@ -55,7 +56,7 @@ class Network:
     # Base data
     # =========
     trace_gdf: gpd.GeoDataFrame
-    area_geoseries: Optional[Union[gpd.GeoSeries, gpd.GeoDataFrame]] = None
+    area_gdf: Optional[Union[gpd.GeoSeries, gpd.GeoDataFrame]] = None
 
     # Name the network for e.g. plot titles
     name: str = "Network"
@@ -147,7 +148,7 @@ class Network:
             self.trace_gdf = gpd.GeoDataFrame(
                 crop_to_target_areas(
                     self.trace_gdf,
-                    self.area_geoseries,
+                    self.area_gdf,
                     snap_threshold=self.snap_threshold,
                 )
             )
@@ -162,9 +163,7 @@ class Network:
             self.trace_length_set_names,
         )
         # Area
-        self.area_geoseries = (
-            self.area_geoseries.copy() if self.area_geoseries is not None else None
-        )
+        self.area_gdf = self.area_gdf.copy() if self.area_gdf is not None else None
         # Branches
         self.branch_gdf = (
             self.branch_gdf.copy() if self.branch_gdf is not None else None
@@ -296,7 +295,7 @@ class Network:
 
     @property
     def total_area(self) -> float:
-        return self.area_geoseries.geometry.area.sum()
+        return self.area_gdf.geometry.area.sum()
 
     @property
     def parameters(self) -> Optional[Dict[str, float]]:
@@ -417,7 +416,7 @@ class Network:
         """
         Get representative point(s) of target area(s).
         """
-        return self.area_geoseries.representative_point().to_list()
+        return self.area_gdf.representative_point().to_list()
 
     def trace_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
@@ -463,10 +462,10 @@ class Network:
         """
         Determine and assign branches and nodes as attributes.
         """
-        if self.area_geoseries is not None:
+        if self.area_gdf is not None:
             branches, nodes = branches_and_nodes(
                 self.trace_gdf,
-                self.area_geoseries,
+                self.area_gdf,
                 self.snap_threshold,
                 already_clipped=self.truncate_traces,
             )
@@ -511,14 +510,14 @@ class Network:
 
     def plot_trace_azimuth(
         self, label: Optional[str] = None
-    ) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
+    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
         if label is None:
             label = self.name
         return self.trace_data.plot_azimuth(label=label)
 
     def plot_branch_azimuth(
         self, label: Optional[str] = None
-    ) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
+    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
         if label is None:
             label = self.name
         return self.branch_data.plot_azimuth(label=label)

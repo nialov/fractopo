@@ -65,7 +65,7 @@ def test_network(
     """
     network = Network(
         trace_gdf=traces,
-        area_geoseries=area,
+        area_gdf=area,
         name=name,
         determine_branches_nodes=determine_branches_nodes,
         truncate_traces=truncate_traces,
