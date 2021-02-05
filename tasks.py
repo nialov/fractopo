@@ -94,3 +94,11 @@ def make(_):
     """
     Test and make everything.
     """
+
+
+@task
+def docs(c):
+    """
+    Make documentation to docs using nox.
+    """
+    c.run("nox --session docs")

@@ -17,6 +17,7 @@ Submodules
    fractopo.analysis.multiple_target_areas
    fractopo.analysis.network
    fractopo.analysis.parameters
+   fractopo.analysis.random_sampling
    fractopo.analysis.relationships
    fractopo.analysis.target_area
    fractopo.analysis.tools
