@@ -2,6 +2,7 @@
 Contains general calculation and plotting tools.
 """
 import math
+import random
 from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
@@ -1198,3 +1199,30 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
         mls_to_ls([geom for geom in split_current if isinstance(geom, MultiLineString)])
     )
     return linestrings
+
+
+def safe_buffer(point: Point, radius: float, **kwargs) -> Polygon:
+    """
+    Get type checked Polygon buffer.
+    """
+    buffer = point.buffer(radius, **kwargs)
+    if not isinstance(buffer, Polygon):
+        raise TypeError("Expected Polygon buffer.")
+    return buffer
+
+
+def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
+    """
+    Get random points within Polygon.
+    """
+    min_x, min_y, max_x, max_y = poly.bounds
+    points = []
+
+    while len(points) < num_points:
+        random_point = Point(
+            [random.uniform(min_x, max_x), random.uniform(min_y, max_y)]
+        )
+        if random_point.within(poly):
+            points.append(random_point)
+
+    return points
