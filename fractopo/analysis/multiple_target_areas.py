@@ -17,10 +17,11 @@ import pandas as pd
 import powerlaw
 import shapely
 import ternary
-from fractopo.analysis import config, target_area as ta, tools
 from matplotlib import pyplot as plt
 from numpy.linalg import LinAlgError
 from sklearn import metrics as sklm
+
+from fractopo.analysis import config, target_area as ta, tools
 
 
 # Python Windows co-operation imports

@@ -10,6 +10,16 @@ from typing import List, Optional, Tuple, Union
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
+from shapely.ops import linemerge, substring, unary_union
+
 from fractopo.general import (
     CLASS_COLUMN,
     CONNECTION_COLUMN,
@@ -34,15 +44,6 @@ from fractopo.general import (
     resolve_split_to_ls,
 )
 from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
-from shapely.ops import linemerge, substring, unary_union
 
 
 def remove_identical_sindex(

@@ -10,6 +10,9 @@ from itertools import chain
 from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import LineString, MultiLineString, Point
+
 from fractopo.general import determine_general_nodes, is_empty_area
 from fractopo.tval import trace_validators
 from fractopo.tval.trace_validation_utils import determine_trace_candidates
@@ -22,8 +25,6 @@ from fractopo.tval.trace_validators import (
     MultiJunctionValidator,
     ValidatorClass,
 )
-from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import LineString, MultiLineString, Point
 
 
 logging.basicConfig(

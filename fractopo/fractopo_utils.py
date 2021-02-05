@@ -5,12 +5,13 @@ from itertools import count
 from typing import List, Union
 
 import geopandas as gpd
+from shapely.geometry import LineString
+
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
     get_trace_endpoints,
 )
-from shapely.geometry import LineString
 
 
 class LineMerge:

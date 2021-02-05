@@ -7,6 +7,13 @@ import pandas as pd
 import powerlaw
 import shapely
 import ternary
+from hypothesis import given, settings
+from hypothesis.strategies import floats, lists
+from matplotlib import pyplot as plt
+from shapely import strtree
+from shapely.geometry import LineString, Point, Polygon
+from shapely.prepared import PreparedGeometry
+
 from fractopo import branches_and_nodes
 from fractopo.analysis import (
     analysis_and_plotting,
@@ -16,12 +23,6 @@ from fractopo.analysis import (
     target_area,
     tools,
 )
-from hypothesis import given, settings
-from hypothesis.strategies import floats, lists
-from matplotlib import pyplot as plt
-from shapely import strtree
-from shapely.geometry import LineString, Point, Polygon
-from shapely.prepared import PreparedGeometry
 
 
 def test_main_regression_kb11(tmp_path: Path, only_lds=False, full_data=False):

@@ -9,12 +9,13 @@ nearby proximal traces were found.
 from typing import List, Union
 
 import geopandas as gpd
+from shapely.geometry import LineString, Point
+
 from fractopo.general import (
     determine_azimuth,
     determine_regression_azimuth,
     is_azimuth_close,
 )
-from shapely.geometry import LineString, Point
 
 
 MERGE_COLUMN = "Merge"

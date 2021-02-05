@@ -5,10 +5,11 @@ from typing import Any, Tuple
 
 import geopandas as gpd
 import numpy as np
-from fractopo.analysis.network import Network
-from fractopo.general import GEOMETRY_COLUMN, random_points_within, safe_buffer
 from pydantic import BaseModel, validator
 from shapely.geometry import LineString, Point, Polygon
+
+from fractopo.analysis.network import Network
+from fractopo.general import GEOMETRY_COLUMN, random_points_within, safe_buffer
 
 
 class NetworkRandomSampler(BaseModel):

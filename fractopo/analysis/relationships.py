@@ -10,17 +10,18 @@ import geopandas as gpd
 import matplotlib
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from shapely import prepared
+from shapely.geometry import LineString, Point
+from shapely.strtree import STRtree
+
 from fractopo.general import (
     X_node,
     Y_node,
     get_trace_endpoints,
     prepare_geometry_traces,
 )
-from matplotlib import pyplot as plt
-from matplotlib.ticker import MaxNLocator
-from shapely import prepared
-from shapely.geometry import LineString, Point
-from shapely.strtree import STRtree
 
 
 def determine_crosscut_abutting_relationships(

@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from tests import Helpers
-
 import geopandas as gpd
 import numpy as np
 import pytest
-from fractopo import general
 from hypothesis import given
 from hypothesis.strategies._internal.core import booleans, floats
 from shapely.geometry import LineString, Point, Polygon
+from tests import Helpers
+
+from fractopo import general
 
 
 @pytest.mark.parametrize(

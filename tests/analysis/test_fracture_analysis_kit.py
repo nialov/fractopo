@@ -1,14 +1,20 @@
 import logging
 from pathlib import Path
 
-from tests import Helpers
-
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
 import shapely
 import ternary
+from hypothesis import given, settings
+from hypothesis.strategies import floats, lists
+from matplotlib import pyplot as plt
+from shapely import strtree
+from shapely.geometry import LineString, Point, Polygon
+from shapely.prepared import PreparedGeometry
+from tests import Helpers
+
 from fractopo.analysis import (
     analysis_and_plotting,
     config,
@@ -17,12 +23,6 @@ from fractopo.analysis import (
     target_area,
     tools,
 )
-from hypothesis import given, settings
-from hypothesis.strategies import floats, lists
-from matplotlib import pyplot as plt
-from shapely import strtree
-from shapely.geometry import LineString, Point, Polygon
-from shapely.prepared import PreparedGeometry
 
 
 class TestTools:

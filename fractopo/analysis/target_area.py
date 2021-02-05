@@ -14,10 +14,11 @@ import numpy as np
 import pandas as pd
 import powerlaw
 import ternary
-from fractopo.analysis import config, tools
-from fractopo.analysis.config import EXPONENTIAL, LOGNORMAL, POWERLAW
 from matplotlib import patches, pyplot as plt
 from scipy.interpolate import CubicSpline
+
+from fractopo.analysis import config, tools
+from fractopo.analysis.config import EXPONENTIAL, LOGNORMAL, POWERLAW
 
 
 # Math and analysis imports

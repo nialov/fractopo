@@ -17,11 +17,12 @@ import powerlaw
 import seaborn as sns
 import shapely
 import ternary
-from fractopo.analysis import config, target_area as ta
 from matplotlib import patheffects as path_effects, pyplot as plt
 from shapely import prepared, strtree
 from shapely.geometry import LineString, Point
 from shapely.ops import linemerge
+
+from fractopo.analysis import config, target_area as ta
 
 
 # Own code imports

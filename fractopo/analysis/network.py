@@ -11,6 +11,12 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
+from shapely.geometry import Point
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
+
 from fractopo import SetRangeTuple
 from fractopo.analysis.anisotropy import (
     determine_anisotropy_sum,
@@ -35,11 +41,6 @@ from fractopo.general import (
     CONNECTION_COLUMN,
     crop_to_target_areas,
 )
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.projections import PolarAxes
-from shapely.geometry import Point
-from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 
 @dataclass

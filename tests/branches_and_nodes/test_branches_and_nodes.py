@@ -1,25 +1,11 @@
 from pathlib import Path
 from typing import List
 
-from tests import Helpers
-from tests.sample_data.py_samples import samples
-
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
 import shapely
-from fractopo import branches_and_nodes, general
-from fractopo.branches_and_nodes import (
-    CLASS_COLUMN,
-    CONNECTION_COLUMN,
-    EE_branch,
-    E_node,
-    I_node,
-    X_node,
-    Y_node,
-)
-from fractopo.tval import trace_builder
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis.strategies import floats, integers, tuples
 from hypothesis_geometry import planar
@@ -34,6 +20,20 @@ from shapely.geometry import (
     box,
 )
 from shapely.ops import snap, split
+from tests import Helpers
+from tests.sample_data.py_samples import samples
+
+from fractopo import branches_and_nodes, general
+from fractopo.branches_and_nodes import (
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+    EE_branch,
+    E_node,
+    I_node,
+    X_node,
+    Y_node,
+)
+from fractopo.tval import trace_builder
 
 
 # Import trace_validator

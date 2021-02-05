@@ -1,8 +1,9 @@
+import geopandas as gpd
+import pytest
+from shapely.geometry import LineString, MultiLineString, Point
 from tests import Helpers
 from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
 
-import geopandas as gpd
-import pytest
 from fractopo import general
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import (
@@ -18,7 +19,6 @@ from fractopo.tval.trace_validators import (
     UnderlappingSnapValidator,
     VNodeValidator,
 )
-from shapely.geometry import LineString, MultiLineString, Point
 
 
 @pytest.mark.parametrize(

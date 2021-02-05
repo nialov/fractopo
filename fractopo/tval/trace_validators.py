@@ -4,6 +4,18 @@ from abc import abstractmethod
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
+from shapely.affinity import scale
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import linemerge, split
+
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
@@ -16,17 +28,6 @@ from fractopo.tval.trace_validation_utils import (
     segment_within_buffer,
     split_to_determine_triangle_errors,
 )
-from shapely.affinity import scale
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
-from shapely.geometry.base import BaseGeometry
-from shapely.ops import linemerge, split
 
 
 class BaseValidator:

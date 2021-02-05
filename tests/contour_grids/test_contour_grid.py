@@ -7,10 +7,11 @@ import hypothesis
 import numpy as np
 import pytest
 import shapely
-from fractopo import branches_and_nodes, contour_grid
-from fractopo.general import CC_branch, CI_branch, II_branch
 from matplotlib import pyplot as plt
 from shapely.geometry import LineString, Point, Polygon
+
+from fractopo import branches_and_nodes, contour_grid
+from fractopo.general import CC_branch, CI_branch, II_branch
 
 
 cell_width = 0.10

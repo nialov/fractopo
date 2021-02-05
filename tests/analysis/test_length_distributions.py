@@ -1,9 +1,10 @@
 import numpy as np
 import powerlaw
-from fractopo.analysis import length_distributions
 from hypothesis import given, settings
 from hypothesis.extra import numpy
 from hypothesis.strategies import floats
+
+from fractopo.analysis import length_distributions
 
 
 @given(

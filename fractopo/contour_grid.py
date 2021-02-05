@@ -5,6 +5,9 @@ from typing import Dict, Optional
 
 import geopandas as gpd
 import numpy as np
+from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.geometry import LineString, Polygon
+
 from fractopo.analysis.parameters import (
     determine_node_type_counts,
     determine_topology_parameters,
@@ -15,8 +18,6 @@ from fractopo.general import (
     Param,
     crop_to_target_areas,
 )
-from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import LineString, Polygon
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

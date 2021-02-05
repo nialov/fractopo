@@ -86,8 +86,6 @@ def format(session):
     # Format python file imports
     session.run(
         "importanize",
-        # "--config",
-        # importanize_config,
         package_name,
         tests_name,
         tasks_name,

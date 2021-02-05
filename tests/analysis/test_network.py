@@ -1,9 +1,9 @@
 from typing import Tuple, Union
 
-from tests import Helpers
-
 import pandas as pd
 import pytest
+from tests import Helpers
+
 from fractopo import SetRangeTuple
 from fractopo.analysis.network import Network
 

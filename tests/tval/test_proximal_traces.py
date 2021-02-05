@@ -1,5 +1,25 @@
 from typing import Union
 
+import geopandas as gpd
+import hypothesis
+import numpy as np
+import pandas as pd
+import pytest
+import shapely
+from hypothesis import given
+from hypothesis.strategies import (
+    booleans,
+    floats,
+    integers,
+    lists,
+    one_of,
+    sets,
+    text,
+    tuples,
+)
+from hypothesis_geometry import planar
+from shapely import wkt
+from shapely.geometry import LineString, MultiLineString, Point
 from tests import (
     AREA_EDGE_SNAP_MULTIPLIER,
     ERROR_COLUMN,
@@ -22,27 +42,7 @@ from tests import (
 from tests.sample_data import stacked_test
 from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
-import geopandas as gpd
-import hypothesis
-import numpy as np
-import pandas as pd
-import pytest
-import shapely
 from fractopo.tval import proximal_traces
-from hypothesis import given
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    integers,
-    lists,
-    one_of,
-    sets,
-    text,
-    tuples,
-)
-from hypothesis_geometry import planar
-from shapely import wkt
-from shapely.geometry import LineString, MultiLineString, Point
 
 
 @pytest.mark.parametrize(

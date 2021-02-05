@@ -1,17 +1,22 @@
-from tests import Helpers
-
 import numpy as np
 import pytest
+from tests import Helpers
+
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler
 from fractopo.general import Error_branch
 
 
 @pytest.mark.parametrize(
-    "trace_gdf,area_gdf,min_radius,snap_threshold",
+    "trace_gdf,area_gdf,min_radius,snap_threshold,samples",
     Helpers.test_network_random_sampler_params,
 )
-def test_network_random_sampler(trace_gdf, area_gdf, min_radius, snap_threshold):
+def test_network_random_sampler(
+    trace_gdf, area_gdf, min_radius, snap_threshold, samples
+):
+    """
+    Test NetworkRandomSampler sampling.
+    """
     sampler = NetworkRandomSampler(
         trace_gdf=trace_gdf,
         area_gdf=area_gdf,
@@ -29,7 +34,7 @@ def test_network_random_sampler(trace_gdf, area_gdf, min_radius, snap_threshold)
         assert random_target_centroid.within(sampler.target_circle)
         assert random_target_circle.area < sampler.target_circle.area
 
-    for _ in range(50):
+    for _ in range(samples):
         network, target_centroid, radius = sampler.random_network_sample()
         assert isinstance(network, Network)
         if not network.trace_gdf.shape[0] <= trace_gdf.shape[0]:
