@@ -40,6 +40,7 @@ seaborn = "*"
 matplotlib = "*"
 click = "*"
 descartes = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.8"
