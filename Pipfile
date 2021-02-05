@@ -23,6 +23,7 @@ jedi = "==0.17.2"
 black-nb = "*"
 importanize = "*"
 bleach = ">=3.3.0"
+isort = "*"
 
 [packages]
 geopandas = "*"
