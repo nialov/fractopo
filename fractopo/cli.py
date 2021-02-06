@@ -10,6 +10,7 @@ import click
 import fiona
 import geopandas as gpd
 
+from fractopo.general import read_geofile
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
@@ -18,20 +19,20 @@ def get_click_path_args(exists=True, **kwargs):
     """
     Get basic click path args.
     """
-    path_args = dict(
+    path_arguments = dict(
         type=click.Path(
             exists=exists, file_okay=True, dir_okay=False, resolve_path=True, **kwargs
         ),
         nargs=1,
     )
-    return path_args
+    return path_arguments
 
 
 def describe_results(validated: gpd.GeoDataFrame, error_column: str):
     """
     Describe validation results to stdout.
     """
-    error_count = sum([len(val) != 0 for val in validated[error_column]])  # type: ignore
+    error_count = sum([len(val) != 0 for val in validated[error_column].values])
     error_types = set(
         [c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)]
     )
@@ -108,8 +109,8 @@ def tracevalidate(
     print(f"Validating with snap threshold of {snap_threshold}.")
 
     # Assert that read files result in GeoDataFrames
-    traces: gpd.GeoDataFrame = gpd.read_file(trace_path)  # type: ignore
-    areas: gpd.GeoDataFrame = gpd.read_file(area_path)  # type: ignore
+    traces: gpd.GeoDataFrame = read_geofile(trace_path)
+    areas: gpd.GeoDataFrame = read_geofile(area_path)
     if not all([isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)]):
         raise TypeError(
             "Expected trace and area data to be resolvable as GeoDataFrames."

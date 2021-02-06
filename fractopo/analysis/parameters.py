@@ -10,6 +10,9 @@ import pandas as pd
 import ternary
 from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.general import (
     CC_branch,
@@ -48,7 +51,7 @@ def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
 
 
 def decorate_xyi_ax(
-    ax: matplotlib.axes.Axes, tax: ternary.ternary_axes_subplot.TernaryAxesSubplot, label: str, node_counts: Dict[str, int]  # type: ignore
+    ax: Axes, tax: TernaryAxesSubplot, label: str, node_counts: Dict[str, int]
 ):
     xcount, ycount, icount = _get_xyi_counts(node_counts)
     text = f"n: {xcount+ycount+icount}\n"
@@ -76,11 +79,7 @@ def plot_xyi_plot(
     node_counts_list: List[Dict[str, int]],
     labels: List[str],
     colors: Optional[List[Optional[str]]] = None,
-) -> Tuple[
-    matplotlib.figure.Figure,  # type: ignore
-    matplotlib.axes.Axes,  # type: ignore
-    ternary.ternary_axes_subplot.TernaryAxesSubplot,
-]:
+) -> Tuple[Figure, Axes, TernaryAxesSubplot,]:
     """
     Plot ternary XYI-plot.
 
@@ -195,13 +194,11 @@ def plot_branch_plot(
     branch_counts_list: List[Dict[str, int]],
     labels: List[str],
     colors: Optional[List[Optional[str]]] = None,
-) -> Tuple[
-    matplotlib.figure.Figure,  # type: ignore
-    matplotlib.axes.Axes,  # type: ignore
-    ternary.ternary_axes_subplot.TernaryAxesSubplot,
-]:
+) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
     """
-    Plot a branch classification ternary plot to a new ternary figure. Single point in each figure.
+    Plot a branch classification ternary plot to a new ternary figure.
+
+    Single point in each figure.
     """
     if colors is None:
         colors = [None for _ in branch_counts_list]
@@ -269,8 +266,8 @@ def plot_branch_plot_ax(
 
 
 def decorate_branch_ax(
-    ax: matplotlib.axes.Axes,  # type: ignore
-    tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
+    ax: Axes,
+    tax: TernaryAxesSubplot,
     label: str,
     branch_counts: Dict[str, int],
 ):

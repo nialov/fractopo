@@ -6,12 +6,14 @@ import random
 from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
-from typing import Any, List, Set, Tuple, Union
+from pathlib import Path
+from typing import Any, List, Sequence, Set, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from shapely import prepared
@@ -27,7 +29,7 @@ from shapely.geometry import (
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
 
-from fractopo import SetRangeTuple
+from fractopo import BoundsTuple, PointTuple, SetRangeTuple
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
@@ -735,7 +737,11 @@ def determine_general_nodes(
 
     intersect_nodes: List[Tuple[Point, ...]] = []
     endpoint_nodes: List[Tuple[Point, ...]] = []
-    spatial_index = traces.geometry.sindex
+    # spatial_index = traces.geometry.sindex
+    try:
+        spatial_index = pygeos_spatial_index(traces.geometry)
+    except TypeError:
+        spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
         if not isinstance(geom, LineString):
             # Intersections and endpoints cannot be defined for
@@ -745,8 +751,8 @@ def determine_general_nodes(
             endpoint_nodes.append(())
             continue
         # Get trace candidates for intersection
-        trace_candidates_idx: List[int] = sorted(  # type: ignore
-            list(spatial_index.intersection(geom.bounds))
+        trace_candidates_idx: List[int] = sorted(
+            spatial_index_intersection(spatial_index, geom_bounds(geom))
         )
         # Remove current geometry from candidates
         trace_candidates_idx.remove(idx)
@@ -890,7 +896,8 @@ def determine_node_junctions(
     flattened_nodes_geoseries = gpd.GeoSeries(flattened_node_tuples)
 
     # Create spatial index of nodes
-    nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
+    # nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
+    nodes_geoseries_sindex = pygeos_spatial_index(flattened_nodes_geoseries)
 
     # Set collection for indexes with junctions
     indexes_with_junctions: Set[int] = set()
@@ -912,12 +919,13 @@ def determine_node_junctions(
         for i, point in enumerate(points):
 
             # Get node candidates from spatial index
-            node_candidates_idx: List[int] = list(  # type: ignore
-                nodes_geoseries_sindex.intersection(
-                    point.buffer(
-                        snap_threshold * snap_threshold_error_multiplier * 10
-                    ).bounds
-                )
+            node_candidates_idx = spatial_index_intersection(
+                nodes_geoseries_sindex,
+                geom_bounds(
+                    safe_buffer(
+                        point, snap_threshold * snap_threshold_error_multiplier * 10
+                    )
+                ),
             )
 
             # Shift returned indexes by associated_point_count to match to
@@ -1202,11 +1210,11 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
     return linestrings
 
 
-def safe_buffer(point: Point, radius: float, **kwargs) -> Polygon:
+def safe_buffer(geom: Union[Point, LineString], radius: float, **kwargs) -> Polygon:
     """
     Get type checked Polygon buffer.
     """
-    buffer = point.buffer(radius, **kwargs)
+    buffer = geom.buffer(radius, **kwargs)
     if not isinstance(buffer, Polygon):
         raise TypeError("Expected Polygon buffer.")
     return buffer
@@ -1227,3 +1235,63 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
             points.append(random_point)
 
     return points
+
+
+def spatial_index_intersection(
+    spatial_index: PyGEOSSTRTreeIndex, coordinates: Union[BoundsTuple, PointTuple]
+) -> List[int]:
+    """
+    Type-checked spatial index intersection.
+    """
+    if spatial_index is None:
+        return []
+    result = spatial_index.intersection(coordinates)
+    indexes = []
+    for idx in result:
+        if isinstance(idx, int):
+            indexes.append(idx)
+        elif idx == int(idx):
+            indexes.append(idx)
+        else:
+            raise TypeError("Expected integer results from intersection.")
+    return indexes
+
+
+def geom_bounds(geom: Union[LineString, Polygon]) -> Tuple[float, float, float, float]:
+    """
+    Get LineString or Polygon bounds.
+    """
+    types = (LineString, Polygon)
+    if not isinstance(geom, types):
+        raise TypeError(f"Expected {types} as type.")
+    bounds = []
+    for val in geom.bounds:
+        if isinstance(val, (int, float)):
+            bounds.append(val)
+        else:
+            raise TypeError("Expected numerical bounds.")
+    if not len(bounds) == 4:
+        raise ValueError("Expected bounds of length 4.")
+    return tuple(bounds)
+
+
+def pygeos_spatial_index(
+    geodataset: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+) -> PyGEOSSTRTreeIndex:
+    """
+    Get PyGEOSSTRTreeIndex from geopandas dataset.
+    """
+    sindex = geodataset.sindex
+    if not isinstance(sindex, PyGEOSSTRTreeIndex):
+        raise TypeError("Expected PyGEOSSTRTreeIndex as spatial index.")
+    return sindex
+
+
+def read_geofile(path: Path) -> gpd.GeoDataFrame:
+    """
+    Read a filepath for a GeoDataFrame representable geo-object.
+    """
+    data = gpd.read_file(path)
+    if not isinstance(data, gpd.GeoDataFrame):
+        raise TypeError("Expected GeoDataFrame as file read result.")
+    return data

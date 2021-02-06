@@ -14,7 +14,11 @@ from shapely.geometry import LineString, Point
 from fractopo.general import (
     determine_azimuth,
     determine_regression_azimuth,
+    geom_bounds,
     is_azimuth_close,
+    pygeos_spatial_index,
+    safe_buffer,
+    spatial_index_intersection,
 )
 
 MERGE_COLUMN = "Merge"
@@ -120,15 +124,15 @@ def determine_proximal_traces(
         traces_as_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame(geometry=traces)
     else:
         traces_as_gdf = traces
-    traces_as_gdf = traces_as_gdf.reset_index(inplace=False, drop=True)  # type: ignore
-    spatial_index = traces_as_gdf.sindex
+    traces_as_gdf.reset_index(inplace=True, drop=True)
+    spatial_index = pygeos_spatial_index(traces_as_gdf)
     trace: LineString
     proximal_traces: List[int] = []
-    for idx, trace in enumerate(traces_as_gdf.geometry):  # type: ignore
-        candidate_idxs = list(
-            spatial_index.intersection(trace.buffer(buffer_value * 5).bounds)
+    for idx, trace in enumerate(traces_as_gdf.geometry.values):
+        candidate_idxs = spatial_index_intersection(
+            spatial_index, geom_bounds(safe_buffer(trace, buffer_value * 5))
         )
-        candidate_idxs.remove(idx)  # type: ignore
+        candidate_idxs.remove(idx)
         candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces_as_gdf.iloc[
             candidate_idxs
         ]
@@ -136,7 +140,7 @@ def determine_proximal_traces(
             [
                 is_within_buffer_distance(trace, other, buffer_value)
                 and is_similar_azimuth(trace, other, tolerance=azimuth_tolerance)
-                for other in candidate_traces.geometry  # type: ignore
+                for other in candidate_traces.geometry.values
             ]
         ]
         if len(candidate_traces) > 0:

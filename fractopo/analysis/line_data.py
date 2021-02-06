@@ -9,6 +9,8 @@ import geopandas as gpd
 import matplotlib
 import numpy as np
 import powerlaw
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
@@ -183,7 +185,7 @@ class LineData:
         self,
         label: str,
         fit: Optional[powerlaw.Fit] = None,
-    ) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+    ) -> Tuple[powerlaw.Fit, Figure, Axes]:
         """
         Plot length data with powerlaw fit.
         """
@@ -193,7 +195,7 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
         )
 
-    def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+    def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
         """
         Plot azimuth data in rose plot.
         """
@@ -205,17 +207,13 @@ class LineData:
             label=label,
         )
 
-    def plot_azimuth_set_count(
-        self, label: str
-    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:
         """
         Plot azimuth set counts.
         """
         return parameters.plot_set_count(self.azimuth_set_counts, label=label)
 
-    def plot_length_set_count(
-        self, label: str
-    ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    def plot_length_set_count(self, label: str) -> Tuple[Figure, Axes]:
         """
         Plot length set counts.
         """

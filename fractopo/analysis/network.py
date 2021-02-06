@@ -119,7 +119,7 @@ class Network:
             self.__dict__[name] = value.copy()
             if name == "branch_gdf":
                 self.branch_data = LineData(
-                    self.branch_gdf,  # type: ignore
+                    self.branch_gdf,
                     self.azimuth_set_ranges,
                     self.azimuth_set_names,
                     self.branch_length_set_ranges,

@@ -6,13 +6,22 @@ from typing import Dict, Optional
 import geopandas as gpd
 import numpy as np
 from geopandas.sindex import PyGEOSSTRTreeIndex
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 from fractopo.analysis.parameters import (
     determine_node_type_counts,
     determine_topology_parameters,
 )
-from fractopo.general import CLASS_COLUMN, GEOMETRY_COLUMN, Param, crop_to_target_areas
+from fractopo.general import (
+    CLASS_COLUMN,
+    GEOMETRY_COLUMN,
+    Param,
+    crop_to_target_areas,
+    geom_bounds,
+    pygeos_spatial_index,
+    safe_buffer,
+    spatial_index_intersection,
+)
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -246,9 +255,12 @@ def populate_sample_cell(
           every single sample circle.
 
     """
-    sample_circle = sample_cell.centroid.buffer(
-        np.sqrt(sample_cell_area) * 1.5  # type: ignore
-    )
+    _centroid = sample_cell.centroid
+    if not isinstance(_centroid, Point):
+        raise TypeError("Expected Point centroid.")
+    else:
+        centroid = _centroid
+    sample_circle = safe_buffer(centroid, np.sqrt(sample_cell_area) * 1.5)
     sample_circle_area = sample_circle.area
     assert sample_circle_area > 0
     # Choose geometries that are either within the sample_circle or
@@ -256,6 +268,9 @@ def populate_sample_cell(
     # Use spatial indexing to filter to only spatially relevant traces,
     # traces and nodes
     trace_candidates_idx = list(traces_sindex.intersection(sample_circle.bounds))
+    trace_candidates_idx = spatial_index_intersection(
+        traces_sindex, geom_bounds(sample_circle)
+    )
     node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
 
     trace_candidates = traces.iloc[trace_candidates_idx]

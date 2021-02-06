@@ -11,6 +11,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 from shapely import prepared
 from shapely.geometry import LineString, Point
@@ -194,8 +195,8 @@ def determine_nodes_intersecting_sets(
     trace_series_first_set = trace_series_two_sets[0]
     trace_series_second_set = trace_series_two_sets[1]
 
-    prep_traces_first = prepare_geometry_traces(trace_series_first_set)  # type: ignore
-    prep_traces_second = prepare_geometry_traces(trace_series_second_set)  # type: ignore
+    prep_traces_first = prepare_geometry_traces(trace_series_first_set)
+    prep_traces_second = prepare_geometry_traces(trace_series_second_set)
     intersects_both_sets = [
         _intersects_both(
             point, prep_traces_first, prep_traces_second, buffer_value=buffer_value
@@ -356,7 +357,7 @@ def determine_intersects(
 
 def plot_crosscut_abutting_relationships_plot(
     relations_df: pd.DataFrame, set_array: np.ndarray, set_names: Tuple[str, ...]
-) -> Tuple[List[matplotlib.figure.Figure], List[np.ndarray]]:  # type: ignore
+) -> Tuple[List[Figure], List[np.ndarray]]:
     """
     Plot cross-cutting and abutting relationships.
     """
@@ -371,7 +372,7 @@ def plot_crosscut_abutting_relationships_plot(
     width = 12 / 3 * cols
     height = (width / cols) * 0.75
     names = set(relations_df.name.tolist())
-    figs: List[matplotlib.figure.Figure] = []  # type: ignore
+    figs: List[Figure] = []
     fig_axes = []
     with plt.style.context("default"):
         for name in names:

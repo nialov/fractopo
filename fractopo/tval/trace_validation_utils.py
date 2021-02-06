@@ -1,3 +1,6 @@
+"""
+Direct utilities of trace validation.
+"""
 import logging
 from typing import List, Optional
 
@@ -7,7 +10,7 @@ from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 from shapely.ops import split
 
-from fractopo.general import get_trace_endpoints
+from fractopo.general import geom_bounds, spatial_index_intersection
 
 
 def segment_within_buffer(
@@ -153,8 +156,8 @@ def determine_trace_candidates(
         return gpd.GeoSeries()
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
     assert isinstance(spatial_index, PyGEOSSTRTreeIndex)
-    candidate_idxs = list(spatial_index.intersection(geom.bounds))
-    candidate_idxs.remove(idx)  # type: ignore
+    candidate_idxs = spatial_index_intersection(spatial_index, geom_bounds(geom))
+    candidate_idxs.remove(idx)
     candidate_traces: gpd.GeoSeries = traces.geometry.iloc[candidate_idxs]
     candidate_traces = candidate_traces.loc[  # type: ignore
         [isinstance(geom, LineString) for geom in candidate_traces.geometry.values]

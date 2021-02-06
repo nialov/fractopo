@@ -10,6 +10,8 @@ import matplotlib.axes
 import numpy as np
 import powerlaw
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 ALPHA = "alpha"
 EXPONENT = "exponent"
@@ -43,7 +45,7 @@ def determine_fit(
 
 
 def plot_length_data_on_ax(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     length_array: np.ndarray,
     ccm_array: np.ndarray,
     label: str,
@@ -64,7 +66,7 @@ def plot_length_data_on_ax(
 
 
 def plot_fit_on_ax(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     fit: powerlaw.Fit,
     fit_distribution: Literal[Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW],
 ) -> None:
@@ -85,7 +87,7 @@ def plot_fit_on_ax(
 
 
 def _setup_length_plot_axlims(
-    ax: matplotlib.axes.Axes,
+    ax: Axes,
     length_array: np.ndarray,
     ccm_array: np.ndarray,
     cut_off: float,
@@ -114,7 +116,7 @@ def plot_distribution_fits(
     label: str,
     cut_off: Optional[float] = None,
     fit: Optional[powerlaw.Fit] = None,
-) -> Tuple[powerlaw.Fit, matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
+) -> Tuple[powerlaw.Fit, Figure, Axes]:
     """
     Plot length distribution and `powerlaw` fits.
 
@@ -151,7 +153,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     Configure ax for length distribution plots.
 
     :param ax_for_setup: Ax to setup.
-    :type ax_for_setup: matplotlib.axes.Axes
+    :type ax_for_setup: Axes
     :param using_branches: Are the lines branches or traces.
     :type using_branches: bool
     """

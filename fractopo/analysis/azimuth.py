@@ -9,6 +9,9 @@ from typing import Dict, Optional, Tuple, Union
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
 
 
 def _calc_ideal_bin_width(n: Union[int, float], axial=True) -> float:
@@ -126,19 +129,19 @@ def plot_azimuth_ax(
     bin_width: float,
     bin_locs: np.ndarray,
     bin_heights: np.ndarray,
-    ax: matplotlib.axes.Axes,  # type: ignore
+    ax: PolarAxes,  # type: ignore
 ):
     """
     Plot azimuth rose plot to ax.
     """
     # Rose type always equal-area
-    number_of_azimuths = np.sqrt(bin_heights)  # type: ignore
+    number_of_azimuths = np.sqrt(bin_heights)
 
     # Plot azimuth rose plot
     ax.bar(
-        np.deg2rad(bin_locs),  # type: ignore
+        np.deg2rad(bin_locs),
         number_of_azimuths,
-        width=np.deg2rad(bin_width),  # type: ignore
+        width=np.deg2rad(bin_width),
         bottom=0.0,
         color="darkgrey",
         edgecolor="k",
@@ -160,7 +163,7 @@ def plot_azimuth_ax(
     ax.set_thetamax(180)
     # The average of number_of_azimuths is displayed as a radial grid-line.
     # TODO: Cannot modify theta lines or r lines
-    rlines, _ = ax.set_rgrids(
+    _, _ = ax.set_rgrids(
         radii=(number_of_azimuths.mean(),),  # type: ignore
         angle=0,
         fontsize=1,
@@ -215,7 +218,7 @@ def _create_azimuth_set_text(
 
 
 def decorate_azimuth_ax(
-    ax: matplotlib.axes.Axes,  # type: ignore
+    ax: Axes,
     label: str,
     length_array: np.ndarray,
     set_array: np.ndarray,
@@ -262,7 +265,7 @@ def plot_azimuth_plot(
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
     label: str,
-) -> Tuple[Dict[str, np.ndarray], matplotlib.figure.Figure, matplotlib.axes.Axes]:
+) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
     """
     Plot azimuth rose plot to its own figure.
 
