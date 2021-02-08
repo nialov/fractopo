@@ -766,8 +766,19 @@ class Helpers:
         )
     ]
 
+    test_describe_powerlaw_fit_params = [
+        (
+            geta_1_traces.geometry.length.values,  # lengths
+            "traces",  # label
+        )
+    ]
+
 
 class ValidationHelpers:
+
+    """
+    Known examples of validation.
+    """
 
     # Known Errors
     # ============

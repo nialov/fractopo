@@ -3,7 +3,7 @@ Utilities for analyzing and plotting length distributions for line data.
 """
 from enum import Enum, unique
 from textwrap import wrap
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional, Tuple, Dict
 
 import matplotlib
 import matplotlib.axes
@@ -16,6 +16,11 @@ from matplotlib.figure import Figure
 ALPHA = "alpha"
 EXPONENT = "exponent"
 CUT_OFF = "cut-off"
+KOLM_DIST = "Kolmogorov-Smirnov distance D"
+SIGMA = "sigma"
+MU = "mu"
+LAMBDA = "lambda"
+LOGLIKELIHOOD = "loglikelihood"
 
 
 @unique
@@ -25,9 +30,10 @@ class Dist(Enum):
     Enums of powerlaw model types.
     """
 
-    POWERLAW = "powerlaw"
+    POWERLAW = "power_law"
     LOGNORMAL = "lognormal"
     EXPONENTIAL = "exponential"
+    TRUNCATED_POWERLAW = "truncated_power_law"
 
 
 def determine_fit(
@@ -200,11 +206,65 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     ax.grid(zorder=-10, color="black", alpha=0.5)
 
 
-def describe_powerlaw_fit(fit: powerlaw.Fit, label: Optional[str] = None):
+def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     """
-    Return short dict of fit powerlaw attributes.
+    Compose a dict of length distribution fit comparisons.
     """
-    base = {ALPHA: fit.alpha, EXPONENT: -(fit.alpha - 1), CUT_OFF: fit.xmin}
+    compare_dict = dict()
+    for dist_enum_pairs in [
+        (Dist.POWERLAW, Dist.LOGNORMAL),
+        (Dist.POWERLAW, Dist.EXPONENTIAL),
+        (Dist.LOGNORMAL, Dist.EXPONENTIAL),
+        (Dist.POWERLAW, Dist.TRUNCATED_POWERLAW),
+    ]:
+        first, second = dist_enum_pairs[0].value, dist_enum_pairs[1].value
+        r, p = fit.distribution_compare(first, second, normalized_ratio=True)
+        compare_dict[f"{first} vs. {second} R"] = r
+        compare_dict[f"{first} vs. {second} p"] = p
+    return compare_dict
+
+
+def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
+    """
+    Collect 'all' fit attributes into a dict.
+    """
+    return {
+        **describe_powerlaw_fit(fit),
+        # Attributes for remaking fits
+        Dist.LOGNORMAL.value + " " + SIGMA: fit.lognormal.sigma,
+        Dist.LOGNORMAL.value + " " + MU: fit.lognormal.mu,
+        Dist.EXPONENTIAL.value + " " + LAMBDA: fit.exponential.Lambda,
+        Dist.TRUNCATED_POWERLAW.value + " " + LAMBDA: fit.truncated_power_law.Lambda,
+        Dist.TRUNCATED_POWERLAW.value + " " + ALPHA: fit.truncated_power_law.alpha,
+        Dist.TRUNCATED_POWERLAW.value
+        + " "
+        + EXPONENT: -(fit.truncated_power_law.alpha - 1),
+        # Fit statistics
+        Dist.LOGNORMAL.value + " " + LOGLIKELIHOOD: fit.lognormal.loglikelihood,
+        Dist.EXPONENTIAL.value + " " + LOGLIKELIHOOD: fit.exponential.loglikelihood,
+        Dist.TRUNCATED_POWERLAW.value
+        + " "
+        + LOGLIKELIHOOD: fit.truncated_power_law.loglikelihood,
+    }
+
+
+def describe_powerlaw_fit(
+    fit: powerlaw.Fit, label: Optional[str] = None
+) -> Dict[str, float]:
+    """
+    Compose dict of fit powerlaw attributes and comparisons between fits.
+    """
+    base = {
+        **distribution_compare_dict(fit),
+        Dist.POWERLAW.value + " " + KOLM_DIST: fit.power_law.D,
+        Dist.EXPONENTIAL.value + " " + KOLM_DIST: fit.exponential.D,
+        Dist.LOGNORMAL.value + " " + KOLM_DIST: fit.lognormal.D,
+        Dist.TRUNCATED_POWERLAW.value + " " + KOLM_DIST: fit.truncated_power_law.D,
+        Dist.POWERLAW.value + " " + ALPHA: fit.alpha,
+        Dist.POWERLAW.value + " " + EXPONENT: -(fit.alpha - 1),
+        Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
+        Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
+    }
     if label is None:
         return base
     else:

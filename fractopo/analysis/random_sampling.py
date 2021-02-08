@@ -26,7 +26,7 @@ class NetworkRandomSampler(BaseModel):
     class Config:
 
         """
-        Configure BaseModel.
+        Configure NetworkRandomSampler.
         """
 
         arbitrary_types_allowed = True
@@ -126,7 +126,7 @@ class NetworkRandomSampler(BaseModel):
         network = Network(
             trace_gdf=self.trace_gdf,
             area_gdf=area_gdf,
-            name=target_centroid.wkt + str(float),
+            name=target_centroid.wkt,
             determine_branches_nodes=True,
         )
         return network, target_centroid, radius
