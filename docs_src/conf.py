@@ -13,8 +13,6 @@
 import os
 import sys
 
-import recommonmark
-
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("."))
@@ -83,4 +81,3 @@ if "READTHEDOCS" not in os.environ:
 else:
     # Do not always execute notebooks on ReadtheDocs
     nbsphinx_execute = "auto"
-

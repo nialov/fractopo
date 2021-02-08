@@ -5,8 +5,6 @@ from enum import Enum, unique
 from textwrap import wrap
 from typing import Literal, Optional, Tuple, Dict
 
-import matplotlib
-import matplotlib.axes
 import numpy as np
 import powerlaw
 from matplotlib import pyplot as plt
@@ -189,7 +187,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     plt.tick_params(axis="both", width=1.2)
     # LEGEND
     handles, labels = ax.get_legend_handles_labels()
-    labels = ["\n".join(wrap(l, 13)) for l in labels]
+    labels = ["\n".join(wrap(label, 13)) for label in labels]
     lgnd = plt.legend(
         handles,
         labels,

@@ -18,6 +18,10 @@ noxfile_name = "noxfile.py"
 pylama_config = "pylama.ini"
 
 
+docs_notebooks = Path("docs_src/notebooks").glob("*.ipynb")
+regular_notebooks = Path(notebooks_name).glob("*.ipynb")
+
+
 @nox.session(python="3.8")
 def tests_strict(session: nox.Session):
     """
@@ -35,7 +39,15 @@ def tests_strict(session: nox.Session):
             FileNotFoundError("Expected file to be found.")
     session.chdir(tmp_dir)
     session.install("pipenv")
-    session.run("pipenv", "sync", "--python", f"{session.python}", "--dev", "--bare")
+    session.run("pipenv", "--rm")
+    session.run(
+        "pipenv",
+        "sync",
+        "--python",
+        f"{session.python}",
+        "--dev",
+        "--bare",
+    )
     session.run(
         "pipenv",
         "run",
@@ -47,8 +59,6 @@ def tests_strict(session: nox.Session):
         "pytest",
     )
     session.run("pipenv", "run", "coverage", "report", "--fail-under", "70")
-    # Test notebook(s)
-    session.run("ipython", "notebooks/fractopo_network.ipynb")
 
 
 @nox.session(python="3.8")
@@ -60,7 +70,8 @@ def tests_lazy(session):
     # Test with pytest
     session.run("pytest")
     # Test notebook(s)
-    session.run("ipython", "notebooks/fractopo_network.ipynb")
+    for notebook in regular_notebooks:
+        session.run("ipython", str(notebook))
 
 
 @nox.session(python="3.8")
@@ -133,7 +144,7 @@ def lint(session):
 
 
 @nox.session
-def pipenv_setup_sync(session):
+def requirements(session):
     """
     Sync Pipfile to setup.py with pipenv-setup.
     """
@@ -148,13 +159,33 @@ def docs(session):
 
     Installation mimics readthedocs install.
     """
-    session.chdir(Path(__file__).parent)
+
+    # Install with setup.py[dev] installation
     session.install(".[dev]")
+
+    # Remove old apidocs
     if docs_apidoc_dir_path.exists():
         rmtree(docs_apidoc_dir_path)
+
+    # Remove all old docs
     if docs_dir_path.exists():
         rmtree(docs_dir_path)
+
+    # Execute and fill cells in docs notebooks
+    for notebook in docs_notebooks:
+        session.run(
+            "jupyter",
+            "nbconvert",
+            "--to",
+            "notebook",
+            "--inplace",
+            "--execute",
+            str(notebook),
+        )
+    # Create apidocs
     session.run("sphinx-apidoc", "-o", "./docs_src/apidoc", "./fractopo", "-e", "-f")
+
+    # Create docs in ./docs folder
     session.run(
         "sphinx-build",
         "./docs_src",
