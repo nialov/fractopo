@@ -75,7 +75,7 @@ def test(_):
     """
 
 
-@task
+@task(pre=[requirements])
 def docs(c):
     """
     Make documentation to docs using nox.

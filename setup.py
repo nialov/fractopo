@@ -162,6 +162,10 @@ setup(
             "jedi==0.17.2",
             "black-nb",
             "bleach>=3.3.0",
+            "nbsphinx",
+            "sphinx",
+            "recommonmark",
+            "sphinx-rtd-theme",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be
