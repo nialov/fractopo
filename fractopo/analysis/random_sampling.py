@@ -1,7 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
-from typing import Any, Tuple
+from typing import Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -31,7 +31,7 @@ class NetworkRandomSampler(BaseModel):
 
         arbitrary_types_allowed = True
 
-    @validator("trace_gdf", allow_reuse=True)
+    @validator("trace_gdf")
     def trace_gdf_should_contain_traces(cls, value):
         """
         Check that trace_gdf contains LineString traces.
@@ -42,7 +42,7 @@ class NetworkRandomSampler(BaseModel):
             raise TypeError("Expected only LineStrings in trace_gdf.")
         return value
 
-    @validator("area_gdf", allow_reuse=True)
+    @validator("area_gdf")
     def area_gdf_should_contain_polygon(cls, value):
         """
         Check that area_gdf contains one Polygon.
@@ -54,7 +54,7 @@ class NetworkRandomSampler(BaseModel):
             raise TypeError("Expected one Polygon in area_gdf.")
         return value
 
-    @validator("min_radius", "snap_threshold", allow_reuse=True)
+    @validator("min_radius", "snap_threshold")
     def value_should_be_positive(cls, value):
         """
         Check that value is positive.
@@ -128,5 +128,6 @@ class NetworkRandomSampler(BaseModel):
             area_gdf=area_gdf,
             name=target_centroid.wkt,
             determine_branches_nodes=True,
+            snap_threshold=self.snap_threshold,
         )
         return network, target_centroid, radius
