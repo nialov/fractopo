@@ -22,7 +22,7 @@ lineament and fracture trace maps (fracture networks).
 
 * [Network analysis](notebooks/fractopo_network_1)
 
-  * Example walkthrough with most analysis methods demonstrated.
+  * Example walkthrough with some analysis methods demonstrated.
 
 * [Trace Data Validation 1](notebooks/fractopo_validation_1)
 
