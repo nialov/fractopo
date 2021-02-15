@@ -15,7 +15,7 @@ import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
-from shapely.geometry import Point
+from shapely.geometry import Point, MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo import SetRangeTuple
@@ -28,13 +28,21 @@ from fractopo.analysis.parameters import (
     plot_branch_plot,
     plot_parameters_plot,
     plot_xyi_plot,
+    branches_intersect_boundary,
 )
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.branches_and_nodes import branches_and_nodes
-from fractopo.general import CLASS_COLUMN, CONNECTION_COLUMN, crop_to_target_areas
+from fractopo.general import (
+    EE_branch,
+    CLASS_COLUMN,
+    CONNECTION_COLUMN,
+    crop_to_target_areas,
+    determine_boundary_intersecting_lines,
+    bool_arrays_sum,
+)
 
 
 @dataclass
@@ -98,6 +106,10 @@ class Network:
     _parameters: Optional[Dict[str, float]] = None
     _azimuth_set_relationships: Optional[pd.DataFrame] = None
     _trace_length_set_relationships: Optional[pd.DataFrame] = None
+    _trace_intersects_target_area_boundary: Optional[np.ndarray] = None
+    _branch_intersects_target_area_boundary: Optional[np.ndarray] = None
+
+    # TODO: No Optional property return types.
 
     @staticmethod
     def _default_length_set_ranges(count, min, max):
@@ -120,11 +132,12 @@ class Network:
             self.__dict__[name] = value.copy()
             if name == "branch_gdf":
                 self.branch_data = LineData(
-                    self.branch_gdf,
-                    self.azimuth_set_ranges,
-                    self.azimuth_set_names,
-                    self.branch_length_set_ranges,
-                    self.branch_length_set_names,
+                    line_gdf=self.branch_gdf,
+                    azimuth_set_ranges=self.azimuth_set_ranges,
+                    azimuth_set_names=self.azimuth_set_names,
+                    length_set_ranges=self.branch_length_set_ranges,
+                    length_set_names=self.branch_length_set_names,
+                    area_boundary_intersects=self.branch_intersects_target_area_boundary,
                 )
         else:
             self.__dict__[name] = value
@@ -147,15 +160,17 @@ class Network:
                     snap_threshold=self.snap_threshold,
                 )
             )
+            self.trace_gdf.reset_index(inplace=True, drop=True)
             if self.trace_gdf.shape[0] == 0:
                 raise ValueError("Empty trace GeoDataFrame after crop_to_target_areas.")
 
         self.trace_data = LineData(
-            self.trace_gdf,
-            self.azimuth_set_ranges,
-            self.azimuth_set_names,
-            self.trace_length_set_ranges,
-            self.trace_length_set_names,
+            line_gdf=self.trace_gdf,
+            azimuth_set_ranges=self.azimuth_set_ranges,
+            azimuth_set_names=self.azimuth_set_names,
+            length_set_ranges=self.trace_length_set_ranges,
+            length_set_names=self.trace_length_set_names,
+            area_boundary_intersects=self.trace_intersects_target_area_boundary,
         )
         # Area
         self.area_gdf = self.area_gdf.copy() if self.area_gdf is not None else None
@@ -165,11 +180,12 @@ class Network:
         )
         if self.branch_gdf is not None:
             self.branch_data = LineData(
-                self.branch_gdf,
-                self.azimuth_set_ranges,
-                self.azimuth_set_names,
-                self.branch_length_set_ranges,
-                self.branch_length_set_names,
+                line_gdf=self.branch_gdf,
+                azimuth_set_ranges=self.azimuth_set_ranges,
+                azimuth_set_names=self.azimuth_set_names,
+                length_set_ranges=self.branch_length_set_ranges,
+                length_set_names=self.branch_length_set_names,
+                area_boundary_intersects=self.branch_intersects_target_area_boundary,
             )
         if self.determine_branches_nodes:
             self.assign_branches_nodes()
@@ -182,19 +198,21 @@ class Network:
         Reset LineData attributes.
         """
         self.trace_data = LineData(
-            self.trace_gdf,
-            self.azimuth_set_ranges,
-            self.azimuth_set_names,
-            self.trace_length_set_ranges,
-            self.trace_length_set_names,
+            line_gdf=self.trace_gdf,
+            azimuth_set_ranges=self.azimuth_set_ranges,
+            azimuth_set_names=self.azimuth_set_names,
+            length_set_ranges=self.trace_length_set_ranges,
+            length_set_names=self.trace_length_set_names,
+            area_boundary_intersects=self.trace_intersects_target_area_boundary,
         )
         if self.branch_gdf is not None:
             self.branch_data = LineData(
-                self.branch_gdf,
-                self.azimuth_set_ranges,
-                self.azimuth_set_names,
-                self.branch_length_set_ranges,
-                self.branch_length_set_names,
+                line_gdf=self.branch_gdf,
+                azimuth_set_ranges=self.azimuth_set_ranges,
+                azimuth_set_names=self.azimuth_set_names,
+                length_set_ranges=self.branch_length_set_ranges,
+                length_set_names=self.branch_length_set_names,
+                area_boundary_intersects=self.branch_intersects_target_area_boundary,
             )
             self._azimuth_set_relationships = None
 
@@ -382,6 +400,66 @@ class Network:
         """
         return self.branch_data.describe_fit(label="branch")
 
+    @property
+    def target_areas(self) -> List[Union[Polygon, MultiPolygon]]:
+        """
+        Get all target areas from area_gdf.
+        """
+        target_areas = []
+        for target_area in self.area_gdf.geometry.values:
+            if not isinstance(target_area, (Polygon, MultiPolygon)):
+                raise TypeError("Expected (Multi)Polygon geometries in area_gdf.")
+            target_areas.append(target_area)
+        return target_areas
+
+    @property
+    def trace_intersects_target_area_boundary(self) -> np.ndarray:
+        """
+        Check traces for intersection with target area boundaries.
+
+        Results are in integers:
+
+        -  0 == No intersections
+        -  1 == One intersection
+        -  2 == Two intersections
+
+        Does not discriminate between which target area (if multiple) the trace
+        intersects. Intersection detection based on snap_threshold.
+        """
+        if self._trace_intersects_target_area_boundary is None:
+
+            (
+                intersecting_lines,
+                cuts_through_lines,
+            ) = determine_boundary_intersecting_lines(
+                line_gdf=self.trace_gdf,
+                area_gdf=self.area_gdf,
+                snap_threshold=self.snap_threshold,
+            )
+            self._trace_intersects_target_area_boundary = bool_arrays_sum(
+                intersecting_lines, cuts_through_lines
+            )
+        return self._trace_intersects_target_area_boundary
+
+    @property
+    def branch_intersects_target_area_boundary(self) -> Optional[np.ndarray]:
+        """
+        Get array of E-component count.
+        """
+        if (
+            self._branch_intersects_target_area_boundary is None
+            and self._is_branch_gdf_defined
+        ):
+            intersecting_lines = branches_intersect_boundary(self.branch_types)
+            cuts_through_lines = np.array(
+                [branch_type == EE_branch for branch_type in self.branch_types]
+            )
+            self._branch_intersects_target_area_boundary = bool_arrays_sum(
+                intersecting_lines, cuts_through_lines
+            )
+
+        return self._branch_intersects_target_area_boundary
+
     def numerical_network_description(self) -> Dict[str, Union[float, int]]:
         """
         Collect numerical network attributes and return them as a dictionary.
@@ -470,11 +548,12 @@ class Network:
             self.branch_gdf = branches
             self.node_gdf = nodes
             self.branch_data = LineData(
-                self.branch_gdf,
-                self.azimuth_set_ranges,
-                self.azimuth_set_names,
-                self.branch_length_set_ranges,
-                self.branch_length_set_names,
+                line_gdf=self.branch_gdf,
+                azimuth_set_ranges=self.azimuth_set_ranges,
+                azimuth_set_names=self.azimuth_set_names,
+                length_set_ranges=self.branch_length_set_ranges,
+                length_set_names=self.branch_length_set_names,
+                area_boundary_intersects=self.branch_intersects_target_area_boundary,
             )
         else:
             logging.error(

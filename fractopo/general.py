@@ -22,6 +22,7 @@ from shapely.geometry import (
     LineString,
     MultiLineString,
     MultiPoint,
+    MultiPolygon,
     Point,
     Polygon,
     box,
@@ -77,6 +78,7 @@ class Col(Enum):
     AZIMUTH = "azimuth"
     AZIMUTH_SET = "azimuth_set"
     LENGTH_SET = "length_set"
+    LENGTH_WEIGHTS = "boundary_weight"
 
 
 @unique
@@ -1295,3 +1297,96 @@ def read_geofile(path: Path) -> gpd.GeoDataFrame:
     if not isinstance(data, gpd.GeoDataFrame):
         raise TypeError("Expected GeoDataFrame as file read result.")
     return data
+
+
+def determine_boundary_intersecting_lines(
+    line_gdf: gpd.GeoDataFrame, area_gdf: gpd.GeoDataFrame, snap_threshold: float
+):
+    """
+    Determine lines that intersect any target area boundary.
+    """
+    assert isinstance(line_gdf, (gpd.GeoSeries, gpd.GeoDataFrame))
+    # line_gdf = line_gdf.reset_index(inplace=False, drop=True)
+    spatial_index = line_gdf.sindex
+    intersecting_idxs = []
+    cuts_through_idxs = []
+    for target_area in area_gdf.geometry.values:
+        assert isinstance(target_area, (MultiPolygon, Polygon))
+        target_area_bounds = target_area.boundary.bounds
+        assert len(target_area_bounds) == 4 and isinstance(target_area_bounds, tuple)
+        min_x, min_y, max_x, max_y = target_area_bounds
+        intersection = spatial_index.intersection(
+            extend_bounds(
+                min_x=min_x,
+                min_y=min_y,
+                max_x=max_x,
+                max_y=max_y,
+                extend_amount=snap_threshold * 100,
+            )
+        )
+        candidate_idxs = list(intersection if intersection is not None else [])
+        if len(candidate_idxs) == 0:
+            continue
+
+        for candidate_idx in candidate_idxs:
+            line = line_gdf.iloc[candidate_idx].geometry
+            assert isinstance(line, LineString)
+            if line.distance(target_area.boundary) < snap_threshold:
+                intersecting_idxs.append(candidate_idx)
+                endpoints = get_trace_endpoints(line)
+                if not any(
+                    [endpoint.within(target_area) for endpoint in endpoints]
+                ) and np.isclose(line.distance(target_area), 0):
+                    cuts_through_idxs.append(candidate_idx)
+
+    intersecting_lines = np.array(
+        [idx in intersecting_idxs for idx in line_gdf.index.values]
+    )
+    cuts_through_lines = np.array(
+        [idx in cuts_through_idxs for idx in line_gdf.index.values]
+    )
+    assert intersecting_lines.dtype == "bool"
+    assert cuts_through_lines.dtype == "bool"
+    return intersecting_lines, cuts_through_lines
+
+
+def extend_bounds(
+    min_x: float, min_y: float, max_x: float, max_y: float, extend_amount: float
+) -> Tuple[float, float, float, float]:
+    """
+    Extend bounds by addition and reduction.
+    """
+    return (
+        min_x - extend_amount,
+        min_y - extend_amount,
+        max_x + extend_amount,
+        max_y + extend_amount,
+    )
+
+
+def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
+    """
+    Calculate integer sum of two arrays.
+    """
+    assert arr_1.dtype == "bool"
+    assert arr_2.dtype == "bool"
+    return np.array([int(val_1) + int(val_2) for val_1, val_2 in zip(arr_1, arr_2)])
+
+
+def intersection_count_to_boundary_weight(intersection_count: int) -> int:
+    """
+    Get actual weight factor for boundary intersection count.
+    """
+    if not isinstance(intersection_count, int):
+        intersection_count = intersection_count.item()
+    assert isinstance(intersection_count, int)
+    if intersection_count == 0:
+        return 1
+    elif intersection_count == 1:
+        return 2
+    elif intersection_count == 2:
+        return 0
+    else:
+        raise ValueError(
+            f"Expected 0,1,2 as intersection_count. Got: {intersection_count}"
+        )

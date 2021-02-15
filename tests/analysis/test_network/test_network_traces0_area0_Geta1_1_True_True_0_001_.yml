@@ -8,7 +8,7 @@ I - E: 20
 I - I: 251
 X: 417
 Y: 1252
-branch_lengths_powerlaw_fit_alpha: 3.6747
-branch_lengths_powerlaw_fit_cut_off: 1.6118
-trace_lengths_powerlaw_fit_alpha: 3.4941
-trace_lengths_powerlaw_fit_cut_off: 4.0082
+branch_lengths_powerlaw_fit_alpha: 3.6458
+branch_lengths_powerlaw_fit_cut_off: 3.0802
+trace_lengths_powerlaw_fit_alpha: 2.9448
+trace_lengths_powerlaw_fit_cut_off: 3.8234

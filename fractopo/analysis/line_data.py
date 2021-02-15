@@ -9,12 +9,18 @@ import geopandas as gpd
 import matplotlib
 import numpy as np
 import powerlaw
+from shapely.geometry import Polygon, MultiPolygon
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
-from fractopo.general import Col, determine_azimuth, determine_set
+from fractopo.general import (
+    Col,
+    determine_azimuth,
+    determine_set,
+    intersection_count_to_boundary_weight,
+)
 
 # Math and analysis imports
 # Plotting imports
@@ -25,7 +31,9 @@ from fractopo.general import Col, determine_azimuth, determine_set
 
 
 def _column_array_property(
-    column: Literal[Col.AZIMUTH, Col.LENGTH, Col.AZIMUTH_SET, Col.LENGTH_SET],
+    column: Literal[
+        Col.AZIMUTH, Col.LENGTH, Col.AZIMUTH_SET, Col.LENGTH_SET, Col.LENGTH_WEIGHTS
+    ],
     gdf: gpd.GeoDataFrame,
 ) -> Optional[np.ndarray]:
     if column.value in gdf:
@@ -41,8 +49,8 @@ class LineData:
     Wrapper around the given line_gdf (trace or branch data).
 
     The line_gdf reference is passed and LineData will modify the input
-    line_gdf instead of copying the input frame. This means line_gdf
-    columns are accesible in the passed input reference upstream.
+    line_gdf instead of copying the input frame. This means line_gdf columns
+    are accesible in the passed input reference upstream.
     """
 
     line_gdf: gpd.GeoDataFrame
@@ -52,6 +60,8 @@ class LineData:
 
     length_set_ranges: Optional[SetRangeTuple]
     length_set_names: Optional[Tuple[str, ...]]
+
+    area_boundary_intersects: Optional[np.ndarray]
 
     _automatic_fit: Optional[powerlaw.Fit] = None
 
@@ -93,13 +103,36 @@ class LineData:
         return column_array
 
     @property
+    def length_boundary_weights(self):
+        """
+        Array of weights for lines based on intersection count with boundary.
+        """
+        column_array = _column_array_property(
+            column=Col.LENGTH_WEIGHTS, gdf=self.line_gdf
+        )
+        if column_array is None:
+            assert self.area_boundary_intersects.dtype == "int64"
+            column_array = np.array(
+                [
+                    intersection_count_to_boundary_weight(int(inter_count))
+                    for inter_count in self.area_boundary_intersects
+                ]
+            )
+            self.line_gdf[Col.LENGTH_WEIGHTS.value] = column_array
+        return column_array
+
+    @property
     def length_array(self):
         """
         Array of trace or branch lengths.
         """
         column_array = _column_array_property(column=Col.LENGTH, gdf=self.line_gdf)
         if column_array is None:
-            column_array = self.line_gdf.geometry.length.to_numpy()
+            column_array = (
+                self.line_gdf.geometry.length.to_numpy() * self.length_boundary_weights
+                if self.area_boundary_intersects is not None
+                else 1.0
+            )
             self.line_gdf[Col.LENGTH.value] = column_array
         return column_array
 

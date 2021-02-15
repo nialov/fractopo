@@ -75,6 +75,13 @@ def decorate_xyi_ax(
     )
 
 
+def branches_intersect_boundary(branch_types: np.ndarray) -> np.ndarray:
+    """
+    Get array of if branches have E-component (intersects target area).
+    """
+    return np.isin(branch_types, (CC_branch, CI_branch, II_branch))
+
+
 def plot_xyi_plot(
     node_counts_list: List[Dict[str, int]],
     labels: List[str],

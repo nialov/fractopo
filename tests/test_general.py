@@ -105,3 +105,25 @@ def test_dissolve_multi_part_traces(file_regression):
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
     file_regression.check(dissolved_traces.sort_index().to_json())
+
+
+@pytest.mark.parametrize(
+    "line_gdf,area_gdf,snap_threshold,assumed_result_inter,assumed_result_cuts",
+    Helpers.test_determine_boundary_intersecting_lines_params,
+)
+def test_determine_boundary_intersecting_lines(
+    line_gdf, area_gdf, snap_threshold, assumed_result_inter, assumed_result_cuts
+):
+    """
+    Test determining boundary intersecting lines.
+    """
+    (
+        intersecting_lines,
+        cuts_through_lines,
+    ) = general.determine_boundary_intersecting_lines(
+        line_gdf, area_gdf, snap_threshold
+    )
+    assert isinstance(intersecting_lines, np.ndarray)
+    assert isinstance(cuts_through_lines, np.ndarray)
+    assert all(intersecting_lines == assumed_result_inter)
+    assert all(cuts_through_lines == assumed_result_cuts)

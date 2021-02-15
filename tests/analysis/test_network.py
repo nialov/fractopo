@@ -1,14 +1,22 @@
-from typing import Tuple, Union
+"""
+Tests for Network.
+"""
+from typing import Tuple
 
 import pandas as pd
 import pytest
 
 from fractopo import SetRangeTuple
+import numpy as np
+from shapely.geometry import MultiPolygon, Polygon
 from fractopo.analysis.network import Network
 from tests import Helpers
 
 
 def test_azimuth_set_relationships_regression(file_regression):
+    """
+    Test for azimuth set relationship regression.
+    """
     azimuth_set_ranges: SetRangeTuple = (
         (0, 60),
         (60, 120),
@@ -28,6 +36,9 @@ def test_azimuth_set_relationships_regression(file_regression):
 
 
 def test_length_set_relationships_regression(file_regression):
+    """
+    Test for length set relationship regression.
+    """
     trace_length_set_ranges: SetRangeTuple = (
         (0, 2),
         (2, 4),
@@ -62,6 +73,8 @@ def test_network(
 ):
     """
     Test Network object creation and attributes with general datasets.
+
+    Tests for regression and general assertions.
     """
     network = Network(
         trace_gdf=traces,
@@ -74,6 +87,14 @@ def test_network(
 
     assert area.shape[0] == len(network.representative_points())
     assert isinstance(network.numerical_network_description(), dict)
+    assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
+    assert network.trace_intersects_target_area_boundary.dtype == "int"
+    assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
+    assert network.branch_intersects_target_area_boundary.dtype == "int64"
+    assert isinstance(network.target_areas, list)
+    assert all(
+        [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
+    )
 
     if network.branch_gdf.shape[0] < 500:
         file_regression.check(network.branch_gdf.sort_index().to_json())

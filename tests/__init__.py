@@ -775,6 +775,58 @@ class Helpers:
         )
     ]
 
+    test_determine_boundary_intersecting_lines_params = [
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, 0), (0, 5)]),
+                    LineString([(0, 0), (0, 3)]),
+                    LineString([(0, 0), (0, 10)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True, False, True]),  # assumed_result_inter
+            np.array([False, False, False]),  # assumed_result_cuts
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, -50), (0, 5)]),
+                    LineString([(0, 0), (0, 3)]),
+                    LineString([(0, 0), (0, 10)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True, False, True]),  # assumed_result_inter
+            np.array([True, False, False]),  # assumed_result_cuts
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, -50), (0, -5.00001)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True]),  # assumed_result_inter
+            np.array([False]),  # assumed_result_cuts
+        ),
+    ]
+
 
 class ValidationHelpers:
 
