@@ -24,7 +24,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, P
 from shapely.ops import linemerge
 from shapely.wkt import loads
 
-from fractopo.analysis import parameters, tools
+from fractopo.analysis import parameters
 from fractopo.general import (
     CC_branch,
     CI_branch,
@@ -34,6 +34,8 @@ from fractopo.general import (
     X_node,
     Y_node,
     bounding_polygon,
+    azimu_half,
+    determine_azimuth,
 )
 from fractopo.tval import trace_builder, trace_validation
 from fractopo.tval.trace_validators import (
@@ -251,8 +253,8 @@ class Helpers:
     line_1_ep = Point(list(line_1.coords)[-1])
     line_2_ep = Point(list(line_2.coords)[-1])
     halved_azimuths = [
-        tools.azimu_half(tools.calc_azimu(l))
-        for l in (
+        determine_azimuth(line, halved=True)
+        for line in (
             line_1,
             line_2,
             line_3,

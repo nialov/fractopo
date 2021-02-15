@@ -4,6 +4,7 @@ Analyse and plot trace map data with Network.
 
 # Python Windows co-operation imports
 import logging
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -132,7 +133,7 @@ class Network:
         """
         Copy GeoDataFrames instead of changing inputs.
 
-        If the data is passed later to attribute __setattr__ will also
+        If the data is passed later to attribute, __setattr__ will also
         handle copying.
         """
         # Traces
