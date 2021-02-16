@@ -87,6 +87,11 @@ def test_network(
 
     assert area.shape[0] == len(network.representative_points())
     assert isinstance(network.numerical_network_description(), dict)
+    for key, item in network.numerical_network_description().items():
+        assert isinstance(key, str)
+        if not isinstance(item, (int, float)):
+            assert isinstance(item.item(), (int, float))
+
     assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
     assert network.trace_intersects_target_area_boundary.dtype == "int"
     assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
@@ -119,3 +124,17 @@ def test_network(
     )
 
     data_regression.check(network_attributes)
+
+
+def test_network_kb11():
+    trace_gdf = Helpers.kb11_traces
+    area_gdf = Helpers.kb11_area
+    network = Network(
+        trace_gdf=trace_gdf,
+        area_gdf=area_gdf,
+        name="KB11 test",
+        determine_branches_nodes=True,
+        truncate_traces=True,
+        snap_threshold=0.001,
+    )
+    return network

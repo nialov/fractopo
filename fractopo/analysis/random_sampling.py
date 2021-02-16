@@ -1,7 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
-from typing import Tuple
+from typing import Tuple, Optional
 
 import geopandas as gpd
 import numpy as np
@@ -113,7 +113,7 @@ class NetworkRandomSampler(BaseModel):
 
         return random_target_circle, random_target_centroid, radius
 
-    def random_network_sample(self) -> Tuple[Network, Point, float]:
+    def random_network_sample(self) -> Tuple[Optional[Network], Point, float]:
         """
         Get random Network sample with a random target area.
 
@@ -123,11 +123,15 @@ class NetworkRandomSampler(BaseModel):
         area_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: [target_circle]})
         if self.trace_gdf.crs is not None:
             area_gdf = area_gdf.set_crs(self.trace_gdf.crs)
-        network = Network(
-            trace_gdf=self.trace_gdf,
-            area_gdf=area_gdf,
-            name=target_centroid.wkt,
-            determine_branches_nodes=True,
-            snap_threshold=self.snap_threshold,
-        )
+        try:
+            network = Network(
+                trace_gdf=self.trace_gdf,
+                area_gdf=area_gdf,
+                name=target_centroid.wkt,
+                determine_branches_nodes=True,
+                snap_threshold=self.snap_threshold,
+            )
+        except ValueError:
+            network = None
+
         return network, target_centroid, radius

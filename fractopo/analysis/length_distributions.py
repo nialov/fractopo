@@ -227,7 +227,7 @@ def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     Collect 'all' fit attributes into a dict.
     """
     return {
-        **describe_powerlaw_fit(fit),
+        # **describe_powerlaw_fit(fit),
         # Attributes for remaking fits
         Dist.LOGNORMAL.value + " " + SIGMA: fit.lognormal.sigma,
         Dist.LOGNORMAL.value + " " + MU: fit.lognormal.mu,
@@ -262,6 +262,7 @@ def describe_powerlaw_fit(
         Dist.POWERLAW.value + " " + EXPONENT: -(fit.alpha - 1),
         Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
         Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
+        **all_fit_attributes_dict(fit),
     }
     if label is None:
         return base
