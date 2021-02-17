@@ -70,6 +70,7 @@ def test_network(
     snap_threshold,
     file_regression,
     data_regression,
+    num_regression,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -92,10 +93,6 @@ def test_network(
         if not isinstance(item, (int, float)):
             assert isinstance(item.item(), (int, float))
 
-    assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
-    assert network.trace_intersects_target_area_boundary.dtype == "int"
-    assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
-    assert network.branch_intersects_target_area_boundary.dtype == "int64"
     assert isinstance(network.target_areas, list)
     assert all(
         [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
@@ -125,8 +122,26 @@ def test_network(
 
     data_regression.check(network_attributes)
 
+    assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
+    assert network.trace_intersects_target_area_boundary.dtype == "int"
+    assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
+    assert network.branch_intersects_target_area_boundary.dtype == "int64"
 
-def test_network_kb11():
+    num_regression.check(
+        {
+            "branch_boundary_intersects": list(
+                network.branch_intersects_target_area_boundary
+            ),
+        }
+    )
+
+
+def test_network_kb11_manual():
+    """
+    Test Network analysis with KB11 data.
+
+    Returns the Network.
+    """
     trace_gdf = Helpers.kb11_traces
     area_gdf = Helpers.kb11_area
     network = Network(

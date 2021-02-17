@@ -1334,7 +1334,15 @@ def determine_boundary_intersecting_lines(
             if line.distance(target_area.boundary) < snap_threshold:
                 intersecting_idxs.append(candidate_idx)
                 endpoints = get_trace_endpoints(line)
-                if not any(
+                if all(
+                    [
+                        endpoint.distance(target_area.boundary) < snap_threshold
+                        for endpoint in endpoints
+                    ]
+                ):
+                    cuts_through_idxs.append(candidate_idx)
+
+                elif not any(
                     [endpoint.within(target_area) for endpoint in endpoints]
                 ) and np.isclose(line.distance(target_area), 0):
                     cuts_through_idxs.append(candidate_idx)

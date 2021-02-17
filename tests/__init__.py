@@ -825,6 +825,21 @@ class Helpers:
             np.array([True]),  # assumed_result_inter
             np.array([False]),  # assumed_result_cuts
         ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, -4.999), (0, 4.999)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True]),  # assumed_result_inter
+            np.array([True]),  # assumed_result_cuts
+        ),
     ]
 
 
