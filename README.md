@@ -7,10 +7,7 @@ analysing lineament and fracture trace maps (fracture networks).
 
 ## Development status
 
-  - In constant development.
-
-  - Many legacy python files are still in fractopo/ directory and
-    subdirectories.
+  - In constant development, will have breaking changes.
 
   - Critical issues:
     
