@@ -1,4 +1,7 @@
-from typing import Dict, Optional, Tuple, Union
+"""
+Anisotropy of connectivity determination utilities.
+"""
+from typing import Optional, Tuple
 
 import matplotlib
 import numpy as np
@@ -7,12 +10,13 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import CubicSpline
 
 
-def determine_anisotropy_classification(c) -> int:
+def determine_anisotropy_classification(c: str) -> int:
     """
-    Return value based on branch classification. Only C-C branches have a
-    value, but this can be changed here.
-    Classification can differ from 'C - C', 'C - I', 'I - I' (e.g. 'C - E')
-    in which case a value (0) is still returned.
+    Return value based on branch classification.
+
+    Only C-C branches have a value, but this can be changed here.
+    Classification can differ from 'C - C', 'C - I', 'I - I' (e.g. 'C - E') in
+    which case a value (0) is still returned.
 
     E.g.
 
@@ -73,10 +77,10 @@ def determine_anisotropy_value(
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ) -> np.ndarray:
     """
-    Calculates anisotropy of connectivity for a branch based on azimuth,
-    branch_type and length.
-    Value is calculated for preset angles (sample_intervals = np.arange(0, 179,
-    30))
+    Calculate anisotropy of connectivity for a branch.
+
+    Based on azimuth, branch_type and length.  Value is calculated for preset
+    angles (sample_intervals = np.arange(0, 179, 30))
 
     E.g.
 

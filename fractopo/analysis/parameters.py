@@ -86,7 +86,7 @@ def plot_xyi_plot(
     node_counts_list: List[Dict[str, int]],
     labels: List[str],
     colors: Optional[List[Optional[str]]] = None,
-) -> Tuple[Figure, Axes, TernaryAxesSubplot,]:
+) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
     """
     Plot ternary XYI-plot.
 
@@ -445,7 +445,7 @@ def plot_parameters_plot(
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
         locs, labels = plt.xticks()
-        labels = ["\n".join(wrap(l.get_text(), 6)) for l in labels]
+        labels = ["\n".join(wrap(label.get_text(), 6)) for label in labels]
         plt.yticks(fontsize="xx-large", color="black")
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS
@@ -531,12 +531,11 @@ def initialize_ternary_points(ax, tax):
     ax.text(-0.1, -0.03, "Y", transform=ax.transAxes, fontdict=fdict)
     ax.text(1.03, -0.03, "X", transform=ax.transAxes, fontdict=fdict)
     ax.text(0.5, 1.07, "I", transform=ax.transAxes, fontdict=fdict, ha="center")
-    # tax.set_title(name, x=0.1, y=1, fontsize=14, fontweight='heavy', fontfamily='Times New Roman')
 
 
 def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
     """
-    Plots *connections per branch* parameter to XYI-plot.
+    Plot *connections per branch* parameter to XYI-plot.
 
     :param tax: Ternary axis to plot to
     :type tax: ternary.TernaryAxesSubplot
@@ -622,7 +621,8 @@ def initialize_ternary_branches_points(ax, tax):
 
 def tern_plot_branch_lines(tax):
     """
-    Plot line of random assignment of nodes to branches to a given branch ternary tax.
+    Plot line of random assignment of nodes to branches to a branch ternary tax.
+
     Line positions taken from NetworkGT open source code.
     Credit to:
     https://github.com/BjornNyberg/NetworkGT
@@ -671,7 +671,9 @@ def tern_plot_branch_lines(tax):
 
 def tern_yi_func(c, x):
     """
-    Function for plotting *Connections per branch* line to branch ternary plot. Absolute values.
+    Plot *Connections per branch* threshold line to branch ternary plot.
+
+    Uses absolute values.
     """
     temp = 6 * (1 - 0.5 * c)
     temp2 = 3 - (3 / 2) * c

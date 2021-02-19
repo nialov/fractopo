@@ -3,7 +3,7 @@ Utilities for analyzing and plotting length distributions for line data.
 """
 from enum import Enum, unique
 from textwrap import wrap
-from typing import Literal, Optional, Tuple, Dict
+from typing import Dict, Literal, Optional, Tuple
 
 import numpy as np
 import powerlaw

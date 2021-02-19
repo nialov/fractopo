@@ -1,12 +1,12 @@
+"""
+Test parameters.py.
+"""
 import matplotlib
-import numpy as np
-import powerlaw
 import pytest
 import ternary
-from hypothesis import given, settings
-from hypothesis.extra import numpy
-from hypothesis.strategies import floats
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from fractopo.analysis import parameters
 from fractopo.general import Param
@@ -15,6 +15,9 @@ from tests import Helpers
 
 @pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)
 def test_plot_xyi_plot(node_counts_list, labels):
+    """
+    Test plotting xyi.
+    """
     fig, ax, tax = parameters.plot_xyi_plot(
         node_counts_list=node_counts_list, labels=labels
     )
@@ -28,6 +31,9 @@ def test_plot_xyi_plot(node_counts_list, labels):
     "branch_counts_list,labels", Helpers.test_plot_branch_plot_params
 )
 def test_plot_branch_plot(branch_counts_list, labels):
+    """
+    Test plotting branches.
+    """
     fig, ax, tax = parameters.plot_branch_plot(
         branch_counts_list=branch_counts_list, labels=labels
     )
@@ -46,6 +52,9 @@ def test_determine_topology_parameters(
     node_counts,
     area,
 ):
+    """
+    Test determining parameters.
+    """
     topology_parameters = parameters.determine_topology_parameters(
         trace_length_array,
         node_counts,
@@ -62,9 +71,12 @@ def test_determine_topology_parameters(
     "topology_parameters_list, labels, colors", Helpers.test_plot_topology_params
 )
 def test_plot_parameters_plot(topology_parameters_list, labels, colors):
+    """
+    Test plotting parameters.
+    """
     figs, axes = parameters.plot_parameters_plot(
         topology_parameters_list, labels, colors
     )
-    assert all([isinstance(fig, matplotlib.figure.Figure) for fig in figs])  # type: ignore
-    assert all([isinstance(ax, matplotlib.axes.Axes) for ax in axes])  # type: ignore
+    assert all([isinstance(fig, Figure) for fig in figs])
+    assert all([isinstance(ax, Axes) for ax in axes])
     plt.close()

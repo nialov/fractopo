@@ -19,3 +19,4 @@ network_profile.py
 network_profiling.profile
 venv
 notebooks/fractopo_network_debug.ipynb
+**-Copy*.ipynb

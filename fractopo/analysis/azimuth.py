@@ -6,7 +6,6 @@ import math
 from textwrap import wrap
 from typing import Dict, Optional, Tuple, Union
 
-import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes

@@ -15,6 +15,11 @@ from fractopo.general import (
 
 
 class LineMerge:
+
+    """
+    Merge lines conditionally.
+    """
+
     @staticmethod
     def conditional_linemerge(
         first: LineString, second: LineString, tolerance: float, buffer_value: float

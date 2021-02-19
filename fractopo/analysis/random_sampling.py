@@ -1,7 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import geopandas as gpd
 import numpy as np

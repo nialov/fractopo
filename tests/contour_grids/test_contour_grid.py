@@ -1,16 +1,11 @@
-from pathlib import Path
-from typing import Dict, List, Tuple
+"""
+Tests for contour_grid.
+"""
 
-import fiona
 import geopandas as gpd
-import hypothesis
-import numpy as np
-import pytest
-import shapely
-from matplotlib import pyplot as plt
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, Point
 
-from fractopo import branches_and_nodes, contour_grid
+from fractopo import contour_grid
 from fractopo.general import CC_branch, CI_branch, II_branch
 
 cell_width = 0.10
@@ -50,6 +45,9 @@ nodes = gpd.GeoDataFrame(
 
 
 def test_create_grid():
+    """
+    Test create_grid.
+    """
     grid = contour_grid.create_grid(cell_width, branches)
     assert isinstance(grid, gpd.GeoDataFrame)
     some_intersect = False
@@ -61,6 +59,9 @@ def test_create_grid():
 
 
 def test_sample_grid():
+    """
+    Test sampling a grid.
+    """
     grid = test_create_grid()
     grid_with_topo = contour_grid.sample_grid(
         grid, branches, nodes, snap_threshold=0.01

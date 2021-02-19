@@ -3,13 +3,13 @@ Tests for length distributions utilities.
 """
 import numpy as np
 import powerlaw
+import pytest
 from hypothesis import given, settings
 from hypothesis.extra import numpy
-from tests import Helpers
 from hypothesis.strategies import floats
 
-import pytest
 from fractopo.analysis import length_distributions
+from tests import Helpers
 
 
 @given(

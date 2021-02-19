@@ -9,7 +9,7 @@ nearby proximal traces were found.
 from typing import List, Union
 
 import geopandas as gpd
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString
 
 from fractopo.general import (
     determine_azimuth,

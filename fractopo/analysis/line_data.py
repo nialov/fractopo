@@ -3,13 +3,11 @@ Trace and branch data analysis with LineData class abstraction.
 """
 import logging
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple
 
 import geopandas as gpd
-import matplotlib
 import numpy as np
 import powerlaw
-from shapely.geometry import Polygon, MultiPolygon
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 

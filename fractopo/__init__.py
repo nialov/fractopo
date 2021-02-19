@@ -1,6 +1,7 @@
 """
-Main package with general utilites and analysis and validation tools in 
-subpackages.
+Main package with general utilites.
+
+Analysis and validation tools in subpackages.
 """
 from typing import Tuple
 

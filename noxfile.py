@@ -159,7 +159,6 @@ def docs(session):
 
     Installation mimics readthedocs install.
     """
-
     # Install with setup.py[dev] installation
     session.install(".[dev]")
 

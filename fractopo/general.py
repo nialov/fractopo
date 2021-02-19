@@ -7,12 +7,11 @@ from bisect import bisect
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, List, Sequence, Set, Tuple, Union
+from typing import Any, List, Set, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
@@ -79,6 +78,7 @@ class Col(Enum):
     AZIMUTH_SET = "azimuth_set"
     LENGTH_SET = "length_set"
     LENGTH_WEIGHTS = "boundary_weight"
+    LENGTH_NON_WEIGHTED = "length non-weighted"
 
 
 @unique
@@ -586,10 +586,10 @@ def curviness(linestring):
     for i in range(len(coords) - 1):
         start = Point(coords[i])
         end = Point(coords[i + 1])
-        l = LineString([start, end])
-        azimu = determine_azimuth(l, halved=True)
+        line = LineString([start, end])
+        azimu = determine_azimuth(line, halved=True)
         # halved = tools.azimu_half(azimu)
-        length = l.length
+        length = line.length
         addition = {
             "azimu": azimu,
             "length": length,

@@ -320,8 +320,8 @@ def sample_grid(
     # Uses a buffer 1.5 times the size of the sample_cell side length
     # Make sure index doesnt cause issues TODO
     [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
-    traces_sindex = traces.sindex
-    nodes_sindex = nodes.sindex
+    traces_sindex = pygeos_spatial_index(traces)
+    nodes_sindex = pygeos_spatial_index(nodes)
 
     params_for_cells = list(
         map(

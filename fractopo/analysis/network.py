@@ -4,7 +4,6 @@ Analyse and plot trace map data with Network.
 
 # Python Windows co-operation imports
 import logging
-
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -15,20 +14,20 @@ import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
-from shapely.geometry import Point, MultiPolygon, Polygon
+from shapely.geometry import MultiPolygon, Point, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo import SetRangeTuple
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
+    branches_intersect_boundary,
     determine_branch_type_counts,
     determine_node_type_counts,
     determine_topology_parameters,
     plot_branch_plot,
     plot_parameters_plot,
     plot_xyi_plot,
-    branches_intersect_boundary,
 )
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
@@ -36,12 +35,12 @@ from fractopo.analysis.relationships import (
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import (
-    EE_branch,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
+    EE_branch,
+    bool_arrays_sum,
     crop_to_target_areas,
     determine_boundary_intersecting_lines,
-    bool_arrays_sum,
 )
 
 

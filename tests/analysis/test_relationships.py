@@ -1,11 +1,14 @@
-from typing import Dict, List, Optional, Tuple
+"""
+Tests for relationship detection.
+"""
+from typing import List, Optional, Tuple
 
 import geopandas as gpd
-import matplotlib
 import numpy as np
 import pandas as pd
 import pytest
 from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
 from shapely.geometry import MultiLineString
 from shapely.prepared import PreparedGeometry
 
@@ -20,7 +23,8 @@ from tests import Helpers
 
 
 @pytest.mark.parametrize(
-    "trace_series_two_sets, set_array, set_names_two_sets, node_series_xy, buffer_value, assumed_intersections",
+    "trace_series_two_sets, set_array, set_names_two_sets,"
+    "node_series_xy, buffer_value, assumed_intersections",
     Helpers.test_determine_nodes_intersecting_sets_params,
 )
 def test_determine_nodes_intersecting_sets(
@@ -31,6 +35,9 @@ def test_determine_nodes_intersecting_sets(
     buffer_value: float,
     assumed_intersections: Optional[List[bool]],
 ):
+    """
+    Test determine_nodes_intersecting_sets.
+    """
     intersects_both_sets = determine_nodes_intersecting_sets(
         trace_series_two_sets,
         set_array,
@@ -69,6 +76,9 @@ def test_determine_intersects(
     node_types_xy_intersects: np.ndarray,
     buffer_value: float,
 ):
+    """
+    Test determine_intersects.
+    """
     assert isinstance(trace_series_two_sets, tuple)
     assert isinstance(set_names_two_sets, tuple)
     assert isinstance(node_series_xy_intersects, gpd.GeoSeries)
@@ -99,6 +109,9 @@ def test_determine_crosscut_abutting_relationships(
     buffer_value: float,
     label: str,
 ):
+    """
+    Test determine_crosscut_abutting_relationships.
+    """
     assert isinstance(trace_series, gpd.GeoSeries)
     assert isinstance(node_series, gpd.GeoSeries)
     assert isinstance(node_types, np.ndarray)
@@ -121,6 +134,9 @@ def test_determine_crosscut_abutting_relationships(
 
 
 def test_plot_crosscut_abutting_relationships_plot():
+    """
+    Test plot_crosscut_abutting_relationships_plot.
+    """
     params = Helpers.test_determine_crosscut_abutting_relationships_params[0]
     relations_df = determine_crosscut_abutting_relationships(*params)
     set_array = params[3]
@@ -130,5 +146,5 @@ def test_plot_crosscut_abutting_relationships_plot():
     figs, fig_axes = plot_crosscut_abutting_relationships_plot(
         relations_df=relations_df, set_array=set_array, set_names=set_names
     )
-    assert all([isinstance(fig, matplotlib.figure.Figure) for fig in figs])  # type: ignore
+    assert all([isinstance(fig, Figure) for fig in figs])  # type: ignore
     plt.close()

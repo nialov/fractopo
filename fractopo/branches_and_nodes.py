@@ -37,10 +37,8 @@ from fractopo.general import (
     Y_node,
     crop_to_target_areas,
     determine_valid_intersection_points,
-    get_next_point_in_trace,
     get_trace_coord_points,
     get_trace_endpoints,
-    mls_to_ls,
     resolve_split_to_ls,
 )
 from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
@@ -879,45 +877,6 @@ def snap_traces_alternative(
                 trace = insert_point_to_linestring(trace, endp)
                 any_changed_applied = True
 
-        #         # Gather all trace candidate endpoints
-        #         # get_trace_endpoints returns ls[0] and then ls[-1]
-        #         trace_candidate_endpoints = []
-        #         endpoints_list = []
-        #         for trace_candidate in trace_candidates.geometry.values:
-        #             endpoints = get_trace_endpoints(trace_candidate)
-        #             endpoints_list.extend(endpoints)
-        #             trace_candidate_endpoints.append(endpoints)
-
-        #         assert all([isinstance(ep, Point) for ep in endpoints_list])
-
-        #         # Gather trace candidate endpoints that do not intersect any traces but
-        #         # are within snap_threshold of them
-        #         endpoints_to_snap = [
-        #             endp
-        #             for endp in endpoints_list
-        #             if not endp.intersects(trace) and endp.distance(trace) < snap_threshold
-        #         ]
-
-        #         # Insert the above gathered endpoints to trace
-        #         for endp in endpoints_to_snap:
-        #             distances_to_other_traces = trace_candidates.distance(endp)
-        #             # TODO: Gather earlier (but use same filtering) to avoid repetition
-        #             distance_to_current_trace = endp.distance(trace)
-        #             if (
-        #                 sum(
-        #                     [
-        #                         dist_other < distance_to_current_trace
-        #                         for dist_other in distances_to_other_traces
-        #                     ]
-        #                 )
-        #                 > 1
-        #             ):
-        #                 # Do not insert to current trace if node is closer to some
-        #                 # other trace.
-        #                 continue
-        #             trace = insert_point_to_linestring(trace, endp, only_middle=True)
-        #             any_changed_applied = True
-
         snapped_traces.append(trace)
     assert len(snapped_traces) == len(traces)
     assert all([isinstance(ls, LineString) for ls in snapped_traces])
@@ -1005,8 +964,8 @@ def safer_unary_union(
     """
     Perform unary union to transform traces to branch segments.
 
-    unary_union is not completely stable but problem can be alleviated
-    by dividing analysis to parts.
+    unary_union is not completely stable with large datasets but problem can be
+    alleviated by dividing analysis to parts.
     """
     if size_threshold < 100:
         raise ValueError(

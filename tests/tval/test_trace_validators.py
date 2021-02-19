@@ -1,22 +1,13 @@
+"""
+Test trace Validators.
+"""
 import geopandas as gpd
 import pytest
-from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry import LineString
 
 from fractopo import general
 from fractopo.tval.trace_validation import Validation
-from fractopo.tval.trace_validators import (
-    BaseValidator,
-    GeomNullValidator,
-    GeomTypeValidator,
-    MultiJunctionValidator,
-    MultipleCrosscutValidator,
-    SharpCornerValidator,
-    SimpleGeometryValidator,
-    StackedTracesValidator,
-    TargetAreaSnapValidator,
-    UnderlappingSnapValidator,
-    VNodeValidator,
-)
+from fractopo.tval.trace_validators import TargetAreaSnapValidator, VNodeValidator
 from tests import Helpers
 from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
 
@@ -59,6 +50,11 @@ def test_determine_faulty_junctions_with_known_false_pos():
 
 
 class TestTargetAreaSnapValidator:
+
+    """
+    Tests for TargetAreaSnapValidator.
+    """
+
     @staticmethod
     @pytest.mark.parametrize(
         "geom,area,snap_threshold,"
@@ -74,6 +70,9 @@ class TestTargetAreaSnapValidator:
         area_edge_snap_multiplier: float,
         assume_result: bool,
     ):
+        """
+        Test validation_method.
+        """
         assert assume_result == TargetAreaSnapValidator.validation_method(
             geom=geom,
             area=area,

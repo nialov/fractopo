@@ -7,7 +7,6 @@ from itertools import chain, combinations
 from typing import List, Tuple
 
 import geopandas as gpd
-import matplotlib
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -42,7 +41,9 @@ def determine_crosscut_abutting_relationships(
 
     E.g.
 
-    >>> trace_series = gpd.GeoSeries([LineString([(0,0), (1, 0)]), LineString([(0,1), (0, -1)])])
+    >>> trace_series = gpd.GeoSeries(
+    ...     [LineString([(0, 0), (1, 0)]), LineString([(0, 1), (0, -1)])]
+    ... )
     >>> node_series = gpd.GeoSeries([Point(0, 0), Point(1, 0), Point(0, 1), Point(0, -1)])
     >>> node_types = np.array(["Y", "I", "I", "I"])
     >>> set_array = np.array(["1", "2"])
@@ -50,13 +51,14 @@ def determine_crosscut_abutting_relationships(
     >>> buffer_value = 0.001
     >>> label = "title"
     >>> determine_crosscut_abutting_relationships(
-    ... trace_series,
-    ... node_series,
-    ... node_types,
-    ... set_array,
-    ... set_names,
-    ... buffer_value,
-    ... label,)
+    ...     trace_series,
+    ...     node_series,
+    ...     node_types,
+    ...     set_array,
+    ...     set_names,
+    ...     buffer_value,
+    ...     label,
+    ... )
         name    sets  x  y y-reverse error-count
     0  title  (1, 2)  0  1         0           0
 
@@ -66,7 +68,8 @@ def determine_crosscut_abutting_relationships(
     assert len(set_array) == len(trace_series)
     assert len(node_series) == len(node_types)
     assert all([isinstance(val, LineString) for val in trace_series.geometry.values])
-    # Determines xy relations and dynamically creates a dataframe as an aid for plotting the relations
+    # Determines xy relations and dynamically creates a dataframe as an aid for
+    # plotting the relations
 
     relations_df = pd.DataFrame(
         columns=["name", "sets", "x", "y", "y-reverse", "error-count"]
@@ -79,7 +82,7 @@ def determine_crosscut_abutting_relationships(
     assert len(node_series_xy) == len(node_types_xy)
 
     if len(set_names) < 2:
-        raise ValueError(f"Expected more than one set to be defined.")
+        raise ValueError("Expected more than one set to be defined.")
 
     set_combinations = combinations(set_names, 2)
     for first_set, second_set in set_combinations:
@@ -150,7 +153,7 @@ def determine_crosscut_abutting_relationships(
             "x": x_count,
             "y": y_count,
             "y-reverse": y_reverse_count,
-            "error-count": len(intersectframe.loc[intersectframe.error == True]),
+            "error-count": len(intersectframe.loc[intersectframe.error]),
         }
 
         relations_df = relations_df.append(addition, ignore_index=True)
@@ -165,18 +168,23 @@ def determine_nodes_intersecting_sets(
     buffer_value: float,
 ) -> List[bool]:
     """
-    Does a spatial intersect between node GeoDataFrame with only X- and Y-nodes
-    and the trace GeoDataFrame with only two sets. Returns boolean array of
-    based on
+    Conduct a spatial intersect between nodes and traces.
+
+    Node GeoDataFrame contains only X- and Y-nodes and the trace GeoDataFrame
+    only two sets. Returns boolean array of based on intersections.
 
     E.g.
 
-    >>> traces = gpd.GeoSeries([LineString([(0,0), (1, 1)])]), gpd.GeoSeries([LineString([(0,1), (0, -1)])])
+    >>> traces = gpd.GeoSeries([LineString([(0, 0), (1, 1)])]), gpd.GeoSeries(
+    ...     [LineString([(0, 1), (0, -1)])]
+    ... )
     >>> set_array = np.array(["1", "2"])
     >>> set_names_two_sets = ("1", "2")
-    >>> node_series_xy = gpd.GeoSeries([Point(0, 0), Point(1, 1), Point(0, 1), Point(0, -1)])
+    >>> nodes_xy = gpd.GeoSeries([Point(0, 0), Point(1, 1), Point(0, 1), Point(0, -1)])
     >>> buffer_value = 0.001
-    >>> determine_nodes_intersecting_sets(traces, set_array, set_names_two_sets, node_series_xy, buffer_value)
+    >>> determine_nodes_intersecting_sets(
+    ...     traces, set_array, set_names_two_sets, nodes_xy, buffer_value
+    ... )
     [True, False, False, False]
 
     """
@@ -214,17 +222,24 @@ def determine_intersects(
     buffer_value: float,
 ) -> pd.DataFrame:
     """
-    Does spatial intersects to determine how abutments and crosscuts occur between two sets
+    Determine how abutments and crosscuts occur between two sets.
 
     E.g.
 
-    >>> traces = gpd.GeoSeries([LineString([(0,0), (1, 1)])]), gpd.GeoSeries([LineString([(0,1), (0, -1)])])
+    >>> traces = gpd.GeoSeries([LineString([(0, 0), (1, 1)])]), gpd.GeoSeries(
+    ...     [LineString([(0, 1), (0, -1)])]
+    ... )
     >>> set_names_two_sets = ("1", "2")
     >>> node_series_xy_intersects = gpd.GeoSeries([Point(0, 0)])
     >>> node_types_xy_intersects = np.array(["Y"])
     >>> buffer_value = 0.001
-    >>> determine_intersects(traces, set_names_two_sets, node_series_xy_intersects,
-    ... node_types_xy_intersects, buffer_value)
+    >>> determine_intersects(
+    ...     traces,
+    ...     set_names_two_sets,
+    ...     node_series_xy_intersects,
+    ...     node_types_xy_intersects,
+    ...     buffer_value,
+    ... )
               node nodeclass    sets  error
     0  POINT (0 0)         Y  (1, 2)  False
 
@@ -263,7 +278,7 @@ def determine_intersects(
     first_setpointtree = STRtree(first_set_points)
     node: Point
     node_class: str
-    for node, node_class in zip(node_series_xy_intersects, node_types_xy_intersects):  # type: ignore
+    for node, node_class in zip(node_series_xy_intersects, node_types_xy_intersects):
         assert isinstance(node, Point)
         assert isinstance(node_class, str)
         # for idx, row in intersecting_nodes_frame.iterrows():
@@ -279,7 +294,8 @@ def determine_intersects(
 
         if (l1 is False) and (l2 is False):  # DEBUGGING
             raise Exception(
-                f"Node {node} does not intersect both sets {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
             )
 
         # NO RELATIONS FOR NODE IS GIVEN AS ERROR == TRUE (ERROR).
@@ -304,14 +320,16 @@ def determine_intersects(
 
             if (l1 is True) and (l2 is False):  # It's an x-node inside set 1
                 raise Exception(
-                    f"Node {node} does not intersect both sets {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+                    f"Node {node} does not intersect both sets"
+                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
                 )
                 # sets = (first_set, first_set)
                 # addition = {'node': node, 'nodeclass': c, 'sets': sets}
 
             if (l1 is False) and (l2 is True):  # It's an x-node inside set 2
                 raise Exception(
-                    f"Node {node} does not intersect both sets {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+                    f"Node {node} does not intersect both sets"
+                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
                 )
                 # sets = (second_set, second_set)
                 # addition = {'node': node, 'nodeclass': c, 'sets': sets}
@@ -319,7 +337,8 @@ def determine_intersects(
         # ALL Y NODE RELATIONS
         elif node_class == "Y":
             if (l1 is True) and (l2 is True):  # It's an y-node between sets
-                # p1 == length of list of nodes from first_set traces that intersect with X- or Y-node
+                # p1 == length of list of nodes from first_set traces
+                # that intersect with X- or Y-node
                 p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
                 if p1 != 0:  # set 1 ends in set 2
                     sets = (first_set, second_set)
@@ -334,14 +353,16 @@ def determine_intersects(
 
             if (l1 is True) and (l2 is False):  # It's a y-node inside set 1
                 raise Exception(
-                    f"Node {node} does not intersect both sets {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+                    f"Node {node} does not intersect both sets"
+                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
                 )
                 # sets = (first_set, first_set)
                 # addition = {'node': node, 'nodeclass': c, 'sets': sets}
 
             if (l1 is False) and (l2 is True):  # It's a y-node inside set 2
                 raise Exception(
-                    f"Node {node} does not intersect both sets {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+                    f"Node {node} does not intersect both sets"
+                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
                 )
                 # sets = (second_set, second_set)
                 # addition = {'node': node, 'nodeclass': c, 'sets': sets}
@@ -365,7 +386,7 @@ def plot_crosscut_abutting_relationships_plot(
     #     columns=["name", "sets", "x", "y", "y-reverse", "error-count"]
     # )
     # SUBPLOTS, FIGURE SETUP
-    set_column = "set"
+    # set_column = "set"
     cols = relations_df.shape[0]
     if cols == 2:
         cols = 1
@@ -400,7 +421,7 @@ def plot_crosscut_abutting_relationships_plot(
                 bbox=prop_title,
             )
 
-            for ax, idx_row in zip(axes, relations_df_with_name.iterrows()):  # type: ignore
+            for ax, idx_row in zip(axes, relations_df_with_name.iterrows()):
                 row = idx_row[1]
                 # TODO: More colors? change brightness or some other parameter?
                 bars = ax.bar(

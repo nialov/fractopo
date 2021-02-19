@@ -8,20 +8,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
-from hypothesis import given
-from hypothesis.strategies import (
-    booleans,
-    floats,
-    integers,
-    lists,
-    one_of,
-    sets,
-    text,
-    tuples,
-)
+from hypothesis.strategies import floats, integers, tuples
 from hypothesis_geometry import planar
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
-from shapely.ops import linemerge
 from shapely.wkt import loads
 
 from fractopo.analysis import parameters
@@ -34,19 +23,15 @@ from fractopo.general import (
     X_node,
     Y_node,
     bounding_polygon,
-    azimu_half,
     determine_azimuth,
 )
 from fractopo.tval import trace_builder, trace_validation
 from fractopo.tval.trace_validators import (
-    BaseValidator,
-    EmptyTargetAreaValidator,
     GeomNullValidator,
     GeomTypeValidator,
     MultiJunctionValidator,
     MultipleCrosscutValidator,
     SharpCornerValidator,
-    SimpleGeometryValidator,
     StackedTracesValidator,
     TargetAreaSnapValidator,
     UnderlappingSnapValidator,
@@ -75,6 +60,11 @@ AREA_EDGE_SNAP_MULTIPLIER = 5
 
 
 class Helpers:
+
+    """
+    Parameters for tests.
+    """
+
     valid_geom = LineString(((0, 0), (1, 1)))
 
     invalid_geom_empty = LineString()
@@ -93,7 +83,11 @@ class Helpers:
     ) = trace_builder.main(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
     valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
     invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
-    random_data_column = lambda i: ["aaa" for _ in i]
+
+    @staticmethod
+    def random_data_column(iterable):
+        return ["aaa" for _ in iterable]
+
     # geoms are all LineStrings and no errors
     @classmethod
     def valid_gdf_get(cls):

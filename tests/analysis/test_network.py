@@ -3,12 +3,12 @@ Tests for Network.
 """
 from typing import Tuple
 
+import numpy as np
 import pandas as pd
 import pytest
+from shapely.geometry import MultiPolygon, Polygon
 
 from fractopo import SetRangeTuple
-import numpy as np
-from shapely.geometry import MultiPolygon, Polygon
 from fractopo.analysis.network import Network
 from tests import Helpers
 

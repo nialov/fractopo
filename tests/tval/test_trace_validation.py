@@ -1,11 +1,13 @@
+"""
+Test trace Validation.
+"""
 from typing import List, Optional
 
 import geopandas as gpd
 import pytest
-from shapely.wkt import loads
 
 from fractopo.tval.trace_validation import Validation
-from fractopo.tval.trace_validators import MultiJunctionValidator, SharpCornerValidator
+from fractopo.tval.trace_validators import SharpCornerValidator
 from tests import Helpers, ValidationHelpers
 
 
@@ -14,6 +16,9 @@ from tests import Helpers, ValidationHelpers
     Helpers.test__validate_params,
 )
 def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
+    """
+    Test the _validate method.
+    """
     geom, current_errors, ignore_geom = Validation._validate(
         geom, validator, current_errors, allow_fix
     )
@@ -28,6 +33,9 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
     Helpers.test_validation_params,
 )
 def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
+    """
+    Test Validation.
+    """
     additional_kwargs = dict()
     if assume_errors and SharpCornerValidator.ERROR in assume_errors:
         additional_kwargs = dict(
@@ -66,6 +74,12 @@ def test_validation_known(
     error_amount,
     false_positive: bool,
 ):
+    """
+    Test Validation with known examples.
+
+    Helps to prevent regressions in code by keeping all known examples as
+    tests.
+    """
     # Thresholds are passed explicitly to avoid error changes with default
     # threshold changes.
     validated_gdf = Validation(

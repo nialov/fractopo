@@ -1,25 +1,14 @@
+"""
+Tests for branch and node determination.
+"""
 from pathlib import Path
-from typing import List
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 import pytest
-import shapely
-from hypothesis import HealthCheck, assume, given, settings
-from hypothesis.strategies import floats, integers, tuples
-from hypothesis_geometry import planar
-from matplotlib import pyplot as plt
+from hypothesis import given
 from shapely import wkt
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    Point,
-    Polygon,
-    box,
-)
-from shapely.ops import snap, split
+from shapely.geometry import LineString, MultiLineString, Point, box
 
 from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import (
@@ -107,7 +96,7 @@ def test_determine_branch_identity(
 
 def check_gdf_contents(obtained_filename, expected_filename):
     """
-    Checks that two GeoDataFrames have exactly matching contents.
+    Check that two GeoDataFrames have exactly matching contents.
     """
     assert Path(obtained_filename).exists() and Path(expected_filename).exists()
     obtained_gdf = gpd.read_file(Path(obtained_filename))
@@ -203,7 +192,8 @@ def test_snap_traces():
     for xy in simple_snapped_traces.iloc[1].coords:
         p = Point(xy)
         if Point(0.99, 0).intersects(p):
-            is_in_ls = True
+            pass
+            # is_in_ls = True
 
 
 def assert_result_insert_point_to_linestring(result, point):
@@ -306,6 +296,7 @@ def test_angle_to_point(triple_tuples):
     triple_points = tuple((Point(*t) for t in triple_tuples))
     try:
         rad_angle = branches_and_nodes.angle_to_point(*triple_points)
+        assert isinstance(rad_angle, float)
     except ValueError:
         pass
 
