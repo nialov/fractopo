@@ -32,7 +32,12 @@ from fractopo.general import (
 
 def _column_array_property(
     column: Literal[
-        Col.AZIMUTH, Col.LENGTH, Col.AZIMUTH_SET, Col.LENGTH_SET, Col.LENGTH_WEIGHTS
+        Col.AZIMUTH,
+        Col.LENGTH,
+        Col.AZIMUTH_SET,
+        Col.LENGTH_SET,
+        Col.LENGTH_WEIGHTS,
+        Col.LENGTH_NON_WEIGHTED,
     ],
     gdf: gpd.GeoDataFrame,
 ) -> Optional[np.ndarray]:
@@ -119,6 +124,19 @@ class LineData:
                 ]
             )
             self.line_gdf[Col.LENGTH_WEIGHTS.value] = column_array
+        return column_array
+
+    @property
+    def length_array_non_weighted(self):
+        """
+        Array of trace or branch lengths not weighted by boundary conditions.
+        """
+        column_array = _column_array_property(
+            column=Col.LENGTH_NON_WEIGHTED, gdf=self.line_gdf
+        )
+        if column_array is None:
+            column_array = self.line_gdf.geometry.length.to_numpy()
+            self.line_gdf[Col.LENGTH_NON_WEIGHTED.value] = column_array
         return column_array
 
     @property

@@ -257,10 +257,20 @@ class Network:
         return self.trace_data.length_array
 
     @property
+    def trace_length_array_non_weighted(self) -> np.ndarray:
+        return self.trace_data.length_array_non_weighted
+
+    @property
     def branch_length_array(self) -> Optional[np.ndarray]:
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_array
+
+    @property
+    def branch_length_array_non_weighted(self) -> Optional[np.ndarray]:
+        if not self._is_branch_gdf_defined():
+            return None
+        return self.branch_data.length_array_non_weighted
 
     @property
     def trace_azimuth_set_array(self) -> np.ndarray:
@@ -318,7 +328,7 @@ class Network:
         # returned previously.
         if self._parameters is None:
             self._parameters = determine_topology_parameters(
-                trace_length_array=self.trace_length_array,
+                trace_length_array=self.trace_length_array_non_weighted,
                 node_counts=self.node_counts,  # type: ignore
                 area=self.total_area,
             )
