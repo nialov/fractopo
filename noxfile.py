@@ -1,9 +1,10 @@
 """
 Nox test suite.
 """
-
+import logging
 from pathlib import Path
 from shutil import copy2, copytree, rmtree
+from typing import List
 
 import nox
 
@@ -13,6 +14,7 @@ package_name = "fractopo"
 tests_name = "tests"
 pipfile_lock = "Pipfile.lock"
 notebooks_name = "notebooks"
+docs_notebooks_name = "docs_src/notebooks"
 tasks_name = "tasks.py"
 noxfile_name = "noxfile.py"
 pylama_config = "pylama.ini"
@@ -20,6 +22,11 @@ pylama_config = "pylama.ini"
 
 docs_notebooks = Path("docs_src/notebooks").glob("*.ipynb")
 regular_notebooks = Path(notebooks_name).glob("*.ipynb")
+all_notebooks = list(docs_notebooks) + list(regular_notebooks)
+
+
+def filter_paths_to_existing(*iterables) -> List[str]:
+    return [path for path in iterables if Path(path).exists()]
 
 
 @nox.session(python="3.8")
@@ -36,10 +43,10 @@ def tests_strict(session: nox.Session):
         elif Path(to_copy).exists():
             ValueError("File not dir or file.")
         else:
-            FileNotFoundError("Expected file to be found.")
+            logging.error(f"Expected {to_copy} to exist.")
     session.chdir(tmp_dir)
     session.install("pipenv")
-    session.run("pipenv", "--rm")
+    session.run("pipenv", "--rm", success_codes=[0, 1])
     session.run(
         "pipenv",
         "sync",
@@ -54,7 +61,7 @@ def tests_strict(session: nox.Session):
         "coverage",
         "run",
         "--include",
-        "fractopo/**.py",
+        f"{package_name}/**.py",
         "-m",
         "pytest",
     )
@@ -70,18 +77,8 @@ def tests_lazy(session):
     # Test with pytest
     session.run("pytest")
     # Test notebook(s)
-    for notebook in regular_notebooks:
+    for notebook in all_notebooks:
         session.run("ipython", str(notebook))
-
-
-@nox.session(python="3.8")
-def test_tracevalidate(session):
-    """
-    Run test on tracevalidate script in new virtualenv.
-    """
-    session.install(".")
-    # session.chdir(session.create_tmp())
-    session.run("tracevalidate", "--help")
 
 
 @nox.session(python="3.8")
@@ -90,18 +87,19 @@ def format(session):
     Format python files, notebooks and docs_src.
     """
     session.install("black", "black-nb", "isort")
+    existing_paths = filter_paths_to_existing(
+        package_name, tests_name, tasks_name, noxfile_name
+    )
     # Format python files
-    session.run("black", package_name, tests_name, tasks_name, noxfile_name)
+    session.run("black", *existing_paths)
     # Format python file imports
     session.run(
         "isort",
-        package_name,
-        tests_name,
-        tasks_name,
-        noxfile_name,
+        *existing_paths,
     )
     # Format notebooks
-    session.run("black-nb", notebooks_name)
+    for notebook in all_notebooks:
+        session.run("black-nb", str(notebook))
 
 
 @nox.session(python="3.8")
@@ -110,6 +108,9 @@ def lint(session):
     Lint python files, notebooks and docs_src.
     """
     session.install("rstcheck", "sphinx", "black", "black-nb", "isort", "pylama")
+    existing_paths = filter_paths_to_existing(
+        package_name, tests_name, tasks_name, noxfile_name
+    )
     # Lint docs
     session.run(
         "rstcheck",
@@ -119,28 +120,23 @@ def lint(session):
         "automodule",
     )
     # Lint python files with black (all should be formatted.)
-    session.run("black", "--check", package_name, tests_name, tasks_name, noxfile_name)
+    session.run("black", "--check", *existing_paths)
     session.run(
         "isort",
         "--check-only",
-        package_name,
-        tests_name,
-        tasks_name,
-        noxfile_name,
+        *existing_paths,
     )
     # Lint with pylama
     session.run(
         "pylama",
         "-o",
         pylama_config,
-        package_name,
-        tests_name,
-        tasks_name,
-        noxfile_name,
+        *existing_paths,
     )
 
-    # Lint notebooks with black-nb (all should be formatted.)
-    session.run("black-nb", "--check", notebooks_name)
+    for notebook in all_notebooks:
+        # Lint notebooks with black-nb (all should be formatted.)
+        session.run("black-nb", "--check", notebook)
 
 
 @nox.session
@@ -182,7 +178,9 @@ def docs(session):
             str(notebook),
         )
     # Create apidocs
-    session.run("sphinx-apidoc", "-o", "./docs_src/apidoc", "./fractopo", "-e", "-f")
+    session.run(
+        "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{package_name}", "-e", "-f"
+    )
 
     # Create docs in ./docs folder
     session.run(

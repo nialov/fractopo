@@ -1,20 +1,16 @@
 """
 Invoke tasks.
-"""
-from pathlib import Path
 
-from invoke import task
+Most tasks employ nox to create a virtual session for testing.
+"""
+from invoke import UnexpectedExit, task
 
 nox_parallel_sessions = (
     "tests_strict",
     "tests_lazy",
-    "test_tracevalidate",
-    "docs",
 )
 
-
-conda_requirements_txt = Path("requirements-conda.txt")
-requirements_txt = Path("docs_src/requirements.txt")
+package_name = "fractopo"
 
 
 @task
@@ -22,16 +18,7 @@ def requirements(c):
     """
     Sync requirements from Pipfile to setup.py.
     """
-    # Uses nox
     c.run("nox --session requirements")
-    # # Make custom conda requirements
-    # req_contents: str = requirements_txt.read_text()
-    # if not isinstance(req_contents, str):
-    #     raise TypeError("Expected requirements.txt to have text contents.")
-    # # sklearn is named scikit-learn in conda
-    # req_contents = req_contents.replace("sklearn", "scikit-learn")
-    # conda_requirements_txt.write_text(req_contents)
-    # print("requirements-conda.txt successfully updated.")
 
 
 @task
@@ -55,6 +42,8 @@ def nox_parallel(c):
     """
     Run selected nox test suite sessions in parallel.
     """
+    # Run asynchronously and collect promises
+    print(f"Running {len(nox_parallel_sessions)} nox test sessions.")
     promises = [
         c.run(
             f"nox --session {nox_test} --no-color",
@@ -63,15 +52,37 @@ def nox_parallel(c):
         )
         for nox_test in nox_parallel_sessions
     ]
+
+    # Join all promises
     results = [promise.join() for promise in promises]
+
+    # Check if Result has non-zero exit code (should've already thrown error.)
     for result in results:
-        print(result)
+        if result.exited != 0:
+            raise UnexpectedExit(result)
+
+    # Report to user of success.
+    print(f"{len(results)} nox sessions ran succesfully.")
 
 
-@task(pre=[nox_parallel])
+@task
+def pytest(c):
+    """
+    Run tests with pytest in currently installed environment.
+
+    Much faster than full `test` suite.
+    """
+    c.run(f"coverage run --include '{package_name}/**.py' -m pytest")
+    c.run("coverage report --fail-under 70")
+
+
+@task(pre=[pytest, nox_parallel])
 def test(_):
     """
     Run tests.
+
+    This is an extensive suite. It first tests in current environment and then
+    creates virtual sessions with nox to test installation -> tests.
     """
 
 
@@ -88,3 +99,5 @@ def make(_):
     """
     Make all.
     """
+    print("---------------")
+    print("make succesful.")
