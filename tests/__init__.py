@@ -836,6 +836,22 @@ class Helpers:
         ),
     ]
 
+    test_network_circular_target_area_params = [
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, 0), (0, 10)]),  # one intersect
+                    LineString([(1, 0), (1, 3)]),  # no intersect
+                    LineString([(4, -10), (4, 10)]),  # two intersect
+                ]
+            ),  # trace_gdf
+            gpd.GeoDataFrame(
+                geometry=[Polygon([(-5, -5), (-5, 5), (5, 5), (5, -5)])]
+            ),  # area_gdf
+            "circular_target_area_param_test",  # name
+        )
+    ]
+
 
 class ValidationHelpers:
 

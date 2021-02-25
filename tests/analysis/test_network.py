@@ -153,3 +153,46 @@ def test_network_kb11_manual():
         snap_threshold=0.001,
     )
     return network
+
+
+@pytest.mark.parametrize(
+    "trace_gdf,area_gdf,name",
+    Helpers.test_network_circular_target_area_params,
+)
+def test_network_circular_target_area(trace_gdf, area_gdf, name):
+    """
+    Test circular_target_area var.
+    """
+    network_circular = Network(
+        trace_gdf=trace_gdf,
+        area_gdf=area_gdf,
+        name=name,
+        circular_target_area=True,
+        determine_branches_nodes=False,
+    )
+    network_non_circular = Network(
+        trace_gdf=trace_gdf,
+        area_gdf=area_gdf,
+        name=name,
+        circular_target_area=False,
+        determine_branches_nodes=False,
+    )
+
+    lengths_circular = network_circular.trace_length_array
+    lengths_non_circular = network_non_circular.trace_length_array
+
+    assert np.isclose(lengths_circular[0], lengths_non_circular[0] * 2)
+    assert np.isclose(lengths_circular[1], lengths_non_circular[1])
+    assert np.isclose(lengths_circular[2], 0)
+    assert not np.isclose(lengths_non_circular[2], 0)
+
+    assert all(
+        np.isclose(
+            network_circular.trace_length_array_non_weighted, lengths_non_circular
+        )
+    )
+    assert all(
+        np.isclose(
+            network_non_circular.trace_length_array_non_weighted, lengths_non_circular
+        )
+    )

@@ -67,6 +67,14 @@ class Network:
     # Defaults to True
     truncate_traces: bool = True
 
+    # Whether to apply boundary line length weighting
+    # Applies to both traces and branches
+    # Length of lines that intersect the boundary once are multiplied by two,
+    # and double intersections with 0, non-intersecting are multiplied by one
+    # (no change).
+    # TODO: Defaults to true
+    circular_target_area: bool = True
+
     # Azimuth sets
     # ============
     azimuth_set_ranges: SetRangeTuple = (
@@ -437,17 +445,23 @@ class Network:
         """
         if self._trace_intersects_target_area_boundary is None:
 
-            (
-                intersecting_lines,
-                cuts_through_lines,
-            ) = determine_boundary_intersecting_lines(
-                line_gdf=self.trace_gdf,
-                area_gdf=self.area_gdf,
-                snap_threshold=self.snap_threshold,
-            )
-            self._trace_intersects_target_area_boundary = bool_arrays_sum(
-                intersecting_lines, cuts_through_lines
-            )
+            if self.circular_target_area:
+
+                (
+                    intersecting_lines,
+                    cuts_through_lines,
+                ) = determine_boundary_intersecting_lines(
+                    line_gdf=self.trace_gdf,
+                    area_gdf=self.area_gdf,
+                    snap_threshold=self.snap_threshold,
+                )
+                self._trace_intersects_target_area_boundary = bool_arrays_sum(
+                    intersecting_lines, cuts_through_lines
+                )
+            else:
+                self._trace_intersects_target_area_boundary = np.array(
+                    [0] * self.trace_gdf.shape[0]
+                )
         return self._trace_intersects_target_area_boundary
 
     @property
@@ -459,13 +473,18 @@ class Network:
             self._branch_intersects_target_area_boundary is None
             and self._is_branch_gdf_defined
         ):
-            intersecting_lines = branches_intersect_boundary(self.branch_types)
-            cuts_through_lines = np.array(
-                [branch_type == EE_branch for branch_type in self.branch_types]
-            )
-            self._branch_intersects_target_area_boundary = bool_arrays_sum(
-                intersecting_lines, cuts_through_lines
-            )
+            if self.circular_target_area:
+                intersecting_lines = branches_intersect_boundary(self.branch_types)
+                cuts_through_lines = np.array(
+                    [branch_type == EE_branch for branch_type in self.branch_types]
+                )
+                self._branch_intersects_target_area_boundary = bool_arrays_sum(
+                    intersecting_lines, cuts_through_lines
+                )
+            else:
+                self._branch_intersects_target_area_boundary = np.array(
+                    [0] * len(self.branch_types)
+                )
 
         return self._branch_intersects_target_area_boundary
 
