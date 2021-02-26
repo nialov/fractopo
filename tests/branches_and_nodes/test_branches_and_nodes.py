@@ -185,7 +185,7 @@ def test_snap_traces():
     # assert Point(0.99, 0).intersects(
     #     gpd.GeoSeries([Point(xy) for xy in simple_snapped_traces.iloc[1].coords])
     # )
-    is_in_ls = False
+    # is_in_ls = False
     assert all(
         [isinstance(ls, LineString) for ls in simple_snapped_traces.geometry.values]
     )

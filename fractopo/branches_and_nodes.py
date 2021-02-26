@@ -975,16 +975,12 @@ def safer_unary_union(
     if trace_count < 2:
         return MultiLineString([geom for geom in traces_geosrs.geometry.values])
     if trace_count < size_threshold:
+        # Try normal union without any funny business
         full_union = traces_geosrs.unary_union
-        if len(full_union.geoms) > trace_count:
-            # This is not a certain check but smaller datasets should not cause
-            # problems
-            if isinstance(full_union, MultiLineString):
-                return full_union
-            else:
-                raise TypeError(
-                    f"Expected MultiLineString from unary_union. Got {full_union}"
-                )
+        if len(full_union.geoms) > trace_count and isinstance(
+            full_union, MultiLineString
+        ):
+            return full_union
     div = int(np.ceil(trace_count / size_threshold))
     part_count = int(np.ceil(trace_count / div))
     part_unions = []

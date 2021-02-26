@@ -19,6 +19,9 @@ from tests.sample_data.py_samples.samples import results_in_multijunction_list_o
 def test_determine_v_nodes(
     endpoint_nodes, snap_threshold, snap_threshold_error_multiplier, assumed_result
 ):
+    """
+    Test VNodeValidator.determine_v_nodes.
+    """
     result = VNodeValidator.determine_v_nodes(
         endpoint_nodes, snap_threshold, snap_threshold_error_multiplier
     )
@@ -27,6 +30,9 @@ def test_determine_v_nodes(
 
 
 def test_determine_faulty_junctions_with_known_false_pos():
+    """
+    Test determine_faulty_junctions in Validation.
+    """
     false_positive_linestrings = results_in_multijunction_list_of_ls
     fpls = gpd.GeoDataFrame(geometry=gpd.GeoSeries(false_positive_linestrings))
     area = general.bounding_polygon(fpls)

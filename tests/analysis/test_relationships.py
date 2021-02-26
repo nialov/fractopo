@@ -66,7 +66,8 @@ def test_prepare_geometry_traces(trace_series: gpd.GeoSeries):
 
 
 @pytest.mark.parametrize(
-    "trace_series_two_sets, set_names_two_sets, node_series_xy_intersects, node_types_xy_intersects, buffer_value",
+    "trace_series_two_sets, set_names_two_sets,"
+    "node_series_xy_intersects, node_types_xy_intersects, buffer_value",
     Helpers.test_determine_intersects_params,
 )
 def test_determine_intersects(

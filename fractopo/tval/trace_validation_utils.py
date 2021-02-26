@@ -73,7 +73,7 @@ def segmentize_linestring(
         end = linestring.interpolate(dist + threshold_length)
         segment = LineString([start, end])
         if segment.length < threshold_length:
-            continue
+            break
         segments.append(segment)
     return segments
 
@@ -95,6 +95,8 @@ def split_to_determine_triangle_errors(
         # split not possible, the traces overlap
         return True
     if len(segments) > 2:
+        if len(segments) > 3:
+            return True
         middle = determine_middle_in_triangle(
             [ls for ls in segments.geoms],
             snap_threshold=snap_threshold,

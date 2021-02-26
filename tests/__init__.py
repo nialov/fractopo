@@ -49,7 +49,6 @@ from tests.sample_data.py_samples.samples import (
     should_result_in_target_area_underlapping_poly,
     should_result_in_vnode_ls_list,
 )
-from tests.sample_data.py_samples.stacked_traces_sample import non_stacked_traces_ls
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
 ERROR_COLUMN = trace_validation.Validation.ERROR_COLUMN
@@ -955,7 +954,6 @@ class ValidationHelpers:
     known_false_positives = dict()
 
     known_non_stacked_gdfs = [
-        gpd.GeoDataFrame(geometry=non_stacked_traces_ls),
         gpd.GeoDataFrame(geometry=results_in_false_positive_stacked_traces_list),
     ]
 
