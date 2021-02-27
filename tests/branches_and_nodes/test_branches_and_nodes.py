@@ -373,5 +373,23 @@ def test_with_known_mls_error():
 #         assert ls.is_simple
 
 
-def test_branches_and_nodes_regression(file_regression):
-    pass
+# def test_branches_and_nodes_regression(file_regression):
+#     pass
+
+
+@pytest.mark.parametrize(
+    "trace,another,snap_threshold,assumed_result",
+    Helpers.test_snap_trace_to_another_params,
+)
+def test_snap_trace_to_another(
+    trace: LineString,
+    another: LineString,
+    snap_threshold: float,
+    assumed_result: LineString,
+):
+    result, _ = branches_and_nodes.snap_trace_to_another(
+        trace, another, snap_threshold=snap_threshold
+    )
+    assert result.wkt == assumed_result.wkt
+
+# def test_snap_traces_alternative_v2()

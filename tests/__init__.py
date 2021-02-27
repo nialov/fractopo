@@ -851,6 +851,21 @@ class Helpers:
         )
     ]
 
+    test_snap_trace_to_another_params = [
+        (
+            [Point(0, 0), Point(0, 4)],  # trace_endpoints
+            LineString([(-5, 5), (5, 5)]),  # another
+            1.1,  # snap_threshold
+            LineString([(-5, 5), (0, 4), (5, 5)]),  # another
+        ),
+        (
+            [Point(0, 0), Point(0, 4)],  # trace_endpoints
+            LineString([(-5, 5), (5, 5)]),  # another
+            0.1,  # snap_threshold
+            LineString([(-5, 5), (5, 5)]),  # another
+        ),
+    ]
+
 
 class ValidationHelpers:
 
