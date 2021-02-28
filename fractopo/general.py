@@ -1,6 +1,7 @@
 """
 Contains general calculation and plotting tools.
 """
+import logging
 import math
 import random
 from bisect import bisect
@@ -833,6 +834,27 @@ def determine_valid_intersection_points(
             pass
     assert all([isinstance(p, Point) for p in valid_interaction_points])
     return valid_interaction_points
+
+
+def line_intersection_to_points(first: LineString, second: LineString) -> List[Point]:
+    """
+    Perform shapely intersection between two LineStrings.
+
+    Enforces only Point returns.
+    """
+
+    intersection = first.intersection(second)
+    collect_points = []
+    if isinstance(intersection, LineString) and intersection.is_empty:
+        pass
+    elif isinstance(intersection, Point):
+        collect_points = [intersection]
+    elif isinstance(intersection, MultiPoint):
+        collect_points: List[Point] = list(intersection.geoms)
+    else:
+        logging.error(f"Expected Point or empty intersection, got: {intersection}")
+        pass
+    return collect_points
 
 
 def flatten_tuples(

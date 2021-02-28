@@ -866,6 +866,48 @@ class Helpers:
         ),
     ]
 
+    test_insert_point_to_linestring_params = [
+        (
+            LineString([(0, 0), (1, 1), (2, 2)]),
+            Point(0.5, 0.5),
+            0.01,  # snap_threshold
+            None,
+        ),
+        (
+            LineString([(0, 0), (-1, -1), (-2, -2)]),
+            Point(-0.5, -0.5),
+            0.01,  # snap_threshold
+            None,
+        ),
+        (
+            LineString([(0, 0), (-1, -1), (-2, -2)]),
+            Point(-1.0, -1.1),
+            0.11,  # snap_threshold
+            LineString([(0, 0), (-1.0, -1.1), (-2, -2)]),
+        ),
+        (
+            LineString([(0, 0), (-1, -1), (-1.5, -1.5), (-2, -2)]),
+            Point(-1.0, -1.1),
+            0.11,  # snap_threshold
+            LineString([(0, 0), (-1.0, -1.1), (-1.5, -1.5), (-2, -2)]),
+        ),
+    ]
+
+    sample_traces_path = Path("tests/sample_data/branches_and_nodes/traces.gpkg")
+    sample_areas_path = Path("tests/sample_data/branches_and_nodes/areas.gpkg")
+    sample_traces = gpd.read_file(sample_traces_path)
+    sample_areas = gpd.read_file(sample_areas_path)
+
+    test_branches_and_nodes_regression_params = [
+        (
+            sample_traces,  # traces
+            sample_areas,  # areas
+            0.001,  # snap_threshold
+            10,  # allowed_loops
+            False,  # already_clipped
+        )
+    ]
+
 
 class ValidationHelpers:
 

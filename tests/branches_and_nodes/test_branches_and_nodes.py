@@ -196,31 +196,26 @@ def test_snap_traces():
             # is_in_ls = True
 
 
-def assert_result_insert_point_to_linestring(result, point):
-    # Assert it is in list
-    assert tuple(*point.coords) in list(result.coords)
-    # Assert index is correct
-    assert list(result.coords).index(tuple(*point.coords)) == 1
-
-
 @pytest.mark.parametrize(
-    "linestring, point, assert_result",
-    [
-        (
-            LineString([(0, 0), (1, 1), (2, 2)]),
-            Point(0.5, 0.5),
-            assert_result_insert_point_to_linestring,
-        ),
-        (
-            LineString([(0, 0), (-1, -1), (-2, -2)]),
-            Point(-0.5, -0.5),
-            assert_result_insert_point_to_linestring,
-        ),
-    ],
+    "linestring, point, snap_threshold, assumed_result",
+    Helpers.test_insert_point_to_linestring_params,
 )
-def test_insert_point_to_linestring(linestring, point, assert_result):
-    result = branches_and_nodes.insert_point_to_linestring(linestring, point)
-    assert_result(result, point)
+def test_insert_point_to_linestring_v2(
+    linestring, point, snap_threshold, assumed_result
+):
+    """
+    Test insert_point_to_linestring.
+    """
+    result = branches_and_nodes.insert_point_to_linestring_v2(
+        linestring, point, snap_threshold
+    )
+    if assumed_result is None:
+        # Assert it is in list
+        assert tuple(*point.coords) in list(result.coords)
+        # Assert index is correct
+        assert list(result.coords).index(tuple(*point.coords)) == 1
+    else:
+        assert result.wkt == assumed_result.wkt
 
 
 # @settings(suppress_health_check=(HealthCheck.filter_too_much,))
@@ -373,10 +368,6 @@ def test_with_known_mls_error():
 #         assert ls.is_simple
 
 
-# def test_branches_and_nodes_regression(file_regression):
-#     pass
-
-
 @pytest.mark.parametrize(
     "trace,another,snap_threshold,assumed_result",
     Helpers.test_snap_trace_to_another_params,
@@ -392,4 +383,23 @@ def test_snap_trace_to_another(
     )
     assert result.wkt == assumed_result.wkt
 
+
 # def test_snap_traces_alternative_v2()
+
+
+@pytest.mark.parametrize(
+    "traces,areas,snap_threshold,allowed_loops,already_clipped",
+    Helpers.test_branches_and_nodes_regression_params,
+)
+def test_branches_and_nodes_regression(
+    traces, areas, snap_threshold, allowed_loops, already_clipped, file_regression
+):
+    branches, nodes = branches_and_nodes.branches_and_nodes(
+        traces, areas, snap_threshold, allowed_loops, already_clipped
+    )
+
+    branches.to_file("/mnt/f/Users/nikke/Documents/projects/Misc/dump/branches.gpkg", driver="GPKG")
+    nodes.to_file("/mnt/f/Users/nikke/Documents/projects/Misc/dump/nodes.gpkg", driver="GPKG")
+
+    file_regression.check(branches.to_json() + nodes.to_json())
+

@@ -5,7 +5,7 @@ branches_and_nodes is the main entrypoint.
 """
 import logging
 from itertools import chain, combinations
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict
 
 import geopandas as gpd
 import numpy as np
@@ -18,9 +18,13 @@ from shapely.geometry import (
     Point,
     Polygon,
 )
+from shapely.wkt import loads
 from shapely.ops import linemerge, substring, unary_union, split
+from geopandas.sindex import PyGEOSSTRTreeIndex
 
 from fractopo.general import (
+        geom_bounds,
+    line_intersection_to_points,
     pygeos_spatial_index,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
@@ -490,9 +494,11 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     return new_trace
 
 
-def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
+def insert_point_to_linestring_v2(
+    trace: LineString, point: Point, snap_threshold: float
+) -> LineString:
     """
-    Insert given point to given trace LineString.
+    Insert/modify point to trace LineString.
 
     The point location is determined to fit into the LineString without
     changing the geometrical order of LineString vertices
@@ -505,12 +511,12 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> point = Point(1.25, 0.1)
-    >>> insert_point_to_linestring(trace, point).wkt
+    >>> insert_point_to_linestring_v2(trace, point, 0.01).wkt
     'LINESTRING (0 0, 1 0, 1.25 0.1, 2 0, 3 0)'
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> point = Point(2.25, 0.1)
-    >>> insert_point_to_linestring(trace, point).wkt
+    >>> insert_point_to_linestring_v2(trace, point, 0.01).wkt
     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
     """
@@ -535,36 +541,16 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     trace_point_dists = sorted(trace_point_dists, key=lambda vals: vals[2])
     nearest_point = trace_point_dists[0][1]
     nearest_point_idx = trace_point_dists[0][0]
-    if nearest_point_idx == 0:
-        # It is the first node of linestring
-        add_before = nearest_point_idx + 1
-    elif nearest_point_idx == max([vals[0] for vals in trace_point_dists]):
-        # It is the last node of linestring
-        add_before = nearest_point_idx
-    else:
-        # It is in the middle of the linestring
-        # points_on_either_side = t_points_gdf.loc[
-        #     [nearest_point_idx - 1, nearest_point_idx + 1]
-        # ]
-        points_on_either_side = [
-            (vals, angle_to_point(point, nearest_point, vals[1]))
-            for vals in trace_point_dists
-            if vals[0] in (nearest_point_idx - 1, nearest_point_idx + 1)
-        ]
 
-        points_on_either_side = sorted(points_on_either_side, key=lambda vals: vals[1])
-
-
-        assert sum([vals[1] == 0.0 for vals in points_on_either_side]) < 2
-        smallest_angle_idx = points_on_either_side[0][0][0]
-        # smallest_angle_idx = points_on_either_side.sort_values(by="angle").iloc[0].name
-        if smallest_angle_idx > nearest_point_idx:
-            add_before = smallest_angle_idx
-        else:
-            add_before = nearest_point_idx
+    # Determine if to insert or modify trace
+    idx, insert = determine_insert_approach(
+        nearest_point_idx, trace_point_dists, snap_threshold, point, nearest_point
+    )
 
     t_coords = list(trace.coords)
-    t_coords.insert(add_before, tuple(*point.coords))
+    if not insert:
+        t_coords.pop(idx)
+    t_coords.insert(idx, tuple(*point.coords))
     # Closest points might not actually be the points which inbetween the
     # point is added. Have to use project and interpolate (?)
     # print(t_coords)
@@ -577,6 +563,52 @@ def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
     if not new_trace.is_simple:
         logging.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
     return new_trace
+
+
+def determine_insert_approach(
+    nearest_point_idx: int,
+    trace_point_dists: List[Tuple[int, Point, float]],
+    snap_threshold: float,
+    point: Point,
+    nearest_point: Point,
+):
+    """
+    Determine if to insert or replace point.
+    """
+    insert = True
+    if nearest_point_idx == 0:
+        # It is the first node of linestring
+        idx = nearest_point_idx + 1
+    elif nearest_point_idx == max([vals[0] for vals in trace_point_dists]):
+        # It is the last node of linestring
+        idx = nearest_point_idx
+    else:
+
+        if nearest_point.distance(point) < snap_threshold:
+            # Replace instead of insert
+            insert = False
+            idx = nearest_point_idx
+        else:
+
+            # It is in the middle of the linestring
+            points_on_either_side = [
+                (vals, angle_to_point(point, nearest_point, vals[1]))
+                for vals in trace_point_dists
+                if vals[0] in (nearest_point_idx - 1, nearest_point_idx + 1)
+            ]
+
+            points_on_either_side = sorted(
+                points_on_either_side, key=lambda vals: vals[1]
+            )
+
+            assert sum([vals[1] == 0.0 for vals in points_on_either_side]) < 2
+            smallest_angle_idx = points_on_either_side[0][0][0]
+
+            if smallest_angle_idx > nearest_point_idx:
+                idx = smallest_angle_idx
+            else:
+                idx = nearest_point_idx
+    return idx, insert
 
 
 def additional_snapping_func(
@@ -806,171 +838,171 @@ def true_candidate_endpoints(trace, trace_candidate, snap_threshold) -> List[Poi
     ]
 
 
-def snap_traces_alternative(
-    traces: gpd.GeoSeries, snap_threshold: float
-) -> Tuple[gpd.GeoSeries, bool]:
-    """
-    Snap traces to end exactly at other traces.
-    """
-    # TODO: Is it necessary
-    traces.reset_index(inplace=True, drop=True)
+# def snap_traces_alternative(
+#     traces: gpd.GeoSeries, snap_threshold: float
+# ) -> Tuple[gpd.GeoSeries, bool]:
+#     """
+#     Snap traces to end exactly at other traces.
+#     """
+#     # TODO: Is it necessary
+#     traces.reset_index(inplace=True, drop=True)
 
-    # Only handle LineStrings
-    assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
+#     # Only handle LineStrings
+#     assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
 
-    # Mark if any snapping must be done
-    any_changed_applied = False
+#     # Mark if any snapping must be done
+#     any_changed_applied = False
 
-    # Spatial index for traces
-    traces_spatial_index = traces.sindex
+#     # Spatial index for traces
+#     traces_spatial_index = traces.sindex
 
-    # Collect snapped (and non-snapped) traces to list
-    snapped_traces: List[LineString] = []
-    trace: LineString
-    idx: int
-    for idx, trace in enumerate(traces.geometry.values):
+#     # Collect snapped (and non-snapped) traces to list
+#     snapped_traces: List[LineString] = []
+#     trace: LineString
+#     idx: int
+#     for idx, trace in enumerate(traces.geometry.values):
 
-        # Get trace bounds and extend them
-        minx, miny, maxx, maxy = trace.bounds
-        extended_bounds = (
-            minx - snap_threshold * 20,
-            miny - snap_threshold * 20,
-            maxx + snap_threshold * 20,
-            maxy + snap_threshold * 20,
-        )
+#         # Get trace bounds and extend them
+#         minx, miny, maxx, maxy = trace.bounds
+#         extended_bounds = (
+#             minx - snap_threshold * 20,
+#             miny - snap_threshold * 20,
+#             maxx + snap_threshold * 20,
+#             maxy + snap_threshold * 20,
+#         )
 
-        # Use extended trace bounds to catch all possible
-        trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+#         # Use extended trace bounds to catch all possible
+#         trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
 
-        # Do not check currect trace
-        trace_candidate_idxs.remove(idx)
+#         # Do not check currect trace
+#         trace_candidate_idxs.remove(idx)
 
-        # Filter to only candidates based on spatial index
-        trace_candidates = traces.iloc[trace_candidate_idxs]
+#         # Filter to only candidates based on spatial index
+#         trace_candidates = traces.iloc[trace_candidate_idxs]
 
-        # If no candidates -> no intersecting -> trace is isolated
-        if len(trace_candidates) == 0:
-            snapped_traces.append(trace)
-            continue
+#         # If no candidates -> no intersecting -> trace is isolated
+#         if len(trace_candidates) == 0:
+#             snapped_traces.append(trace)
+#             continue
 
-        for trace_candidate in trace_candidates.geometry.values:
-            candidate_endpoints = true_candidate_endpoints(
-                trace, trace_candidate, snap_threshold
-            )
-            if len(candidate_endpoints) == 0:
-                reverse_endpoints = true_candidate_endpoints(
-                    trace_candidate, trace, snap_threshold
-                )
-                if len(reverse_endpoints) == 0:
-                    continue
-                # Replace endnode of current trace to end just before other
-                # trace and let next loop handle the exact snapping
-                linestrings = [
-                    ls
-                    for ls in resolve_split_to_ls(trace, trace_candidate)
-                    if ls.length > snap_threshold * 0.1
-                ]
-                if len(linestrings) < 2:
-                    continue
-                for ep in reverse_endpoints:
-                    for ls in linestrings:
-                        if np.isclose(ep.distance(ls), 0, atol=1e-4):
-                            if len(linestrings) == 2:
-                                other = [line for line in linestrings if line != ls][0]
-                            elif len(linestrings) == 3:
-                                # Determining middle is not stable
-                                # Weird small linestrings possible
-                                candidates = determine_middle_in_triangle(
-                                    linestrings, snap_threshold, 1.0
-                                )
-                                if len(candidates) == 1:
-                                    other = candidates[0]
-                                else:
-                                    raise ValueError("Expected one candidate.")
-                            else:
-                                raise ValueError(
-                                    "Expected no more than 3 split segments."
-                                )
+#         for trace_candidate in trace_candidates.geometry.values:
+#             candidate_endpoints = true_candidate_endpoints(
+#                 trace, trace_candidate, snap_threshold
+#             )
+#             if len(candidate_endpoints) == 0:
+#                 reverse_endpoints = true_candidate_endpoints(
+#                     trace_candidate, trace, snap_threshold
+#                 )
+#                 if len(reverse_endpoints) == 0:
+#                     continue
+#                 # Replace endnode of current trace to end just before other
+#                 # trace and let next loop handle the exact snapping
+#                 linestrings = [
+#                     ls
+#                     for ls in resolve_split_to_ls(trace, trace_candidate)
+#                     if ls.length > snap_threshold * 0.1
+#                 ]
+#                 if len(linestrings) < 2:
+#                     continue
+#                 for ep in reverse_endpoints:
+#                     for ls in linestrings:
+#                         if np.isclose(ep.distance(ls), 0, atol=1e-4):
+#                             if len(linestrings) == 2:
+#                                 other = [line for line in linestrings if line != ls][0]
+#                             elif len(linestrings) == 3:
+#                                 # Determining middle is not stable
+#                                 # Weird small linestrings possible
+#                                 candidates = determine_middle_in_triangle(
+#                                     linestrings, snap_threshold, 1.0
+#                                 )
+#                                 if len(candidates) == 1:
+#                                     other = candidates[0]
+#                                 else:
+#                                     raise ValueError("Expected one candidate.")
+#                             else:
+#                                 raise ValueError(
+#                                     "Expected no more than 3 split segments."
+#                                 )
 
-                            other_endpoints = get_trace_endpoints(other)
-                            if not np.isclose(
-                                other_endpoints[-1].distance(ls), 0, atol=1e-4
-                            ):
-                                other = LineString(
-                                    reversed(get_trace_coord_points(other))
-                                )
-                                other_endpoints = get_trace_endpoints(other)
-                            while (
-                                len(resolve_split_to_ls(other, trace_candidate))
-                                == len(linestrings)
-                                and other_endpoints[-1].distance(trace_candidate)
-                                < snap_threshold * 0.25
-                            ):
-                                other = substring(
-                                    other, 0, other.length - snap_threshold * 0.1
-                                )
-                            if len(linestrings) == 3:
-                                another_segment = [
-                                    another
-                                    for another in linestrings
-                                    if another not in (candidates[0], ls)
-                                ]
-                                if len(another_segment) == 1:
-                                    assert other.is_valid
+#                             other_endpoints = get_trace_endpoints(other)
+#                             if not np.isclose(
+#                                 other_endpoints[-1].distance(ls), 0, atol=1e-4
+#                             ):
+#                                 other = LineString(
+#                                     reversed(get_trace_coord_points(other))
+#                                 )
+#                                 other_endpoints = get_trace_endpoints(other)
+#                             while (
+#                                 len(resolve_split_to_ls(other, trace_candidate))
+#                                 == len(linestrings)
+#                                 and other_endpoints[-1].distance(trace_candidate)
+#                                 < snap_threshold * 0.25
+#                             ):
+#                                 other = substring(
+#                                     other, 0, other.length - snap_threshold * 0.1
+#                                 )
+#                             if len(linestrings) == 3:
+#                                 another_segment = [
+#                                     another
+#                                     for another in linestrings
+#                                     if another not in (candidates[0], ls)
+#                                 ]
+#                                 if len(another_segment) == 1:
+#                                     assert other.is_valid
 
-                                    other = linemerge([other, another_segment[0]])
-                                else:
-                                    raise ValueError("Expected one another.")
-                            trace = other
-                            any_changed_applied = True
+#                                     other = linemerge([other, another_segment[0]])
+#                                 else:
+#                                     raise ValueError("Expected one another.")
+#                             trace = other
+#                             any_changed_applied = True
 
-                            # while (
-                            #     other_endpoints[-1].distance(trace_candidate)
-                            #     < snap_threshold
-                            # ):
-                            #     other = substring(
-                            #         other,
-                            #         0,
-                            #         other.length - snap_threshold,
-                            #         normalized=False,
-                            #     )
+#                             # while (
+#                             #     other_endpoints[-1].distance(trace_candidate)
+#                             #     < snap_threshold
+#                             # ):
+#                             #     other = substring(
+#                             #         other,
+#                             #         0,
+#                             #         other.length - snap_threshold,
+#                             #         normalized=False,
+#                             #     )
 
-            candidate_split_ls = resolve_split_to_ls(trace_candidate, trace)
-            for endp in candidate_endpoints:
-                if len(candidate_split_ls) > 1 and any(
-                    [
-                        np.isclose(cand.distance(endp), 0, atol=1e-4)
-                        for cand in candidate_split_ls
-                    ]
-                ):
-                    continue
-                distances_to_other_traces = trace_candidates.geometry.distance(
-                    endp
-                ).values
-                # TODO: Gather earlier (but use same filtering) to avoid repetition
-                distance_to_current_trace = endp.distance(trace)
-                # Check if node is closer to some other trace instead of
-                # current. Sum must be higher than 1 because the trace which
-                # the endpoint belongs to is always closest (naturally).
-                if (
-                    sum(
-                        [
-                            dist_other < distance_to_current_trace
-                            for dist_other in distances_to_other_traces
-                        ]
-                    )
-                    > 1
-                ):
-                    # Do not insert to current trace if node is closer to some
-                    # other trace.
-                    continue
-                trace = insert_point_to_linestring(trace, endp)
-                any_changed_applied = True
+#             candidate_split_ls = resolve_split_to_ls(trace_candidate, trace)
+#             for endp in candidate_endpoints:
+#                 if len(candidate_split_ls) > 1 and any(
+#                     [
+#                         np.isclose(cand.distance(endp), 0, atol=1e-4)
+#                         for cand in candidate_split_ls
+#                     ]
+#                 ):
+#                     continue
+#                 distances_to_other_traces = trace_candidates.geometry.distance(
+#                     endp
+#                 ).values
+#                 # TODO: Gather earlier (but use same filtering) to avoid repetition
+#                 distance_to_current_trace = endp.distance(trace)
+#                 # Check if node is closer to some other trace instead of
+#                 # current. Sum must be higher than 1 because the trace which
+#                 # the endpoint belongs to is always closest (naturally).
+#                 if (
+#                     sum(
+#                         [
+#                             dist_other < distance_to_current_trace
+#                             for dist_other in distances_to_other_traces
+#                         ]
+#                     )
+#                     > 1
+#                 ):
+#                     # Do not insert to current trace if node is closer to some
+#                     # other trace.
+#                     continue
+#                 trace = insert_point_to_linestring(trace, endp)
+#                 any_changed_applied = True
 
-        snapped_traces.append(trace)
-    assert len(snapped_traces) == len(traces)
-    assert all([isinstance(ls, LineString) for ls in snapped_traces])
-    return gpd.GeoSeries(snapped_traces), any_changed_applied
+#         snapped_traces.append(trace)
+#     assert len(snapped_traces) == len(traces)
+#     assert all([isinstance(ls, LineString) for ls in snapped_traces])
+#     return gpd.GeoSeries(snapped_traces), any_changed_applied
 
 
 def snap_traces_v2(
@@ -988,67 +1020,211 @@ def snap_traces_v2(
     # Only handle LineStrings
     assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
 
-    # Mark if any snapping must be done
-    any_changed_applied = False
-
     # Spatial index for traces
     traces_spatial_index = pygeos_spatial_index(geodataset=traces)
 
     # Collect snapped (and non-snapped) traces to list
-    snapped_traces: List[LineString] = []
-    for idx, trace in enumerate(traces.geometry.values):
-        assert isinstance(trace, LineString)
-
-        # Get trace bounds and extend them
-        minx, miny, maxx, maxy = trace.bounds
-        extended_bounds = (
-            minx - snap_threshold * 20,
-            miny - snap_threshold * 20,
-            maxx + snap_threshold * 20,
-            maxy + snap_threshold * 20,
-        )
-
-        # Use extended trace bounds to catch all possible
-        trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
-
-        # Do not check currect trace
-        trace_candidate_idxs.remove(idx)
-
-        # Filter to only candidates based on spatial index
-        trace_candidates = traces.iloc[trace_candidate_idxs]
-
-        # If no candidates -> no intersecting -> trace is isolated
-        if len(trace_candidates) == 0:
-            snapped_traces.append(trace)
-            continue
-
-        for trace_candidate in trace_candidates.geometry.values:
-
-            endpoints = list(get_trace_endpoints(trace_candidate))
-            if areas is not None:
-                endpoints = [
-                    ep
-                    for ep in endpoints
-                    if not is_endpoint_close_to_boundary(
-                        ep, areas, snap_threshold=snap_threshold
-                    )
-                ]
-
-            trace, was_snapped = snap_trace_to_another(
-                trace_endpoints=endpoints, another=trace, snap_threshold=snap_threshold
+    snapped_traces, changes = zip(
+        *[
+            snap_trace(
+                idx,
+                trace,
+                snap_threshold,
+                traces,
+                traces_spatial_index,
+                areas,
+                final_allowed_loop=final_allowed_loop,
             )
-            if final_allowed_loop and was_snapped:
-                # Print debugging information before execution is stopped upstream.
-                logging.error("In final loop and still snapping.")
-                logging.error(f"{trace_candidate.wkt, trace.wkt}")
-
-            # Check if snapping was done
-            any_changed_applied = any([any_changed_applied, was_snapped])
-        snapped_traces.append(trace)
+            for idx, trace in enumerate(traces.geometry.values)
+        ]
+    )
 
     assert len(snapped_traces) == traces.shape[0]
     assert all([isinstance(ls, LineString) for ls in snapped_traces])
-    return gpd.GeoSeries(snapped_traces), any_changed_applied
+    return gpd.GeoSeries(snapped_traces), any(changes)
+
+
+def snap_trace(
+    idx: int,
+    trace: LineString,
+    snap_threshold: float,
+    traces: gpd.GeoSeries,
+    traces_spatial_index: PyGEOSSTRTreeIndex,
+    areas: Optional[gpd.GeoSeries],
+    final_allowed_loop: bool = False,
+) -> Tuple[LineString, bool]:
+    """
+    Determine whether and how to snap `trace` to `traces`.
+
+    >>> idx = 0
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> snap_threshold = 0.001
+    >>> traces = gpd.GeoSeries([trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> traces_spatial_index = pygeos_spatial_index(traces)
+    >>> areas = None
+    >>> snapped = snap_trace(
+    ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
+    ... )
+    >>> snapped[0].wkt, snapped[1]
+    ('LINESTRING (0 0, 1 0, 2 0, 3.0001 0)', True)
+    """
+    assert isinstance(trace, LineString)
+
+    # Get trace bounds and extend them
+    # minx, miny, maxx, maxy = trace.bounds
+    minx, miny, maxx, maxy = geom_bounds(trace)
+    extended_bounds = (
+        minx - snap_threshold * 20,
+        miny - snap_threshold * 20,
+        maxx + snap_threshold * 20,
+        maxy + snap_threshold * 20,
+    )
+
+    # Use extended trace bounds to catch all possible intersecting traces
+    trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+
+    # Do not check currect trace
+    trace_candidate_idxs.remove(idx)
+
+    # Filter to only candidates based on spatial index
+    trace_candidates = traces.iloc[trace_candidate_idxs]
+
+    # If no candidates -> no intersecting -> trace is isolated
+    if len(trace_candidates) == 0:
+        return trace, False
+
+    # Get all endpoints of trace_candidates
+    endpoints: List[Point] = list(
+        chain(
+            *[
+                list(get_trace_endpoints(trace_candidate))
+                for trace_candidate in trace_candidates.geometry.values
+            ]
+        )
+    )
+
+    # Handle simple case where trace can be extended to meet an absolute
+    # coordinate point already in one of the candidates
+    trace, was_simple_snapped = simple_snap(trace, trace_candidates, snap_threshold)
+
+    # Filter endpoints out that are near to the area boundary
+    if areas is not None:
+        endpoints = [
+            ep
+            for ep in endpoints
+            if not is_endpoint_close_to_boundary(
+                ep, areas, snap_threshold=snap_threshold
+            )
+        ]
+
+    # Add/replace endpoints into trace if they are within snap_threshold
+    trace, was_snapped = snap_trace_to_another(
+        trace_endpoints=endpoints, another=trace, snap_threshold=snap_threshold
+    )
+
+    # Debugging
+    if final_allowed_loop and was_snapped:
+        logging.error("In final_allowed_loop and still snapping:")
+        logging.error(f"{traces, endpoints}")
+
+    # Return trace and information if it was changed
+    return trace, any([was_simple_snapped, was_snapped])
+
+
+def simple_snap(
+    trace: LineString, trace_candidates: gpd.GeoSeries, snap_threshold: float
+) -> Tuple[LineString, bool]:
+    """
+    Modify conditionally trace to snap to any of trace_candidates.
+
+    E.g.
+
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> trace_candidates = gpd.GeoSeries([LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> snap_threshold = 0.001
+    >>> snapped = simple_snap(trace, trace_candidates, snap_threshold)
+    >>> snapped[0].wkt, snapped[1]
+    ('LINESTRING (0 0, 1 0, 2 0, 3.0001 0)', True)
+
+    Do not snap overlapping.
+
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3.0002, 0)])
+    >>> trace_candidates = gpd.GeoSeries([LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> snap_threshold = 0.001
+    >>> snapped = simple_snap(trace, trace_candidates, snap_threshold)
+    >>> snapped[0].wkt, snapped[1]
+    ('LINESTRING (0 0, 1 0, 2 0, 3.0002 0)', False)
+    """
+    trace_endpoints = get_trace_endpoints(trace)
+    traces_to_snap_to = [
+        candidate
+        for candidate in trace_candidates.geometry.values
+        if any(
+            [
+                endpoint.distance(candidate) < snap_threshold
+                for endpoint in trace_endpoints
+            ]
+        )
+    ]
+    replace_endpoint: Dict[str, str] = dict()
+    for trace_to_snap_to in traces_to_snap_to:
+        assert isinstance(trace_to_snap_to, LineString)
+
+        # Get all coordinate points of trace_to_snap_to
+        coord_points = get_trace_coord_points(trace_to_snap_to)
+
+        # Check both trace endpoints
+        for endpoint in trace_endpoints:
+
+            # Check for already existing snap
+            if any([endpoint.intersects(coord_point) for coord_point in coord_points]):
+                # Already snapped
+                continue
+            # Get distances between endpoint in coord_points
+            distances: List[float] = [
+                coord_point.distance(endpoint) for coord_point in coord_points
+            ]
+            # If not within snap_threshold -> continue
+            if not min(distances) < snap_threshold:
+                continue
+
+            # Get intersection points
+            intersection_points = line_intersection_to_points(
+                first=trace, second=trace_to_snap_to
+            )
+            # Check for overlapping snap
+            if any(
+                [
+                    intersection_point.distance(endpoint) < snap_threshold
+                    for intersection_point in intersection_points
+                ]
+            ):
+                # Overlapping snap
+                # These are not fixed here and fallback to the other snapping
+                # method
+                continue
+
+            sorted_points = sorted(
+                zip(coord_points, distances), key=lambda vals: vals[1]
+            )
+            assert endpoint.wkt not in replace_endpoint
+            replace_endpoint[endpoint.wkt] = sorted_points[0][0].wkt
+
+    # If not replacing is done -> return original
+    if len(replace_endpoint) == 0:
+        return trace, False
+
+    # Replace one of the endpoints based on replace_endpoint
+    trace_coords = get_trace_coord_points(trace)
+    trace_coords = [
+        point
+        if point.wkt not in replace_endpoint
+        else loads(replace_endpoint[point.wkt])
+        for point in trace_coords
+    ]
+
+    # Return modified
+    return LineString(trace_coords), True
 
 
 def determine_nodes(
@@ -1297,7 +1473,6 @@ def snap_trace_to_another(
 
     I.e. modifies and returns `another` instead of `trace`.
     """
-
     # Do nothing if endpoints of trace are not within snap_threshold.
     # Or if endpoint is already exact
     endpoints = [
@@ -1321,7 +1496,6 @@ def is_endpoint_close_to_boundary(
     """
     Check if endpoint is within snap_threshold of areas boundaries.
     """
-
     for area in areas.geometry.values:
         assert isinstance(area, Polygon)
         if endpoint.distance(area.boundary) < snap_threshold:
