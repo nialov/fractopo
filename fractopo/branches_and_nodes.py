@@ -5,11 +5,11 @@ branches_and_nodes is the main entrypoint.
 """
 import logging
 from itertools import chain, combinations
-from typing import List, Optional, Tuple, Union, Dict
+from typing import Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
+from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -18,14 +18,9 @@ from shapely.geometry import (
     Point,
     Polygon,
 )
-from shapely.wkt import loads
-from shapely.ops import linemerge, substring, unary_union, split
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from shapely.ops import unary_union
 
 from fractopo.general import (
-        geom_bounds,
-    line_intersection_to_points,
-    pygeos_spatial_index,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     GEOMETRY_COLUMN,
@@ -42,11 +37,12 @@ from fractopo.general import (
     Y_node,
     crop_to_target_areas,
     determine_valid_intersection_points,
+    geom_bounds,
     get_trace_coord_points,
     get_trace_endpoints,
-    resolve_split_to_ls,
+    line_intersection_to_points,
+    pygeos_spatial_index,
 )
-from fractopo.tval.trace_validation_utils import determine_middle_in_triangle
 
 
 def remove_identical_sindex(
@@ -405,96 +401,96 @@ def angle_to_point(
     return np.rad2deg(rad_angle)
 
 
-def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
-    """
-    Insert given point to given trace LineString.
+# def insert_point_to_linestring(trace: LineString, point: Point) -> LineString:
+#     """
+#     Insert given point to given trace LineString.
 
-    The point location is determined to fit into the LineString without
-    changing the geometrical order of LineString vertices
-    (which only makes sense if LineString is sublinear.)
+#     The point location is determined to fit into the LineString without
+#     changing the geometrical order of LineString vertices
+#     (which only makes sense if LineString is sublinear.)
 
-    TODO/Note: Does not work for 2.5D geometries (Z-coordinates).
-    Z-coordinates will be lost.
+#     TODO/Note: Does not work for 2.5D geometries (Z-coordinates).
+#     Z-coordinates will be lost.
 
-    E.g.
+#     E.g.
 
-    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> point = Point(1.25, 0.1)
-    >>> insert_point_to_linestring(trace, point).wkt
-    'LINESTRING (0 0, 1 0, 1.25 0.1, 2 0, 3 0)'
+#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+#     >>> point = Point(1.25, 0.1)
+#     >>> insert_point_to_linestring(trace, point).wkt
+#     'LINESTRING (0 0, 1 0, 1.25 0.1, 2 0, 3 0)'
 
-    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> point = Point(2.25, 0.1)
-    >>> insert_point_to_linestring(trace, point).wkt
-    'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
+#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+#     >>> point = Point(2.25, 0.1)
+#     >>> insert_point_to_linestring(trace, point).wkt
+#     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
-    """
-    assert isinstance(trace, LineString)
-    assert isinstance(point, Point)
-    if trace.has_z:
-        logging.warning("Trace contains z-coordinates. These will be lost.")
-    if point.has_z:
-        logging.warning("Point contains z-coordinates. These will be lost.")
+#     """
+#     assert isinstance(trace, LineString)
+#     assert isinstance(point, Point)
+#     if trace.has_z:
+#         logging.warning("Trace contains z-coordinates. These will be lost.")
+#     if point.has_z:
+#         logging.warning("Point contains z-coordinates. These will be lost.")
 
-    if any([point.intersects(Point(xy)) for xy in trace.coords]):
-        logging.error(
-            "Point already matches a coordinate point in trace.\n"
-            f"point: {point.wkt}, trace: {trace.wkt}\n"
-            "Returning original trace without changes."
-        )
-        return trace
-    t_points_gdf = gpd.GeoDataFrame(
-        {
-            GEOMETRY_COLUMN: [Point(c) for c in trace.coords],
-            "distances": [Point(c).distance(point) for c in trace.coords],
-        }
-    )
-    t_points_gdf.sort_values(by="distances", inplace=True)
-    nearest_point = t_points_gdf.iloc[0].geometry
-    assert isinstance(nearest_point, Point)
-    nearest_point_idx = t_points_gdf.iloc[0].name
-    if nearest_point_idx == 0:
-        # It is the first node of linestring
-        add_before = nearest_point_idx + 1
-    elif nearest_point_idx == max(t_points_gdf.index):
-        # It is the last node of linestring
-        add_before = nearest_point_idx
-    else:
-        # It is in the middle of the linestring
-        points_on_either_side = t_points_gdf.loc[
-            [nearest_point_idx - 1, nearest_point_idx + 1]
-        ]
+#     if any([point.intersects(Point(xy)) for xy in trace.coords]):
+#         logging.error(
+#             "Point already matches a coordinate point in trace.\n"
+#             f"point: {point.wkt}, trace: {trace.wkt}\n"
+#             "Returning original trace without changes."
+#         )
+#         return trace
+#     t_points_gdf = gpd.GeoDataFrame(
+#         {
+#             GEOMETRY_COLUMN: [Point(c) for c in trace.coords],
+#             "distances": [Point(c).distance(point) for c in trace.coords],
+#         }
+#     )
+#     t_points_gdf.sort_values(by="distances", inplace=True)
+#     nearest_point = t_points_gdf.iloc[0].geometry
+#     assert isinstance(nearest_point, Point)
+#     nearest_point_idx = t_points_gdf.iloc[0].name
+#     if nearest_point_idx == 0:
+#         # It is the first node of linestring
+#         add_before = nearest_point_idx + 1
+#     elif nearest_point_idx == max(t_points_gdf.index):
+#         # It is the last node of linestring
+#         add_before = nearest_point_idx
+#     else:
+#         # It is in the middle of the linestring
+#         points_on_either_side = t_points_gdf.loc[
+#             [nearest_point_idx - 1, nearest_point_idx + 1]
+#         ]
 
-        points_on_either_side["angle"] = list(
-            map(
-                lambda p: angle_to_point(point, nearest_point, p),
-                points_on_either_side.geometry,
-            )
-        )
-        assert sum(points_on_either_side["angle"] == 0.0) < 2
-        smallest_angle_idx = points_on_either_side.sort_values(by="angle").iloc[0].name
-        if smallest_angle_idx > nearest_point_idx:
-            add_before = smallest_angle_idx
-        else:
-            add_before = nearest_point_idx
+#         points_on_either_side["angle"] = list(
+#             map(
+#                 lambda p: angle_to_point(point, nearest_point, p),
+#                 points_on_either_side.geometry,
+#             )
+#         )
+#         assert sum(points_on_either_side["angle"] == 0.0) < 2
+#         smallest_angle_idx = points_on_either_side.sort_values(by="angle").iloc[0].name
+#         if smallest_angle_idx > nearest_point_idx:
+#             add_before = smallest_angle_idx
+#         else:
+#             add_before = nearest_point_idx
 
-    t_coords = list(trace.coords)
-    t_coords.insert(add_before, tuple(*point.coords))
-    # Closest points might not actually be the points which inbetween the
-    # point is added. Have to use project and interpolate (?)
-    # print(t_coords)
-    new_trace = LineString(t_coords)
-    # print(new_trace.wkt)
-    assert new_trace.intersects(point)
-    assert isinstance(new_trace, LineString)
-    assert new_trace.is_valid
-    # assert new_trace.is_simple
-    if not new_trace.is_simple:
-        logging.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
-    return new_trace
+#     t_coords = list(trace.coords)
+#     t_coords.insert(add_before, tuple(*point.coords))
+#     # Closest points might not actually be the points which inbetween the
+#     # point is added. Have to use project and interpolate (?)
+#     # print(t_coords)
+#     new_trace = LineString(t_coords)
+#     # print(new_trace.wkt)
+#     assert new_trace.intersects(point)
+#     assert isinstance(new_trace, LineString)
+#     assert new_trace.is_valid
+#     # assert new_trace.is_simple
+#     if not new_trace.is_simple:
+#         logging.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
+#     return new_trace
 
 
-def insert_point_to_linestring_v2(
+def insert_point_to_linestring(
     trace: LineString, point: Point, snap_threshold: float
 ) -> LineString:
     """
@@ -511,12 +507,12 @@ def insert_point_to_linestring_v2(
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> point = Point(1.25, 0.1)
-    >>> insert_point_to_linestring_v2(trace, point, 0.01).wkt
+    >>> insert_point_to_linestring(trace, point, 0.01).wkt
     'LINESTRING (0 0, 1 0, 1.25 0.1, 2 0, 3 0)'
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> point = Point(2.25, 0.1)
-    >>> insert_point_to_linestring_v2(trace, point, 0.01).wkt
+    >>> insert_point_to_linestring(trace, point, 0.01).wkt
     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
     """
@@ -611,194 +607,196 @@ def determine_insert_approach(
     return idx, insert
 
 
-def additional_snapping_func(
-    trace: LineString, idx: int, additional_snapping: List[Tuple[int, Point]]
-) -> LineString:
-    """
-    Insert points into LineStrings to make sure trace abutting trace.
+# def additional_snapping_func(
+#     trace: LineString, idx: int, additional_snapping: List[Tuple[int, Point]]
+# ) -> LineString:
+#     """
+#     Insert points into LineStrings to make sure trace abutting trace.
 
-    E.g.
+#     E.g.
 
-    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> idx = 0
-    >>> point = Point(2.25, 0.1)
-    >>> additional_snapping = [
-    ...     (0, point),
-    ...     ]
-    >>> additional_snapping_func(trace, idx, additional_snapping).wkt
-    'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
+#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+#     >>> idx = 0
+#     >>> point = Point(2.25, 0.1)
+#     >>> additional_snapping = [
+#     ...     (0, point),
+#     ...     ]
+#     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
+#     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
-    When idx doesn't match -> no additional snapping
+#     When idx doesn't match -> no additional snapping
 
-    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> idx = 1
-    >>> point = Point(2.25, 0.1)
-    >>> additional_snapping = [
-    ...     (0, point),
-    ...     ]
-    >>> additional_snapping_func(trace, idx, additional_snapping).wkt
-    'LINESTRING (0 0, 1 0, 2 0, 3 0)'
+#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+#     >>> idx = 1
+#     >>> point = Point(2.25, 0.1)
+#     >>> additional_snapping = [
+#     ...     (0, point),
+#     ...     ]
+#     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
+#     'LINESTRING (0 0, 1 0, 2 0, 3 0)'
 
-    """
-    indexes_to_fix, points_to_add = zip(*additional_snapping)
-    if idx in indexes_to_fix:
-        df = pd.DataFrame(
-            {"indexes_to_fix": indexes_to_fix, "points_to_add": points_to_add}
-        )
-        df = df.loc[df["indexes_to_fix"] == idx]
-        for p in df["points_to_add"].values:
-            trace = insert_point_to_linestring(trace, p)
-        assert isinstance(trace, LineString)
-        return trace
+#     """
+#     indexes_to_fix, points_to_add = zip(*additional_snapping)
+#     if idx in indexes_to_fix:
+#         df = pd.DataFrame(
+#             {"indexes_to_fix": indexes_to_fix, "points_to_add": points_to_add}
+#         )
+#         df = df.loc[df["indexes_to_fix"] == idx]
+#         for p in df["points_to_add"].values:
+#             trace = insert_point_to_linestring(trace, p)
+#         assert isinstance(trace, LineString)
+#         return trace
 
-    else:
-        return trace
-
-
-def snap_traces(
-    traces: gpd.GeoSeries,
-    snap_threshold: float,
-    areas: Optional[Union[gpd.GeoDataFrame, gpd.GeoSeries]] = None,
-    final_allowed_loop: bool = False,
-) -> Tuple[gpd.GeoSeries, bool]:
-    """
-    Snap traces to end exactly at other traces.
-
-    E.g. when within snap_threshold:
-
-    >>> traces = gpd.GeoSeries(
-    ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
-    ...     )
-    >>> snap_threshold = 0.001
-    >>> snap_traces(traces, snap_threshold)
-    (0    LINESTRING (1.00000 1.00000, 2.00000 2.00000, ...
-    1       LINESTRING (2.00000 2.00000, -2.00000 5.00000)
-    dtype: geometry, True)
-
-    TODO: Too complex and messy. But works...
-
-    """
-    if areas is None:
-        logging.warning("Areas not given to snap_traces. Results may vary.")
-    traces.reset_index(drop=True, inplace=True)
-    any_changed_applied = False
-    traces_spatial_index = traces.sindex
-    snapped_traces: List[LineString]
-    snapped_traces = []
-    additional_snapping: List[Point]
-    additional_snapping = []
-    trace: LineString
-    idx: int
-    for idx, trace in enumerate(traces):
-        minx, miny, maxx, maxy = trace.bounds
-        extended_bounds = (
-            minx - snap_threshold * 10,
-            miny - snap_threshold * 10,
-            maxx + snap_threshold * 10,
-            maxy + snap_threshold * 10,
-        )
-        trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
-        trace_candidate_idxs.remove(idx)
-        trace_candidates = traces.iloc[trace_candidate_idxs]
-        if len(trace_candidates) == 0:
-            snapped_traces.append(trace)
-            continue
-        # get_trace_endpoints returns ls[0] and then ls[-1]
-        endpoints = get_trace_endpoints(trace)
-        snapped_endpoints: List[Point]
-        snapped_endpoints = []
-        n: Point
-        for n in endpoints:
-            if areas is not None and any(
-                [
-                    n.distance(area.boundary) < snap_threshold
-                    for area in areas.geometry.values
-                ]
-            ):
-                # Do not try to snap traces near target area boundary
-                snapped_endpoints.append(n)
-                continue
-            how_many_n_intersects = sum(trace_candidates.intersects(n))
-            if how_many_n_intersects == 1:
-                snapped_endpoints.append(n)
-                continue
-            elif how_many_n_intersects > 1:
-                logging.warning(
-                    "Endpoint intersects more than two traces?\n"
-                    f"Endpoint: {n.wkt}\n"
-                    f"how_many_n_intersects: {how_many_n_intersects}\n"
-                    f"trace_candidates: {[t.wkt for t in trace_candidates]}\n"
-                )
-            distances_less_than = trace_candidates.distance(n) < snap_threshold
-            traces_to_snap_to = trace_candidates[distances_less_than]
-            if len(traces_to_snap_to) == 1:
-                any_changed_applied = True
-                traces_to_snap_to_vertices = gpd.GeoSeries(
-                    [Point(c) for c in traces_to_snap_to.geometry.iloc[0].coords]
-                )
-                # vertice_intersects = traces_to_snap_to_vertices.intersects(
-                #     n.buffer(snap_threshold)
-                # )
-                vertice_intersects = (
-                    traces_to_snap_to_vertices.distance(n) < snap_threshold
-                )
-                if sum(vertice_intersects) > 0:
-                    # Snap endpoint to the vertice of the trace in which abutting trace
-                    # abuts.
-                    new_n = traces_to_snap_to_vertices.loc[vertice_intersects].iloc[0]
-                    assert isinstance(new_n, Point)
-                    snapped_endpoints.append(
-                        traces_to_snap_to_vertices[vertice_intersects].iloc[0]
-                    )
-                else:
-                    # Other trace must be snapped to a vertice to assure
-                    # that they intersect. I.e. a new vertice is added into
-                    # the middle of the other trace.
-                    # This is handled later.
-                    t_idx = traces_to_snap_to.index.values[0]
-                    additional_snapping.append((t_idx, n))
-
-                    snapped_endpoints.append(n)
-            elif len(traces_to_snap_to) == 0:
-                snapped_endpoints.append(n)
-            else:
-                logging.warning(
-                    "Trace endpoint is within the snap threshold"
-                    " of two traces.\n"
-                    f"No Snapping was done.\n"
-                    f"endpoints: {list(map(lambda p: p.wkt, endpoints))}\n"
-                    f"distances: {distances_less_than}\n"
-                    f"traces_to_snap_to: {traces_to_snap_to}\n"
-                )
-                snapped_endpoints.append(n)
-        assert len(snapped_endpoints) == len(endpoints)
-        # Original coords
-        trace_coords = [point for point in trace.coords]
-        assert all([isinstance(tc, tuple) for tc in trace_coords])
-        trace_coords[0] = tuple(*snapped_endpoints[0].coords)
-        trace_coords[-1] = tuple(*snapped_endpoints[-1].coords)
-        snapped_traces.append(LineString(trace_coords))
-
-    if final_allowed_loop:
-        # Print debugging information before execution is stopped upstream.
-        logging.error("In final loop and still snapping.")
-        logging.error(f"{additional_snapping=}")
-    # Handle additional_snapping
-    if len(additional_snapping) != 0:
-        snapped_traces = list(
-            map(
-                lambda idx, val: additional_snapping_func(
-                    val, idx, additional_snapping
-                ),
-                *zip(*enumerate(snapped_traces)),
-            )
-        )
-
-    assert len(snapped_traces) == len(traces)
-    return gpd.GeoSeries(snapped_traces), any_changed_applied
+#     else:
+#         return trace
 
 
-def true_candidate_endpoints(trace, trace_candidate, snap_threshold) -> List[Point]:
+# def snap_traces(
+#     traces: gpd.GeoSeries,
+#     snap_threshold: float,
+#     areas: Optional[Union[gpd.GeoDataFrame, gpd.GeoSeries]] = None,
+#     final_allowed_loop: bool = False,
+# ) -> Tuple[gpd.GeoSeries, bool]:
+#     """
+#     Snap traces to end exactly at other traces.
+
+#     E.g. when within snap_threshold:
+
+#     >>> traces = gpd.GeoSeries(
+#     ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
+#     ...     )
+#     >>> snap_threshold = 0.001
+#     >>> snap_traces(traces, snap_threshold)
+#     (0    LINESTRING (1.00000 1.00000, 2.00000 2.00000, ...
+#     1       LINESTRING (2.00000 2.00000, -2.00000 5.00000)
+#     dtype: geometry, True)
+
+#     TODO: Too complex and messy. But works...
+
+#     """
+#     if areas is None:
+#         logging.warning("Areas not given to snap_traces. Results may vary.")
+#     traces.reset_index(drop=True, inplace=True)
+#     any_changed_applied = False
+#     traces_spatial_index = traces.sindex
+#     snapped_traces: List[LineString]
+#     snapped_traces = []
+#     additional_snapping: List[Point]
+#     additional_snapping = []
+#     trace: LineString
+#     idx: int
+#     for idx, trace in enumerate(traces):
+#         minx, miny, maxx, maxy = trace.bounds
+#         extended_bounds = (
+#             minx - snap_threshold * 10,
+#             miny - snap_threshold * 10,
+#             maxx + snap_threshold * 10,
+#             maxy + snap_threshold * 10,
+#         )
+#         trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+#         trace_candidate_idxs.remove(idx)
+#         trace_candidates = traces.iloc[trace_candidate_idxs]
+#         if len(trace_candidates) == 0:
+#             snapped_traces.append(trace)
+#             continue
+#         # get_trace_endpoints returns ls[0] and then ls[-1]
+#         endpoints = get_trace_endpoints(trace)
+#         snapped_endpoints: List[Point]
+#         snapped_endpoints = []
+#         n: Point
+#         for n in endpoints:
+#             if areas is not None and any(
+#                 [
+#                     n.distance(area.boundary) < snap_threshold
+#                     for area in areas.geometry.values
+#                 ]
+#             ):
+#                 # Do not try to snap traces near target area boundary
+#                 snapped_endpoints.append(n)
+#                 continue
+#             how_many_n_intersects = sum(trace_candidates.intersects(n))
+#             if how_many_n_intersects == 1:
+#                 snapped_endpoints.append(n)
+#                 continue
+#             elif how_many_n_intersects > 1:
+#                 logging.warning(
+#                     "Endpoint intersects more than two traces?\n"
+#                     f"Endpoint: {n.wkt}\n"
+#                     f"how_many_n_intersects: {how_many_n_intersects}\n"
+#                     f"trace_candidates: {[t.wkt for t in trace_candidates]}\n"
+#                 )
+#             distances_less_than = trace_candidates.distance(n) < snap_threshold
+#             traces_to_snap_to = trace_candidates[distances_less_than]
+#             if len(traces_to_snap_to) == 1:
+#                 any_changed_applied = True
+#                 traces_to_snap_to_vertices = gpd.GeoSeries(
+#                     [Point(c) for c in traces_to_snap_to.geometry.iloc[0].coords]
+#                 )
+#                 # vertice_intersects = traces_to_snap_to_vertices.intersects(
+#                 #     n.buffer(snap_threshold)
+#                 # )
+#                 vertice_intersects = (
+#                     traces_to_snap_to_vertices.distance(n) < snap_threshold
+#                 )
+#                 if sum(vertice_intersects) > 0:
+#                     # Snap endpoint to the vertice of the trace in which abutting trace
+#                     # abuts.
+#                     new_n = traces_to_snap_to_vertices.loc[vertice_intersects].iloc[0]
+#                     assert isinstance(new_n, Point)
+#                     snapped_endpoints.append(
+#                         traces_to_snap_to_vertices[vertice_intersects].iloc[0]
+#                     )
+#                 else:
+#                     # Other trace must be snapped to a vertice to assure
+#                     # that they intersect. I.e. a new vertice is added into
+#                     # the middle of the other trace.
+#                     # This is handled later.
+#                     t_idx = traces_to_snap_to.index.values[0]
+#                     additional_snapping.append((t_idx, n))
+
+#                     snapped_endpoints.append(n)
+#             elif len(traces_to_snap_to) == 0:
+#                 snapped_endpoints.append(n)
+#             else:
+#                 logging.warning(
+#                     "Trace endpoint is within the snap threshold"
+#                     " of two traces.\n"
+#                     f"No Snapping was done.\n"
+#                     f"endpoints: {list(map(lambda p: p.wkt, endpoints))}\n"
+#                     f"distances: {distances_less_than}\n"
+#                     f"traces_to_snap_to: {traces_to_snap_to}\n"
+#                 )
+#                 snapped_endpoints.append(n)
+#         assert len(snapped_endpoints) == len(endpoints)
+#         # Original coords
+#         trace_coords = [point for point in trace.coords]
+#         assert all([isinstance(tc, tuple) for tc in trace_coords])
+#         trace_coords[0] = tuple(*snapped_endpoints[0].coords)
+#         trace_coords[-1] = tuple(*snapped_endpoints[-1].coords)
+#         snapped_traces.append(LineString(trace_coords))
+
+#     if final_allowed_loop:
+#         # Print debugging information before execution is stopped upstream.
+#         logging.error("In final loop and still snapping.")
+#         logging.error(f"{additional_snapping=}")
+#     # Handle additional_snapping
+#     if len(additional_snapping) != 0:
+#         snapped_traces = list(
+#             map(
+#                 lambda idx, val: additional_snapping_func(
+#                     val, idx, additional_snapping
+#                 ),
+#                 *zip(*enumerate(snapped_traces)),
+#             )
+#         )
+
+#     assert len(snapped_traces) == len(traces)
+#     return gpd.GeoSeries(snapped_traces), any_changed_applied
+
+
+def true_candidate_endpoints(
+    trace: LineString, trace_candidate: LineString, snap_threshold: float
+) -> List[Point]:
     """
     Determine if trace candidate endpoints qualify for snapping.
     """
@@ -811,16 +809,6 @@ def true_candidate_endpoints(trace, trace_candidate, snap_threshold) -> List[Poi
 
     trace_endpoints = get_trace_endpoints(trace)
 
-    # candidate_endpoints = []
-    # for ep in endpoint_candidates:
-    #     if ep.intersects(trace):
-    #         continue
-    #     elif any(
-    #         [ep.distance(trace_ep) < snap_threshold for trace_ep in trace_endpoints]
-    #     ):
-    #         continue
-    #     else:
-    #         candidate_endpoints.append(ep)
     return [
         ep
         for ep in endpoint_candidates
@@ -1005,7 +993,7 @@ def true_candidate_endpoints(trace, trace_candidate, snap_threshold) -> List[Poi
 #     return gpd.GeoSeries(snapped_traces), any_changed_applied
 
 
-def snap_traces_v2(
+def snap_traces(
     traces: gpd.GeoSeries,
     snap_threshold: float,
     areas: Optional[gpd.GeoSeries] = None,
@@ -1024,49 +1012,53 @@ def snap_traces_v2(
     traces_spatial_index = pygeos_spatial_index(geodataset=traces)
 
     # Collect snapped (and non-snapped) traces to list
-    snapped_traces, changes = zip(
+    simply_snapped_traces, simple_changes = zip(
         *[
-            snap_trace(
+            snap_trace_simple(
                 idx,
                 trace,
                 snap_threshold,
                 traces,
                 traces_spatial_index,
-                areas,
                 final_allowed_loop=final_allowed_loop,
             )
             for idx, trace in enumerate(traces.geometry.values)
         ]
     )
+    assert len(simply_snapped_traces) == traces.shape[0]
+    simply_snapped_traces_geosrs = gpd.GeoSeries(simply_snapped_traces)
 
-    assert len(snapped_traces) == traces.shape[0]
+    # Collect snapped (and non-snapped) traces to list
+    snapped_traces, changes = zip(
+        *[
+            snap_others_to_trace(
+                idx,
+                trace,
+                snap_threshold,
+                simply_snapped_traces_geosrs,
+                traces_spatial_index,
+                areas,
+                final_allowed_loop=final_allowed_loop,
+            )
+            for idx, trace in enumerate(simply_snapped_traces)
+        ]
+    )
+
+    assert len(snapped_traces) == traces.shape[0] == len(simply_snapped_traces)
     assert all([isinstance(ls, LineString) for ls in snapped_traces])
-    return gpd.GeoSeries(snapped_traces), any(changes)
+    return gpd.GeoSeries(snapped_traces), any(changes + simple_changes)
 
 
-def snap_trace(
+def snap_trace_simple(
     idx: int,
     trace: LineString,
     snap_threshold: float,
     traces: gpd.GeoSeries,
     traces_spatial_index: PyGEOSSTRTreeIndex,
-    areas: Optional[gpd.GeoSeries],
     final_allowed_loop: bool = False,
 ) -> Tuple[LineString, bool]:
     """
-    Determine whether and how to snap `trace` to `traces`.
-
-    >>> idx = 0
-    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> snap_threshold = 0.001
-    >>> traces = gpd.GeoSeries([trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
-    >>> traces_spatial_index = pygeos_spatial_index(traces)
-    >>> areas = None
-    >>> snapped = snap_trace(
-    ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
-    ... )
-    >>> snapped[0].wkt, snapped[1]
-    ('LINESTRING (0 0, 1 0, 2 0, 3.0001 0)', True)
+    Determine whether and how to perform simple snap.
     """
     assert isinstance(trace, LineString)
 
@@ -1083,11 +1075,95 @@ def snap_trace(
     # Use extended trace bounds to catch all possible intersecting traces
     trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
 
-    # Do not check currect trace
     trace_candidate_idxs.remove(idx)
 
     # Filter to only candidates based on spatial index
     trace_candidates = traces.iloc[trace_candidate_idxs]
+
+    # If no candidates -> no intersecting -> trace is isolated
+    if len(trace_candidates) == 0:
+        return trace, False
+
+    # Handle simple case where trace can be extended to meet an absolute
+    # coordinate point already in one of the candidates
+    trace, was_simple_snapped = simple_snap(trace, trace_candidates, snap_threshold)
+
+    # if was_simple_snapped:
+    #     simple_snapped.append(idx)
+
+    # Debugging
+    if final_allowed_loop and was_simple_snapped:
+        logging.error("In final_allowed_loop and still snapping:")
+        logging.error(f"{traces, trace}")
+
+    # Return trace and information if it was changed
+    return trace, was_simple_snapped
+
+
+def snap_others_to_trace(
+    idx: int,
+    trace: LineString,
+    snap_threshold: float,
+    traces: gpd.GeoSeries,
+    traces_spatial_index: PyGEOSSTRTreeIndex,
+    areas: Optional[gpd.GeoSeries],
+    final_allowed_loop: bool = False,
+) -> Tuple[LineString, bool]:
+    """
+    Determine whether and how to snap `trace` to `traces`.
+
+    E.g.
+
+    Trace gets new coordinates to snap other traces to it:
+
+    >>> idx = 0
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> snap_threshold = 0.001
+    >>> traces = gpd.GeoSeries([trace, LineString([(1.5, 3), (1.5, 0.00001)])])
+    >>> traces_spatial_index = pygeos_spatial_index(traces)
+    >>> areas = None
+    >>> snapped = snap_others_to_trace(
+    ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
+    ... )
+    >>> snapped[0].wkt, snapped[1]
+    ('LINESTRING (0 0, 1 0, 1.5 1e-05, 2 0, 3 0)', True)
+
+    Trace itself is not snapped by snap_others_to_trace:
+
+    >>> idx = 0
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> snap_threshold = 0.001
+    >>> traces = gpd.GeoSeries([trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> traces_spatial_index = pygeos_spatial_index(traces)
+    >>> areas = None
+    >>> snapped = snap_others_to_trace(
+    ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
+    ... )
+    >>> snapped[0].wkt, snapped[1]
+    ('LINESTRING (0 0, 1 0, 2 0, 3 0)', False)
+    """
+    assert isinstance(trace, LineString)
+
+    # Get trace bounds and extend them
+    # minx, miny, maxx, maxy = trace.bounds
+    minx, miny, maxx, maxy = geom_bounds(trace)
+    extended_bounds = (
+        minx - snap_threshold * 20,
+        miny - snap_threshold * 20,
+        maxx + snap_threshold * 20,
+        maxy + snap_threshold * 20,
+    )
+
+    # Use extended trace bounds to catch all possible intersecting traces
+    trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+
+    # # Do not check currect trace
+    trace_candidate_idxs.remove(idx)
+
+    # Filter to only candidates based on spatial index
+    trace_candidates = traces.iloc[trace_candidate_idxs]
+
+    assert trace not in list(trace_candidates.geometry.values)
 
     # If no candidates -> no intersecting -> trace is isolated
     if len(trace_candidates) == 0:
@@ -1105,7 +1181,7 @@ def snap_trace(
 
     # Handle simple case where trace can be extended to meet an absolute
     # coordinate point already in one of the candidates
-    trace, was_simple_snapped = simple_snap(trace, trace_candidates, snap_threshold)
+    # trace, was_simple_snapped = simple_snap(trace, trace_candidates, snap_threshold)
 
     # Filter endpoints out that are near to the area boundary
     if areas is not None:
@@ -1128,7 +1204,7 @@ def snap_trace(
         logging.error(f"{traces, endpoints}")
 
     # Return trace and information if it was changed
-    return trace, any([was_simple_snapped, was_snapped])
+    return trace, was_snapped
 
 
 def simple_snap(
@@ -1140,7 +1216,9 @@ def simple_snap(
     E.g.
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> trace_candidates = gpd.GeoSeries([LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> trace_candidates = gpd.GeoSeries(
+    ...     [LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
+    ... )
     >>> snap_threshold = 0.001
     >>> snapped = simple_snap(trace, trace_candidates, snap_threshold)
     >>> snapped[0].wkt, snapped[1]
@@ -1149,7 +1227,9 @@ def simple_snap(
     Do not snap overlapping.
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3.0002, 0)])
-    >>> trace_candidates = gpd.GeoSeries([LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
+    >>> trace_candidates = gpd.GeoSeries(
+    ...     [LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
+    ... )
     >>> snap_threshold = 0.001
     >>> snapped = simple_snap(trace, trace_candidates, snap_threshold)
     >>> snapped[0].wkt, snapped[1]
@@ -1166,12 +1246,15 @@ def simple_snap(
             ]
         )
     ]
-    replace_endpoint: Dict[str, str] = dict()
+    replace_endpoint: Dict[str, Point] = dict()
     for trace_to_snap_to in traces_to_snap_to:
         assert isinstance(trace_to_snap_to, LineString)
 
-        # Get all coordinate points of trace_to_snap_to
-        coord_points = get_trace_coord_points(trace_to_snap_to)
+        # Get coordinate points of trace_to_snap_to expect endpoints
+        coord_points = get_trace_coord_points(trace_to_snap_to)[1:-1]
+        if len(coord_points) == 0:
+            # Cannot snap trace to any point as there are only endpoints
+            continue
 
         # Check both trace endpoints
         for endpoint in trace_endpoints:
@@ -1180,6 +1263,7 @@ def simple_snap(
             if any([endpoint.intersects(coord_point) for coord_point in coord_points]):
                 # Already snapped
                 continue
+
             # Get distances between endpoint in coord_points
             distances: List[float] = [
                 coord_point.distance(endpoint) for coord_point in coord_points
@@ -1208,7 +1292,7 @@ def simple_snap(
                 zip(coord_points, distances), key=lambda vals: vals[1]
             )
             assert endpoint.wkt not in replace_endpoint
-            replace_endpoint[endpoint.wkt] = sorted_points[0][0].wkt
+            replace_endpoint[endpoint.wkt] = sorted_points[0][0]
 
     # If not replacing is done -> return original
     if len(replace_endpoint) == 0:
@@ -1217,14 +1301,13 @@ def simple_snap(
     # Replace one of the endpoints based on replace_endpoint
     trace_coords = get_trace_coord_points(trace)
     trace_coords = [
-        point
-        if point.wkt not in replace_endpoint
-        else loads(replace_endpoint[point.wkt])
+        point if point.wkt not in replace_endpoint else replace_endpoint[point.wkt]
         for point in trace_coords
     ]
 
     # Return modified
-    return LineString(trace_coords), True
+    modified = LineString(trace_coords)
+    return modified, True
 
 
 def determine_nodes(
@@ -1380,7 +1463,7 @@ def branches_and_nodes(
     # TODO: snap_traces to snap_traces_alternative
     loops = 0
     traces_geosrs, any_changes_applied = snap_traces(
-        traces_geosrs, snap_threshold, areas=areas
+        traces_geosrs, snap_threshold, areas=areas_geosrs
     )
     # Snapping causes changes that might cause new errors. The snapping is looped
     # as many times as there are changed made to the data.
@@ -1390,7 +1473,7 @@ def branches_and_nodes(
             traces_geosrs,
             snap_threshold,
             final_allowed_loop=loops == allowed_loops,
-            areas=areas,
+            areas=areas_geosrs,
         )
         loops += 1
         logging.info(f"Loop :{ loops }")
@@ -1471,7 +1554,7 @@ def snap_trace_to_another(
     """
     Add point to another trace to snap trace to end at another trace.
 
-    I.e. modifies and returns `another` instead of `trace`.
+    I.e. modifies and returns `another`
     """
     # Do nothing if endpoints of trace are not within snap_threshold.
     # Or if endpoint is already exact
@@ -1485,7 +1568,9 @@ def snap_trace_to_another(
         return another, False
 
     for endpoint in endpoints:
-        another = insert_point_to_linestring(another, endpoint)
+        another = insert_point_to_linestring(
+            another, endpoint, snap_threshold=snap_threshold
+        )
 
     return another, True
 

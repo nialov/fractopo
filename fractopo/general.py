@@ -842,7 +842,6 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
 
     Enforces only Point returns.
     """
-
     intersection = first.intersection(second)
     collect_points = []
     if isinstance(intersection, LineString) and intersection.is_empty:

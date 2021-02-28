@@ -206,7 +206,7 @@ def test_insert_point_to_linestring_v2(
     """
     Test insert_point_to_linestring.
     """
-    result = branches_and_nodes.insert_point_to_linestring_v2(
+    result = branches_and_nodes.insert_point_to_linestring(
         linestring, point, snap_threshold
     )
     if assumed_result is None:
@@ -229,20 +229,20 @@ def test_insert_point_to_linestring_v2(
 #     result = branches_and_nodes.insert_point_to_linestring(linestring, point)
 
 
-def test_additional_snapping_func():
-    ls = LineString([(0, 0), (1, 1), (2, 2)])
-    idx = 0
-    p = Point(0.5, 0.5)
-    additional_snapping = [(0, p)]
-    result = branches_and_nodes.additional_snapping_func(ls, idx, additional_snapping)
-    # Assert it is in list
-    assert tuple(*p.coords) in list(result.coords)
-    # Assert index is correct
-    assert list(result.coords).index(tuple(*p.coords)) == 1
-    unchanged_result = branches_and_nodes.additional_snapping_func(
-        ls, 1, additional_snapping
-    )
-    assert unchanged_result == ls
+# def test_additional_snapping_func():
+#     ls = LineString([(0, 0), (1, 1), (2, 2)])
+#     idx = 0
+#     p = Point(0.5, 0.5)
+#     additional_snapping = [(0, p)]
+#     result = branches_and_nodes.additional_snapping_func(ls, idx, additional_snapping)
+#     # Assert it is in list
+#     assert tuple(*p.coords) in list(result.coords)
+#     # Assert index is correct
+#     assert list(result.coords).index(tuple(*p.coords)) == 1
+#     unchanged_result = branches_and_nodes.additional_snapping_func(
+#         ls, 1, additional_snapping
+#     )
+#     assert unchanged_result == ls
 
 
 def test_nice_traces():
@@ -398,8 +398,53 @@ def test_branches_and_nodes_regression(
         traces, areas, snap_threshold, allowed_loops, already_clipped
     )
 
-    branches.to_file("/mnt/f/Users/nikke/Documents/projects/Misc/dump/branches.gpkg", driver="GPKG")
-    nodes.to_file("/mnt/f/Users/nikke/Documents/projects/Misc/dump/nodes.gpkg", driver="GPKG")
-
     file_regression.check(branches.to_json() + nodes.to_json())
 
+
+def test_branches_and_nodes_troubling():
+    traces = Helpers.troubling_traces
+    areas = Helpers.sample_areas
+    snap_threshold = 0.001
+    branches, nodes = branches_and_nodes.branches_and_nodes(
+        traces, areas, snap_threshold, allowed_loops=10, already_clipped=False
+    )
+
+
+@pytest.mark.parametrize(
+    "trace,trace_candidates,snap_threshold,intersects_idx",
+    Helpers.test_simple_snap_params,
+)
+def test_simple_snap(trace, trace_candidates, snap_threshold, intersects_idx):
+    """
+    Test branches_and_nodes.simple_snap.
+    """
+    result, was_simple_snapped = branches_and_nodes.simple_snap(
+        trace, trace_candidates, snap_threshold
+    )
+    if intersects_idx is not None:
+        assert was_simple_snapped
+    assert result.intersects(trace_candidates.geometry.values[intersects_idx])
+
+
+@pytest.mark.parametrize(
+    "idx,trace,snap_threshold,traces,intersects_idx",
+    Helpers.test_snap_trace_simple_params,
+)
+def test_snap_trace_simple(
+    idx,
+    trace,
+    snap_threshold,
+    traces,
+    intersects_idx,
+):
+    traces_spatial_index = general.pygeos_spatial_index(traces)
+    result, was_simple_snapped = branches_and_nodes.snap_trace_simple(
+        idx, trace, snap_threshold, traces, traces_spatial_index
+    )
+    if intersects_idx is not None:
+        assert was_simple_snapped
+    assert result.intersects(traces.geometry.values[intersects_idx])
+
+
+if __name__ == "__main__":
+    test_branches_and_nodes_troubling()

@@ -98,7 +98,8 @@ def test_network(
         [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
     )
 
-    if network.branch_gdf.shape[0] < 500:
+    if network.branch_gdf.shape[0] < 2500:
+        # Do not check massive branch counts
         file_regression.check(network.branch_gdf.sort_index().to_json())
 
     network_attributes = dict()
@@ -107,18 +108,11 @@ def test_network(
         for key, value in getattr(network, attribute).items():
             network_attributes[key] = int(value)
 
-    network_attributes["trace_lengths_powerlaw_fit_cut_off"] = float(
-        round(network.trace_lengths_powerlaw_fit().xmin, 4)
-    )
-    network_attributes["branch_lengths_powerlaw_fit_cut_off"] = float(
-        round(network.branch_lengths_powerlaw_fit().xmin, 4)
-    )
-    network_attributes["trace_lengths_powerlaw_fit_alpha"] = float(
-        round(network.trace_lengths_powerlaw_fit().alpha, 4)
-    )
-    network_attributes["branch_lengths_powerlaw_fit_alpha"] = float(
-        round(network.branch_lengths_powerlaw_fit().alpha, 4)
-    )
+        for key, value in network.numerical_network_description().items():
+            try:
+                network_attributes[key] = value.item()
+            except AttributeError:
+                network_attributes[key] = value
 
     data_regression.check(network_attributes)
 

@@ -749,6 +749,14 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
         ),
+        (
+            kb11_traces,  # traces
+            kb11_area,  # area
+            "KB11",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+        ),
     ]
 
     test_network_random_sampler_params = [
@@ -905,6 +913,42 @@ class Helpers:
             0.001,  # snap_threshold
             10,  # allowed_loops
             False,  # already_clipped
+        )
+    ]
+
+    troubling_traces_path = Path(
+        "tests/sample_data/branches_and_nodes/traces_troubling.gpkg"
+    )
+    troubling_traces = gpd.read_file(troubling_traces_path)
+
+    troubling_upper = troubling_traces.geometry.values[1]
+    troubling_middle = troubling_traces.geometry.values[0]
+    troubling_lower = troubling_traces.geometry.values[2]
+
+    test_simple_snap_params = [
+        (
+            troubling_upper,  # trace
+            gpd.GeoSeries([troubling_middle, troubling_lower]),  # trace_candidates
+            0.001,  # snap_threshold
+            0,  # intersects_idx
+        ),
+        (
+            troubling_lower,  # trace
+            gpd.GeoSeries([troubling_middle, troubling_upper]),  # trace_candidates
+            0.001,  # snap_threshold
+            0,  # intersects_idx
+        ),
+    ]
+
+    test_snap_trace_simple_params = [
+        (
+            0,  # idx
+            troubling_upper,  # trace
+            0.001,  # snap_threshold
+            gpd.GeoSeries(
+                [troubling_upper, troubling_middle, troubling_upper]
+            ),  # traces
+            1,  # intersects_idx
         )
     ]
 
