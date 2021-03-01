@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "55a1d4659e41323be17239d74238eabfd3e6b17a281d6e8cbec68e30a94a9797"
+            "sha256": "7dfbdb3b699c9eaf28a85619e9bc23eea6e5df58729d7c71514079a7a4949ad5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -70,12 +70,6 @@
             "index": "pypi",
             "version": "==1.1.0"
         },
-        "et-xmlfile": {
-            "hashes": [
-                "sha256:614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b"
-            ],
-            "version": "==1.0.1"
-        },
         "fiona": {
             "hashes": [
                 "sha256:1c26f38bfbcd51e710c361f26db605ccf2b5f2a7967e0f4a88683cac3845c947",
@@ -99,13 +93,6 @@
             ],
             "index": "pypi",
             "version": "==0.9.0"
-        },
-        "jdcal": {
-            "hashes": [
-                "sha256:1abf1305fce18b4e8aa248cf8fe0c56ce2032392bc64bbd61b5dff2a19ec8bba",
-                "sha256:472872e096eb8df219c23f2689fc336668bdb43d194094b5cc1707e1640acfc8"
-            ],
-            "version": "==1.4.1"
         },
         "joblib": {
             "hashes": [
@@ -227,14 +214,6 @@
             ],
             "index": "pypi",
             "version": "==1.20.1"
-        },
-        "openpyxl": {
-            "hashes": [
-                "sha256:1a4b3869c2500b5c713e8e28341cdada49ecfcff1b10cd9006945f5bcefc090d",
-                "sha256:b229112b46e158b910a5d1b270b212c42773d39cab24e8db527f775b82afc041"
-            ],
-            "index": "pypi",
-            "version": "==3.0.6"
         },
         "pandas": {
             "hashes": [
@@ -545,14 +524,6 @@
                 "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"
             ],
             "version": "==3.7.4.3"
-        },
-        "xlrd": {
-            "hashes": [
-                "sha256:6a33ee89877bd9abc1158129f6e94be74e2679636b8a205b43b85206c3f0bbdd",
-                "sha256:f72f148f54442c6b056bf931dbc34f986fd0c3b0b6b5a58d013c9aef274d0c88"
-            ],
-            "index": "pypi",
-            "version": "==2.0.1"
         }
     },
     "develop": {
