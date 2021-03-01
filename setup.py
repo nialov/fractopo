@@ -132,8 +132,6 @@ setup(
         "powerlaw",
         "python-ternary",
         "sklearn",
-        "openpyxl",
-        "xlrd",
         "seaborn",
         "matplotlib",
         "click",
@@ -166,6 +164,7 @@ setup(
             "sphinx",
             "recommonmark",
             "sphinx-rtd-theme",
+            "pyinstrument",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be

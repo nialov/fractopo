@@ -945,9 +945,7 @@ class Helpers:
             0,  # idx
             troubling_upper,  # trace
             0.001,  # snap_threshold
-            gpd.GeoSeries(
-                [troubling_upper, troubling_middle, troubling_upper]
-            ),  # traces
+            [troubling_upper, troubling_middle, troubling_upper],  # traces
             1,  # intersects_idx
         )
     ]

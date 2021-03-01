@@ -5,8 +5,9 @@ branches_and_nodes is the main entrypoint.
 """
 import logging
 from itertools import chain, combinations
-import pandas as pd
 from typing import Dict, List, Optional, Tuple, Union
+import pandas as pd
+from operator import itemgetter
 
 import geopandas as gpd
 import numpy as np
@@ -608,48 +609,48 @@ def determine_insert_approach(
     return idx, insert
 
 
-# def additional_snapping_func(
-#     trace: LineString, idx: int, additional_snapping: List[Tuple[int, Point]]
-# ) -> LineString:
-#     """
-#     Insert points into LineStrings to make sure trace abutting trace.
+def additional_snapping_func(
+    trace: LineString, idx: int, additional_snapping: List[Tuple[int, Point]]
+) -> LineString:
+    """
+    Insert points into LineStrings to make sure trace abutting trace.
 
-#     E.g.
+    E.g.
 
-#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-#     >>> idx = 0
-#     >>> point = Point(2.25, 0.1)
-#     >>> additional_snapping = [
-#     ...     (0, point),
-#     ...     ]
-#     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
-#     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> idx = 0
+    >>> point = Point(2.25, 0.1)
+    >>> additional_snapping = [
+    ...     (0, point),
+    ...     ]
+    >>> additional_snapping_func(trace, idx, additional_snapping).wkt
+    'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
-#     When idx doesn't match -> no additional snapping
+    When idx doesn't match -> no additional snapping
 
-#     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-#     >>> idx = 1
-#     >>> point = Point(2.25, 0.1)
-#     >>> additional_snapping = [
-#     ...     (0, point),
-#     ...     ]
-#     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
-#     'LINESTRING (0 0, 1 0, 2 0, 3 0)'
+    >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
+    >>> idx = 1
+    >>> point = Point(2.25, 0.1)
+    >>> additional_snapping = [
+    ...     (0, point),
+    ...     ]
+    >>> additional_snapping_func(trace, idx, additional_snapping).wkt
+    'LINESTRING (0 0, 1 0, 2 0, 3 0)'
 
-#     """
-#     indexes_to_fix, points_to_add = zip(*additional_snapping)
-#     if idx in indexes_to_fix:
-#         df = pd.DataFrame(
-#             {"indexes_to_fix": indexes_to_fix, "points_to_add": points_to_add}
-#         )
-#         df = df.loc[df["indexes_to_fix"] == idx]
-#         for p in df["points_to_add"].values:
-#             trace = insert_point_to_linestring(trace, p, snap_threshold=0.001)
-#         assert isinstance(trace, LineString)
-#         return trace
+    """
+    indexes_to_fix, points_to_add = zip(*additional_snapping)
+    if idx in indexes_to_fix:
+        df = pd.DataFrame(
+            {"indexes_to_fix": indexes_to_fix, "points_to_add": points_to_add}
+        )
+        df = df.loc[df["indexes_to_fix"] == idx]
+        for p in df["points_to_add"].values:
+            trace = insert_point_to_linestring(trace, p, snap_threshold=0.001)
+        assert isinstance(trace, LineString)
+        return trace
 
-#     else:
-#         return trace
+    else:
+        return trace
 
 
 # def snap_traces_old(
@@ -667,7 +668,7 @@ def determine_insert_approach(
 #     ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
 #     ...     )
 #     >>> snap_threshold = 0.001
-#     >>> snap_traces(traces, snap_threshold)
+#     >>> snap_traces_old(traces, snap_threshold)
 #     (0    LINESTRING (1.00000 1.00000, 2.00000 2.00000, ...
 #     1       LINESTRING (2.00000 2.00000, -2.00000 5.00000)
 #     dtype: geometry, True)
@@ -995,22 +996,19 @@ def true_candidate_endpoints(
 
 
 def snap_traces(
-    traces: gpd.GeoSeries,
+    traces: List[LineString],
     snap_threshold: float,
-    areas: Optional[gpd.GeoSeries] = None,
+    areas: Optional[List[Union[Polygon, MultiPolygon]]] = None,
     final_allowed_loop=False,
-) -> Tuple[gpd.GeoSeries, bool]:
+) -> Tuple[List[LineString], bool]:
     """
     Snap traces to end exactly at other traces.
     """
-    # TODO: Is it necessary
-    traces.reset_index(inplace=True, drop=True)
-
     # Only handle LineStrings
-    assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
+    assert all([isinstance(trace, LineString) for trace in traces])
 
     # Spatial index for traces
-    traces_spatial_index = pygeos_spatial_index(geodataset=traces)
+    traces_spatial_index = pygeos_spatial_index(geodataset=gpd.GeoSeries(traces))
 
     # Collect simply snapped (and non-snapped) traces to list
     simply_snapped_traces, simple_changes = zip(
@@ -1023,48 +1021,41 @@ def snap_traces(
                 traces_spatial_index,
                 final_allowed_loop=final_allowed_loop,
             )
-            for idx, trace in enumerate(traces.geometry.values)
+            for idx, trace in enumerate(traces)
         ]
     )
-    assert len(simply_snapped_traces) == traces.shape[0]
-    simply_snapped_traces_geosrs = gpd.GeoSeries(simply_snapped_traces)
+    assert len(simply_snapped_traces) == len(traces)
+    simply_snapped_traces_list = list(simply_snapped_traces)
 
     # Collect snapped (and non-snapped) traces to list
     snapped_traces, changes = zip(
         *[
             snap_others_to_trace(
-                idx,
-                trace,
-                snap_threshold,
-                simply_snapped_traces_geosrs,
-                traces_spatial_index,
-                areas,
+                idx=idx,
+                trace=trace,
+                snap_threshold=snap_threshold,
+                traces_spatial_index=traces_spatial_index,
+                areas=areas,
+                traces=simply_snapped_traces_list,
                 final_allowed_loop=final_allowed_loop,
             )
             for idx, trace in enumerate(simply_snapped_traces)
         ]
     )
 
-    assert len(snapped_traces) == traces.shape[0] == len(simply_snapped_traces)
+    assert len(snapped_traces) == len(simply_snapped_traces)
     assert all([isinstance(ls, LineString) for ls in snapped_traces])
 
-    # Collect into GeoSeries
-    snapped_traces_geosrs = gpd.GeoSeries(snapped_traces)
-
-    # Set crs to original if it exists
-    if traces.crs is not None:
-        snapped_traces_geosrs = snapped_traces_geosrs.set_crs(traces.crs)
-
-    return snapped_traces_geosrs, any(changes + simple_changes)
+    return list(snapped_traces), any(changes + simple_changes)
 
 
 def resolve_trace_candidates(
     trace: LineString,
     idx: int,
     traces_spatial_index: PyGEOSSTRTreeIndex,
-    traces: gpd.GeoSeries,
+    traces: List[LineString],
     snap_threshold: float,
-) -> gpd.GeoSeries:
+) -> List[LineString]:
     """
     Resolve PyGEOSSTRTreeIndex intersection to actual intersection candidates.
     """
@@ -1081,13 +1072,29 @@ def resolve_trace_candidates(
     )
 
     # Use extended trace bounds to catch all possible intersecting traces
-    trace_candidate_idxs = list(traces_spatial_index.intersection(extended_bounds))
+    trace_candidate_idxs_raw = list(traces_spatial_index.intersection(extended_bounds))
+    trace_candidate_idxs = [
+        i.item() for i in trace_candidate_idxs_raw if isinstance(i.item(), int)
+    ]
+    assert len(trace_candidate_idxs_raw) == len(trace_candidate_idxs)
+    assert isinstance(trace_candidate_idxs, list)
 
     # Remove current trace
     trace_candidate_idxs.remove(idx)
 
     # Filter to only candidates based on spatial index
-    trace_candidates = traces.iloc[trace_candidate_idxs]
+    # trace_candidates = traces.iloc[trace_candidate_idxs]
+    # using operator.itemgetter() to
+    # elements from list
+    assert isinstance(trace_candidate_idxs, list)
+    assert isinstance(traces, list)
+    # trace_candidates = (
+    #     list(itemgetter(*trace_candidate_idxs)(traces))
+    #     if len(trace_candidate_idxs) > 0
+    #     else []
+    # )
+
+    trace_candidates = [traces[i] for i in trace_candidate_idxs]
 
     return trace_candidates
 
@@ -1096,7 +1103,7 @@ def snap_trace_simple(
     idx: int,
     trace: LineString,
     snap_threshold: float,
-    traces: gpd.GeoSeries,
+    traces: List[LineString],
     traces_spatial_index: PyGEOSSTRTreeIndex,
     final_allowed_loop: bool = False,
 ) -> Tuple[LineString, bool]:
@@ -1132,9 +1139,9 @@ def snap_others_to_trace(
     idx: int,
     trace: LineString,
     snap_threshold: float,
-    traces: gpd.GeoSeries,
+    traces: List[LineString],
     traces_spatial_index: PyGEOSSTRTreeIndex,
-    areas: Optional[gpd.GeoSeries],
+    areas: Optional[List[Union[Polygon, MultiPolygon]]],
     final_allowed_loop: bool = False,
 ) -> Tuple[LineString, bool]:
     """
@@ -1147,8 +1154,8 @@ def snap_others_to_trace(
     >>> idx = 0
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> snap_threshold = 0.001
-    >>> traces = gpd.GeoSeries([trace, LineString([(1.5, 3), (1.5, 0.00001)])])
-    >>> traces_spatial_index = pygeos_spatial_index(traces)
+    >>> traces = [trace, LineString([(1.5, 3), (1.5, 0.00001)])]
+    >>> traces_spatial_index = pygeos_spatial_index(gpd.GeoSeries(traces))
     >>> areas = None
     >>> snapped = snap_others_to_trace(
     ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
@@ -1161,8 +1168,8 @@ def snap_others_to_trace(
     >>> idx = 0
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> snap_threshold = 0.001
-    >>> traces = gpd.GeoSeries([trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])])
-    >>> traces_spatial_index = pygeos_spatial_index(traces)
+    >>> traces = [trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
+    >>> traces_spatial_index = pygeos_spatial_index(gpd.GeoSeries(traces))
     >>> areas = None
     >>> snapped = snap_others_to_trace(
     ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
@@ -1178,7 +1185,7 @@ def snap_others_to_trace(
         snap_threshold=snap_threshold,
     )
 
-    assert trace not in list(trace_candidates.geometry.values)
+    assert trace not in list(trace_candidates)
 
     # If no candidates -> no intersecting -> trace is isolated
     if len(trace_candidates) == 0:
@@ -1189,7 +1196,7 @@ def snap_others_to_trace(
         chain(
             *[
                 list(get_trace_endpoints(trace_candidate))
-                for trace_candidate in trace_candidates.geometry.values
+                for trace_candidate in trace_candidates
             ]
         )
     )
@@ -1219,7 +1226,7 @@ def snap_others_to_trace(
 
 
 def simple_snap(
-    trace: LineString, trace_candidates: gpd.GeoSeries, snap_threshold: float
+    trace: LineString, trace_candidates: List[LineString], snap_threshold: float
 ) -> Tuple[LineString, bool]:
     """
     Modify conditionally trace to snap to any of trace_candidates.
@@ -1249,7 +1256,7 @@ def simple_snap(
     trace_endpoints = get_trace_endpoints(trace)
     traces_to_snap_to = [
         candidate
-        for candidate in trace_candidates.geometry.values
+        for candidate in trace_candidates
         if any(
             [
                 endpoint.distance(candidate) < snap_threshold
@@ -1452,6 +1459,125 @@ def safer_unary_union(
         raise TypeError(f"Expected MultiLineString from unary_union. Got {full_union}")
 
 
+def report_snapping_loop(loops: int, allowed_loops: int):
+    """
+    Report snapping looping.
+    """
+    logging.info(f"Loop :{ loops }")
+    if loops >= 10:
+        logging.warning(
+            f"{loops} loops have passed without resolved snapped"
+            " traces_geosrs. Snapped traces_geosrs might not"
+            " possibly be resolved."
+        )
+    if loops > allowed_loops:
+        raise RecursionError(
+            f"More loops have passed ({loops}) than allowed by allowed_loops "
+            f"({allowed_loops})) for snapping traces_geosrs for"
+            " branch determination."
+        )
+
+
+# def branches_and_nodes_old(
+#     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+#     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+#     snap_threshold: float,
+#     allowed_loops=10,
+#     already_clipped: bool = False,
+# ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+#     """
+#     Determine branches and nodes of given traces.
+
+#     The traces will be cropped to the given target area(s) if not already
+#     clipped(already_clipped).
+#     """
+#     traces_geosrs: gpd.GeoSeries = traces.geometry
+#     areas_geosrs: gpd.GeoSeries = areas.geometry
+
+#     # Only LineStrings
+#     if not all(
+#         [isinstance(trace, LineString) for trace in traces_geosrs.geometry.values]
+#     ):
+#         raise TypeError("Expected all geometries to be of type LineString.")
+
+#     # Snapping occurs multiple times due to possible side effects of each snap
+#     loops = 0
+#     traces_geosrs, any_changes_applied = snap_traces_old(
+#         traces_geosrs, snap_threshold, areas=areas_geosrs
+#     )
+#     # Snapping causes changes that might cause new errors. The snapping is looped
+#     # as many times as there are changed made to the data.
+#     # If loop count reaches allowed_loops, error is raised.
+#     while any_changes_applied:
+#         traces_geosrs, any_changes_applied = snap_traces_old(
+#             traces_geosrs,
+#             snap_threshold,
+#             final_allowed_loop=loops == allowed_loops,
+#             areas=areas_geosrs,
+#         )
+#         loops += 1
+#         report_snapping_loop(loops, allowed_loops=allowed_loops)
+
+#     # Clip if necessary
+#     if not already_clipped:
+#         traces_geosrs = crop_to_target_areas(
+#             traces_geosrs, areas_geosrs, snap_threshold=snap_threshold
+#         )
+
+#     # Remove too small geometries.
+#     traces_geosrs = traces_geosrs.loc[
+#         traces_geosrs.geometry.length > snap_threshold * 2.01
+#     ]
+#     # TODO: Works but inefficient. Waiting for refactor.
+#     nodes, _ = determine_nodes(
+#         gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs}),
+#         snap_threshold=snap_threshold,
+#     )
+#     nodes_geosrs: gpd.GeoSeries = gpd.GeoSeries(nodes)
+#     nodes_geosrs = remove_identical_sindex(nodes_geosrs, snap_threshold)
+#     node_identities = get_node_identities(
+#         traces_geosrs, nodes_geosrs, areas_geosrs, snap_threshold
+#     )
+
+#     # Branches are determined with shapely/geopandas unary_union
+#     branches = gpd.GeoSeries(
+#         [
+#             b
+#             for b in safer_unary_union(
+#                 traces_geosrs, snap_threshold=snap_threshold, size_threshold=5000
+#             ).geoms
+#             if b.length > snap_threshold * 1.01
+#         ]
+#     )
+
+#     # Report and error possibly unary_union failure
+#     if len(branches) < len(traces_geosrs):
+#         # unary_union can fail with too large datasets
+#         raise ValueError(
+#             "Expected more branches than traces. Possible unary_union failure."
+#         )
+#     # # Determine nodes and identities
+#     # nodes, node_identities = node_identities_from_branches(
+#     #     branches=branches, areas=areas_geosrs, snap_threshold=snap_threshold
+#     # )
+#     # # Collect to GeoSeries
+#     # nodes_geosrs = gpd.GeoSeries(nodes)
+
+#     # Determine branch identities
+#     branch_identities = get_branch_identities(
+#         branches, nodes_geosrs, node_identities, snap_threshold
+#     )
+
+#     # Collect to GeoDataFrames
+#     node_gdf = gpd.GeoDataFrame(
+#         {GEOMETRY_COLUMN: nodes_geosrs, CLASS_COLUMN: node_identities}
+#     )
+#     branch_gdf = gpd.GeoDataFrame(
+#         {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
+#     )
+#     return branch_gdf, node_gdf
+
+
 def branches_and_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -1467,72 +1593,57 @@ def branches_and_nodes(
     """
     traces_geosrs: gpd.GeoSeries = traces.geometry
     areas_geosrs: gpd.GeoSeries = areas.geometry
-    if not all(
-        [isinstance(trace, LineString) for trace in traces_geosrs.geometry.values]
-    ):
-        raise TypeError("Expected all geometries to be of type LineString.")
-    # TODO: snap_traces to snap_traces_alternative
+
+    areas_list = [
+        poly
+        for poly in areas_geosrs.geometry.values
+        if isinstance(poly, (Polygon, MultiPolygon))
+    ]
+    traces_list = [
+        trace for trace in traces.geometry.values if isinstance(trace, LineString)
+    ]
+
+    # Snapping occurs multiple times due to possible side effects of each snap
     loops = 0
-    traces_geosrs, any_changes_applied = snap_traces(
-        traces_geosrs, snap_threshold, areas=areas_geosrs
+    traces_list, any_changes_applied = snap_traces(
+        traces_list, snap_threshold, areas=areas_list
     )
     # Snapping causes changes that might cause new errors. The snapping is looped
     # as many times as there are changed made to the data.
     # If loop count reaches allowed_loops, error is raised.
     while any_changes_applied:
-        traces_geosrs, any_changes_applied = snap_traces(
-            traces_geosrs,
+        traces_list, any_changes_applied = snap_traces(
+            traces_list,
             snap_threshold,
             final_allowed_loop=loops == allowed_loops,
-            areas=areas_geosrs,
+            areas=areas_list,
         )
         loops += 1
-        logging.info(f"Loop :{ loops }")
-        if loops >= 10:
-            logging.warning(
-                f"{loops} loops have passed without resolved snapped"
-                " traces_geosrs. Snapped traces_geosrs might not"
-                " possibly be resolved."
-            )
-        if loops > allowed_loops:
-            from fractopo.tval.trace_validation import Validation
+        report_snapping_loop(loops, allowed_loops=allowed_loops)
 
-            Validation(
-                traces=gpd.GeoDataFrame(geometry=traces_geosrs),
-                area=areas
-                if isinstance(areas, gpd.GeoDataFrame)
-                else gpd.GeoDataFrame(geometry=areas),
-                name="loop",
-                allow_fix=True,
-                SNAP_THRESHOLD=0.01,
-            ).run_validation().astype({Validation.ERROR_COLUMN: str}).to_file(
-                "/mnt/f/Users/nikke/Documents/projects/Misc/dump/loop.gpkg",
-                driver="GPKG",
-            )
-            raise RecursionError(
-                f"More loops have passed ({loops}) than allowed by allowed_loops "
-                f"({allowed_loops})) for snapping traces_geosrs for"
-                " branch determination."
-            )
-
+    traces_geosrs = gpd.GeoSeries(traces_list)
+    # Clip if necessary
     if not already_clipped:
         traces_geosrs = crop_to_target_areas(
             traces_geosrs, areas_geosrs, snap_threshold=snap_threshold
         )
+
     # Remove too small geometries.
     traces_geosrs = traces_geosrs.loc[
         traces_geosrs.geometry.length > snap_threshold * 2.01
     ]
     # TODO: Works but inefficient. Waiting for refactor.
-    nodes, _ = determine_nodes(
-        gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs}),
-        snap_threshold=snap_threshold,
-    )
-    nodes_geosrs: gpd.GeoSeries = gpd.GeoSeries(nodes)
-    nodes_geosrs = remove_identical_sindex(nodes_geosrs, snap_threshold)
-    node_identities = get_node_identities(
-        traces_geosrs, nodes_geosrs, areas_geosrs, snap_threshold
-    )
+    # nodes, _ = determine_nodes(
+    #     gpd.GeoDataFrame({GEOMETRY_COLUMN: traces_geosrs}),
+    #     snap_threshold=snap_threshold,
+    # )
+    # nodes_geosrs: gpd.GeoSeries = gpd.GeoSeries(nodes)
+    # nodes_geosrs = remove_identical_sindex(nodes_geosrs, snap_threshold)
+    # node_identities = get_node_identities(
+    #     traces_geosrs, nodes_geosrs, areas_geosrs, snap_threshold
+    # )
+
+    # Branches are determined with shapely/geopandas unary_union
     branches = gpd.GeoSeries(
         [
             b
@@ -1542,14 +1653,26 @@ def branches_and_nodes(
             if b.length > snap_threshold * 1.01
         ]
     )
+
+    # Report and error possibly unary_union failure
     if len(branches) < len(traces_geosrs):
         # unary_union can fail with too large datasets
         raise ValueError(
             "Expected more branches than traces. Possible unary_union failure."
         )
+    # Determine nodes and identities
+    nodes, node_identities = node_identities_from_branches(
+        branches=branches, areas=areas_geosrs, snap_threshold=snap_threshold
+    )
+    # Collect to GeoSeries
+    nodes_geosrs = gpd.GeoSeries(nodes)
+
+    # Determine branch identities
     branch_identities = get_branch_identities(
         branches, nodes_geosrs, node_identities, snap_threshold
     )
+
+    # Collect to GeoDataFrames
     node_gdf = gpd.GeoDataFrame(
         {GEOMETRY_COLUMN: nodes_geosrs, CLASS_COLUMN: node_identities}
     )
@@ -1589,13 +1712,125 @@ def snap_trace_to_another(
 
 
 def is_endpoint_close_to_boundary(
-    endpoint: Point, areas: gpd.GeoSeries, snap_threshold: float
+    endpoint: Point, areas: List[Union[Polygon, MultiPolygon]], snap_threshold: float
 ) -> bool:
     """
     Check if endpoint is within snap_threshold of areas boundaries.
     """
-    for area in areas.geometry.values:
-        assert isinstance(area, Polygon)
+    for area in areas:
+        assert isinstance(area, (Polygon, MultiPolygon))
         if endpoint.distance(area.boundary) < snap_threshold:
             return True
     return False
+
+
+def node_identity(
+    endpoint: Point,
+    idx: int,
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    endpoints_geoseries: gpd.GeoSeries,
+    endpoints_spatial_index: PyGEOSSTRTreeIndex,
+    snap_threshold: float,
+) -> str:
+    """
+    Determine node identity of endpoint.
+    """
+    if any(
+        [
+            endpoint.distance(area.boundary) < snap_threshold
+            for area in areas.geometry.values
+        ]
+    ):
+        return E_node
+
+    candidate_idxs = list(endpoints_spatial_index.intersection(endpoint.coords[0]))
+
+    candidate_idxs.remove(idx)
+
+    candidates = endpoints_geoseries.iloc[candidate_idxs]
+
+    intersecting_node_count = sum(
+        [candidate.distance(endpoint) < snap_threshold for candidate in candidates]
+    )
+    if intersecting_node_count == 0:
+        # I-node
+        return I_node
+    elif intersecting_node_count == 2:
+        # Y-node
+        return Y_node
+    elif intersecting_node_count == 3:
+        return X_node
+    elif intersecting_node_count == 1:
+        logging.error(
+            f"Expected 0, 2 or 3 intersects. V-node or similar error at {endpoint.wkt}."
+        )
+        return I_node
+    else:
+        logging.error(
+            f"Expected 0, 2 or 3 intersects. Multijunction at {endpoint.wkt}."
+        )
+        return X_node
+
+
+def node_identities_from_branches(
+    branches: gpd.GeoSeries,
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    snap_threshold: float,
+) -> Tuple[List[Point], List[str]]:
+    """
+    Resolve node identities from branch data.
+
+    >>> branches_list = [
+    ...     LineString([(0, 0), (1, 1)]),
+    ...     LineString([(2, 2), (1, 1)]),
+    ...     LineString([(2, 0), (1, 1)]),
+    ... ]
+    >>> area_polygon = Polygon([(-5, -5), (-5, 5), (5, 5), (5, -5)])
+    >>> branches = gpd.GeoSeries(branches_list)
+    >>> areas = gpd.GeoSeries([area_polygon])
+    >>> snap_threshold = 0.001
+    >>> nodes, identities = node_identities_from_branches(branches, areas, snap_threshold)
+    >>> [node.wkt for node in nodes]
+    ['POINT (0 0)', 'POINT (1 1)', 'POINT (2 2)', 'POINT (2 0)']
+    >>> identities
+    ['I', 'Y', 'I', 'I']
+
+    """
+    # Get list of all branch endpoints
+    all_endpoints: List[Point] = list(
+        chain(
+            *[list(get_trace_endpoints(branch)) for branch in branches.geometry.values]
+        )
+    )
+    # Collect into GeoSeries
+    all_endpoints_geoseries = gpd.GeoSeries(all_endpoints)
+
+    # Get spatial index
+    endpoints_spatial_index = pygeos_spatial_index(all_endpoints_geoseries)
+
+    # Collect resolved nodes
+    collected_nodes: Dict[str, Tuple[Point, str]] = dict()
+
+    for idx, endpoint in enumerate(all_endpoints):
+
+        # Do not resolve nodes that have already been resolved
+        if endpoint.wkt in collected_nodes:
+            continue
+
+        # Determine node identity
+        identity = node_identity(
+            endpoint=endpoint,
+            idx=idx,
+            areas=areas,
+            endpoints_geoseries=all_endpoints_geoseries,
+            endpoints_spatial_index=endpoints_spatial_index,
+            snap_threshold=snap_threshold,
+        )
+
+        # Add to resolved
+        collected_nodes[endpoint.wkt] = (endpoint, identity)
+
+    # Collect into two lists
+    nodes, identities = zip(*collected_nodes.values())
+
+    return list(nodes), list(identities)
