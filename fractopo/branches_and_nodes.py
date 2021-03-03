@@ -4,13 +4,12 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
-from itertools import chain, combinations
+from itertools import chain
 from typing import Dict, List, Optional, Tuple, Union
-import pandas as pd
-from operator import itemgetter
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import (
     LineString,
@@ -78,144 +77,134 @@ def remove_identical_sindex(
     return geosrs.drop(identical_idxs)
 
 
-def get_node_identities(
-    traces: gpd.GeoSeries,
-    nodes: gpd.GeoSeries,
-    areas: gpd.GeoSeries,
-    snap_threshold: float,
-) -> List[str]:
-    """
-    Determine the type of node i.e. E, X, Y or I.
+# def get_node_identities(
+#     traces: gpd.GeoSeries,
+#     nodes: gpd.GeoSeries,
+#     areas: gpd.GeoSeries,
+#     snap_threshold: float,
+# ) -> List[str]:
+#     """
+#     Determine the type of node i.e. E, X, Y or I.
 
-    Uses the given traces to assess the number of intersections.
+#     Uses the given traces to assess the number of intersections.
 
-    E.g.
+#     E.g.
 
-    >>> traces = gpd.GeoSeries(
-    ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(3, 0), (2, 2), (-2, 5)])]
-    ...     )
-    >>> nodes = gpd.GeoSeries(
-    ...     [Point(2, 2), Point(1, 1), Point(3, 3), Point(3, 0), Point(-2, 5),]
-    ...     )
-    >>> areas = gpd.GeoSeries([Polygon([(-2, 5), (-2, -5), (4, -5), (4, 5)])])
-    >>> snap_threshold = 0.001
-    >>> get_node_identities(traces, nodes, areas, snap_threshold)
-    ['X', 'I', 'I', 'I', 'E']
 
-    """
-    # Only handle LineString traces
-    assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
+#     """
+#     # Only handle LineString traces
+#     assert all([isinstance(trace, LineString) for trace in traces.geometry.values])
 
-    # Area can be Polygon or MultiPolygon
-    assert all(
-        [isinstance(area, (Polygon, MultiPolygon)) for area in areas.geometry.values]
-    )
+#     # Area can be Polygon or MultiPolygon
+#     assert all(
+#         [isinstance(area, (Polygon, MultiPolygon)) for area in areas.geometry.values]
+#     )
 
-    # Collect node identities to list
-    identities = []
+#     # Collect node identities to list
+#     identities = []
 
-    # Create spatial index of traces
-    trace_sindex = traces.sindex
+#     # Create spatial index of traces
+#     trace_sindex = traces.sindex
 
-    # Iterate over all nodes
+#     # Iterate over all nodes
 
-    node: Point
-    for node in nodes.geometry.values:
+#     node: Point
+#     for node in nodes.geometry.values:
 
-        # If node is within snap_threshold of area boundary -> E-node
-        if any(
-            [
-                node.distance(area.boundary) < snap_threshold
-                for area in areas.geometry.values
-            ]
-        ):
-            identities.append(E_node)
-            continue
+#         # If node is within snap_threshold of area boundary -> E-node
+#         if any(
+#             [
+#                 node.distance(area.boundary) < snap_threshold
+#                 for area in areas.geometry.values
+#             ]
+#         ):
+#             identities.append(E_node)
+#             continue
 
-        trace_candidate_idxs = list(
-            trace_sindex.intersection(node.buffer(snap_threshold).bounds)
-        )
-        trace_candidates: gpd.GeoSeries = traces.iloc[trace_candidate_idxs]
-        # inter_with_traces = trace_candidates.intersects(node.buffer(snap_threshold))
+#         trace_candidate_idxs = list(
+#             trace_sindex.intersection(node.buffer(snap_threshold).bounds)
+#         )
+#         trace_candidates: gpd.GeoSeries = traces.iloc[trace_candidate_idxs]
+#         # inter_with_traces = trace_candidates.intersects(node.buffer(snap_threshold))
 
-        # If theres 2 intersections -> X or Y
-        # 1 (must be) -> I
-        # Point + LineString -> Y
-        # LineString + Linestring -> X or Y
-        inter_with_traces_geoms: gpd.GeoSeries = trace_candidates.loc[
-            trace_candidates.distance(node) < snap_threshold
-        ]
-        assert all(
-            [isinstance(t, LineString) for t in inter_with_traces_geoms.geometry.values]
-        )
-        assert len(inter_with_traces_geoms) > 0
+#         # If theres 2 intersections -> X or Y
+#         # 1 (must be) -> I
+#         # Point + LineString -> Y
+#         # LineString + Linestring -> X or Y
+#         inter_with_traces_geoms: gpd.GeoSeries = trace_candidates.loc[
+#             trace_candidates.distance(node) < snap_threshold
+#         ]
+#         assert all(
+#             [isinstance(t, LineString) for t in inter_with_traces_geoms.geometry.values]
+#         )
+#         assert len(inter_with_traces_geoms) > 0
 
-        if len(inter_with_traces_geoms) == 1:
-            identities.append(I_node)
-            continue
-        # If more than 2 traces intersect -> Y-node or X-node
+#         if len(inter_with_traces_geoms) == 1:
+#             identities.append(I_node)
+#             continue
+#         # If more than 2 traces intersect -> Y-node or X-node
 
-        all_inter_endpoints = [
-            pt
-            for sublist in map(
-                get_trace_endpoints,
-                inter_with_traces_geoms,
-            )
-            for pt in sublist
-        ]
-        assert all([isinstance(pt, Point) for pt in all_inter_endpoints])
-        strict_intersect_count = sum(
-            [node.intersects(ep) for ep in all_inter_endpoints]
-        )
-        if strict_intersect_count == 1:
-            # Y-node
-            identities.append(Y_node)
-        elif strict_intersect_count == 2:
-            # Node intersects more than 1 endpoint
-            logging.error(
-                "Expected node not to intersect more than one endpoint.\n"
-                f"{node=} {inter_with_traces_geoms=}"
-            )
-            identities.append(Y_node)
+#         all_inter_endpoints = [
+#             pt
+#             for sublist in map(
+#                 get_trace_endpoints,
+#                 inter_with_traces_geoms,
+#             )
+#             for pt in sublist
+#         ]
+#         assert all([isinstance(pt, Point) for pt in all_inter_endpoints])
+#         strict_intersect_count = sum(
+#             [node.intersects(ep) for ep in all_inter_endpoints]
+#         )
+#         if strict_intersect_count == 1:
+#             # Y-node
+#             identities.append(Y_node)
+#         elif strict_intersect_count == 2:
+#             # Node intersects more than 1 endpoint
+#             logging.error(
+#                 "Expected node not to intersect more than one endpoint.\n"
+#                 f"{node=} {inter_with_traces_geoms=}"
+#             )
+#             identities.append(Y_node)
 
-        elif len(inter_with_traces_geoms) == 2:
-            # X-node
-            identities.append(X_node)
-        elif len(inter_with_traces_geoms) > 2:
-            distances = inter_with_traces_geoms.distance(node).values
+#         elif len(inter_with_traces_geoms) == 2:
+#             # X-node
+#             identities.append(X_node)
+#         elif len(inter_with_traces_geoms) > 2:
+#             distances = inter_with_traces_geoms.distance(node).values
 
-            # If all traces are almost equally distanced from node the junction
-            # represents an error and is not a strict X-node
-            if all([np.isclose(distances[0], dist) for dist in distances]):
-                raise ValueError(
-                    "Node intersects trace_candidates more than two times and\n"
-                    f"does not intersect any endpoint. Node: {node.wkt}\n"
-                    f"inter_with_traces_geoms: {inter_with_traces_geoms}\n"
-                )
+#             # If all traces are almost equally distanced from node the junction
+#             # represents an error and is not a strict X-node
+#             if all([np.isclose(distances[0], dist) for dist in distances]):
+#                 raise ValueError(
+#                     "Node intersects trace_candidates more than two times and\n"
+#                     f"does not intersect any endpoint. Node: {node.wkt}\n"
+#                     f"inter_with_traces_geoms: {inter_with_traces_geoms}\n"
+#                 )
 
-            # If two of the traces are equal-distance from the node the third
-            # trace is not a participant in the junction -> X-node
-            found = False
-            for comb in combinations(distances, 2):
-                if np.isclose(*comb):
-                    identities.append(X_node)
-                    found = True
-                    break
+#             # If two of the traces are equal-distance from the node the third
+#             # trace is not a participant in the junction -> X-node
+#             found = False
+#             for comb in combinations(distances, 2):
+#                 if np.isclose(*comb):
+#                     identities.append(X_node)
+#                     found = True
+#                     break
 
-            # If unresolvable -> Error.
-            if not found:
-                raise ValueError(
-                    "Node intersects trace_candidates more than two times and\n"
-                    f"does not intersect any endpoint. Node: {node.wkt}\n"
-                    f"inter_with_traces_geoms: {inter_with_traces_geoms}\n"
-                )
-        else:
-            raise ValueError(
-                "Could not resolve node type." f"{node=} {inter_with_traces_geoms=}"
-            )
+#             # If unresolvable -> Error.
+#             if not found:
+#                 raise ValueError(
+#                     "Node intersects trace_candidates more than two times and\n"
+#                     f"does not intersect any endpoint. Node: {node.wkt}\n"
+#                     f"inter_with_traces_geoms: {inter_with_traces_geoms}\n"
+#                 )
+#         else:
+#             raise ValueError(
+#                 "Could not resolve node type." f"{node=} {inter_with_traces_geoms=}"
+#             )
 
-    assert len(identities) == len(nodes)
-    return identities
+#     assert len(identities) == len(nodes)
+#     return identities
 
 
 def determine_branch_identity(

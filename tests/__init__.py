@@ -1079,6 +1079,9 @@ class ValidationHelpers:
 
     @classmethod
     def generate_known_params(cls, error, false_positive):
+        """
+        Generate pytest.params.
+        """
         knowns: List[gpd.GeoDataFrame] = (
             cls.known_errors[error]
             if not false_positive
@@ -1098,7 +1101,7 @@ class ValidationHelpers:
             areas = [
                 gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns
             ]
-        except:
+        except ValueError:
             areas = [
                 gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (1, 1), (1, 0)])])
                 for _ in knowns
@@ -1120,6 +1123,9 @@ class ValidationHelpers:
 
     @classmethod
     def get_all_errors(cls):
+        """
+        Get the defined errors.
+        """
         # TODO: UnderlappingSnapValidator doesn't follow protocol
         all_error_types = set(
             [validator.ERROR for validator in trace_validation.ALL_VALIDATORS]

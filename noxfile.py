@@ -25,7 +25,10 @@ regular_notebooks = Path(notebooks_name).glob("*.ipynb")
 all_notebooks = list(docs_notebooks) + list(regular_notebooks)
 
 
-def filter_paths_to_existing(*iterables) -> List[str]:
+def filter_paths_to_existing(*iterables: str) -> List[str]:
+    """
+    Filter given iterable paths to only existing.
+    """
     return [path for path in iterables if Path(path).exists()]
 
 
@@ -111,6 +114,8 @@ def lint(session):
     existing_paths = filter_paths_to_existing(
         package_name, tests_name, tasks_name, noxfile_name
     )
+    if not all([isinstance(val, str) for val in existing_paths]):
+        raise TypeError("Expected str.")
     # Lint docs
     session.run(
         "rstcheck",
@@ -136,7 +141,7 @@ def lint(session):
 
     for notebook in all_notebooks:
         # Lint notebooks with black-nb (all should be formatted.)
-        session.run("black-nb", "--check", notebook)
+        session.run("black-nb", "--check", str(notebook))
 
 
 @nox.session

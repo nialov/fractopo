@@ -2,6 +2,7 @@
 Tests for branch and node determination.
 """
 from pathlib import Path
+from typing import List
 
 import geopandas as gpd
 import numpy as np
@@ -9,18 +10,9 @@ import pytest
 from hypothesis import given
 from shapely import wkt
 from shapely.geometry import LineString, MultiLineString, Point, box
-from typing import List
 
 from fractopo import branches_and_nodes, general
-from fractopo.branches_and_nodes import (
-    CLASS_COLUMN,
-    CONNECTION_COLUMN,
-    E_node,
-    EE_branch,
-    I_node,
-    X_node,
-    Y_node,
-)
+from fractopo.branches_and_nodes import CONNECTION_COLUMN, EE_branch
 from fractopo.tval import trace_builder
 from tests import Helpers
 from tests.sample_data.py_samples import samples
@@ -29,6 +21,9 @@ from tests.sample_data.py_samples import samples
 
 
 def test_remove_identical_sindex():
+    """
+    Test remove_identical_sindex.
+    """
     geosrs = Helpers.get_geosrs_identicals()
     geosrs_orig_length = len(geosrs)
     result = branches_and_nodes.remove_identical_sindex(geosrs, Helpers.snap_threshold)
@@ -38,6 +33,9 @@ def test_remove_identical_sindex():
 
 
 def test_remove_snapping_in_remove_identicals():
+    """
+    Test remove_identical_sindex with identicals.
+    """
     snap_thresholds = [
         Helpers.snap_threshold,
         Helpers.snap_threshold * 2,
@@ -88,6 +86,9 @@ def test_remove_snapping_in_remove_identicals():
 def test_determine_branch_identity(
     number_of_I_nodes, number_of_XY_nodes, number_of_E_nodes, should_pass
 ):
+    """
+    Test determine_branch_identity.
+    """
     result = branches_and_nodes.determine_branch_identity(
         number_of_I_nodes, number_of_XY_nodes, number_of_E_nodes
     )

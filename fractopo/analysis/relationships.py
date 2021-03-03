@@ -4,7 +4,7 @@ Functions for plotting cross-cutting and abutting relationships.
 
 import logging
 from itertools import chain, combinations
-from typing import List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
@@ -293,87 +293,124 @@ def determine_intersects(
         )  # Checks if node intersects set 2 traces.
 
         if (l1 is False) and (l2 is False):  # DEBUGGING
-            raise Exception(
+            raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
             )
 
-        # NO RELATIONS FOR NODE IS GIVEN AS ERROR == TRUE (ERROR).
-        # addition gets overwritten if there are no errors
-        addition = {
-            "node": node,
-            "nodeclass": node_class,
-            "sets": set_names_two_sets,
-            "error": True,
-        }  # DEBUGGING
-
-        # ALL X NODE RELATIONS
-        if node_class == "X":
-            if (l1 is True) and (l2 is True):  # It's an x-node between sets
-                sets = (first_set, second_set)
-                addition = {
-                    "node": node,
-                    "nodeclass": node_class,
-                    "sets": sets,
-                    "error": False,
-                }
-
-            if (l1 is True) and (l2 is False):  # It's an x-node inside set 1
-                raise Exception(
-                    f"Node {node} does not intersect both sets"
-                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-                )
-                # sets = (first_set, first_set)
-                # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-
-            if (l1 is False) and (l2 is True):  # It's an x-node inside set 2
-                raise Exception(
-                    f"Node {node} does not intersect both sets"
-                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-                )
-                # sets = (second_set, second_set)
-                # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-
-        # ALL Y NODE RELATIONS
-        elif node_class == "Y":
-            if (l1 is True) and (l2 is True):  # It's an y-node between sets
-                # p1 == length of list of nodes from first_set traces
-                # that intersect with X- or Y-node
-                p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
-                if p1 != 0:  # set 1 ends in set 2
-                    sets = (first_set, second_set)
-                else:  # set 2 ends in set 1
-                    sets = (second_set, first_set)
-                addition = {
-                    "node": node,
-                    "nodeclass": node_class,
-                    "sets": sets,
-                    "error": False,
-                }
-
-            if (l1 is True) and (l2 is False):  # It's a y-node inside set 1
-                raise Exception(
-                    f"Node {node} does not intersect both sets"
-                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-                )
-                # sets = (first_set, first_set)
-                # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-
-            if (l1 is False) and (l2 is True):  # It's a y-node inside set 2
-                raise Exception(
-                    f"Node {node} does not intersect both sets"
-                    f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-                )
-                # sets = (second_set, second_set)
-                # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-        else:
-            raise ValueError(f"Node {node} neither X or Y")
+        try:
+            addition = determine_intersect(
+                node=node,
+                node_class=node_class,
+                l1=l1,
+                l2=l2,
+                first_set=first_set,
+                second_set=second_set,
+                first_setpointtree=first_setpointtree,
+                buffer_value=buffer_value,
+            )
+        except ValueError:
+            # NO RELATIONS FOR NODE IS GIVEN AS ERROR == TRUE (ERROR).
+            # addition gets overwritten if there are no errors
+            addition = {
+                "node": node,
+                "nodeclass": node_class,
+                "sets": set_names_two_sets,
+                "error": True,
+            }  # DEBUGGING
 
         intersectframe = intersectframe.append(
             addition, ignore_index=True
         )  # Append frame with result
 
     return intersectframe
+
+
+def determine_intersect(
+    node: Point,
+    node_class: str,
+    l1: bool,
+    l2: bool,
+    first_set: str,
+    second_set: str,
+    first_setpointtree: STRtree,
+    buffer_value: float,
+) -> Dict[str, Union[Point, str, Tuple[str, str], bool]]:
+    """
+    Determine what intersection the node represents.
+    """
+    if node_class == "X":
+        if (l1 is True) and (l2 is True):  # It's an x-node between sets
+            sets = (first_set, second_set)
+            addition = {
+                "node": node,
+                "nodeclass": node_class,
+                "sets": sets,
+                "error": False,
+            }
+
+        elif (l1 is True) and (l2 is False):  # It's an x-node inside set 1
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+            # sets = (first_set, first_set)
+            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
+
+        elif (l1 is False) and (l2 is True):  # It's an x-node inside set 2
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+            # sets = (second_set, second_set)
+            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
+        else:
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+
+    # ALL Y NODE RELATIONS
+    elif node_class == "Y":
+        if (l1 is True) and (l2 is True):  # It's an y-node between sets
+            # p1 == length of list of nodes from first_set traces
+            # that intersect with X- or Y-node
+            p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
+            if p1 != 0:  # set 1 ends in set 2
+                sets = (first_set, second_set)
+            else:  # set 2 ends in set 1
+                sets = (second_set, first_set)
+            addition = {
+                "node": node,
+                "nodeclass": node_class,
+                "sets": sets,
+                "error": False,
+            }
+
+        elif (l1 is True) and (l2 is False):  # It's a y-node inside set 1
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+            # sets = (first_set, first_set)
+            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
+
+        elif (l1 is False) and (l2 is True):  # It's a y-node inside set 2
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+            # sets = (second_set, second_set)
+            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
+        else:
+            raise ValueError(
+                f"Node {node} does not intersect both sets"
+                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
+            )
+    else:
+        raise ValueError(f"Node {node} neither X or Y")
+
+    return addition
 
 
 def plot_crosscut_abutting_relationships_plot(

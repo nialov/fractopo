@@ -1058,8 +1058,10 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     total_bounds = geoseries.total_bounds
     bounding_polygon: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
     if any(geoseries.intersects(bounding_polygon.boundary)):
-        bounding_polygon: Polygon = bounding_polygon.buffer(1)
-        assert not any(geoseries.intersects(bounding_polygon.boundary))
+        bounding_polygon = bounding_polygon.buffer(1)
+        assert isinstance(bounding_polygon, Polygon)
+        if any(geoseries.intersects(bounding_polygon.boundary)):
+            raise ValueError("Expected no intersects.")
     assert all(geoseries.within(bounding_polygon))
     return bounding_polygon
 
