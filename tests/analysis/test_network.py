@@ -194,18 +194,14 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
     )
 
 
-def test_getaberget_fault_network():
+def test_getaberget_fault_network(data_regression):
     """
     Debug test with material causing unary_union fault.
     """
-    traces_path = Path(
-        "tests/sample_data/justus_getaberget_fault/Raot_linemerged_25112020_validated.shp"
-    )
-    areas_path = Path("tests/sample_data/justus_getaberget_fault/Raja.shp")
-    if not (traces_path.exists() and areas_path.exists()):
-        return
-    traces = gpd.read_file(traces_path)
-    areas = gpd.read_file(areas_path)
+    traces = Helpers.unary_err_traces
+    areas = Helpers.unary_err_areas
+    assert isinstance(traces, gpd.GeoDataFrame)
+    assert isinstance(areas, gpd.GeoDataFrame)
 
     network = Network(
         trace_gdf=traces,
@@ -215,5 +211,19 @@ def test_getaberget_fault_network():
         snap_threshold=0.001,
         unary_size_threshold=13000,
     )
+
+    network_attributes = dict()
+    for attribute in ("node_counts", "branch_counts"):
+        # network_attributes[attribute] = getattr(network, attribute)
+        for key, value in getattr(network, attribute).items():
+            network_attributes[key] = int(value)
+
+        for key, value in network.numerical_network_description().items():
+            try:
+                network_attributes[key] = value.item()
+            except AttributeError:
+                network_attributes[key] = value
+
+    data_regression.check(network_attributes)
 
     assert network.branch_gdf.shape[0] > network.trace_gdf.shape[0]

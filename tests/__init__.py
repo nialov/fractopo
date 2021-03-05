@@ -950,6 +950,36 @@ class Helpers:
         )
     ]
 
+    unary_err_traces_path = Path(
+        "tests/sample_data/unary_error_data/Raot_linemerged_25112020_validated.shp"
+    )
+    unary_err_areas_path = Path("tests/sample_data/unary_error_data/Raja.shp")
+    unary_err_traces = gpd.read_file(unary_err_traces_path)
+    unary_err_areas = gpd.read_file(unary_err_areas_path)
+
+    test_safer_unary_union_params = [
+        (
+            unary_err_traces.geometry.iloc[0:5000],  # traces_geosrs
+            0.001,  # snap_threshold
+            13000,  # size_threshold
+        ),
+        (
+            unary_err_traces.geometry.iloc[5500:8000],  # traces_geosrs
+            0.001,  # snap_threshold
+            13000,  # size_threshold
+        ),
+        (
+            unary_err_traces.geometry,  # traces_geosrs
+            0.001,  # snap_threshold
+            13000,  # size_threshold
+        ),
+        (
+            unary_err_traces.geometry,  # traces_geosrs
+            0.001,  # snap_threshold
+            5000,  # size_threshold
+        ),
+    ]
+
 
 class ValidationHelpers:
 

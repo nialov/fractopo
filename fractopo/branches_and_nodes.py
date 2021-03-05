@@ -1408,42 +1408,63 @@ def safer_unary_union(
     trace_count = traces_geosrs.shape[0]
     if trace_count < 2:
         return MultiLineString([geom for geom in traces_geosrs.geometry.values])
+
+    # Try normal union without any funny business
+    # This will be compared to the split approach result and better will
+    # be returned
+    normal_full_union = traces_geosrs.unary_union
     if trace_count < size_threshold:
-        # Try normal union without any funny business
-        full_union = traces_geosrs.unary_union
-        if len(full_union.geoms) > trace_count and isinstance(
-            full_union, MultiLineString
+        if len(normal_full_union.geoms) > trace_count and isinstance(
+            normal_full_union, MultiLineString
         ):
-            return full_union
+            return normal_full_union
+
+    # How many parts
     div = int(np.ceil(trace_count / size_threshold))
+
+    # How many in each pair
     part_count = int(np.ceil(trace_count / div))
+
     part_unions = []
     for i in range(1, div + 1):
         if i == 1:
+            # first
             part = traces_geosrs.iloc[0:part_count]
         elif i == div:
+            # last
             part = traces_geosrs.iloc[part_count * i - 1 :]
         else:
+            # anything else
             part = traces_geosrs.iloc[part_count * i - 1 : part_count * i]
+
+        # Do unary_union to part
         part_union = part.unary_union
+
         if (
             not isinstance(part_union, MultiLineString)
             or len(part_union.geoms) < part.shape[0]
         ):
             # Still fails -> Try with lower threshold for part
-            part_unions.append(
-                safer_unary_union(
-                    part, snap_threshold, size_threshold=size_threshold // 2
-                )
+            part_union = safer_unary_union(
+                part, snap_threshold, size_threshold=size_threshold // 2
             )
-        else:
-            # assume success
-            part_unions.append(part_union)
+
+        # Collect
+        part_unions.append(part_union)
     assert len(part_unions) == div
 
+    # Do full union of split unions
     full_union = unary_union(MultiLineString(list(chain(*part_unions))))
     if isinstance(full_union, MultiLineString):
-        return full_union
+        if len(full_union.geoms) >= len(normal_full_union.geoms):
+            return full_union
+        else:
+            logging.error(
+                "Expected split union to give better results."
+                " Branches and nodes should be checked for inconsistencies."
+            )
+            return normal_full_union
+
     else:
         raise TypeError(f"Expected MultiLineString from unary_union. Got {full_union}")
 

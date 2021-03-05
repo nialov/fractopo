@@ -479,3 +479,16 @@ def test_snap_trace_simple(
     if intersects_idx is not None:
         assert was_simple_snapped
     assert result.intersects(traces[intersects_idx])
+
+
+@pytest.mark.parametrize(
+    "traces_geosrs,snap_threshold,size_threshold", Helpers.test_safer_unary_union_params
+)
+def test_safer_unary_union(traces_geosrs, snap_threshold, size_threshold):
+    """
+    Test safer_unary_union.
+    """
+    result = branches_and_nodes.safer_unary_union(
+        traces_geosrs, snap_threshold, size_threshold
+    )
+    assert len(list(result.geoms)) >= traces_geosrs.shape[0]
