@@ -20,3 +20,4 @@ network_profiling.profile
 venv
 notebooks/fractopo_network_debug.ipynb
 **-Copy*.ipynb
+tests/sample_data/justus_getaberget_fault

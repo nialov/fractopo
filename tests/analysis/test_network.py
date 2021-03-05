@@ -1,8 +1,10 @@
 """
 Tests for Network.
 """
+from pathlib import Path
 from typing import Tuple
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
@@ -190,3 +192,28 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
             network_non_circular.trace_length_array_non_weighted, lengths_non_circular
         )
     )
+
+
+def test_getaberget_fault_network():
+    """
+    Debug test with material causing unary_union fault.
+    """
+    traces_path = Path(
+        "tests/sample_data/justus_getaberget_fault/Raot_linemerged_25112020_validated.shp"
+    )
+    areas_path = Path("tests/sample_data/justus_getaberget_fault/Raja.shp")
+    if not (traces_path.exists() and areas_path.exists()):
+        return
+    traces = gpd.read_file(traces_path)
+    areas = gpd.read_file(areas_path)
+
+    network = Network(
+        trace_gdf=traces,
+        area_gdf=areas,
+        determine_branches_nodes=True,
+        truncate_traces=True,
+        snap_threshold=0.001,
+        unary_size_threshold=13000,
+    )
+
+    assert network.branch_gdf.shape[0] > network.trace_gdf.shape[0]

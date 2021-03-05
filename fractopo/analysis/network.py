@@ -101,6 +101,8 @@ class Network:
     node_gdf: Optional[gpd.GeoDataFrame] = None
     determine_branches_nodes: bool = False
     snap_threshold: float = 0.01
+    # If unary_union fails try lower and higher values
+    unary_size_threshold: int = 5000
 
     # Length distributions
     # ====================
@@ -569,6 +571,7 @@ class Network:
                 self.area_gdf,
                 self.snap_threshold,
                 already_clipped=self.truncate_traces,
+                unary_size_threshold=self.unary_size_threshold,
             )
             if self.trace_gdf.crs is not None:
                 branches.set_crs(self.trace_gdf.crs, inplace=True)

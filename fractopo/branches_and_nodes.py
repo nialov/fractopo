@@ -1573,6 +1573,7 @@ def branches_and_nodes(
     snap_threshold: float,
     allowed_loops=10,
     already_clipped: bool = False,
+    unary_size_threshold: int = 5000,
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """
     Determine branches and nodes of given traces.
@@ -1637,7 +1638,9 @@ def branches_and_nodes(
         [
             b
             for b in safer_unary_union(
-                traces_geosrs, snap_threshold=snap_threshold, size_threshold=5000
+                traces_geosrs,
+                snap_threshold=snap_threshold,
+                size_threshold=unary_size_threshold,
             ).geoms
             if b.length > snap_threshold * 1.01
         ]
