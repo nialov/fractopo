@@ -956,8 +956,10 @@ class Helpers:
         "tests/sample_data/unary_error_data/Raot_linemerged_25112020_validated.shp"
     )
     unary_err_areas_path = Path("tests/sample_data/unary_error_data/Raja.shp")
-    unary_err_traces = gpd.read_file(unary_err_traces_path)
+    unary_err_traces = gpd.read_file(unary_err_traces_path).iloc[5500:8000]
     unary_err_areas = gpd.read_file(unary_err_areas_path)
+    assert isinstance(unary_err_traces, gpd.GeoDataFrame)
+    assert isinstance(unary_err_areas, gpd.GeoDataFrame)
 
     test_safer_unary_union_params = [
         # (
@@ -966,7 +968,7 @@ class Helpers:
         #     13000,  # size_threshold
         # ),
         (
-            unary_err_traces.geometry.iloc[5500:8000],  # traces_geosrs
+            unary_err_traces.geometry,  # traces_geosrs
             0.001,  # snap_threshold
             13000,  # size_threshold
         ),
@@ -985,6 +987,87 @@ class Helpers:
         #     0.001,  # snap_threshold
         #     5000,  # size_threshold
         # ),
+    ]
+
+    test_segment_within_buffer_params = [
+        (valid_geom, invalid_geom_multilinestring, 0.001, 1.1, 50, True),
+        (valid_geom, mergeable_geom_multilinestring, 0.001, 1.1, 50, True),
+        (
+            valid_geom,
+            MultiLineString([LineString([(10, 10), (50, 50)])]),
+            0.001,
+            1.1,
+            50,
+            False,
+        ),
+    ]
+
+    test_segmentize_linestring_params = [
+        (LineString(((0, 0), (0, 1))), 0.1, 10),
+        (LineString(((0, 0), (1, 1))), 0.1, 15),
+        (LineString(((0, 0), (0, 1))), 1, 1),
+    ]
+
+    test_split_to_determine_triangle_errors_params = [
+        (
+            LineString([(-1, 0), (0, 2), (1, 0)]),  # trace
+            LineString([(-1, 1.99), (0, 1.99), (1, 1.99)]),  # splitter_trace
+            0.001,  # snap_threshold
+            50,  # triangle_error_snap_multiplier
+            True,  # assumed_result
+        ),
+        (
+            LineString([(-1, 0), (0, 5), (1, 0)]),  # trace
+            LineString([(-1, 1.99), (0, 1.99), (1, 1.99)]),  # splitter_trace
+            0.001,  # snap_threshold
+            50,  # triangle_error_snap_multiplier
+            False,  # assumed_result
+        ),
+        (
+            LineString([(-1, 0), (0, 1.98), (1, 0)]),  # trace
+            LineString([(-1, 1.99), (0, 1.99), (1, 1.99)]),  # splitter_trace
+            0.001,  # snap_threshold
+            50,  # triangle_error_snap_multiplier
+            False,  # assumed_result
+        ),
+    ]
+
+    test_determine_middle_in_triangle_params = [
+        (
+            [
+                LineString([(0, 0), (0, 1)]),
+                LineString([(0, 1), (0, 2)]),
+                LineString([(0, 2), (0, 3)]),
+            ],  # segments
+            0.001,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            [
+                LineString([(0, 1), (0, 2)]),
+            ],  # assumed_result
+        ),
+        (
+            [
+                LineString([(0, 0), (0, 1)]),
+                LineString([(0, 1), (0, 2)]),
+                LineString([(0, 2), (0, 3)]),
+                LineString([(0, 3), (0, 4)]),
+            ],  # segments
+            0.001,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            [
+                LineString([(0, 1), (0, 2)]),
+                LineString([(0, 2), (0, 3)]),
+            ],  # assumed_result
+        ),
+        (
+            [
+                LineString([(0, 0), (0, 1)]),
+                LineString([(0, 2), (0, 3)]),
+            ],  # segments
+            0.001,  # snap_threshold
+            1.1,  # snap_threshold_error_multiplier
+            [],  # assumed_result
+        ),
     ]
 
 

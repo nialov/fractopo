@@ -19,7 +19,7 @@ def segment_within_buffer(
     snap_threshold: float,
     snap_threshold_error_multiplier: float,
     overlap_detection_multiplier: float,
-):
+) -> bool:
     """
     Check if segment is within buffer of multilinestring.
 
@@ -47,7 +47,7 @@ def segment_within_buffer(
     all_segments: List[LineString]
     all_segments = []
     ls: LineString
-    for ls in multilinestring:
+    for ls in multilinestring.geoms:
         all_segments.extend(
             segmentize_linestring(ls, snap_threshold * overlap_detection_multiplier)
         )
@@ -66,15 +66,16 @@ def segmentize_linestring(
 ) -> List[LineString]:
     """
     Segmentize LineString to smaller parts.
+
+    Resulting parts are not guaranteed to be mergeable back to the original
     """
     segments = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
         start = linestring.interpolate(dist)
         end = linestring.interpolate(dist + threshold_length)
         segment = LineString([start, end])
-        if segment.length < threshold_length:
-            break
         segments.append(segment)
+
     return segments
 
 
@@ -83,7 +84,7 @@ def split_to_determine_triangle_errors(
     splitter_trace: LineString,
     snap_threshold: float,
     triangle_error_snap_multiplier: float,
-):
+) -> bool:
     """
     Split trace with splitter_trace to determine triangle intersections.
     """
@@ -105,7 +106,7 @@ def split_to_determine_triangle_errors(
         if len(middle) > 0:
             seg_lengths: List[float] = [seg.length for seg in middle]
         else:
-            seg_lengths: List[float] = [seg.length for seg in segments]
+            seg_lengths: List[float] = [seg.length for seg in segments.geoms]
         for seg_length in seg_lengths:
             if (
                 snap_threshold / triangle_error_snap_multiplier
@@ -149,7 +150,7 @@ def determine_trace_candidates(
     idx: int,
     traces: gpd.GeoDataFrame,
     spatial_index: Optional[PyGEOSSTRTreeIndex],
-):
+) -> gpd.GeoSeries:
     """
     Determine potentially intersecting traces with spatial index.
     """
