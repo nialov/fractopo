@@ -286,6 +286,8 @@ class Helpers:
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
     kb11_traces = gpd.read_file(sample_trace_data)
     kb11_area = gpd.read_file(sample_area_data)
+    assert isinstance(kb11_traces, gpd.GeoDataFrame)
+    assert isinstance(kb11_area, gpd.GeoDataFrame)
 
     kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
     kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
@@ -958,26 +960,31 @@ class Helpers:
     unary_err_areas = gpd.read_file(unary_err_areas_path)
 
     test_safer_unary_union_params = [
-        (
-            unary_err_traces.geometry.iloc[0:5000],  # traces_geosrs
-            0.001,  # snap_threshold
-            13000,  # size_threshold
-        ),
+        # (
+        #     unary_err_traces.geometry.iloc[0:5000],  # traces_geosrs
+        #     0.001,  # snap_threshold
+        #     13000,  # size_threshold
+        # ),
         (
             unary_err_traces.geometry.iloc[5500:8000],  # traces_geosrs
             0.001,  # snap_threshold
             13000,  # size_threshold
         ),
-        (
-            unary_err_traces.geometry,  # traces_geosrs
-            0.001,  # snap_threshold
-            13000,  # size_threshold
-        ),
-        (
-            unary_err_traces.geometry,  # traces_geosrs
-            0.001,  # snap_threshold
-            5000,  # size_threshold
-        ),
+        # (
+        #     unary_err_traces.geometry.iloc[5500:8000].sample(frac=1),  # traces_geosrs
+        #     0.001,  # snap_threshold
+        #     13000,  # size_threshold
+        # ),
+        # (
+        #     unary_err_traces.geometry,  # traces_geosrs
+        #     0.001,  # snap_threshold
+        #     13000,  # size_threshold
+        # ),
+        # (
+        #     unary_err_traces.geometry,  # traces_geosrs
+        #     0.001,  # snap_threshold
+        #     5000,  # size_threshold
+        # ),
     ]
 
 

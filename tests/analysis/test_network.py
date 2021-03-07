@@ -1,7 +1,6 @@
 """
 Tests for Network.
 """
-from pathlib import Path
 from typing import Tuple
 
 import geopandas as gpd
