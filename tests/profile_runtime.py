@@ -1,9 +1,11 @@
 """
 Do profiling of Network analysis run time with pyinstrument.
 """
-from fractopo.analysis.network import Network
-import geopandas as gpd
 from pathlib import Path
+
+import geopandas as gpd
+
+from fractopo.analysis.network import Network
 
 
 def main():

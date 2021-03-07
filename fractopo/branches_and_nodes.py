@@ -22,7 +22,6 @@ from shapely.geometry import (
 from shapely.ops import unary_union
 
 from fractopo.general import (
-    spatial_index_intersection,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     GEOMETRY_COLUMN,
@@ -44,6 +43,7 @@ from fractopo.general import (
     get_trace_endpoints,
     line_intersection_to_points,
     pygeos_spatial_index,
+    spatial_index_intersection,
 )
 
 

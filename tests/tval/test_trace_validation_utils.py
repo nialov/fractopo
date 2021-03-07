@@ -1,10 +1,8 @@
 """
 Test trace_validation_utils.
 """
-from typing import List, Optional
-from shapely.geometry import LineString
-
 import pytest
+from shapely.geometry import LineString
 
 import fractopo.tval.trace_validation_utils as trace_validation_utils
 from tests import Helpers

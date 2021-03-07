@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import pytest
 from shapely.geometry import MultiPolygon, Polygon
-import geopandas as gpd
 
 from fractopo import SetRangeTuple
 from fractopo.analysis.network import Network
