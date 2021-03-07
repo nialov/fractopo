@@ -952,10 +952,8 @@ class Helpers:
         )
     ]
 
-    unary_err_traces_path = Path(
-        "tests/sample_data/unary_error_data/Raot_linemerged_25112020_validated.shp"
-    )
-    unary_err_areas_path = Path("tests/sample_data/unary_error_data/Raja.shp")
+    unary_err_traces_path = Path("tests/sample_data/unary_error_data/err_traces.shp")
+    unary_err_areas_path = Path("tests/sample_data/unary_error_data/err_area.shp")
     unary_err_traces = gpd.read_file(unary_err_traces_path).iloc[5500:8000]
     unary_err_areas = gpd.read_file(unary_err_areas_path)
     assert isinstance(unary_err_traces, gpd.GeoDataFrame)
