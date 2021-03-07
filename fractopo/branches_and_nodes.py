@@ -4,7 +4,7 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
-from itertools import chain
+from itertools import chain, compress
 from typing import Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -22,6 +22,7 @@ from shapely.geometry import (
 from shapely.ops import unary_union
 
 from fractopo.general import (
+    spatial_index_intersection,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     GEOMETRY_COLUMN,
@@ -276,42 +277,38 @@ def get_branch_identities(
 
     """
     assert len(nodes) == len(node_identities)
-    nodes_buffered = gpd.GeoSeries(list(map(lambda p: p.buffer(snap_threshold), nodes)))
-    node_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities})
-    node_spatial_index = nodes_buffered.sindex
+    # nodes_buffered = gpd.GeoSeries(list(map(lambda p: p.buffer(snap_threshold), nodes)))
+    # node_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: nodes, CLASS_COLUMN: node_identities})
+    # node_spatial_index = nodes_buffered.sindex
+    node_spatial_index = pygeos_spatial_index(nodes)
     branch_identities = []
-    for branch in branches:
+    for branch in branches.geometry.values:
+        assert isinstance(branch, LineString)
+        node_candidate_idxs = spatial_index_intersection(
+            spatial_index=node_spatial_index, coordinates=geom_bounds(branch)
+        )
         node_candidate_idxs = list(node_spatial_index.intersection(branch.bounds))
-        node_candidates = node_gdf.iloc[node_candidate_idxs]
+        node_candidates = nodes.iloc[node_candidate_idxs]
+        node_candidate_types = [node_identities[i] for i in node_candidate_idxs]
+
         # Use distance instead of two polygon buffers
         inter = [
             dist < snap_threshold
             for dist in node_candidates.distance(
                 MultiPoint([p for p in get_trace_endpoints(branch)])
-            )
+            ).values
         ]
         assert len(inter) == len(node_candidates)
-        nodes_that_intersect = node_candidates.loc[inter]
-        number_of_E_nodes = len(
-            [
-                inter_id
-                for inter_id in nodes_that_intersect[CLASS_COLUMN]
-                if inter_id == E_node
-            ]
+        # nodes_that_intersect = node_candidates.loc[inter]
+        nodes_that_intersect_types = list(compress(node_candidate_types, inter))
+        number_of_E_nodes = sum(
+            [inter_id == E_node for inter_id in nodes_that_intersect_types]
         )
-        number_of_I_nodes = len(
-            [
-                inter_id
-                for inter_id in nodes_that_intersect[CLASS_COLUMN]
-                if inter_id == I_node
-            ]
+        number_of_I_nodes = sum(
+            [inter_id == I_node for inter_id in nodes_that_intersect_types]
         )
-        number_of_XY_nodes = len(
-            [
-                inter_id
-                for inter_id in nodes_that_intersect[CLASS_COLUMN]
-                if inter_id in [X_node, Y_node]
-            ]
+        number_of_XY_nodes = sum(
+            [inter_id in [X_node, Y_node] for inter_id in nodes_that_intersect_types]
         )
         branch_identities.append(
             determine_branch_identity(
@@ -491,7 +488,7 @@ def insert_point_to_linestring(
     changing the geometrical order of LineString vertices
     (which only makes sense if LineString is sublinear.)
 
-    TODO/Note: Does not work for 2.5D geometries (Z-coordinates).
+    TODO: Does not work for 2.5D geometries (Z-coordinates).
     Z-coordinates will be lost.
 
     E.g.
