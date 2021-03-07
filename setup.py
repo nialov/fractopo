@@ -164,7 +164,6 @@ setup(
             "sphinx",
             "recommonmark",
             "sphinx-rtd-theme",
-            "pyinstrument",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be
