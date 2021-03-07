@@ -195,3 +195,22 @@ def docs(session):
         "-b",
         "html",
     )
+
+
+@nox.session(reuse_venv=True)
+def profile_network_analysis(session):
+    """
+    Profile Network analysis with pyprofiler.
+    """
+    # Install with setup.py[dev] installation
+    session.install(".[dev]", "pyinstrument")
+
+    # Run pyprofiler
+    session.run(
+        "pyinstrument",
+        "--renderer",
+        "html",
+        "--outfile",
+        "tests/profile_runtime.html",
+        "tests/profile_runtime.py",
+    )
