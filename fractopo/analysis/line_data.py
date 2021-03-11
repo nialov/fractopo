@@ -18,6 +18,7 @@ from fractopo.general import (
     determine_azimuth,
     determine_set,
     intersection_count_to_boundary_weight,
+    numpy_to_python_type,
 )
 
 # Math and analysis imports
@@ -202,6 +203,19 @@ class LineData:
         if self._automatic_fit is None:
             self._automatic_fit = length_distributions.determine_fit(self.length_array)
         return self._automatic_fit
+
+    @property
+    def boundary_intersect_count(self) -> Optional[Dict[str, int]]:
+        """
+        Get counts of line intersects with boundary.
+        """
+        if not isinstance(self.area_boundary_intersects, np.ndarray):
+            return None
+        keys, counts = np.unique(self.area_boundary_intersects, return_counts=True)
+        keys = list(map(str, keys))
+        counts = list(map(numpy_to_python_type, counts))
+        key_counts = dict(zip(keys, counts))
+        return key_counts
 
     def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
         """

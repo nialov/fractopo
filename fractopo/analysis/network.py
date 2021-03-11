@@ -490,6 +490,32 @@ class Network:
 
         return self._branch_intersects_target_area_boundary
 
+    @property
+    def trace_boundary_intersect_count(self) -> Optional[Dict[str, int]]:
+        """
+        Get counts of trace intersects with boundary.
+        """
+        key_counts = self.trace_data.boundary_intersect_count
+        if key_counts is None:
+            return None
+        trace_key_counts = dict()
+        for key, item in key_counts.items():
+            trace_key_counts[f"Trace Boundary {key} Intersect Count"] = item
+        return trace_key_counts
+
+    @property
+    def branch_boundary_intersect_count(self) -> Optional[Dict[str, int]]:
+        """
+        Get counts of branch intersects with boundary.
+        """
+        key_counts = self.branch_data.boundary_intersect_count
+        if key_counts is None:
+            return None
+        branch_key_counts = dict()
+        for key, item in key_counts.items():
+            branch_key_counts[f"Branch Boundary {key} Intersect Count"] = item
+        return branch_key_counts
+
     def numerical_network_description(self) -> Dict[str, Union[float, int]]:
         """
         Collect numerical network attributes and return them as a dictionary.

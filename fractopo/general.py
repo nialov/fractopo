@@ -1421,3 +1421,13 @@ def intersection_count_to_boundary_weight(intersection_count: int) -> int:
         raise ValueError(
             f"Expected 0,1,2 as intersection_count. Got: {intersection_count}"
         )
+
+
+def numpy_to_python_type(value):
+    """
+    Convert numpy dtype variable to Python type, if possible.
+    """
+    try:
+        return value.item()
+    except AttributeError:
+        return value

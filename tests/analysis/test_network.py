@@ -162,7 +162,7 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
         area_gdf=area_gdf,
         name=name,
         circular_target_area=True,
-        determine_branches_nodes=False,
+        determine_branches_nodes=True,
     )
     network_non_circular = Network(
         trace_gdf=trace_gdf,
@@ -190,6 +190,26 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
             network_non_circular.trace_length_array_non_weighted, lengths_non_circular
         )
     )
+
+    # test both traces and branches for right boundary_intersect_counts
+    for boundary_intersect_count, gdf, name in zip(
+        (
+            network_circular.trace_boundary_intersect_count,
+            network_circular.branch_boundary_intersect_count,
+        ),
+        (network_circular.trace_gdf, network_circular.branch_gdf),
+        ("Trace", "Branch"),
+    ):
+
+        assert all([isinstance(val, str) for val in boundary_intersect_count])
+        assert all([isinstance(val, int) for val in boundary_intersect_count.values()])
+        assert sum(boundary_intersect_count.values()) == gdf.shape[0]
+        assert sum(gdf.geometry.intersects(area_gdf.geometry.iloc[0].boundary)) == sum(
+            (
+                boundary_intersect_count[f"{name} Boundary 1 Intersect Count"],
+                boundary_intersect_count[f"{name} Boundary 2 Intersect Count"],
+            )
+        )
 
 
 # def test_getaberget_fault_network():
