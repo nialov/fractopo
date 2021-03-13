@@ -76,7 +76,7 @@ def pytest(c):
     c.run("coverage report --fail-under 70")
 
 
-@task(pre=[pytest, nox_parallel])
+@task(pre=[requirements, pytest, nox_parallel])
 def test(_):
     """
     Run tests.
