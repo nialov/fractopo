@@ -67,7 +67,6 @@ def test_network_random_sampler(
         min_radius=min_radius,
         snap_threshold=snap_threshold,
     )
-    circle_samples = []
     assert sampler.max_radius > min_radius
     for _ in range(100):
         (

@@ -25,7 +25,7 @@ from fractopo.general import (
     bounding_polygon,
     determine_azimuth,
 )
-from fractopo.tval import trace_builder, trace_validation
+from fractopo.tval import trace_validation
 from fractopo.tval.trace_validators import (
     GeomNullValidator,
     GeomTypeValidator,
@@ -37,6 +37,7 @@ from fractopo.tval.trace_validators import (
     UnderlappingSnapValidator,
     VNodeValidator,
 )
+from tests import trace_builder
 from tests.sample_data.py_samples.samples import (
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,

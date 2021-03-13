@@ -13,8 +13,7 @@ from shapely.geometry import LineString, MultiLineString, Point, box
 
 from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import CONNECTION_COLUMN, EE_branch
-from fractopo.tval import trace_builder
-from tests import Helpers
+from tests import Helpers, trace_builder
 from tests.sample_data.py_samples import samples
 
 # Import trace_validator
