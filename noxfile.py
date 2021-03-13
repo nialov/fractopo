@@ -79,6 +79,17 @@ def tests_lazy(session):
     session.install(".[dev]")
     # Test with pytest
     session.run("pytest")
+
+
+@nox.session(python="3.8")
+def notebooks(session):
+    """
+    Run notebooks.
+
+    Notebooks are usually run in remote so use pip install.
+    Note that notebooks shouldn't have side effects i.e. file saving.
+    """
+    session.install(".[dev]")
     # Test notebook(s)
     for notebook in all_notebooks:
         session.run("ipython", str(notebook))
