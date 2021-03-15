@@ -211,7 +211,7 @@ def docs(session):
 @nox.session(reuse_venv=True)
 def profile_network_analysis(session):
     """
-    Profile Network analysis with pyprofiler.
+    Profile Network analysis with pyinstrument.
     """
     # Install with setup.py[dev] installation
     session.install(".[dev]", "pyinstrument")

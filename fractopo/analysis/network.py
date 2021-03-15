@@ -1,8 +1,6 @@
 """
 Analyse and plot trace map data with Network.
 """
-
-# Python Windows co-operation imports
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
