@@ -66,6 +66,14 @@ def nox_parallel(c):
 
 
 @task
+def ci_test(c):
+    """
+    Test suite for continous integration testing.
+    """
+    c.run("nox --session tests_lazy")
+
+
+@task
 def pytest(c):
     """
     Run tests with pytest in currently installed environment.

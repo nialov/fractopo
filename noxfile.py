@@ -25,9 +25,9 @@ regular_notebooks = Path(notebooks_name).glob("*.ipynb")
 all_notebooks = list(docs_notebooks) + list(regular_notebooks)
 
 
-def filter_paths_to_existing(*iterables: str) -> List[str]:
+def filter_paths_to_existing(*iterables) -> List[str]:
     """
-    Filter given iterable paths to only existing.
+    Filter paths to only existing.
     """
     return [path for path in iterables if Path(path).exists()]
 
