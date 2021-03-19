@@ -25,6 +25,9 @@ Development status
 
       -  Issue mostly avoided with a ``snap_threshold`` of 0.001
 
+   -  Contour grid sampling is sometimes slow and requires refactor at some
+     point.
+
 Full documentation
 ------------------
 
