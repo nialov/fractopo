@@ -123,7 +123,7 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "geopandas",
+        "geopandas==0.8.2",
         "pandas",
         "numpy",
         "shapely",
