@@ -1069,6 +1069,14 @@ class Helpers:
         ),
     ]
 
+    test_run_grid_sampling_params = [
+        (
+            kb11_traces,  # traces
+            kb11_area,  # areas
+            0.001,  # snap_threshold
+        ),
+    ]
+
 
 class ValidationHelpers:
 

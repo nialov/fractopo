@@ -1,12 +1,14 @@
 """
 Tests for contour_grid.
 """
-
 import geopandas as gpd
-from shapely.geometry import LineString, Point
+import pytest
+from shapely.geometry import LineString, Point, Polygon
 
 from fractopo import contour_grid
+from fractopo.analysis.network import Network
 from fractopo.general import CC_branch, CI_branch, II_branch
+from tests import Helpers
 
 cell_width = 0.10
 branches = gpd.GeoDataFrame(
@@ -69,21 +71,33 @@ def test_sample_grid():
     assert isinstance(grid_with_topo, gpd.GeoDataFrame)
 
 
-# def test_sample_grid_with_regressions(file_regression):
-# TODO: REDO. KB7 probably not valid.
-#     trace_data = "tests/sample_data/KB7/KB7_tulkinta.shp"
-#     area_data = "tests/sample_data/KB7/KB7_tulkinta_alue.shp"
-#     trace_data_path = Path(trace_data)
-#     area_data_path = Path(area_data)
-#     assert trace_data_path.exists()
-#     assert area_data_path.exists()
-#     trace_gdf = gpd.GeoDataFrame.from_file(trace_data_path)
-#     area_gdf = gpd.GeoDataFrame.from_file(area_data_path)
-#     branches, nodes = branches_and_nodes.branches_and_nodes(
-#         trace_gdf.geometry, area_gdf.geometry, 0.0001
-#     )
-#     sample_grid = contour_grid.create_grid(10000, trace_gdf)
-#     populated_grid = contour_grid.sample_grid(
-#         sample_grid, trace_gdf, nodes, snap_threshold=0.01
-#     )
-#     file_regression.check(populated_grid.to_json())
+@pytest.mark.parametrize(
+    "traces,areas,snap_threshold", Helpers.test_run_grid_sampling_params
+)
+def test_run_grid_sampling(traces, areas, snap_threshold):
+    """
+    Test sample_grid with network determined b and n.
+    """
+    traces = traces.iloc[0:150]
+    network = Network(
+        trace_gdf=traces,
+        area_gdf=areas,
+        determine_branches_nodes=True,
+        snap_threshold=snap_threshold,
+        truncate_traces=True,
+        circular_target_area=False,
+    )
+    branches, nodes = network.branch_gdf, network.node_gdf
+    assert isinstance(branches, gpd.GeoDataFrame)
+    assert isinstance(nodes, gpd.GeoDataFrame)
+    result = contour_grid.run_grid_sampling(
+        traces=network.trace_gdf,
+        branches=branches,
+        nodes=nodes,
+        snap_threshold=snap_threshold,
+        cell_width=5,
+    )
+
+    assert isinstance(result, gpd.GeoDataFrame)
+    assert result.shape[0] > 0
+    assert isinstance(result.geometry.values[0], Polygon)
