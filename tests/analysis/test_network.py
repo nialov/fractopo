@@ -110,9 +110,9 @@ def test_network(
 
         for key, value in network.numerical_network_description().items():
             try:
-                network_attributes[key] = value.item()
+                network_attributes[key] = round(value.item(), 5)
             except AttributeError:
-                network_attributes[key] = value
+                network_attributes[key] = round(value, 5)
 
     data_regression.check(network_attributes)
 
