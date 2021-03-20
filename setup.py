@@ -123,7 +123,7 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "geopandas==0.8.2",
+        "geopandas==0.9.0",
         "pandas",
         "numpy",
         "shapely",
@@ -164,6 +164,8 @@ setup(
             "sphinx",
             "recommonmark",
             "sphinx-rtd-theme",
+            "pyinstrument",
+            "coverage-badge",
         ]
     },  # Optional
     # If there are data files included in your packages that need to be
