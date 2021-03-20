@@ -1,11 +1,13 @@
 fractopo
 ========
 
-`fractopo` is a Python module that contains tools for validating and
+|Documentation Status| |CI Test| |Coverage|
+
+fractopo is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
 
 .. figure:: docs_src/imgs/fractopo_2d_diagram.png
-   :alt: Overview of fractopo-2D
+   :alt: Overview of fractopo
 
    Overview of fractopo
 
@@ -13,7 +15,6 @@ Development status
 ------------------
 
 -  In constant development, will have breaking changes.
-
 -  Critical issues:
 
    -  ``snap_traces`` in branch and node determination is not completely
@@ -22,11 +23,12 @@ Development status
 
       -  Reinforces that some amount of responsibility is always in the
          hands of the digitizer.
-
       -  Issue mostly avoided with a ``snap_threshold`` of 0.001
 
-   -  Contour grid sampling is sometimes slow and requires refactor at some
-     point.
+   -  
+
+      Contour grid sampling is sometimes slow and requires refactor at some
+         point.
 
 Full documentation
 ------------------
@@ -80,8 +82,9 @@ advanced usage guidance and examples.
 Input data
 ~~~~~~~~~~
 
-Reading and writing spatial filetypes is done in `geopandas` and you should see
-`geopandas` documentation for more advanced read-write use cases:
+Reading and writing spatial filetypes is done in geopandas and you
+should see geopandas documentation for more advanced read-write use
+cases:
 
 -  https://geopandas.org/
 
@@ -162,3 +165,10 @@ data.
    # Or with automatic saving to validated/ directory
 
    tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --summary
+
+.. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
+   :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/Pytest/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/test.yaml?query=branch%3Amaster
+.. |Coverage| image:: docs_src/imgs/coverage.svg
+   :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
