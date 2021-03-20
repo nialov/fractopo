@@ -3,6 +3,8 @@ Invoke tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
+from pathlib import Path
+
 from invoke import UnexpectedExit, task
 
 nox_parallel_sessions = (
@@ -11,6 +13,7 @@ nox_parallel_sessions = (
 )
 
 package_name = "fractopo"
+coverage_badge_svg_path = Path("docs_src/imgs/coverage.svg")
 
 
 @task
@@ -82,6 +85,9 @@ def pytest(c):
     """
     c.run(f"coverage run --include '{package_name}/**.py' -m pytest")
     c.run("coverage report --fail-under 70")
+    if coverage_badge_svg_path.exists():
+        coverage_badge_svg_path.unlink()
+    c.run(f"coverage-badge -o {coverage_badge_svg_path}")
 
 
 @task(pre=[requirements, pytest, nox_parallel])
