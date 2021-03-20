@@ -109,7 +109,7 @@ class Network:
 
     # Private caching attributes
     # ==========================
-    _anisotropy: Optional[np.ndarray] = None
+    _anisotropy: Optional[Tuple[np.ndarray, np.ndarray]] = None
     _parameters: Optional[Dict[str, float]] = None
     _azimuth_set_relationships: Optional[pd.DataFrame] = None
     _trace_length_set_relationships: Optional[pd.DataFrame] = None
@@ -342,7 +342,10 @@ class Network:
         return self._parameters
 
     @property
-    def anisotropy(self) -> Optional[np.ndarray]:
+    def anisotropy(self) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+        """
+        Determine anisotropy of connectivity.
+        """
         if not self._is_branch_gdf_defined():
             return None
         if self._anisotropy is None:
@@ -355,6 +358,9 @@ class Network:
 
     @property
     def azimuth_set_relationships(self) -> Optional[pd.DataFrame]:
+        """
+        Determine azimuth set relationships.
+        """
         if not self._is_branch_gdf_defined():
             return None
         if self._azimuth_set_relationships is None:
@@ -371,6 +377,9 @@ class Network:
 
     @property
     def length_set_relationships(self) -> Optional[pd.DataFrame]:
+        """
+        Determine length set relationships.
+        """
         if not self._is_branch_gdf_defined():
             return None
         if self._trace_length_set_relationships is None:
@@ -389,18 +398,30 @@ class Network:
 
     @property
     def trace_azimuth_set_counts(self) -> Dict[str, int]:
+        """
+        Get trace azimuth set counts.
+        """
         return self.trace_data.azimuth_set_counts
 
     @property
     def trace_length_set_counts(self) -> Dict[str, int]:
+        """
+        Get trace length set counts.
+        """
         return self.trace_data.length_set_counts
 
     @property
     def branch_azimuth_set_counts(self) -> Dict[str, int]:
+        """
+        Get branch azimuth set counts.
+        """
         return self.branch_data.azimuth_set_counts
 
     @property
     def branch_length_set_counts(self) -> Dict[str, int]:
+        """
+        Get branch length set counts.
+        """
         return self.branch_data.length_set_counts
 
     @property
@@ -640,6 +661,9 @@ class Network:
     def plot_trace_azimuth(
         self, label: Optional[str] = None
     ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+        """
+        Plot trace azimuth rose plot.
+        """
         if label is None:
             label = self.name
         return self.trace_data.plot_azimuth(label=label)
@@ -647,6 +671,9 @@ class Network:
     def plot_branch_azimuth(
         self, label: Optional[str] = None
     ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+        """
+        Plot branch azimuth rose plot.
+        """
         if label is None:
             label = self.name
         return self.branch_data.plot_azimuth(label=label)

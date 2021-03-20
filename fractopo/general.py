@@ -15,7 +15,6 @@ import numpy as np
 import pandas as pd
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
-from matplotlib import pyplot as plt
 from shapely import prepared
 from shapely.affinity import scale
 from shapely.geometry import (
@@ -418,143 +417,6 @@ def avg_calc(data):
     return mean
 
 
-def tern_yi_func(c, x):
-    """
-    Plot Connections Per Branch values to branch ternary plot.
-    """
-    temp = 6 * (1 - 0.5 * c)
-    temp2 = 3 - (3 / 2) * c
-    temp3 = 1 + c / temp
-    y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
-    i = 1 - x - y
-    return x, i, y
-
-
-def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
-    """
-    Plot *connections per branch* parameter to XYI-plot.
-
-    :param tax: Ternary axis to plot to
-    :type tax: ternary.TernaryAxesSubplot
-    :param cs_locs: Pre-determined locations for lines
-    :type cs_locs: tuple
-    """
-
-    def tern_find_last_x(c, x_start=0):
-        x, i, y = tern_yi_func(c, x_start)
-        while y > 0:
-            x_start += 0.01
-            x, i, y = tern_yi_func(c, x_start)
-        return x
-
-    def tern_yi_func_perc(c, x):
-        temp = 6 * (1 - 0.5 * c)
-        temp2 = 3 - (3 / 2) * c
-        temp3 = 1 + c / temp
-        y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
-        i = 1 - x - y
-        return 100 * x, 100 * i, 100 * y
-
-    for c in cs_locs:
-        last_x = tern_find_last_x(c)
-        x1 = 0
-        x2 = last_x
-        point1 = tern_yi_func_perc(c, x1)
-        point2 = tern_yi_func_perc(c, x2)
-        tax.line(
-            point1,
-            point2,
-            alpha=0.4,
-            color="k",
-            zorder=-5,
-            linestyle="dashed",
-            linewidth=0.5,
-        )
-        ax = plt.gca()
-        rot = 6.5
-        rot2 = 4.5
-        ax.text(x=55, y=59, s=r"$C_B = 1.3$", fontsize=10, rotation=rot, ha="center")
-        ax.text(x=61, y=50, s=r"$C_B = 1.5$", fontsize=10, rotation=rot, ha="center")
-        ax.text(
-            x=68.5,
-            y=36.6,
-            s=r"$C_B = 1.7$",
-            fontsize=10,
-            rotation=rot2 + 1,
-            ha="center",
-        )
-        ax.text(x=76, y=17, s=r"$C_B = 1.9$", fontsize=10, rotation=rot2, ha="center")
-
-
-def tern_plot_branch_lines(tax):
-    """
-    Plot line of random assignment of nodes to a given branch ternary tax.
-
-    Line positions taken from NetworkGT open source code.
-    Credit to:
-    https://github.com/BjornNyberg/NetworkGT
-
-    :param tax: Ternary axis to plot to
-    :type tax: ternary.TernaryAxesSubplot
-    """
-    ax = tax.get_axes()
-    tax.boundary()
-    points = [
-        (0, 1, 0),
-        (0.01, 0.81, 0.18),
-        (0.04, 0.64, 0.32),
-        (0.09, 0.49, 0.42),
-        (0.16, 0.36, 0.48),
-        (0.25, 0.25, 0.5),
-        (0.36, 0.16, 0.48),
-        (0.49, 0.09, 0.42),
-        (0.64, 0.04, 0.32),
-        (0.81, 0.01, 0.18),
-        (1, 0, 0),
-    ]
-    for idx, p in enumerate(points):
-        points[idx] = points[idx][0] * 100, points[idx][1] * 100, points[idx][2] * 100
-
-    text_loc = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]
-    for idx, t in enumerate(text_loc):
-        text_loc[idx] = t[0] * 100, t[1] * 100
-    text = [r"$C_B = 1.0$", r"$1.2$", r"$1.4$", r"$1.6$", r"$1.8$"]
-    rots = [-61, -44, -28, -14, -3]
-    # rot = -65
-    for t, l, rot in zip(text, text_loc, rots):
-        ax.annotate(t, xy=l, fontsize=9, rotation=rot)
-        # rot += 17
-    tax.plot(
-        points,
-        linewidth=1.5,
-        marker="o",
-        color="k",
-        linestyle="dashed",
-        markersize=3,
-        zorder=-5,
-        alpha=0.6,
-    )
-
-
-def calc_xlims(lineframe) -> Tuple[float, float]:
-    """
-    Calculate x limits for length distribution plot.
-    """
-    left = lineframe.length.min() / 50
-    right = lineframe.length.max() * 50
-    return left, right
-
-
-def calc_ylims(lineframe) -> Tuple[float, float]:
-    """
-    Calculate y limits for length distribution plot.
-    """
-    # TODO: Take y series instead of while dataframe...
-    top = lineframe.y.max() * 50
-    bottom = lineframe.y.min() / 50
-    return top, bottom
-
-
 def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     """
     Define sets based on the length of the traces or branches.
@@ -573,34 +435,34 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     return str(set_label)
 
 
-def curviness(linestring):
-    """
-    Determine curviness of LineString.
+# def curviness(linestring):
+#     """
+#     Determine curviness of LineString.
 
-    TODO: Invalid.
-    """
-    try:
-        coords = list(linestring.coords)
-    except NotImplementedError:
-        return np.NaN
-    df = pd.DataFrame(columns=["azimu", "length"])
-    for i in range(len(coords) - 1):
-        start = Point(coords[i])
-        end = Point(coords[i + 1])
-        line = LineString([start, end])
-        azimu = determine_azimuth(line, halved=True)
-        # halved = tools.azimu_half(azimu)
-        length = line.length
-        addition = {
-            "azimu": azimu,
-            "length": length,
-        }  # Addition to DataFrame with fit x and fit y values
-        df = df.append(addition, ignore_index=True)
+#     TODO: Invalid.
+#     """
+#     try:
+#         coords = list(linestring.coords)
+#     except NotImplementedError:
+#         return np.NaN
+#     df = pd.DataFrame(columns=["azimu", "length"])
+#     for i in range(len(coords) - 1):
+#         start = Point(coords[i])
+#         end = Point(coords[i + 1])
+#         line = LineString([start, end])
+#         azimu = determine_azimuth(line, halved=True)
+#         # halved = tools.azimu_half(azimu)
+#         length = line.length
+#         addition = {
+#             "azimu": azimu,
+#             "length": length,
+#         }  # Addition to DataFrame with fit x and fit y values
+#         df = df.append(addition, ignore_index=True)
 
-    std = sd_calc(df.azimu.values.tolist())
-    azimu_std = std
+#     std = sd_calc(df.azimu.values.tolist())
+#     azimu_std = std
 
-    return azimu_std
+#     return azimu_std
 
 
 def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeometry:
@@ -1280,6 +1142,15 @@ def spatial_index_intersection(
         else:
             raise TypeError("Expected integer results from intersection.")
     return indexes
+
+
+def within_bounds(
+    x: float, y: float, min_x: float, min_y: float, max_x: float, max_y: float
+):
+    """
+    Are x and y within the bounds.
+    """
+    return (min_x <= x <= max_x) and (min_y <= y <= max_y)
 
 
 def geom_bounds(geom: Union[LineString, Polygon]) -> Tuple[float, float, float, float]:

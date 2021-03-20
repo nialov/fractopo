@@ -86,11 +86,17 @@ class Helpers:
 
     @staticmethod
     def random_data_column(iterable):
+        """
+        Make random data column contents.
+        """
         return ["aaa" for _ in iterable]
 
     # geoms are all LineStrings and no errors
     @classmethod
     def valid_gdf_get(cls):
+        """
+        Get valid gdf.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: Helpers.valid_traces,
@@ -104,6 +110,9 @@ class Helpers:
 
     @classmethod
     def invalid_gdf_get(cls):
+        """
+        Get invalid gdf.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: Helpers.invalid_traces,
@@ -760,6 +769,14 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
         ),
+        (
+            kb11_traces.iloc[0:100],  # traces
+            kb11_area,  # area
+            "KB11_0_100",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+        ),
     ]
 
     test_network_random_sampler_params = [
@@ -902,6 +919,12 @@ class Helpers:
             0.11,  # snap_threshold
             LineString([(0, 0), (-1.0, -1.1), (-1.5, -1.5), (-2, -2)]),
         ),
+        (
+            LineString([(0, 0), (-1.5, -1.5), (-2, -2)]),
+            Point(-1.5, -1.5),
+            0.11,  # snap_threshold
+            LineString([(0, 0), (-1.5, -1.5), (-2, -2)]),
+        ),
     ]
 
     sample_traces_path = Path("tests/sample_data/branches_and_nodes/traces.gpkg")
@@ -970,6 +993,11 @@ class Helpers:
             unary_err_traces.geometry,  # traces_geosrs
             0.001,  # snap_threshold
             13000,  # size_threshold
+        ),
+        (
+            unary_err_traces.geometry,  # traces_geosrs
+            0.001,  # snap_threshold
+            50,  # size_threshold
         ),
         # (
         #     unary_err_traces.geometry.iloc[5500:8000].sample(frac=1),  # traces_geosrs
@@ -1074,6 +1102,19 @@ class Helpers:
             kb11_traces,  # traces
             kb11_area,  # areas
             0.001,  # snap_threshold
+        ),
+    ]
+
+    test_report_snapping_loop_params = [
+        (
+            5,  # loop
+            10,  # allowed_loops
+            False,  # will_error
+        ),
+        (
+            11,  # loop
+            10,  # allowed_loops
+            True,  # will_error
         ),
     ]
 

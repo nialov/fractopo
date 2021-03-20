@@ -3,10 +3,18 @@ Tests for Network.
 """
 from typing import Tuple
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
+import powerlaw
 import pytest
+from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
+from pandas.testing import assert_frame_equal
 from shapely.geometry import MultiPolygon, Polygon
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo import SetRangeTuple
 from fractopo.analysis.network import Network
@@ -84,6 +92,10 @@ def test_network(
         determine_branches_nodes=determine_branches_nodes,
         truncate_traces=truncate_traces,
         snap_threshold=snap_threshold,
+        trace_length_set_names=("a", "b"),
+        branch_length_set_names=("A", "B"),
+        trace_length_set_ranges=((0.1, 1), (1, 2)),
+        branch_length_set_ranges=((0.1, 1), (1, 2)),
     )
 
     assert area.shape[0] == len(network.representative_points())
@@ -98,9 +110,13 @@ def test_network(
         [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
     )
 
-    if network.branch_gdf.shape[0] < 500:
+    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
+
         # Do not check massive branch counts
         file_regression.check(network.branch_gdf.sort_index().to_json())
+        network_extensive_testing(
+            network=network, traces=traces, area=area, snap_threshold=snap_threshold
+        )
 
     network_attributes = dict()
     for attribute in ("node_counts", "branch_counts"):
@@ -128,6 +144,91 @@ def test_network(
             ),
         }
     )
+
+
+def network_extensive_testing(
+    network: Network,
+    traces: gpd.GeoDataFrame,
+    area: gpd.GeoDataFrame,
+    snap_threshold: float,
+):
+    """
+    Test Network attributes extensively.
+    """
+    # Test resetting
+    copy_trace_gdf = network.trace_data.line_gdf.copy()
+    copy_branch_gdf = network.branch_data.line_gdf.copy()
+
+    network.reset_length_data()
+    assert_frame_equal(copy_trace_gdf, network.trace_data.line_gdf)
+    assert_frame_equal(copy_branch_gdf, network.branch_data.line_gdf)
+
+    assert isinstance(network.anisotropy, tuple)
+    assert isinstance(network.anisotropy[0], np.ndarray)
+    assert isinstance(network.trace_length_set_array, np.ndarray)
+    assert isinstance(network.branch_length_set_array, np.ndarray)
+
+    # Test passing old branch and node data
+    branch_copy = network.branch_gdf.copy()
+    network_test = Network(
+        trace_gdf=traces,
+        area_gdf=area,
+        name="teeest_with_old",
+        branch_gdf=branch_copy,
+        node_gdf=network.node_gdf.copy(),
+        determine_branches_nodes=False,
+        truncate_traces=True,
+        snap_threshold=snap_threshold,
+    )
+
+    assert_frame_equal(network_test.branch_gdf, branch_copy)
+
+    # Test plotting
+    fig_returns = network.plot_branch()
+    assert fig_returns is not None
+    fig, ax, tax = fig_returns
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
+    assert isinstance(tax, TernaryAxesSubplot)
+    plt.close()
+
+    # Test plotting
+    fig_returns = network.plot_xyi()
+    assert fig_returns is not None
+    fig, ax, tax = fig_returns
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
+    assert isinstance(tax, TernaryAxesSubplot)
+    plt.close()
+
+    for plot in (
+        "plot_parameters",
+        "plot_anisotropy",
+        "plot_trace_azimuth_set_count",
+        "plot_branch_azimuth_set_count",
+        "plot_trace_length_set_count",
+        "plot_branch_length_set_count",
+        "plot_trace_azimuth",
+        "plot_branch_azimuth",
+        "plot_trace_lengths",
+        "plot_branch_lengths",
+    ):
+        # Test plotting
+        fig_returns = getattr(network, plot)()
+        assert fig_returns is not None
+        if len(fig_returns) == 2:
+            fig, ax = fig_returns
+        elif len(fig_returns) == 3 and "length" in plot:
+            other, fig, ax = fig_returns
+            assert isinstance(other, powerlaw.Fit)
+        elif len(fig_returns) == 3 and "azimuth" in plot:
+            other, fig, ax = fig_returns
+            assert isinstance(other, dict)
+        else:
+            raise ValueError("Expected 3 max returns.")
+        assert isinstance(fig, Figure)
+        assert isinstance(ax, (Axes, PolarAxes))
+        plt.close()
 
 
 def test_network_kb11_manual():

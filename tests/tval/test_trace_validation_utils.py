@@ -45,7 +45,7 @@ def test_segmentize_linestring(linestring, threshold_length, assume_result_size)
     """
     result = trace_validation_utils.segmentize_linestring(linestring, threshold_length)
     assert isinstance(result, list)
-    assert all([isinstance(val, LineString) for val in result])
+    assert all([isinstance(val, tuple) for val in result])
     assert len(result) == assume_result_size
 
 

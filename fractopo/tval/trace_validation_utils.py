@@ -2,7 +2,7 @@
 Direct utilities of trace validation.
 """
 import logging
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -10,7 +10,12 @@ from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 from shapely.ops import split
 
-from fractopo.general import geom_bounds, spatial_index_intersection
+from fractopo.general import (
+    geom_bounds,
+    safe_buffer,
+    spatial_index_intersection,
+    within_bounds,
+)
 
 
 def segment_within_buffer(
@@ -36,45 +41,53 @@ def segment_within_buffer(
     # Test for a single segment overlap
     if linestring.overlaps(multilinestring):
         return True
-    buffered_linestring = linestring.buffer(
-        snap_threshold * snap_threshold_error_multiplier
+
+    buffered_linestring = safe_buffer(
+        linestring, snap_threshold * snap_threshold_error_multiplier
     )
+
+    min_x, min_y, max_x, max_y = geom_bounds(buffered_linestring)
     assert isinstance(linestring, LineString)
     assert isinstance(buffered_linestring, Polygon)
     assert isinstance(multilinestring, MultiLineString)
     assert buffered_linestring.area > 0
     # Test for overlap with a buffered linestring
-    all_segments: List[LineString]
-    all_segments = []
+    all_segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
     ls: LineString
     for ls in multilinestring.geoms:
         all_segments.extend(
             segmentize_linestring(ls, snap_threshold * overlap_detection_multiplier)
         )
-    seg: LineString
-    for seg in all_segments:
-        if (
-            seg.within(buffered_linestring)
-            and seg.length > snap_threshold * overlap_detection_multiplier
+    for start, end in all_segments:
+        if within_bounds(*start, min_x, min_y, max_x, max_y) and within_bounds(
+            *end, min_x, min_y, max_x, max_y
         ):
-            return True
+            ls = LineString([start, end])
+            if ls.length > snap_threshold * overlap_detection_multiplier and ls.within(
+                buffered_linestring
+            ):
+                return True
     return False
 
 
 def segmentize_linestring(
     linestring: LineString, threshold_length: float
-) -> List[LineString]:
+) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
     """
     Segmentize LineString to smaller parts.
 
-    Resulting parts are not guaranteed to be mergeable back to the original
+    Resulting parts are not guaranteed to be mergeable back to the original.
     """
-    segments = []
+    segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
-        start = linestring.interpolate(dist)
-        end = linestring.interpolate(dist + threshold_length)
-        segment = LineString([start, end])
-        segments.append(segment)
+        segment_coords: Tuple[Tuple[float, float], Tuple[float, float]] = tuple(
+            coord
+            for coord in (
+                linestring.interpolate(dist).coords[0],
+                linestring.interpolate(dist + threshold_length).coords[0],
+            )
+        )
+        segments.append(segment_coords)
 
     return segments
 

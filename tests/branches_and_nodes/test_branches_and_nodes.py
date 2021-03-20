@@ -205,9 +205,7 @@ def test_snap_traces_simple():
     "linestring, point, snap_threshold, assumed_result",
     Helpers.test_insert_point_to_linestring_params,
 )
-def test_insert_point_to_linestring_v2(
-    linestring, point, snap_threshold, assumed_result
-):
+def test_insert_point_to_linestring(linestring, point, snap_threshold, assumed_result):
     """
     Test insert_point_to_linestring.
     """
@@ -487,7 +485,28 @@ def test_safer_unary_union(traces_geosrs, snap_threshold, size_threshold):
     """
     Test safer_unary_union.
     """
-    result = branches_and_nodes.safer_unary_union(
-        traces_geosrs, snap_threshold, size_threshold
-    )
+    try:
+        result = branches_and_nodes.safer_unary_union(
+            traces_geosrs, snap_threshold, size_threshold
+        )
+    except ValueError:
+        if size_threshold < branches_and_nodes.UNARY_ERROR_SIZE_THRESHOLD:
+            return
+        raise
     assert len(list(result.geoms)) >= traces_geosrs.shape[0]
+
+
+@pytest.mark.parametrize(
+    "loops,allowed_loops,will_error", Helpers.test_report_snapping_loop_params
+)
+def test_report_snapping_loop(loops, allowed_loops, will_error):
+    """
+    Test report_snapping_loop.
+    """
+    try:
+        result = branches_and_nodes.report_snapping_loop(loops, allowed_loops)
+    except RecursionError:
+        if will_error:
+            return
+        raise
+    assert result is None

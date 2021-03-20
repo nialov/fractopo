@@ -2,7 +2,7 @@
 Miscellaneous utilities and scripts of fractopo.
 """
 from itertools import count
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import geopandas as gpd
 from shapely.geometry import LineString
@@ -10,7 +10,10 @@ from shapely.geometry import LineString
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
+    geom_bounds,
     get_trace_endpoints,
+    pygeos_spatial_index,
+    safe_buffer,
 )
 
 
@@ -35,6 +38,27 @@ class LineMerge:
         Merges by joining their coordinates. The endpoint
         (that is within buffer_value of endpoint of first) of the second
         LineString is trimmed from the resulting coordinates.
+
+        E.g. with merging:
+
+        >>> first = LineString([(0, 0), (0, 2)])
+        >>> second = LineString([(0, 2.001), (0, 4)])
+        >>> tolerance = 5
+        >>> buffer_value = 0.01
+        >>> LineMerge.conditional_linemerge(first, second, tolerance, buffer_value).wkt
+        'LINESTRING (0 0, 0 2, 0 4)'
+
+        Without merging:
+
+        >>> first = LineString([(0, 0), (0, 2)])
+        >>> second = LineString([(0, 2.1), (0, 4)])
+        >>> tolerance = 5
+        >>> buffer_value = 0.01
+        >>> LineMerge.conditional_linemerge(
+        ...     first, second, tolerance, buffer_value
+        ... ) is None
+        True
+
         """
         assert isinstance(first, LineString) and isinstance(second, LineString)
         # Get trace endpoints
@@ -99,13 +123,38 @@ class LineMerge:
         traces: Union[gpd.GeoDataFrame, gpd.GeoSeries],
         tolerance: float,
         buffer_value: float,
-    ):
-        spatial_index = traces.sindex
+    ) -> Tuple[List[LineString], List[int]]:
+        """
+        Conditionally linemerge within a collection of LineStrings.
+
+        Returns the linemerged traces and the idxs of traces that were
+        linemerged.
+
+        E.g.
+
+
+        >>> first = LineString([(0, 0), (0, 2)])
+        >>> second = LineString([(0, 2.001), (0, 4)])
+        >>> traces = gpd.GeoSeries([first, second])
+        >>> tolerance = 5
+        >>> buffer_value = 0.01
+        >>> new_traces, idx = LineMerge.conditional_linemerge_collection(
+        ...     traces, tolerance, buffer_value
+        ... )
+        >>> [trace.wkt for trace in new_traces], idx
+        (['LINESTRING (0 0, 0 2, 0 4)'], [0, 1])
+
+        """
+        spatial_index = pygeos_spatial_index(traces)
+
         new_traces = []
         modified_idx = []
         for i, trace in enumerate(traces.geometry):
+            assert isinstance(trace, LineString)
             trace_candidates_idx: List[int] = list(
-                spatial_index.intersection(trace.bounds)
+                spatial_index.intersection(
+                    geom_bounds(safe_buffer(trace, buffer_value * 2))
+                )
             )
             trace_candidates_idx.remove(i)
             if len(trace_candidates_idx) == 0 or i in modified_idx:
@@ -130,7 +179,26 @@ class LineMerge:
         return new_traces, modified_idx
 
     @staticmethod
-    def run_loop(traces: gpd.GeoDataFrame, tolerance: float, buffer_value: float):
+    def run_loop(
+        traces: gpd.GeoDataFrame, tolerance: float, buffer_value: float
+    ) -> gpd.GeoDataFrame:
+        """
+        Run multiple conditiona linemerge iterations for GeoDataFrame.
+
+        GeoDataFrame should contain LineStrings.
+
+        E.g.
+
+        >>> first = LineString([(0, 0), (0, 2)])
+        >>> second = LineString([(0, 2.001), (0, 4)])
+        >>> traces = gpd.GeoDataFrame(geometry=[first, second])
+        >>> tolerance = 5
+        >>> buffer_value = 0.01
+        >>> LineMerge.run_loop(traces, tolerance, buffer_value)
+                                                    geometry
+        0  LINESTRING (0.00000 0.00000, 0.00000 2.00000, ...
+
+        """
         loop_count = count()
         while True:
             new_traces, modified_idx = LineMerge.conditional_linemerge_collection(
@@ -144,11 +212,32 @@ class LineMerge:
                 return traces
 
     @staticmethod
-    def integrate_replacements(traces, new_traces, modified_idx):
+    def integrate_replacements(
+        traces: gpd.GeoDataFrame, new_traces: List[LineString], modified_idx: List[int]
+    ) -> gpd.GeoDataFrame:
+        """
+        Add linemerged and remove the parts that were linemerged.
+
+        E.g.
+
+
+        >>> first = LineString([(0, 0), (0, 2)])
+        >>> second = LineString([(0, 2.001), (0, 4)])
+        >>> traces = gpd.GeoDataFrame(geometry=[first, second])
+        >>> new_traces = [LineString([(0, 0), (0, 2), (0, 4)])]
+        >>> modified_idx = [0, 1]
+        >>> LineMerge.integrate_replacements(traces, new_traces, modified_idx)
+                                                    geometry
+        0  LINESTRING (0.00000 0.00000, 0.00000 2.00000, ...
+
+        """
         unmod_traces = [
             trace
             for idx, trace in enumerate(traces.geometry)
             if idx not in modified_idx
         ]
         all_traces = unmod_traces + new_traces
-        return gpd.GeoDataFrame(geometry=all_traces).set_crs(3067)
+        gdf = gpd.GeoDataFrame(geometry=all_traces)
+        if traces.crs is not None:
+            gdf = gdf.set_crs(traces.crs)
+        return gdf
