@@ -221,17 +221,6 @@ def test_insert_point_to_linestring(linestring, point, snap_threshold, assumed_r
         assert result.wkt == assumed_result.wkt
 
 
-# @settings(suppress_health_check=(HealthCheck.filter_too_much,))
-# @given(Helpers.nice_polyline, Helpers.nice_point)
-# def test_insert_point_to_linestring_hypothesis(linestring, point):
-#     linestring = LineString(linestring)
-#     assume(linestring.is_valid)
-#     assume(linestring.is_simple)
-#     point = Point(point)
-#     assume(not any([point.intersects(Point(xy)) for xy in linestring.coords]))
-#     result = branches_and_nodes.insert_point_to_linestring(linestring, point)
-
-
 # def test_additional_snapping_func():
 #     ls = LineString([(0, 0), (1, 1), (2, 2)])
 #     idx = 0

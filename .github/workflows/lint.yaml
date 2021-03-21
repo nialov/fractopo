@@ -1,10 +1,10 @@
-name: Pylama lint
+name: lint
 
 on: [push, pull_request]
 
 jobs:
   # Lint
-  lint-files:
+  lint-source-files:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 2

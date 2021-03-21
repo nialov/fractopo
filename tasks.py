@@ -8,8 +8,8 @@ from pathlib import Path
 from invoke import UnexpectedExit, task
 
 nox_parallel_sessions = (
-    "tests_strict",
-    "tests_lazy",
+    "tests_pipenv",
+    "tests_pip",
 )
 
 package_name = "fractopo"
@@ -40,7 +40,7 @@ def lint(c):
     c.run("nox --session lint")
 
 
-@task
+@task(pre=[requirements])
 def nox_parallel(c):
     """
     Run selected nox test suite sessions in parallel.
@@ -68,29 +68,17 @@ def nox_parallel(c):
     print(f"{len(results)} nox sessions ran succesfully.")
 
 
-@task
+@task(pre=[requirements])
 def ci_test(c):
     """
     Test suite for continous integration testing.
+
+    Installs with pip, tests with pytest and checks coverage with coverage.
     """
-    c.run("nox --session tests_lazy")
+    c.run("nox --session tests_pip")
 
 
-@task
-def pytest(c):
-    """
-    Run tests with pytest in currently installed environment.
-
-    Much faster than full `test` suite.
-    """
-    c.run(f"coverage run --include '{package_name}/**.py' -m pytest")
-    c.run("coverage report --fail-under 70")
-    if coverage_badge_svg_path.exists():
-        coverage_badge_svg_path.unlink()
-    c.run(f"coverage-badge -o {coverage_badge_svg_path}")
-
-
-@task(pre=[requirements, pytest, nox_parallel])
+@task(pre=[nox_parallel])
 def test(_):
     """
     Run tests.
@@ -108,7 +96,7 @@ def docs(c):
     c.run("nox --session docs")
 
 
-@task(pre=[test, lint, docs])
+@task(pre=[requirements, test, lint, docs])
 def make(_):
     """
     Make all.

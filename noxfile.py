@@ -8,9 +8,15 @@ from typing import List
 
 import nox
 
+# Variables
+package_name = "fractopo"
+
+# Paths
 docs_apidoc_dir_path = Path("docs_src/apidoc")
 docs_dir_path = Path("docs")
-package_name = "fractopo"
+coverage_svg_path = Path("docs_src/imgs/coverage.svg")
+
+# Path strings
 tests_name = "tests"
 pipfile_lock = "Pipfile.lock"
 notebooks_name = "notebooks"
@@ -19,7 +25,7 @@ tasks_name = "tasks.py"
 noxfile_name = "noxfile.py"
 pylama_config = "pylama.ini"
 
-
+# Globs
 docs_notebooks = Path("docs_src/notebooks").glob("*.ipynb")
 regular_notebooks = Path(notebooks_name).glob("*.ipynb")
 all_notebooks = list(docs_notebooks) + list(regular_notebooks)
@@ -29,13 +35,13 @@ def filter_paths_to_existing(*iterables) -> List[str]:
     """
     Filter paths to only existing.
     """
-    return [path for path in iterables if Path(path).exists()]
+    return [str(path) for path in iterables if Path(path).exists()]
 
 
 @nox.session(python="3.8")
-def tests_strict(session: nox.Session):
+def tests_pipenv(session: nox.Session):
     """
-    Run strict test suite.
+    Run test suite with pipenv sync.
     """
     tmp_dir = session.create_tmp()
     for to_copy in (package_name, tests_name, pipfile_lock, notebooks_name):
@@ -61,24 +67,28 @@ def tests_strict(session: nox.Session):
     session.run(
         "pipenv",
         "run",
-        "coverage",
-        "run",
-        "--include",
-        f"{package_name}/**.py",
-        "-m",
         "pytest",
     )
-    session.run("pipenv", "run", "coverage", "report", "--fail-under", "70")
 
 
 @nox.session(python="3.8")
-def tests_lazy(session):
+def tests_pip(session):
     """
-    Run lazy test suite.
+    Run test suite with pip install.
     """
-    session.install(".[dev]")
-    # Test with pytest
-    session.run("pytest")
+    # Install dependencies dev + coverage
+    session.install(".[dev,coverage]")
+
+    # Test with pytest and determine coverage
+    session.run("coverage", "run", "--source", package_name, "-m", "pytest")
+    session.run("coverage", "report", "--fail-under", "70")
+
+    # Make coverage-badge image
+    if coverage_svg_path.exists():
+        coverage_svg_path.unlink()
+    elif not coverage_svg_path.parent.exists():
+        coverage_svg_path.parent.mkdir(parents=True)
+    session.run("coverage-badge", "-o", str(coverage_svg_path))
 
 
 @nox.session(python="3.8")
@@ -87,7 +97,7 @@ def notebooks(session):
     Run notebooks.
 
     Notebooks are usually run in remote so use pip install.
-    Note that notebooks shouldn't have side effects i.e. file saving.
+    Note that notebooks shouldn't have side effects i.e. file disk file writing.
     """
     session.install(".[dev]")
     # Test notebook(s)
@@ -98,19 +108,23 @@ def notebooks(session):
 @nox.session(python="3.8")
 def format(session):
     """
-    Format python files, notebooks and docs_src.
+    Format Python files, notebooks and docs_src.
     """
+    # Install only format dependencies
     session.install("black", "black-nb", "isort")
     existing_paths = filter_paths_to_existing(
         package_name, tests_name, tasks_name, noxfile_name
     )
+
     # Format python files
     session.run("black", *existing_paths)
+
     # Format python file imports
     session.run(
         "isort",
         *existing_paths,
     )
+
     # Format notebooks
     for notebook in all_notebooks:
         session.run("black-nb", str(notebook))
@@ -121,12 +135,12 @@ def lint(session):
     """
     Lint python files, notebooks and docs_src.
     """
+    # Install only lint dependencies
     session.install("rstcheck", "sphinx", "black", "black-nb", "isort", "pylama")
     existing_paths = filter_paths_to_existing(
         package_name, tests_name, tasks_name, noxfile_name
     )
-    if not all([isinstance(val, str) for val in existing_paths]):
-        raise TypeError("Expected str.")
+
     # Lint docs
     session.run(
         "rstcheck",
@@ -135,13 +149,15 @@ def lint(session):
         "--ignore-directives",
         "automodule",
     )
-    # Lint python files with black (all should be formatted.)
+
+    # Lint Python files with black (all should be formatted.)
     session.run("black", "--check", *existing_paths)
     session.run(
         "isort",
         "--check-only",
         *existing_paths,
     )
+
     # Lint with pylama
     session.run(
         "pylama",
@@ -172,7 +188,7 @@ def docs(session):
     Installation mimics readthedocs install.
     """
     # Install with setup.py[dev] installation
-    session.install(".[dev]")
+    session.install(".[dev,docs]")
 
     # Remove old apidocs
     if docs_apidoc_dir_path.exists():

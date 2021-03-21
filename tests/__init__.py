@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import pytest
 from hypothesis.strategies import floats, integers, tuples
-from hypothesis_geometry import planar
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
 from shapely.wkt import loads
 
@@ -229,8 +228,6 @@ class Helpers:
         nice_tuple,
         nice_tuple,
     )
-    nice_point = planar.points(nice_integer_coordinates)
-    # TODO: Is not really nice...
 
     @classmethod
     def get_nice_traces(cls):

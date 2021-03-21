@@ -151,22 +151,14 @@ setup(
             "hypothesis",
             "pytest",
             "jupyterlab",
-            "pipenv-to-requirements",
-            "coverage",
-            "hypothesis-geometry",
             "pytest-regressions",
             "nox",
             "invoke",
             "jedi==0.17.2",
-            "black-nb",
             "bleach>=3.3.0",
-            "nbsphinx",
-            "sphinx",
-            "recommonmark",
-            "sphinx-rtd-theme",
-            "pyinstrument",
-            "coverage-badge",
-        ]
+        ],
+        "docs": ["sphinx", "sphinx-rtd-theme", "nbsphinx", "recommonmark"],
+        "coverage": ["coverage", "coverage-badge"],
     },  # Optional
     # If there are data files included in your packages that need to be
     # installed, specify them here.
