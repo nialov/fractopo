@@ -1,6 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
+from enum import Enum, unique
 from typing import Optional, Tuple, Union
 
 import geopandas as gpd
@@ -11,12 +12,11 @@ from shapely.geometry import LineString, Point, Polygon
 from fractopo.analysis.network import Network
 from fractopo.general import (
     GEOMETRY_COLUMN,
-    random_points_within,
-    safe_buffer,
     calc_circle_area,
     calc_circle_radius,
+    random_points_within,
+    safe_buffer,
 )
-from enum import Enum, unique
 
 
 @unique
