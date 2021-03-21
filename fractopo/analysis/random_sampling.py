@@ -1,7 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
@@ -9,7 +9,27 @@ from pydantic import BaseModel, validator
 from shapely.geometry import LineString, Point, Polygon
 
 from fractopo.analysis.network import Network
-from fractopo.general import GEOMETRY_COLUMN, random_points_within, safe_buffer
+from fractopo.general import (
+    GEOMETRY_COLUMN,
+    random_points_within,
+    safe_buffer,
+    calc_circle_area,
+    calc_circle_radius,
+)
+from enum import Enum, unique
+
+
+@unique
+class RandomChoice(Enum):
+
+    """
+    Choose between random area or radius.
+
+    The choise is relevant because area is polynomially correlated with radius.
+    """
+
+    area = "area"
+    radius = "radius"
 
 
 class NetworkRandomSampler(BaseModel):
@@ -22,6 +42,7 @@ class NetworkRandomSampler(BaseModel):
     area_gdf: gpd.GeoDataFrame
     min_radius: float
     snap_threshold: float
+    random_choice: Union[RandomChoice, str]
 
     class Config:
 
@@ -30,6 +51,20 @@ class NetworkRandomSampler(BaseModel):
         """
 
         arbitrary_types_allowed = True
+
+    @validator("random_choice")
+    def random_choice_should_be_enum(cls, value):
+        """
+        Check that random_choice is valid.
+        """
+        # Convert strings if they match any enum values
+        if isinstance(value, str):
+            for choice_enum in RandomChoice:
+                if value == choice_enum.value:
+                    return choice_enum
+        # Type should be checked by pydantic already
+        else:
+            return value
 
     @validator("trace_gdf")
     def trace_gdf_should_contain_traces(cls, value):
@@ -80,6 +115,20 @@ class NetworkRandomSampler(BaseModel):
             raise ValueError("Expected min_radius smaller than max_radius.")
         return radius
 
+    @property
+    def min_area(self) -> float:
+        """
+        Calculate minimum area from min_radius.
+        """
+        return calc_circle_area(self.min_radius)
+
+    @property
+    def max_area(self) -> float:
+        """
+        Calculate maximum area from max_radius.
+        """
+        return calc_circle_area(self.max_radius)
+
     def random_radius(self) -> float:
         """
         Calculate random radius in range [min_radius, max_radius[.
@@ -87,6 +136,16 @@ class NetworkRandomSampler(BaseModel):
         radius_range = self.max_radius - self.min_radius
         radius = self.min_radius + np.random.random_sample() * radius_range
         return radius
+
+    def random_area(self) -> float:
+        """
+        Calculate random area in area range.
+
+        Range is calculated from [min_radius, max_radius[.
+        """
+        area_range = self.max_area - self.min_area
+        area = self.min_area + np.random.random_sample() * area_range
+        return area
 
     @property
     def target_area_centroid(self) -> Point:
@@ -104,7 +163,11 @@ class NetworkRandomSampler(BaseModel):
 
         The target area is always within the original target area.
         """
-        radius = self.random_radius()
+        radius = (
+            self.random_radius()
+            if self.random_choice == RandomChoice.radius
+            else calc_circle_radius(self.random_area())
+        )
         possible_buffer: Polygon = safe_buffer(
             self.target_area_centroid, self.max_radius - radius
         )

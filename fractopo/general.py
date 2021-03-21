@@ -1302,3 +1302,17 @@ def numpy_to_python_type(value):
         return value.item()
     except AttributeError:
         return value
+
+
+def calc_circle_area(radius: float) -> float:
+    """
+    Calculate area of circle.
+    """
+    return np.pi * radius ** 2
+
+
+def calc_circle_radius(area: float) -> float:
+    """
+    Calculate radius from area.
+    """
+    return np.sqrt(area / np.pi)

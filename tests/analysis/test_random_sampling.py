@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from fractopo.analysis.network import Network
-from fractopo.analysis.random_sampling import NetworkRandomSampler
+from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 from fractopo.general import Error_branch
 from tests import Helpers
 
@@ -24,6 +24,7 @@ def test_network_random_sampler_manual():
         area_gdf=area_gdf,
         min_radius=min_radius,
         snap_threshold=snap_threshold,
+        random_choice=RandomChoice.radius,
     )
     circle_samples = []
     assert sampler.max_radius > min_radius
@@ -52,11 +53,11 @@ def test_network_random_sampler_manual():
 
 
 @pytest.mark.parametrize(
-    "trace_gdf,area_gdf,min_radius,snap_threshold,samples",
+    "trace_gdf,area_gdf,min_radius,snap_threshold,samples,random_choice",
     Helpers.test_network_random_sampler_params,
 )
 def test_network_random_sampler(
-    trace_gdf, area_gdf, min_radius, snap_threshold, samples
+    trace_gdf, area_gdf, min_radius, snap_threshold, samples, random_choice
 ):
     """
     Test NetworkRandomSampler sampling.
@@ -66,6 +67,7 @@ def test_network_random_sampler(
         area_gdf=area_gdf,
         min_radius=min_radius,
         snap_threshold=snap_threshold,
+        random_choice=random_choice,
     )
     assert sampler.max_radius > min_radius
     for _ in range(100):

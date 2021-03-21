@@ -783,7 +783,16 @@ class Helpers:
             10,  # min_radius
             0.001,  # snap_threshold
             1,  # samples
-        )
+            "area",  # random_choice
+        ),
+        (
+            geta_1_traces,  # trace_gdf
+            geta_1_1_area,  # area_gdf
+            10,  # min_radius
+            0.001,  # snap_threshold
+            1,  # samples
+            "radius",  # random_choice
+        ),
     ]
 
     test_describe_powerlaw_fit_params = [
