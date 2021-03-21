@@ -1,9 +1,9 @@
 fractopo
 ========
 
-|Documentation Status| |CI Test| |Coverage|
+|Documentation Status| |CI Test| |Lint| |Coverage|
 
-fractopo is a Python module that contains tools for validating and
+`fractopo` is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
 
 .. figure:: docs_src/imgs/fractopo_2d_diagram.png
@@ -170,5 +170,7 @@ data.
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/test.yaml?query=branch%3Amaster
+.. |Lint| image:: https://github.com/nialov/fractopo/workflows/lint/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/lint.yaml?query=branch%3Amaster
 .. |Coverage| image:: docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
