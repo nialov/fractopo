@@ -168,8 +168,8 @@ data.
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/test.yaml?query=branch%3Amaster
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish.yaml?query=branch%3Amaster
 .. |Lint| image:: https://github.com/nialov/fractopo/workflows/lint/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/lint.yaml?query=branch%3Amaster
 .. |Coverage| image:: docs_src/imgs/coverage.svg

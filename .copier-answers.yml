@@ -1,7 +1,8 @@
 # Changes here will be overwritten by Copier
-_commit: cdee4d9
+_commit: f2db320
 _src_path: https://github.com/nialov/nialov-py-template.git
 broad_topic: Data Analysis
+classifier: 'Topic :: Scientific/Engineering :: GIS'
 description: Fracture Network Analysis
 email: nikolasovaskainen@gmail.com
 full_name: Nikolas Ovaskainen
