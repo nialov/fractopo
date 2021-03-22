@@ -102,7 +102,7 @@ def make(_):
     Make all.
     """
     print("---------------")
-    print("make succesful.")
+    print("make successful.")
 
 
 @task

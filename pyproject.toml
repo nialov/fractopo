@@ -25,3 +25,8 @@ filterwarnings =[
 profile = "black"
 multi_line_output = 3
 src_paths = ["fractopo", "tests"]
+
+[tool.coverage.run]
+omit =[
+    "fractopo/_version.py",
+    ]

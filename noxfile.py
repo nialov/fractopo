@@ -81,6 +81,8 @@ def tests_pip(session):
 
     # Test with pytest and determine coverage
     session.run("coverage", "run", "--source", package_name, "-m", "pytest")
+
+    # Fails with test coverage under 70
     session.run("coverage", "report", "--fail-under", "70")
 
     # Make coverage-badge image
