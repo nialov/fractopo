@@ -1,12 +1,12 @@
 fractopo
 ========
 
-|Documentation Status| |CI Test| |Lint| |Coverage|
+|Documentation Status| |PyPI Status| |CI Test| |Lint| |Coverage|
 
-`fractopo` is a Python module that contains tools for validating and
+``fractopo`` is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
 
-.. figure:: docs_src/imgs/fractopo_2d_diagram.png
+.. figure:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/fractopo_2d_diagram.png
    :alt: Overview of fractopo
 
    Overview of fractopo
@@ -168,9 +168,11 @@ data.
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
+.. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
+   :target: https://pypi.python.org/pypi/fractopo
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish.yaml?query=branch%3Amaster
 .. |Lint| image:: https://github.com/nialov/fractopo/workflows/lint/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/lint.yaml?query=branch%3Amaster
-.. |Coverage| image:: docs_src/imgs/coverage.svg
+.. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
