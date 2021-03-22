@@ -1,4 +1,4 @@
-name: test
+name: test-and-publish
 
 on: [push, pull_request]
 
@@ -23,10 +23,9 @@ jobs:
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test
 
-  build-n-publish:
+  build-and-publish:
     needs: pytest-and-coverage
-    name: Build and publish Python 🐍 distributions 📦 to TestPyPI and PyPI
-    # Pushes to TestPyPI on all pushes of master branch
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
     # Pushes to PyPI on tagged commit pushes of master branch
     # Additionally tests building with setuptools on all branches
     runs-on: ubuntu-latest
@@ -45,16 +44,8 @@ jobs:
       - name: Build binary wheel and a source tarball
         run: >-
           python setup.py sdist bdist_wheel
-      - name: Publish distribution 📦 to TestPyPI on pushes
-        # Publish to TestPyPI on all pushes on master branch
-        if: github.event_name == 'push' || github.ref == 'refs/heads/master'
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_PASSWORD }}
-          repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
-        # Publish to PyPI on tagged commit pushes
+        # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
