@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from importlib import import_module
 
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -19,12 +20,14 @@ sys.path.insert(0, os.path.abspath("."))
 
 # -- Project information -----------------------------------------------------
 
-project = "fractopo-2D"
+project = "fractopo".replace("_", "-")
 copyright = "2020, Nikolas Ovaskainen"
 author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1"
+imported_package = import_module("fractopo")  # noqa
+
+release = imported_package.__version__  # type: ignore
 
 
 # -- General configuration ---------------------------------------------------
