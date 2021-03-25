@@ -25,7 +25,7 @@ copyright = "2020, Nikolas Ovaskainen"
 author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
-imported_package = import_module("fractopo")  # noqa
+imported_package = import_module("fractopo")
 
 release = imported_package.__version__  # type: ignore
 
