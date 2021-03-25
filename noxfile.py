@@ -38,6 +38,21 @@ def filter_paths_to_existing(*iterables) -> List[str]:
     return [str(path) for path in iterables if Path(path).exists()]
 
 
+def fill_notebook(session, notebook: Path):
+    """
+    Execute and fill notebook outputs.
+    """
+    session.run(
+        "jupyter",
+        "nbconvert",
+        "--to",
+        "notebook",
+        "--inplace",
+        "--execute",
+        str(notebook),
+    )
+
+
 @nox.session(python="3.8")
 def tests_pipenv(session: nox.Session):
     """
@@ -104,7 +119,7 @@ def notebooks(session):
     session.install(".[dev]")
     # Test notebook(s)
     for notebook in all_notebooks:
-        session.run("ipython", str(notebook))
+        fill_notebook(session=session, notebook=notebook)
 
 
 @nox.session(python="3.8")
@@ -202,15 +217,8 @@ def docs(session):
 
     # Execute and fill cells in docs notebooks
     for notebook in docs_notebooks:
-        session.run(
-            "jupyter",
-            "nbconvert",
-            "--to",
-            "notebook",
-            "--inplace",
-            "--execute",
-            str(notebook),
-        )
+        fill_notebook(session=session, notebook=notebook)
+
     # Create apidocs
     session.run(
         "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{package_name}", "-e", "-f"
