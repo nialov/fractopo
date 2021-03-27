@@ -1111,7 +1111,7 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
     """
     Get random points within Polygon.
     """
-    min_x, min_y, max_x, max_y = poly.bounds
+    min_x, min_y, max_x, max_y = geom_bounds(poly)
     points = []
 
     while len(points) < num_points:
@@ -1153,13 +1153,15 @@ def within_bounds(
     return (min_x <= x <= max_x) and (min_y <= y <= max_y)
 
 
-def geom_bounds(geom: Union[LineString, Polygon]) -> Tuple[float, float, float, float]:
+def geom_bounds(
+    geom: Union[LineString, Polygon, MultiPolygon]
+) -> Tuple[float, float, float, float]:
     """
     Get LineString or Polygon bounds.
     """
-    types = (LineString, Polygon)
+    types = (LineString, Polygon, MultiPolygon)
     if not isinstance(geom, types):
-        raise TypeError(f"Expected {types} as type.")
+        raise TypeError(f"Expected {types} as geom type.")
     bounds = []
     for val in geom.bounds:
         if isinstance(val, (int, float)):
@@ -1201,12 +1203,14 @@ def determine_boundary_intersecting_lines(
     """
     assert isinstance(line_gdf, (gpd.GeoSeries, gpd.GeoDataFrame))
     # line_gdf = line_gdf.reset_index(inplace=False, drop=True)
-    spatial_index = line_gdf.sindex
+    # spatial_index = line_gdf.sindex
+    spatial_index = pygeos_spatial_index(line_gdf)
     intersecting_idxs = []
     cuts_through_idxs = []
     for target_area in area_gdf.geometry.values:
         assert isinstance(target_area, (MultiPolygon, Polygon))
-        target_area_bounds = target_area.boundary.bounds
+        # target_area_bounds = target_area.boundary.bounds
+        target_area_bounds = geom_bounds(target_area)
         assert len(target_area_bounds) == 4 and isinstance(target_area_bounds, tuple)
         min_x, min_y, max_x, max_y = target_area_bounds
         intersection = spatial_index.intersection(

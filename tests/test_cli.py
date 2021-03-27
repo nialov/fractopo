@@ -48,6 +48,9 @@ def test_tracevalidate(
 
 
 def test_make_output_dir(tmp_path):
+    """
+    Test make_output_dir.
+    """
     some_file = Path(tmp_path) / "some.file"
     output_dir = cli.make_output_dir(some_file)
     assert output_dir.exists()

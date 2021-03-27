@@ -42,6 +42,7 @@ from fractopo.general import (
     get_trace_endpoints,
     line_intersection_to_points,
     pygeos_spatial_index,
+    safe_buffer,
     spatial_index_intersection,
 )
 
@@ -63,7 +64,11 @@ def remove_identical_sindex(
             continue
         # point = point.buffer(snap_threshold) if snap_threshold != 0 else point
         p_candidate_idxs = (
-            list(spatial_index.intersection(point.buffer(snap_threshold).bounds))
+            # list(spatial_index.intersection(point.buffer(snap_threshold).bounds))
+            spatial_index_intersection(
+                spatial_index=spatial_index,
+                coordinates=geom_bounds(safe_buffer(geom=point, radius=snap_threshold)),
+            )
             if snap_threshold != 0
             else list(spatial_index.intersection(point.coords[0]))
         )
@@ -288,7 +293,10 @@ def get_branch_identities(
         node_candidate_idxs = spatial_index_intersection(
             spatial_index=node_spatial_index, coordinates=geom_bounds(branch)
         )
-        node_candidate_idxs = list(node_spatial_index.intersection(branch.bounds))
+        # node_candidate_idxs = list(node_spatial_index.intersection(branch.bounds))
+        node_candidate_idxs = spatial_index_intersection(
+            spatial_index=node_spatial_index, coordinates=geom_bounds(branch)
+        )
         node_candidates = nodes.iloc[node_candidate_idxs]
         node_candidate_types = [node_identities[i] for i in node_candidate_idxs]
 

@@ -267,11 +267,17 @@ def populate_sample_cell(
     # intersect it
     # Use spatial indexing to filter to only spatially relevant traces,
     # traces and nodes
-    trace_candidates_idx = list(traces_sindex.intersection(sample_circle.bounds))
+    # trace_candidates_idx = list(traces_sindex.intersection(sample_circle.bounds))
     trace_candidates_idx = spatial_index_intersection(
         traces_sindex, geom_bounds(sample_circle)
     )
-    node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
+    trace_candidates_idx = spatial_index_intersection(
+        traces_sindex, geom_bounds(sample_circle)
+    )
+    # node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
+    node_candidates_idx = spatial_index_intersection(
+        spatial_index=nodes_sindex, coordinates=geom_bounds(sample_circle)
+    )
 
     trace_candidates = traces.iloc[trace_candidates_idx]
     node_candidates = nodes.iloc[node_candidates_idx]
