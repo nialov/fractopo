@@ -18,6 +18,10 @@ Development status
 -  In constant development, will have breaking changes.
 -  Critical issues:
 
+   -  Installation on Windows is currently not supported due to problems
+      with installation of ``gdal``-based packages like geopandas.
+   -  Contour grid sampling is sometimes slow and requires refactor at
+      some point.
    -  ``snap_traces`` in branch and node determination is not completely
       stable. Some edge cases cause artifacts which only sometimes are
       recognized as error branches. (Mostly solved as of 1.3.2021).
@@ -25,11 +29,6 @@ Development status
       -  Reinforces that some amount of responsibility is always in the
          hands of the digitizer.
       -  Issue mostly avoided with a ``snap_threshold`` of 0.001
-
-   -  
-
-      Contour grid sampling is sometimes slow and requires refactor at some
-         point.
 
 Full documentation
 ------------------
@@ -40,6 +39,11 @@ Full documentation
 
 Installation
 ------------
+
+Currently installation is supported only for linux-based operating
+systems. There's a known problem with installing any ``gdal``-based Python
+package onto a Windows machine. (Could be circumvented at some point by
+using conda.)
 
 Omit ``--dev`` or ``[dev]`` for regular installation. Keep if you want
 to test/develop or otherwise install all development python
