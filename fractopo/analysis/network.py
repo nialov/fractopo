@@ -235,100 +235,157 @@ class Network:
 
     @property
     def trace_series(self) -> gpd.GeoSeries:
+        """
+        Get trace geometries as GeoSeries.
+        """
         return self.trace_data.line_gdf.geometry
 
     @property
     def node_series(self) -> Optional[gpd.GeoSeries]:
+        """
+        Get node geometries as GeoSeries.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.node_gdf.geometry
 
     @property
     def branch_series(self) -> Optional[gpd.GeoSeries]:
+        """
+        Get branch geometries as GeoSeries.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.line_gdf.geometry
 
     @property
     def trace_azimuth_array(self) -> np.ndarray:
+        """
+        Get trace azimuths as array.
+        """
         return self.trace_data.azimuth_array
 
     @property
     def branch_azimuth_array(self) -> Optional[np.ndarray]:
+        """
+        Get branch azimuths as array.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.azimuth_array
 
     @property
     def trace_length_array(self) -> np.ndarray:
+        """
+        Get trace lengths as array.
+        """
         return self.trace_data.length_array
 
     @property
     def trace_length_array_non_weighted(self) -> np.ndarray:
+        """
+        Get non-boundary-weighted trace lengths as array.
+        """
         return self.trace_data.length_array_non_weighted
 
     @property
     def branch_length_array(self) -> Optional[np.ndarray]:
+        """
+        Get branch lengths as array.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_array
 
     @property
     def branch_length_array_non_weighted(self) -> Optional[np.ndarray]:
+        """
+        Get non-boundary-weighted branch lengths as array.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_array_non_weighted
 
     @property
     def trace_azimuth_set_array(self) -> np.ndarray:
+        """
+        Get azimuth set for each trace.
+        """
         return self.trace_data.azimuth_set_array
 
     @property
     def branch_azimuth_set_array(self) -> Optional[np.ndarray]:
+        """
+        Get azimuth set for each branch.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.azimuth_set_array
 
     @property
     def trace_length_set_array(self) -> Optional[np.ndarray]:
+        """
+        Get length set for each trace.
+        """
         return self.trace_data.length_set_array
 
     @property
     def branch_length_set_array(self) -> Optional[np.ndarray]:
+        """
+        Get length set for each branch.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_data.length_set_array
 
     @property
     def node_types(self) -> Optional[np.ndarray]:
+        """
+        Get node type of each node.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.node_gdf[CLASS_COLUMN].to_numpy()
 
     @property
     def node_counts(self) -> Optional[Dict[str, int]]:
+        """
+        Get node counts.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return determine_node_type_counts(self.node_types)
 
     @property
     def branch_types(self) -> Optional[np.ndarray]:
+        """
+        Get branch type of each branch.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return self.branch_gdf[CONNECTION_COLUMN].to_numpy()
 
     @property
     def branch_counts(self) -> Optional[Dict[str, int]]:
+        """
+        Get branch counts.
+        """
         if not self._is_branch_gdf_defined():
             return None
         return determine_branch_type_counts(self.branch_types)
 
     @property
     def total_area(self) -> float:
+        """
+        Get total area.
+        """
         return self.area_gdf.geometry.area.sum()
 
     @property
     def parameters(self) -> Optional[Dict[str, float]]:
+        """
+        Get numerical geometric and topological parameters.
+        """
         if not self._is_branch_gdf_defined():
             return None
         # Cannot do simple cached_property because None might have been
@@ -746,6 +803,9 @@ class Network:
     def plot_azimuth_crosscut_abutting_relationships(
         self,
     ) -> Tuple[List[Figure], List[np.ndarray]]:
+        """
+        Plot azimuth set crosscutting and abutting relationships.
+        """
         return plot_crosscut_abutting_relationships_plot(
             relations_df=self.azimuth_set_relationships,  # type: ignore
             set_array=self.trace_azimuth_set_array,
@@ -755,6 +815,9 @@ class Network:
     def plot_trace_length_crosscut_abutting_relationships(
         self,
     ) -> Tuple[List[Figure], List[np.ndarray]]:
+        """
+        Plot length set crosscutting and abutting relationships.
+        """
         return plot_crosscut_abutting_relationships_plot(
             relations_df=self.length_set_relationships,  # type: ignore
             set_array=self.trace_data.length_set_array,
@@ -764,6 +827,9 @@ class Network:
     def plot_trace_azimuth_set_count(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes]:
+        """
+        Plot trace azimuth set counts.
+        """
         if label is None:
             label = self.name
         return self.trace_data.plot_azimuth_set_count(label=label)
@@ -771,6 +837,9 @@ class Network:
     def plot_branch_azimuth_set_count(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes]:
+        """
+        Plot branch azimuth set counts.
+        """
         if label is None:
             label = self.name
         return self.branch_data.plot_azimuth_set_count(label=label)
@@ -778,6 +847,9 @@ class Network:
     def plot_trace_length_set_count(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes]:
+        """
+        Plot trace length set counts.
+        """
         if label is None:
             label = self.name
         return self.trace_data.plot_length_set_count(label=label)
@@ -785,6 +857,9 @@ class Network:
     def plot_branch_length_set_count(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes]:
+        """
+        Plot branch length set counts.
+        """
         if label is None:
             label = self.name
         return self.branch_data.plot_length_set_count(label=label)
