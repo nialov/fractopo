@@ -689,7 +689,7 @@ class SharpCornerValidator(BaseValidator):
         return True
 
 
-class EmptyTargetAreaValidator:
+class EmptyTargetAreaValidator(BaseValidator):
 
     """
     Stub validator for empty target area.
