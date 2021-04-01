@@ -157,7 +157,7 @@ def determine_set(
     value_ranges: SetRangeTuple,
     set_names: Tuple[str, ...],
     loop_around: bool,
-) -> np.ndarray:
+) -> str:
     """
     Determine which named value range, if any, value is within.
 
