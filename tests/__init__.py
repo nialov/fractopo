@@ -23,6 +23,7 @@ from fractopo.general import (
     Y_node,
     bounding_polygon,
     determine_azimuth,
+    read_geofile,
 )
 from fractopo.tval import trace_validation
 from fractopo.tval.trace_validators import (
@@ -82,6 +83,11 @@ class Helpers:
     ) = trace_builder.main(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
     valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
     invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
+
+    multilinestring_critical_err_in_validation_gdf = read_geofile(
+        Path("tests/sample_data/validation_errror_08042021/Circle3_fractures.shp")
+    )
+    multilinestring_critical_err_in_validation_gdf.error_amount = 1
 
     @staticmethod
     def random_data_column(iterable):
@@ -990,11 +996,6 @@ class Helpers:
     assert isinstance(unary_err_areas, gpd.GeoDataFrame)
 
     test_safer_unary_union_params = [
-        # (
-        #     unary_err_traces.geometry.iloc[0:5000],  # traces_geosrs
-        #     0.001,  # snap_threshold
-        #     13000,  # size_threshold
-        # ),
         (
             unary_err_traces.geometry,  # traces_geosrs
             0.001,  # snap_threshold
@@ -1005,21 +1006,6 @@ class Helpers:
             0.001,  # snap_threshold
             50,  # size_threshold
         ),
-        # (
-        #     unary_err_traces.geometry.iloc[5500:8000].sample(frac=1),  # traces_geosrs
-        #     0.001,  # snap_threshold
-        #     13000,  # size_threshold
-        # ),
-        # (
-        #     unary_err_traces.geometry,  # traces_geosrs
-        #     0.001,  # snap_threshold
-        #     13000,  # size_threshold
-        # ),
-        # (
-        #     unary_err_traces.geometry,  # traces_geosrs
-        #     0.001,  # snap_threshold
-        #     5000,  # size_threshold
-        # ),
     ]
 
     test_segment_within_buffer_params = [
@@ -1185,7 +1171,8 @@ class ValidationHelpers:
                     ]
                 )
             ],
-        )
+        ),
+        Helpers.multilinestring_critical_err_in_validation_gdf,
     ]
     known_vnode_gdfs = [
         gpd.GeoDataFrame(
@@ -1262,7 +1249,7 @@ class ValidationHelpers:
             else cls.known_false_positives[error]
         )
         amounts = [
-            gdf.shape[0]
+            (gdf.shape[0] if not hasattr(gdf, "error_amount") else gdf.error_amount)
             if error
             not in (
                 UnderlappingSnapValidator._UNDERLAPPING,

@@ -609,19 +609,30 @@ def determine_general_nodes(
         spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
         if not isinstance(geom, LineString):
+
             # Intersections and endpoints cannot be defined for
             # MultiLineStrings
             # TODO: Or can they? Probably shouldn't
             intersect_nodes.append(())
             endpoint_nodes.append(())
             continue
+
         # Get trace candidates for intersection
-        trace_candidates_idx: List[int] = sorted(
-            spatial_index_intersection(spatial_index, geom_bounds(geom))
+        trace_candidates_idx: List[int] = (
+            sorted(spatial_index_intersection(spatial_index, geom_bounds(geom)))
+            if spatial_index is not None
+            else [idx]
         )
+
         # Remove current geometry from candidates
         trace_candidates_idx.remove(idx)
         trace_candidates: gpd.GeoSeries = traces.geometry.iloc[trace_candidates_idx]
+
+        # Only accept LineString candidates
+        trace_candidates = trace_candidates.loc[
+            [isinstance(geom, LineString) for geom in trace_candidates.geometry.values]
+        ]
+
         # trace_candidates.index = trace_candidates_idx
         # TODO: Is intersection enough? Most Y-intersections might be underlapping.
         intersection_geoms = determine_valid_intersection_points_no_vnode(
@@ -657,6 +668,8 @@ def determine_valid_intersection_points_no_vnode(
     V-node intersections are validated by looking at the endpoints. If V-nodes
     were kept as intersection points the VNodeValidator could not find V-node
     errors.
+
+    TODO: Refactor.
     """
     inter = determine_valid_intersection_points(trace_candidates.intersection(geom))
     geom_endpoints = get_trace_endpoints(geom)

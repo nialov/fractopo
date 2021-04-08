@@ -188,19 +188,21 @@ class Validation:
                 logging.info(
                     "Dropping existing validation columns from traces GeoDataFrame."
                 )
-                self.traces: gpd.GeoDataFrame = self.traces.drop(columns=err_col)
+                traces = self.traces.drop(columns=err_col)
+                assert isinstance(traces, gpd.GeoDataFrame)
+                self.traces = traces
 
         # There's an option to choose the validators
-        validators = ALL_VALIDATORS
+        # Otherwise major are selected when running the first validation pass
+        # Otherwise all are selected
+        validators = MAJOR_VALIDATORS if first_pass else ALL_VALIDATORS
         if choose_validators is not None:
             validators = choose_validators
-            # Check if chosen validators require determining nodes.
-            self.determine_validation_nodes = any(
-                [
-                    validator in VALIDATION_REQUIRES_NODES
-                    for validator in choose_validators
-                ]
-            )
+
+        # Check if chosen validators require determining nodes.
+        self.determine_validation_nodes = any(
+            [validator in VALIDATION_REQUIRES_NODES for validator in validators]
+        )
 
         # Check if target area is completely void of traces
         if not allow_empty_area and is_empty_area(area=self.area, traces=self.traces):
@@ -214,21 +216,23 @@ class Validation:
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
         for idx, geom in enumerate(self.traces.geometry.values):
+
             # Collect errors from each validator for each geom
             current_errors: List[str] = []
+
             # If geom contains validation error that will cause issues in later
             # validation -> ignore the geom and break out of validation loop
             # for current geom.
             ignore_geom: bool = False
             trace_candidates: Optional[gpd.GeoSeries] = None
-            # validation loop
 
-            validators = MAJOR_VALIDATORS if first_pass else validators
+            # validation loop
             for validator in validators:
                 if ignore_geom:
+
                     # Break out of validation loop. See above comments
                     break
-                # delicate_kwargs = dict()
+
                 if isinstance(geom, LineString) and not geom.is_empty:
                     # Some conditionals to avoid try-except loop
                     # trace candidates that are nearby to geom based on spatial index
