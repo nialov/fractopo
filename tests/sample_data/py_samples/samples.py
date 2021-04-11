@@ -179,3 +179,14 @@ should_or_shouldnt_pass_sharp_turns = load_from_txt(
 should_pass_sharp_turns_ls_list = [
     loads(s) for s in should_or_shouldnt_pass_sharp_turns
 ]
+
+
+v_node_network_error = load_from_txt(
+    "v_node_network_error"
+)
+
+v_node_network_error_ls_list = [
+    loads(s) for s in should_or_shouldnt_pass_sharp_turns
+]
+
+

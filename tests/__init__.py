@@ -49,6 +49,7 @@ from tests.sample_data.py_samples.samples import (
     should_result_in_target_area_underlapping_ls,
     should_result_in_target_area_underlapping_poly,
     should_result_in_vnode_ls_list,
+    v_node_network_error_ls_list,
 )
 
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
@@ -88,6 +89,11 @@ class Helpers:
         Path("tests/sample_data/validation_errror_08042021/Circle3_fractures.shp")
     )
     multilinestring_critical_err_in_validation_gdf.error_amount = 1
+
+    v_node_network_error_gdf = gpd.GeoDataFrame(geometry=v_node_network_error_ls_list)
+    v_node_network_error_area_gdf = gpd.GeoDataFrame(
+        geometry=[bounding_polygon(v_node_network_error_gdf)]
+    )
 
     @staticmethod
     def random_data_column(iterable):
@@ -776,6 +782,14 @@ class Helpers:
             kb11_traces.iloc[0:100],  # traces
             kb11_area,  # area
             "KB11_0_100",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+        ),
+        (
+            v_node_network_error_gdf,  # traces
+            v_node_network_error_area_gdf,  # area
+            "v-node-error-network",  # name
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold

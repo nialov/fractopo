@@ -1763,6 +1763,7 @@ def node_identity(
     """
     Determine node identity of endpoint.
     """
+    # Check for proximity to area boundary
     if any(
         [
             endpoint.distance(area.boundary) < snap_threshold
@@ -1771,29 +1772,41 @@ def node_identity(
     ):
         return E_node
 
+    # Candidate points idxs
     candidate_idxs = list(endpoints_spatial_index.intersection(endpoint.coords[0]))
 
+    # Remove current
     candidate_idxs.remove(idx)
 
+    # Candidate points
     candidates = endpoints_geoseries.iloc[candidate_idxs]
 
+    # Get intersect count
     intersecting_node_count = sum(
         [candidate.distance(endpoint) < snap_threshold for candidate in candidates]
     )
     if intersecting_node_count == 0:
+
         # I-node
         return I_node
     elif intersecting_node_count == 2:
+
         # Y-node
         return Y_node
     elif intersecting_node_count == 3:
+
+        # X-node
         return X_node
     elif intersecting_node_count == 1:
+
+        # Unresolvable
         logging.error(
             f"Expected 0, 2 or 3 intersects. V-node or similar error at {endpoint.wkt}."
         )
         return I_node
     else:
+
+        # Unresolvable
         logging.error(
             f"Expected 0, 2 or 3 intersects. Multijunction at {endpoint.wkt}."
         )
