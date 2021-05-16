@@ -1,12 +1,12 @@
 """
 Utilities for randomly Network sampling traces.
 """
+from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
-from pydantic import BaseModel, validator
 from shapely.geometry import LineString, Point, Polygon
 
 from fractopo.analysis.network import Network
@@ -32,7 +32,8 @@ class RandomChoice(Enum):
     radius = "radius"
 
 
-class NetworkRandomSampler(BaseModel):
+@dataclass
+class NetworkRandomSampler:
 
     """
     Randomly sample traces inside given target area.
@@ -44,59 +45,68 @@ class NetworkRandomSampler(BaseModel):
     snap_threshold: float
     random_choice: Union[RandomChoice, str]
 
-    class Config:
-
+    def __post_init__(self):
         """
-        Configure NetworkRandomSampler.
+        Validate inputs post-initialization.
         """
+        self.random_choice = self.random_choice_should_be_enum(self.random_choice)
+        self.trace_gdf = self.trace_gdf_should_contain_traces(self.trace_gdf)
+        self.area_gdf = self.area_gdf_should_contain_polygon(self.area_gdf)
+        self.min_radius = self.value_should_be_positive(self.min_radius)
 
-        arbitrary_types_allowed = True
-
-    @validator("random_choice")
-    def random_choice_should_be_enum(cls, value):
+    @staticmethod
+    def random_choice_should_be_enum(
+        random_choice: Union[RandomChoice, str]
+    ) -> RandomChoice:
         """
         Check that random_choice is valid.
         """
         # Convert strings if they match any enum values
-        if isinstance(value, str):
+        if isinstance(random_choice, str):
             for choice_enum in RandomChoice:
-                if value == choice_enum.value:
+                if random_choice == choice_enum.value:
                     return choice_enum
-        # Type should be checked by pydantic already
-        else:
-            return value
 
-    @validator("trace_gdf")
-    def trace_gdf_should_contain_traces(cls, value):
+            raise TypeError(
+                "Expected random_choice to be"
+                f" convertable to RandomChoice enum. {random_choice=}"
+            )
+        else:
+            return random_choice
+
+    @staticmethod
+    def trace_gdf_should_contain_traces(
+        trace_gdf: gpd.GeoDataFrame,
+    ) -> gpd.GeoDataFrame:
         """
         Check that trace_gdf contains LineString traces.
         """
-        if not value.shape[0] > 0:
+        if not trace_gdf.shape[0] > 0:
             raise ValueError("Expected non-empty trace_gdf.")
-        if not all([isinstance(val, LineString) for val in value.geometry.values]):
+        if not all([isinstance(val, LineString) for val in trace_gdf.geometry.values]):
             raise TypeError("Expected only LineStrings in trace_gdf.")
-        return value
+        return trace_gdf
 
-    @validator("area_gdf")
-    def area_gdf_should_contain_polygon(cls, value):
+    @staticmethod
+    def area_gdf_should_contain_polygon(area_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Check that area_gdf contains one Polygon.
         """
-        if not value.shape[0] == 1:
+        if not area_gdf.shape[0] == 1:
             raise ValueError("Expected area_gdf with one geometry.")
-        geom = value.geometry.values[0]
+        geom = area_gdf.geometry.values[0]
         if not isinstance(geom, Polygon):
             raise TypeError("Expected one Polygon in area_gdf.")
-        return value
+        return area_gdf
 
-    @validator("min_radius", "snap_threshold")
-    def value_should_be_positive(cls, value):
+    @staticmethod
+    def value_should_be_positive(min_radius: float) -> float:
         """
         Check that value is positive.
         """
-        if not value > 0:
-            raise ValueError("Expected positive non-zero value.")
-        return value
+        if not min_radius > 0:
+            raise ValueError(f"Expected positive non-zero min_radius. {min_radius=}")
+        return min_radius
 
     @property
     def target_circle(self) -> Polygon:
