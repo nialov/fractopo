@@ -12,6 +12,7 @@ nox = "*"
 invoke = "*"
 jedi = "==0.17.2"
 bleach = ">=3.3.0"
+pyinstrument = "*"
 
 [packages]
 geopandas = "==0.9.0"

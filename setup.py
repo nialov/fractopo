@@ -161,6 +161,7 @@ setup(
             "invoke",
             "jedi==0.17.2",
             "bleach>=3.3.0",
+            "pyinstrument",
         ],
         "docs": ["sphinx", "sphinx-rtd-theme", "nbsphinx", "recommonmark"],
         "coverage": ["coverage", "coverage-badge"],
