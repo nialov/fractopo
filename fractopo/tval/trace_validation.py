@@ -206,11 +206,8 @@ class Validation:
 
         # Check if target area is completely void of traces
         if not allow_empty_area and is_empty_area(area=self.area, traces=self.traces):
-            logging.error("No traces within target area.")
+            logging.error(f"No traces within target area with name: {self.name}.")
             empty_gdf: gpd.GeoDataFrame = self.traces.copy()
-            empty_gdf[self.ERROR_COLUMN] = [
-                [EmptyTargetAreaValidator.ERROR]
-            ] * self.traces.shape[0]
             return empty_gdf
 
         all_errors: List[List[str]] = []
