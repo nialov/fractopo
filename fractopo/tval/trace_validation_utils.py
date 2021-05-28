@@ -45,16 +45,36 @@ def segment_within_buffer(
     buffered_linestring = safe_buffer(
         linestring, snap_threshold * snap_threshold_error_multiplier
     )
-
-    min_x, min_y, max_x, max_y = geom_bounds(buffered_linestring)
     assert isinstance(linestring, LineString)
     assert isinstance(buffered_linestring, Polygon)
     assert isinstance(multilinestring, MultiLineString)
     assert buffered_linestring.area > 0
-    # Test for overlap with a buffered linestring
+    min_x, min_y, max_x, max_y = geom_bounds(buffered_linestring)
+
+    # Crop MultiLineString near to the buffered_linestring
+    cropped_mls = buffered_linestring.intersection(multilinestring)
+
+    # Check for cases with no chance of stacking
+    if cropped_mls.is_empty or (
+        isinstance(cropped_mls, LineString)
+        and cropped_mls.length < snap_threshold * overlap_detection_multiplier
+    ):
+        return False
+
+    assert isinstance(cropped_mls, (MultiLineString, LineString))
+
     all_segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
     ls: LineString
-    for ls in multilinestring.geoms:
+
+    # Create list of LineStrings from within the crop
+    mls_geoms: List[LineString] = (
+        list(cropped_mls.geoms)
+        if isinstance(cropped_mls, MultiLineString)
+        else [cropped_mls]
+    )
+
+    # Iterate over list of LineStrings
+    for ls in mls_geoms:
         all_segments.extend(
             segmentize_linestring(ls, snap_threshold * overlap_detection_multiplier)
         )
@@ -78,6 +98,7 @@ def segmentize_linestring(
 
     Resulting parts are not guaranteed to be mergeable back to the original.
     """
+    assert isinstance(linestring, LineString)
     segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
         segment_coords: Tuple[Tuple[float, float], Tuple[float, float]] = tuple(

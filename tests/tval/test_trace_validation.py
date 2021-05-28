@@ -61,6 +61,41 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
     return validated_gdf
 
 
+def test_validation_hastholmen(
+    traces=Helpers.hastholmen_traces,
+    area=Helpers.hastholmen_area,
+    name="hastholmen_traces",
+    allow_fix=True,
+    assume_errors: Optional[List[str]] = [],
+):
+    """
+    Test Validation with hastholmen_traces.
+    """
+    additional_kwargs = dict()
+    if assume_errors and SharpCornerValidator.ERROR in assume_errors:
+        additional_kwargs = dict(
+            SHARP_AVG_THRESHOLD=80.0, SHARP_PREV_SEG_THRESHOLD=70.0
+        )
+
+    validated_gdf = Validation(
+        traces, area, name, allow_fix, **additional_kwargs
+    ).run_validation()
+    assert isinstance(validated_gdf, gpd.GeoDataFrame)
+    assert Validation.ERROR_COLUMN in validated_gdf.columns.values
+    if assume_errors is not None:
+        for assumed_error in assume_errors:
+            flat_validated_gdf_errors = [
+                val
+                for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
+                for val in subgroup
+            ]
+            assert assumed_error in flat_validated_gdf_errors
+    validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
+        Validation.ERROR_COLUMN
+    ].astype(str)
+    return validated_gdf
+
+
 @pytest.mark.parametrize(
     "traces,area,name,allow_fix,assume_errors,error_amount,false_positive",
     ValidationHelpers.get_all_errors(),

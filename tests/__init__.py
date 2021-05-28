@@ -95,6 +95,9 @@ class Helpers:
         geometry=[bounding_polygon(v_node_network_error_gdf)]
     )
 
+    hastholmen_traces = gpd.read_file("tests/sample_data/hastholmen_traces.geojson")
+    hastholmen_area = gpd.read_file("tests/sample_data/hastholmen_area.geojson")
+
     @staticmethod
     def random_data_column(iterable):
         """
@@ -168,6 +171,9 @@ class Helpers:
 
     @staticmethod
     def iterate_validators():
+        """
+        Iterate over validators.
+        """
         for validator in (
             GeomNullValidator,
             GeomTypeValidator,
@@ -528,6 +534,13 @@ class Helpers:
             "kb7",  # name
             True,  # auto_fix
             [SharpCornerValidator.ERROR],  # assume_errors
+        ),
+        (
+            hastholmen_traces,  # traces
+            hastholmen_area,  # area
+            "hastholmen_traces",  # name
+            True,  # auto_fix
+            [],  # assume_errors
         ),
         # (
         #     kb11_traces,  # traces
