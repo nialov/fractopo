@@ -1085,11 +1085,15 @@ def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):
     """
     Check if any traces intersect the area(s) in area GeoDataFrame.
     """
-    for area in area.geometry.values:
-        for trace in traces.geometry.values:
+    for area_polygon in area.geometry.values:
+        sindex = pygeos_spatial_index(traces)
+        intersection = spatial_index_intersection(sindex, geom_bounds(area_polygon))
+        potential_traces = traces.iloc[intersection]
+
+        for trace in potential_traces.geometry.values:
             # Only one trace intersect required. No need to loop
             # through all traces if one found.
-            if trace.intersects(area):
+            if trace.intersects(area_polygon):
                 return False
     return True
 
