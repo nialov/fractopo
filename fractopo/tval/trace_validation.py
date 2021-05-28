@@ -21,7 +21,6 @@ from fractopo.tval.trace_validators import (
     MAJOR_ERRORS,
     MAJOR_VALIDATORS,
     VALIDATION_REQUIRES_NODES,
-    EmptyTargetAreaValidator,
     MultiJunctionValidator,
     ValidatorClass,
 )
