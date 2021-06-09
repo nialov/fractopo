@@ -7,8 +7,7 @@ lineament and fracture trace maps (fracture networks).
 
 # Contents
 
-* [Homepage](https://github.com/nialov/fractopo)
-* [How to install](installation.md)
+* [Homepage with installation instructions](https://github.com/nialov/fractopo)
 
 # Methodology guides
 
