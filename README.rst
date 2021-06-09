@@ -159,6 +159,8 @@ visualizing different parameters and attributes of trace data.
 .. code:: python
 
    from fractopo.analysis.network import Network
+
+   # Initialize Network object and determine the topological branches and nodes
    network = Network(
        trace_data, area_data, name="mynetwork", determine_branches_nodes=True,
    )
@@ -182,4 +184,4 @@ visualizing different parameters and attributes of trace data.
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/nialov/fractopo/ec3f44fcc5d51dcbda442cb2e322fd09a3629261?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
+   :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
