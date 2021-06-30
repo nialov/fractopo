@@ -2,6 +2,7 @@
 Scripts for creating sample grids for fracture trace, branch and node data.
 """
 from typing import Dict, Optional
+import logging
 
 import geopandas as gpd
 import numpy as np
@@ -22,6 +23,7 @@ from fractopo.general import (
     safe_buffer,
     spatial_index_intersection,
 )
+from fractopo.branches_and_nodes import branches_and_nodes
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -51,59 +53,64 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     assert cell_width > 0
     assert len(branches) > 0
     assert all([isinstance(val, LineString) for val in branches.geometry.values])
+
     # Get total bounds of branches
     xmin, ymin, xmax, ymax = branches.total_bounds
     cell_height = cell_width
+
     # Calculate cell row and column counts
     rows = int(np.ceil((ymax - ymin) / cell_height))
     cols = int(np.ceil((xmax - xmin) / cell_width))
-    XleftOrigin = xmin
-    XrightOrigin = xmin + cell_width
-    YtopOrigin = ymax
-    YbottomOrigin = ymax - cell_height
+
+    x_left_origin = xmin
+    x_right_origin = xmin + cell_width
+    y_top_origin = ymax
+    y_bottom_origin = ymax - cell_height
     polygons = []
     # Create grid cell polygons
     for _ in range(cols):
-        Ytop = YtopOrigin
-        Ybottom = YbottomOrigin
+        y_top = y_top_origin
+        y_bottom = y_bottom_origin
         for _ in range(rows):
             polygons.append(
                 Polygon(
                     [
-                        (XleftOrigin, Ytop),
-                        (XrightOrigin, Ytop),
-                        (XrightOrigin, Ybottom),
-                        (XleftOrigin, Ybottom),
+                        (x_left_origin, y_top),
+                        (x_right_origin, y_top),
+                        (x_right_origin, y_bottom),
+                        (x_left_origin, y_bottom),
                     ]
                 )
             )
-            Ytop = Ytop - cell_height
-            Ybottom = Ybottom - cell_height
-        XleftOrigin = XleftOrigin + cell_width
-        XrightOrigin = XrightOrigin + cell_width
+            y_top = y_top - cell_height
+            y_bottom = y_bottom - cell_height
+        x_left_origin = x_left_origin + cell_width
+        x_right_origin = x_right_origin + cell_width
+
     # Create GeoDataFrame with grid polygons
     grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=branches.crs)
     assert len(grid) != 0
     return grid
 
+    # def populate_sample_cell(
+    #     sample_cell: Polygon,
+    #     sample_cell_area: float,
+    #     traces_sindex: PyGEOSSTRTreeIndex,
+    #     nodes_sindex: PyGEOSSTRTreeIndex,
+    #     traces: gpd.GeoDataFrame,
+    #     nodes: gpd.GeoDataFrame,
+    # ) -> Dict[str, float]:
+    #     """
+    #     Take a single grid polygon and populate it with parameters.
 
-# def populate_sample_cell(
-#     sample_cell: Polygon,
-#     sample_cell_area: float,
-#     traces_sindex: PyGEOSSTRTreeIndex,
-#     nodes_sindex: PyGEOSSTRTreeIndex,
-#     traces: gpd.GeoDataFrame,
-#     nodes: gpd.GeoDataFrame,
-# ) -> Dict[str, float]:
-#     """
-#     Take a single grid polygon and populate it with parameters.
+    #     E.g.
 
-#     E.g.
+    #     >>> traces = gpd.GeoDataFrame(
+    #     ...     {
+    #     ...             "geometry": [
+    #     ...                         LineString([(1, 1), (2, 2), (3, 3)]),
 
-#     >>> traces = gpd.GeoDataFrame(
-#     ...     {
-#     ...             "geometry": [
-#     ...                         LineString([(1, 1), (2, 2), (3, 3)]),
+
 #     ...                         ]
 #     ...     }
 #     ... )
@@ -237,13 +244,82 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
 #     return params
 
 
+# def populate_sample_cell(
+#     sample_cell: Polygon,
+#     sample_cell_area: float,
+#     traces_sindex: PyGEOSSTRTreeIndex,
+#     nodes_sindex: PyGEOSSTRTreeIndex,
+#     traces: gpd.GeoDataFrame,
+#     nodes: gpd.GeoDataFrame,
+#     snap_threshold: float,
+# ) -> Dict[str, float]:
+#     """
+#     Take a single grid polygon and populate it with parameters.
+
+#     E.g.
+
+#     TODO: Mauldon determination requires that E-nodes are defined for
+#           every single sample circle.
+
+#     """
+#     _centroid = sample_cell.centroid
+#     if not isinstance(_centroid, Point):
+#         raise TypeError("Expected Point centroid.")
+#     else:
+#         centroid = _centroid
+#     sample_circle = safe_buffer(centroid, np.sqrt(sample_cell_area) * 1.5)
+#     sample_circle_area = sample_circle.area
+#     assert sample_circle_area > 0
+
+#     # Choose geometries that are either within the sample_circle or
+#     # intersect it
+#     # Use spatial indexing to filter to only spatially relevant traces,
+#     # traces and nodes
+#     trace_candidates_idx = spatial_index_intersection(
+#         traces_sindex, geom_bounds(sample_circle)
+#     )
+#     trace_candidates = traces.iloc[trace_candidates_idx]
+
+#     # node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
+#     node_candidates_idx = spatial_index_intersection(
+#         spatial_index=nodes_sindex, coordinates=geom_bounds(sample_circle)
+#     )
+
+#     node_candidates = nodes.iloc[node_candidates_idx]
+
+#     # Crop traces to sample circle
+#     # First check if any geometries intersect
+#     # If not: sample_features is an empty GeoDataFrame
+#     if any(trace_candidates.intersects(sample_circle)):  # type: ignore
+#         sample_traces = crop_to_target_areas(
+#             traces=trace_candidates,
+#             areas=gpd.GeoSeries([sample_circle]),
+#             snap_threshold=snap_threshold,
+#         )
+#     else:
+#         sample_traces = traces.iloc[0:0]
+#     if any(nodes.intersects(sample_circle)):
+#         # TODO: Is node clipping stable?
+#         sample_nodes = gpd.clip(node_candidates, sample_circle)
+#     else:
+#         sample_nodes = nodes.iloc[0:0]
+
+#     assert isinstance(sample_nodes, gpd.GeoDataFrame)
+
+#     node_counts = determine_node_type_counts(sample_nodes[CLASS_COLUMN].values)
+#     topology_parameters = determine_topology_parameters(
+#         trace_length_array=sample_traces.geometry.length.values,
+#         node_counts=node_counts,
+#         area=sample_circle_area,
+#     )
+#     return topology_parameters
+
+
 def populate_sample_cell(
     sample_cell: Polygon,
     sample_cell_area: float,
     traces_sindex: PyGEOSSTRTreeIndex,
-    nodes_sindex: PyGEOSSTRTreeIndex,
     traces: gpd.GeoDataFrame,
-    nodes: gpd.GeoDataFrame,
     snap_threshold: float,
 ) -> Dict[str, float]:
     """
@@ -263,23 +339,36 @@ def populate_sample_cell(
     sample_circle = safe_buffer(centroid, np.sqrt(sample_cell_area) * 1.5)
     sample_circle_area = sample_circle.area
     assert sample_circle_area > 0
+
     # Choose geometries that are either within the sample_circle or
     # intersect it
     # Use spatial indexing to filter to only spatially relevant traces,
     # traces and nodes
-    # trace_candidates_idx = list(traces_sindex.intersection(sample_circle.bounds))
     trace_candidates_idx = spatial_index_intersection(
         traces_sindex, geom_bounds(sample_circle)
     )
-    trace_candidates_idx = spatial_index_intersection(
-        traces_sindex, geom_bounds(sample_circle)
+    trace_candidates = traces.iloc[trace_candidates_idx]
+
+    assert isinstance(trace_candidates, gpd.GeoDataFrame)
+
+    if len(trace_candidates) == 0:
+        return determine_topology_parameters(
+            trace_length_array=np.array([]),
+            node_counts=determine_node_type_counts(np.array([])),
+            area=sample_circle_area,
+        )
+
+    _, nodes = branches_and_nodes(
+        traces=trace_candidates,
+        areas=gpd.GeoSeries([sample_circle], crs=traces.crs),
+        snap_threshold=snap_threshold,
     )
     # node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
     node_candidates_idx = spatial_index_intersection(
-        spatial_index=nodes_sindex, coordinates=geom_bounds(sample_circle)
+        spatial_index=pygeos_spatial_index(nodes),
+        coordinates=geom_bounds(sample_circle),
     )
 
-    trace_candidates = traces.iloc[trace_candidates_idx]
     node_candidates = nodes.iloc[node_candidates_idx]
 
     # Crop traces to sample circle
@@ -296,10 +385,18 @@ def populate_sample_cell(
     if any(nodes.intersects(sample_circle)):
         # TODO: Is node clipping stable?
         sample_nodes = gpd.clip(node_candidates, sample_circle)
+        assert isinstance(sample_nodes, gpd.GeoDataFrame)
+        assert all([isinstance(val, Point) for val in sample_nodes.geometry.values])
     else:
         sample_nodes = nodes.iloc[0:0]
 
-    node_counts = determine_node_type_counts(sample_nodes[CLASS_COLUMN].values)
+    assert isinstance(sample_nodes, gpd.GeoDataFrame)
+
+    sample_node_type_values = sample_nodes[CLASS_COLUMN].values
+    assert isinstance(sample_node_type_values, np.ndarray)
+
+    node_counts = determine_node_type_counts(sample_node_type_values)
+
     topology_parameters = determine_topology_parameters(
         trace_length_array=sample_traces.geometry.length.values,
         node_counts=node_counts,
@@ -327,7 +424,7 @@ def sample_grid(
     # Make sure index doesnt cause issues TODO
     [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
     traces_sindex = pygeos_spatial_index(traces)
-    nodes_sindex = pygeos_spatial_index(nodes)
+    # nodes_sindex = pygeos_spatial_index(nodes)
 
     params_for_cells = list(
         map(
@@ -335,9 +432,7 @@ def sample_grid(
                 sample_cell,
                 sample_cell_area,
                 traces_sindex,
-                nodes_sindex,
                 traces,
-                nodes,
                 snap_threshold=snap_threshold,
             ),
             grid.geometry.values,
@@ -345,7 +440,6 @@ def sample_grid(
     )
     for key in [param.value for param in Param]:
         params[key] = [cell_param[key] for cell_param in params_for_cells]
-
     for key in params:
         grid[key] = params[key]
     return grid
@@ -494,6 +588,9 @@ def run_grid_sampling(
     If precursor_grid is passed, cell_width is not requires. Otherwise
     it must always be set to be to a non-default value.
     """
+    if traces.empty:
+        logging.warning("Empty GeoDataFrame passed to run_grid_sampling.")
+        return gpd.GeoDataFrame()
     if precursor_grid is not None:
         if not isinstance(precursor_grid, gpd.GeoDataFrame):
             raise TypeError("Expected precursor_grid to be of type: GeoDataFrame.")

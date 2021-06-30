@@ -999,6 +999,8 @@ def snap_traces(
     """
     Snap traces to end exactly at other traces.
     """
+    if len(traces) == 0:
+        return ([], False)
     # Only handle LineStrings
     assert all([isinstance(trace, LineString) for trace in traces])
 
@@ -1020,7 +1022,7 @@ def snap_traces(
         ]
     )
     assert len(simply_snapped_traces) == len(traces)
-    simply_snapped_traces_list = list(simply_snapped_traces)
+    simply_snapped_traces_list: List[LineString] = list(simply_snapped_traces)
 
     # Collect snapped (and non-snapped) traces to list
     snapped_traces, changes = zip(
@@ -1398,6 +1400,26 @@ def simple_snap(
 #     return nodes_of_interaction, node_id_data
 
 
+def filter_non_unique_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
+    """
+    Filter out traces that are not unique.
+    """
+    assert isinstance(traces, gpd.GeoSeries)
+    traces_set = set()
+    idxs_to_keep = []
+    for idx, geom in enumerate(traces.geometry.values):
+        assert isinstance(geom, LineString)
+        geom_wkt = geom.wkt
+        if geom_wkt in traces_set:
+            continue
+        traces_set.add(geom_wkt)
+        idxs_to_keep.append(idx)
+
+    unique_traces = traces.iloc[idxs_to_keep]
+    assert isinstance(unique_traces, gpd.GeoSeries)
+    return unique_traces
+
+
 def safer_unary_union(
     traces_geosrs: gpd.GeoSeries, snap_threshold: float, size_threshold: int
 ) -> MultiLineString:
@@ -1407,11 +1429,11 @@ def safer_unary_union(
     unary_union is not completely stable with large datasets but problem can be
     alleviated by dividing analysis to parts.
     """
-    # Debugging, fail safely
-    if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
-        raise ValueError(
-            "Expected size_threshold to be higher than 100. Union might be impossible."
-        )
+    if traces_geosrs.empty:
+        return MultiLineString()
+
+    traces_geosrs = filter_non_unique_traces(traces_geosrs)
+
     # Get amount of traces
     trace_count = traces_geosrs.shape[0]
 
@@ -1424,11 +1446,19 @@ def safer_unary_union(
     # This will be compared to the split approach result and better will
     # be returned
     normal_full_union = traces_geosrs.unary_union
+
     if trace_count < size_threshold:
         if len(normal_full_union.geoms) > trace_count and isinstance(
             normal_full_union, MultiLineString
         ):
             return normal_full_union
+
+    # Debugging, fail safely
+    if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
+
+        raise ValueError(
+            "Expected size_threshold to be higher than 100. Union might be impossible."
+        )
 
     # How many parts
     div = int(np.ceil(trace_count / size_threshold))
@@ -1479,7 +1509,6 @@ def safer_unary_union(
                 "Expected split union to give better results."
                 " Branches and nodes should be checked for inconsistencies."
             )
-
     else:
         raise TypeError(f"Expected MultiLineString from unary_union. Got {full_union}")
 
@@ -1616,8 +1645,13 @@ def branches_and_nodes(
 
     The traces will be cropped to the given target area(s) if not already
     clipped(already_clipped).
+
+    TODO: unary_union will not respect identical traces or near-identical.
+    Therefore cannot test if there are more branches than traces because
+    there might be less due to this issue.
     """
     traces_geosrs: gpd.GeoSeries = traces.geometry
+    traces_geosrs = filter_non_unique_traces(traces_geosrs)
     areas_geosrs: gpd.GeoSeries = areas.geometry
 
     areas_list = [
@@ -1670,20 +1704,25 @@ def branches_and_nodes(
     # )
 
     # Branches are determined with shapely/geopandas unary_union
+    branches_all = [
+        b
+        for b in safer_unary_union(
+            traces_geosrs,
+            snap_threshold=snap_threshold,
+            size_threshold=unary_size_threshold,
+        ).geoms
+    ]
+
     branches = gpd.GeoSeries(
-        [
-            b
-            for b in safer_unary_union(
-                traces_geosrs,
-                snap_threshold=snap_threshold,
-                size_threshold=unary_size_threshold,
-            ).geoms
-            if b.length > snap_threshold * 1.01
-        ]
+        [b for b in branches_all if b.length > snap_threshold * 1.01],
+        crs=traces_geosrs.crs,
     )
 
+    traces_geosrs = filter_non_unique_traces(traces_geosrs)
+
     # Report and error possibly unary_union failure
-    if len(branches) < len(traces_geosrs):
+    if len(branches_all) < len(traces_geosrs):
+
         # unary_union can fail with too large datasets
         raise ValueError(
             "Expected more branches than traces. Possible unary_union failure."
@@ -1870,6 +1909,9 @@ def node_identities_from_branches(
 
         # Add to resolved
         collected_nodes[endpoint.wkt] = (endpoint, identity)
+
+    if len(collected_nodes) == 0:
+        return [], []
 
     # Collect into two lists
     nodes, identities = zip(*collected_nodes.values())

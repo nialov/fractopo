@@ -1060,8 +1060,12 @@ def dissolve_multi_part_traces(
     # Dissolve MultiLineString geoms but keep same row data
     dissolved_rows = []
 
-    for _, row in mls_traces.iterrows():
-        as_linestrings = mls_to_ls([row.geometry])
+    as_linestrings_list = [mls_to_ls([geom]) for geom in mls_traces.geometry.values]
+    if isinstance(traces, gpd.GeoSeries):
+        return gpd.GeoSeries(list(chain(*as_linestrings_list)), crs=traces.crs)
+
+    for (_, row), as_linestrings in zip(mls_traces.iterrows(), as_linestrings_list):
+        # as_linestrings = mls_to_ls([row.geometry])
         if len(as_linestrings) == 0:
             raise ValueError("Expected atleast one geom from mls_to_ls.")
 
@@ -1073,6 +1077,7 @@ def dissolve_multi_part_traces(
 
     # Merge with ls_traces
     dissolved_traces = pd.concat([ls_traces, gpd.GeoDataFrame(dissolved_rows)])
+    assert isinstance(dissolved_traces, gpd.GeoDataFrame)
 
     if not all(
         [isinstance(val, LineString) for val in dissolved_traces.geometry.values]

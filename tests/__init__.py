@@ -3,13 +3,21 @@ Test parameters i.e. sample data, known past errors, etc.
 """
 from pathlib import Path
 from typing import List
+from functools import lru_cache
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
 from hypothesis.strategies import floats, integers, tuples
-from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+    box,
+)
 from shapely.wkt import loads
 
 from fractopo.analysis import parameters
@@ -1335,3 +1343,17 @@ class ValidationHelpers:
 
         assert len(all_errs) > 0
         return all_errs
+
+
+@lru_cache(maxsize=None)
+def test_populate_sample_cell_new_params():
+    """
+    Params for test_populate_sample_cell_new.
+    """
+    return [
+        (
+            box(0, 0, 2, 2),
+            gpd.GeoDataFrame(geometry=[LineString([(-5, 1), (5, 1)])]),
+            0.001,
+        )
+    ]
