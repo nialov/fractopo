@@ -30,13 +30,19 @@ from fractopo.general import (
 
 
 def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
+    """
+    Determine node type counts.
+    """
     return {
-        str(node_class): sum(node_types == node_class)
+        str(node_class): (sum(node_types == node_class) if len(node_types) > 0 else 0)
         for node_class in (X_node, Y_node, I_node, E_node)
     }
 
 
 def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
+    """
+    Determine branch type counts.
+    """
     return {
         str(branch_class): sum(branch_types == branch_class)
         for branch_class in (
