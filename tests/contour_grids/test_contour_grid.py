@@ -3,13 +3,13 @@ Tests for contour_grid.
 """
 import geopandas as gpd
 import pytest
-from shapely.geometry import LineString, Point, Polygon, box
+from shapely.geometry import LineString, Point, Polygon
 
+import tests
 from fractopo import contour_grid
 from fractopo.analysis.network import Network
 from fractopo.general import CC_branch, CI_branch, II_branch, pygeos_spatial_index
 from tests import Helpers
-import tests
 
 cell_width = 0.10
 branches = gpd.GeoDataFrame(
@@ -107,16 +107,18 @@ def test_run_grid_sampling(traces, areas, snap_threshold):
 @pytest.mark.parametrize(
     "sample_cell,traces,snap_threshold", tests.test_populate_sample_cell_new_params()
 )
-def test_populate_sample_cell_new(sample_cell, traces, snap_threshold):
+def test_populate_sample_cell(sample_cell, traces, snap_threshold):
     """
-    Test populate_sample_cell_new.
+    Test populate_sample_cell.
     """
     result = contour_grid.populate_sample_cell(
         sample_cell,
         sample_cell.area,
         pygeos_spatial_index(traces),
-        traces,
-        snap_threshold,
+        nodes=gpd.GeoDataFrame(),
+        traces=traces,
+        snap_threshold=snap_threshold,
+        resolve_branches_and_nodes=True,
     )
 
     assert isinstance(result, dict)

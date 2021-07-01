@@ -1,9 +1,9 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+from functools import lru_cache
 from pathlib import Path
 from typing import List
-from functools import lru_cache
 
 import geopandas as gpd
 import numpy as np

@@ -1,8 +1,8 @@
 """
 Scripts for creating sample grids for fracture trace, branch and node data.
 """
-from typing import Dict, Optional
 import logging
+from typing import Dict, Optional
 
 import geopandas as gpd
 import numpy as np
@@ -13,6 +13,7 @@ from fractopo.analysis.parameters import (
     determine_node_type_counts,
     determine_topology_parameters,
 )
+from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import (
     CLASS_COLUMN,
     GEOMETRY_COLUMN,
@@ -23,7 +24,6 @@ from fractopo.general import (
     safe_buffer,
     spatial_index_intersection,
 )
-from fractopo.branches_and_nodes import branches_and_nodes
 
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -55,17 +55,17 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     assert all([isinstance(val, LineString) for val in branches.geometry.values])
 
     # Get total bounds of branches
-    xmin, ymin, xmax, ymax = branches.total_bounds
+    x_min, y_min, x_max, y_max = branches.total_bounds
     cell_height = cell_width
 
     # Calculate cell row and column counts
-    rows = int(np.ceil((ymax - ymin) / cell_height))
-    cols = int(np.ceil((xmax - xmin) / cell_width))
+    rows = int(np.ceil((y_max - y_min) / cell_height))
+    cols = int(np.ceil((x_max - x_min) / cell_width))
 
-    x_left_origin = xmin
-    x_right_origin = xmin + cell_width
-    y_top_origin = ymax
-    y_bottom_origin = ymax - cell_height
+    x_left_origin = x_min
+    x_right_origin = x_min + cell_width
+    y_top_origin = y_max
+    y_bottom_origin = y_max - cell_height
     polygons = []
     # Create grid cell polygons
     for _ in range(cols):
@@ -320,15 +320,17 @@ def populate_sample_cell(
     sample_cell_area: float,
     traces_sindex: PyGEOSSTRTreeIndex,
     traces: gpd.GeoDataFrame,
+    nodes: gpd.GeoDataFrame,
     snap_threshold: float,
+    resolve_branches_and_nodes: bool,
 ) -> Dict[str, float]:
     """
     Take a single grid polygon and populate it with parameters.
 
-    E.g.
-
-    TODO: Mauldon determination requires that E-nodes are defined for
-          every single sample circle.
+    Mauldon determination requires that E-nodes are defined for
+    every single sample circle. If correct Mauldon values are
+    wanted `resolve_branches_and_nodes` must be passed as True.
+    This will result in much longer analysis time.
 
     """
     _centroid = sample_cell.centroid
@@ -357,12 +359,14 @@ def populate_sample_cell(
             node_counts=determine_node_type_counts(np.array([])),
             area=sample_circle_area,
         )
-
-    _, nodes = branches_and_nodes(
-        traces=trace_candidates,
-        areas=gpd.GeoSeries([sample_circle], crs=traces.crs),
-        snap_threshold=snap_threshold,
-    )
+    if resolve_branches_and_nodes:
+        # Solve branches and nodes for each cell if wanted
+        # Only way to make sure Mauldon parameters are correct
+        _, nodes = branches_and_nodes(
+            traces=trace_candidates,
+            areas=gpd.GeoSeries([sample_circle], crs=traces.crs),
+            snap_threshold=snap_threshold,
+        )
     # node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
     node_candidates_idx = spatial_index_intersection(
         spatial_index=pygeos_spatial_index(nodes),
@@ -401,6 +405,7 @@ def populate_sample_cell(
         trace_length_array=sample_traces.geometry.length.values,
         node_counts=node_counts,
         area=sample_circle_area,
+        correct_mauldon=resolve_branches_and_nodes,
     )
     return topology_parameters
 
@@ -410,6 +415,7 @@ def sample_grid(
     traces: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
     snap_threshold: float,
+    resolve_branches_and_nodes: bool = False,
 ) -> gpd.GeoDataFrame:
     """
     Populate a sample polygon grid with geometrical and topological parameters.
@@ -429,11 +435,13 @@ def sample_grid(
     params_for_cells = list(
         map(
             lambda sample_cell: populate_sample_cell(
-                sample_cell,
-                sample_cell_area,
-                traces_sindex,
-                traces,
+                sample_cell=sample_cell,
+                sample_cell_area=sample_cell_area,
+                traces_sindex=traces_sindex,
+                traces=traces,
+                nodes=nodes,
                 snap_threshold=snap_threshold,
+                resolve_branches_and_nodes=resolve_branches_and_nodes,
             ),
             grid.geometry.values,
         )
@@ -578,6 +586,7 @@ def run_grid_sampling(
     cell_width: float,
     snap_threshold: float,
     precursor_grid: Optional[gpd.GeoDataFrame] = None,
+    resolve_branches_and_nodes=False,
 ) -> gpd.GeoDataFrame:
     """
     Run the contour grid sampling to passed trace, branch and node data.
@@ -602,5 +611,11 @@ def run_grid_sampling(
                 "Expected cell_width to be non-close-to-zero positive number."
             )
         grid = create_grid(cell_width, branches)
-    sampled_grid = sample_grid(grid, traces, nodes, snap_threshold=snap_threshold)
+    sampled_grid = sample_grid(
+        grid,
+        traces,
+        nodes,
+        snap_threshold=snap_threshold,
+        resolve_branches_and_nodes=resolve_branches_and_nodes,
+    )
     return sampled_grid

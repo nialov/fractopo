@@ -1432,8 +1432,6 @@ def safer_unary_union(
     if traces_geosrs.empty:
         return MultiLineString()
 
-    traces_geosrs = filter_non_unique_traces(traces_geosrs)
-
     # Get amount of traces
     trace_count = traces_geosrs.shape[0]
 
@@ -1447,6 +1445,9 @@ def safer_unary_union(
     # be returned
     normal_full_union = traces_geosrs.unary_union
 
+    if isinstance(normal_full_union, LineString):
+        return MultiLineString([normal_full_union])
+
     if trace_count < size_threshold:
         if len(normal_full_union.geoms) > trace_count and isinstance(
             normal_full_union, MultiLineString
@@ -1456,7 +1457,7 @@ def safer_unary_union(
     # Debugging, fail safely
     if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
 
-        raise ValueError(
+        logging.critical(
             "Expected size_threshold to be higher than 100. Union might be impossible."
         )
 
@@ -1465,6 +1466,7 @@ def safer_unary_union(
 
     # Divide with numpy
     split_traces = np.array_split(traces_geosrs, div)
+    assert isinstance(split_traces, list)
 
     # How many in each pair
     # part_count = int(np.ceil(trace_count / div))
@@ -1473,6 +1475,40 @@ def safer_unary_union(
     assert all([isinstance(val, gpd.GeoSeries) for val in split_traces])
     assert isinstance(split_traces[0].iloc[0], LineString)
 
+    # Do unary_union in parts
+    part_unions = part_unary_union(
+        split_traces=split_traces,
+        snap_threshold=snap_threshold,
+        size_threshold=size_threshold,
+        div=div,
+    )
+    # Do full union of split unions
+    full_union = unary_union(MultiLineString(list(chain(*part_unions))))
+
+    # full_union should always be better or equivalent to normal unary_union.
+    # (better when unary_union fails silently)
+    if isinstance(full_union, MultiLineString):
+        if len(full_union.geoms) >= len(normal_full_union.geoms):
+            return full_union
+        else:
+            raise ValueError(
+                "Expected split union to give better results."
+                " Branches and nodes should be checked for inconsistencies."
+            )
+    elif isinstance(full_union, LineString):
+        return MultiLineString([full_union])
+    else:
+        raise TypeError(
+            f"Expected (Multi)LineString from unary_union. Got {full_union}"
+        )
+
+
+def part_unary_union(
+    split_traces: list, snap_threshold: float, size_threshold: int, div: int
+):
+    """
+    Conduct safer_unary_union in parts.
+    """
     # Collect partly done unary_unions to part_unions list
     part_unions = []
 
@@ -1495,22 +1531,7 @@ def safer_unary_union(
         # Collect
         part_unions.append(part_union)
     assert len(part_unions) == div
-
-    # Do full union of split unions
-    full_union = unary_union(MultiLineString(list(chain(*part_unions))))
-
-    # full_union should always be better or equivalent to normal unary_union.
-    # (better when unary_union fails silently)
-    if isinstance(full_union, MultiLineString):
-        if len(full_union.geoms) >= len(normal_full_union.geoms):
-            return full_union
-        else:
-            raise ValueError(
-                "Expected split union to give better results."
-                " Branches and nodes should be checked for inconsistencies."
-            )
-    else:
-        raise TypeError(f"Expected MultiLineString from unary_union. Got {full_union}")
+    return part_unions
 
 
 def report_snapping_loop(loops: int, allowed_loops: int):
@@ -1651,14 +1672,21 @@ def branches_and_nodes(
     there might be less due to this issue.
     """
     traces_geosrs: gpd.GeoSeries = traces.geometry
+
+    # Filter out traces that are not unique by wkt
+    # unary_union will fail to take them into account any way
     traces_geosrs = filter_non_unique_traces(traces_geosrs)
+
     areas_geosrs: gpd.GeoSeries = areas.geometry
 
+    # Collect into lists
     areas_list = [
         poly
         for poly in areas_geosrs.geometry.values
         if isinstance(poly, (Polygon, MultiPolygon))
     ]
+
+    # Collect into lists
     traces_list = [
         trace for trace in traces.geometry.values if isinstance(trace, LineString)
     ]
@@ -1682,6 +1710,7 @@ def branches_and_nodes(
         report_snapping_loop(loops, allowed_loops=allowed_loops)
 
     traces_geosrs = gpd.GeoSeries(traces_list)
+
     # Clip if necessary
     if not already_clipped:
         traces_geosrs = crop_to_target_areas(
@@ -1718,15 +1747,14 @@ def branches_and_nodes(
         crs=traces_geosrs.crs,
     )
 
-    traces_geosrs = filter_non_unique_traces(traces_geosrs)
-
     # Report and error possibly unary_union failure
     if len(branches_all) < len(traces_geosrs):
 
         # unary_union can fail with too large datasets
-        raise ValueError(
+        logging.critical(
             "Expected more branches than traces. Possible unary_union failure."
         )
+
     # Determine nodes and identities
     nodes, node_identities = node_identities_from_branches(
         branches=branches, areas=areas_geosrs, snap_threshold=snap_threshold

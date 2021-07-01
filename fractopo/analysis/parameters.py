@@ -319,6 +319,7 @@ def determine_topology_parameters(
     trace_length_array: np.ndarray,
     node_counts: Dict[str, int],
     area: float,
+    correct_mauldon: bool = True,
 ):
     """
     Determine topology parameters.
@@ -359,16 +360,21 @@ def determine_topology_parameters(
     )
 
     radius = np.sqrt(area / np.pi)
+
     trace_mean_length_mauldon = (
         (
             ((np.pi * radius) / 2)
             * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
         )
-        if node_counts[I_node] + node_counts[Y_node] > 0
+        if node_counts[I_node] + node_counts[Y_node] > 0 and correct_mauldon
         else 0.0
     )
     fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
-    fracture_intensity_mauldon = trace_mean_length_mauldon * fracture_density_mauldon
+    fracture_intensity_mauldon = (
+        (trace_mean_length_mauldon * fracture_density_mauldon)
+        if correct_mauldon
+        else 0.0
+    )
     connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
     topology_parameters = {
         Param.NUMBER_OF_TRACES.value: number_of_traces,
