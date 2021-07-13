@@ -2,11 +2,12 @@
 Tests for contour_grid.
 """
 import geopandas as gpd
+import pandas as pd
 import pytest
 from shapely.geometry import LineString, Point, Polygon
 
 import tests
-from fractopo import contour_grid
+from fractopo.analysis import contour_grid
 from fractopo.analysis.network import Network
 from fractopo.general import CC_branch, CI_branch, II_branch, pygeos_spatial_index
 from tests import Helpers
@@ -77,7 +78,7 @@ def test_sample_grid():
 @pytest.mark.parametrize(
     "traces,areas,snap_threshold", Helpers.test_run_grid_sampling_params
 )
-def test_run_grid_sampling(traces, areas, snap_threshold):
+def test_run_grid_sampling(traces, areas, snap_threshold, dataframe_regression):
     """
     Test sample_grid with network determined b and n.
     """
@@ -90,20 +91,25 @@ def test_run_grid_sampling(traces, areas, snap_threshold):
         truncate_traces=True,
         circular_target_area=False,
     )
-    branches, nodes = network.branch_gdf, network.node_gdf
-    assert isinstance(branches, gpd.GeoDataFrame)
-    assert isinstance(nodes, gpd.GeoDataFrame)
-    result = contour_grid.run_grid_sampling(
-        traces=network.trace_gdf,
-        branches=branches,
-        nodes=nodes,
-        snap_threshold=snap_threshold,
-        cell_width=5,
-    )
+    result = network.contour_grid()
+    # branches, nodes = network.branch_gdf, network.node_gdf
+    # assert isinstance(branches, gpd.GeoDataFrame)
+    # assert isinstance(nodes, gpd.GeoDataFrame)
+    # result = contour_grid.run_grid_sampling(
+    #     traces=network.trace_gdf,
+    #     branches=branches,
+    #     nodes=nodes,
+    #     snap_threshold=snap_threshold,
+    #     cell_width=5,
+    # )
 
     assert isinstance(result, gpd.GeoDataFrame)
     assert result.shape[0] > 0
     assert isinstance(result.geometry.values[0], Polygon)
+
+    dataframe_regression.check(
+        pd.DataFrame(result).sort_index().drop(columns=["geometry"])
+    )
 
 
 @pytest.mark.parametrize(
