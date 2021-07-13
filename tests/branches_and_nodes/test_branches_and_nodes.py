@@ -402,7 +402,7 @@ def test_snap_trace_to_another(
     Helpers.test_branches_and_nodes_regression_params,
 )
 def test_branches_and_nodes_regression(
-    traces, areas, snap_threshold, allowed_loops, already_clipped, file_regression
+    traces, areas, snap_threshold, allowed_loops, already_clipped, data_regression
 ):
     """
     Test branches and nodes with regression.
@@ -411,7 +411,10 @@ def test_branches_and_nodes_regression(
         traces, areas, snap_threshold, allowed_loops, already_clipped
     )
 
-    file_regression.check(branches.to_json() + nodes.to_json())
+    branches_value_counts = branches[general.CONNECTION_COLUMN].value_counts().to_dict()
+    nodes_value_counts = nodes[general.CLASS_COLUMN].value_counts().to_dict()
+
+    data_regression.check({**branches_value_counts, **nodes_value_counts})
 
 
 def test_branches_and_nodes_troubling():

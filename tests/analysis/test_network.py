@@ -110,14 +110,6 @@ def test_network(
         [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
     )
 
-    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
-
-        # Do not check massive branch counts
-        file_regression.check(network.branch_gdf.sort_index().to_json())
-        network_extensive_testing(
-            network=network, traces=traces, area=area, snap_threshold=snap_threshold
-        )
-
     network_attributes = dict()
     for attribute in ("node_counts", "branch_counts"):
         # network_attributes[attribute] = getattr(network, attribute)
@@ -125,12 +117,19 @@ def test_network(
             network_attributes[key] = int(value)
 
         for key, value in network.numerical_network_description().items():
-            try:
-                network_attributes[key] = round(value.item(), 5)
-            except AttributeError:
-                network_attributes[key] = round(value, 5)
+            network_attributes[key] = round(
+                value.item() if hasattr(value, "item") else value, 5
+            )
 
     data_regression.check(network_attributes)
+
+    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
+
+        # Do not check massive branch counts
+        file_regression.check(network.branch_gdf.sort_index().to_json())
+        network_extensive_testing(
+            network=network, traces=traces, area=area, snap_threshold=snap_threshold
+        )
 
     assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
     assert network.trace_intersects_target_area_boundary.dtype == "int"
@@ -159,6 +158,7 @@ def network_extensive_testing(
     copy_trace_gdf = network.trace_data.line_gdf.copy()
     copy_branch_gdf = network.branch_data.line_gdf.copy()
 
+    # Test resetting
     network.reset_length_data()
     assert_frame_equal(copy_trace_gdf, network.trace_data.line_gdf)
     assert_frame_equal(copy_branch_gdf, network.branch_data.line_gdf)
@@ -254,9 +254,9 @@ def test_network_kb11_manual():
     "trace_gdf,area_gdf,name",
     Helpers.test_network_circular_target_area_params,
 )
-def test_network_circular_target_area(trace_gdf, area_gdf, name):
+def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression):
     """
-    Test circular_target_area var.
+    Test network circular_target_area.
     """
     network_circular = Network(
         trace_gdf=trace_gdf,
@@ -276,20 +276,14 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
     lengths_circular = network_circular.trace_length_array
     lengths_non_circular = network_non_circular.trace_length_array
 
-    assert np.isclose(lengths_circular[0], lengths_non_circular[0] * 2)
-    assert np.isclose(lengths_circular[1], lengths_non_circular[1])
-    assert np.isclose(lengths_circular[2], 0)
-    assert not np.isclose(lengths_non_circular[2], 0)
+    lengths_circular_sum = np.sum(lengths_circular)
+    lengths_non_circular_sum = np.sum(lengths_non_circular)
 
-    assert all(
-        np.isclose(
-            network_circular.trace_length_array_non_weighted, lengths_non_circular
-        )
-    )
-    assert all(
-        np.isclose(
-            network_non_circular.trace_length_array_non_weighted, lengths_non_circular
-        )
+    data_regression.check(
+        {
+            "circular_sum": lengths_circular_sum.item(),
+            "non_circular_sum": lengths_non_circular_sum.item(),
+        }
     )
 
     # test both traces and branches for right boundary_intersect_counts
