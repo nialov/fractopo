@@ -864,3 +864,42 @@ class Network:
         if label is None:
             label = self.name
         return self.branch_data.plot_length_set_count(label=label)
+
+    def contour_grid(
+        self,
+        cell_width: Optional[float] = None,
+        bounds_divider: float = 20.0,
+        precursor_grid: Optional[gpd.GeoDataFrame] = None,
+    ):
+        """
+        Sample the network with a contour grid.
+
+        If ``cell_width`` is passed it is used as the cell width. Otherwise
+        a cell width is calculated using the network branch bounds using
+        the passed ``bounds_divider`` or its default value.
+
+        If ``precursor_grid`` is passed it is used as the grid in which
+        each Polygon cell is filled with calculated network parameter values.
+        """
+        if cell_width is None:
+            # Use trace bounds to calculate a width
+            min_x, min_y, max_x, max_y = self.branch_gdf.total_bounds
+            x_diff = max_x - min_x
+            y_diff = max_y - min_y
+            if x_diff < y_diff:
+                cell_width = y_diff / bounds_divider
+            else:
+                cell_width = x_diff / bounds_divider
+
+        assert isinstance(cell_width, (float, int))
+
+        sampled_grid = run_grid_sampling(
+            traces=self.trace_gdf,
+            branches=self.branch_gdf,
+            nodes=self.node_gdf,
+            cell_width=cell_width,
+            snap_threshold=self.snap_threshold,
+            precursor_grid=precursor_grid,
+            resolve_branches_and_nodes=False,
+        )
+        return sampled_grid
