@@ -1366,75 +1366,57 @@ def calc_circle_radius(area: float) -> float:
     return np.sqrt(area / np.pi)
 
 
-def bounding_grid(cell_width: float, geodataset: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """
-    Create an empty rectangular polygon grid for sampling.
+# def bounding_grid(cell_width: float, geodataset: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+#     """
+#     Create an empty rectangular polygon grid for sampling.
 
-    Grid is created to always contain all geometries in ``geodataset``.
+#     Grid is created to always contain all geometries in ``geodataset``.
+#     """
+#     assert cell_width > 0
+#     assert len(geodataset) > 0
+#     assert all(
+#         [
+#             isinstance(val, (BaseGeometry, BaseMultipartGeometry))
+#             for val in geodataset.geometry.values
+#         ]
+#     )
 
-    E.g.
+#     # Get total bounds of geometries
+#     x_min, y_min, x_max, y_max = geodataset.total_bounds
+#     cell_height = cell_width
 
-    >>> geodataset = gpd.GeoSeries(
-    ...     [
-    ...             LineString([(1, 1), (2, 2)]),
-    ...             LineString([(2, 2), (3, 3)]),
-    ...             LineString([(3, 0), (2, 2)]),
-    ...             LineString([(2, 2), (-2, 5)]),
-    ...     ]
-    ... )
-    >>> bounding_grid(cell_width=0.1, geodataset=geodataset).head(5)
-                                                geometry
-    0  POLYGON ((-2.00000 5.00000, -1.90000 5.00000, ...
-    1  POLYGON ((-2.00000 4.90000, -1.90000 4.90000, ...
-    2  POLYGON ((-2.00000 4.80000, -1.90000 4.80000, ...
-    3  POLYGON ((-2.00000 4.70000, -1.90000 4.70000, ...
-    4  POLYGON ((-2.00000 4.60000, -1.90000 4.60000, ...
-    """
-    assert cell_width > 0
-    assert len(geodataset) > 0
-    assert all(
-        [
-            isinstance(val, (BaseGeometry, BaseMultipartGeometry))
-            for val in geodataset.geometry.values
-        ]
-    )
+#     # Calculate cell row and column counts
+#     rows = int(np.ceil((y_max - y_min) / cell_height))
+#     cols = int(np.ceil((x_max - x_min) / cell_width))
 
-    # Get total bounds of geometries
-    x_min, y_min, x_max, y_max = geodataset.total_bounds
-    cell_height = cell_width
+#     # Initialize grid start coordinates
+#     x_left_origin = x_min
+#     x_right_origin = x_min + cell_width
+#     y_top_origin = y_max
+#     y_bottom_origin = y_max - cell_height
+#     polygons = []
 
-    # Calculate cell row and column counts
-    rows = int(np.ceil((y_max - y_min) / cell_height))
-    cols = int(np.ceil((x_max - x_min) / cell_width))
+#     # Create grid cell polygons
+#     for _ in range(cols):
+#         y_top = y_top_origin
+#         y_bottom = y_bottom_origin
+#         for _ in range(rows):
+#             polygons.append(
+#                 Polygon(
+#                     [
+#                         (x_left_origin, y_top),
+#                         (x_right_origin, y_top),
+#                         (x_right_origin, y_bottom),
+#                         (x_left_origin, y_bottom),
+#                     ]
+#                 )
+#             )
+#             y_top = y_top - cell_height
+#             y_bottom = y_bottom - cell_height
+#         x_left_origin = x_left_origin + cell_width
+#         x_right_origin = x_right_origin + cell_width
 
-    # Initialize grid start coordinates
-    x_left_origin = x_min
-    x_right_origin = x_min + cell_width
-    y_top_origin = y_max
-    y_bottom_origin = y_max - cell_height
-    polygons = []
-
-    # Create grid cell polygons
-    for _ in range(cols):
-        y_top = y_top_origin
-        y_bottom = y_bottom_origin
-        for _ in range(rows):
-            polygons.append(
-                Polygon(
-                    [
-                        (x_left_origin, y_top),
-                        (x_right_origin, y_top),
-                        (x_right_origin, y_bottom),
-                        (x_left_origin, y_bottom),
-                    ]
-                )
-            )
-            y_top = y_top - cell_height
-            y_bottom = y_bottom - cell_height
-        x_left_origin = x_left_origin + cell_width
-        x_right_origin = x_right_origin + cell_width
-
-    # Create GeoDataFrame with grid polygons
-    grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=geodataset.crs)
-    assert len(grid) != 0
-    return grid
+#     # Create GeoDataFrame with grid polygons
+#     grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=geodataset.crs)
+#     assert len(grid) != 0
+#     return grid
