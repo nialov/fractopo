@@ -1739,6 +1739,7 @@ def branches_and_nodes(
         ).geoms
     ]
 
+    # Filter out very short branches
     branches = gpd.GeoSeries(
         [b for b in branches_all if b.length > snap_threshold * 1.01],
         crs=traces_geosrs.crs,
@@ -1756,6 +1757,7 @@ def branches_and_nodes(
     nodes, node_identities = node_identities_from_branches(
         branches=branches, areas=areas_geosrs, snap_threshold=snap_threshold
     )
+
     # Collect to GeoSeries
     nodes_geosrs = gpd.GeoSeries(nodes)
 

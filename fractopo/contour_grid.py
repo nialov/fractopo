@@ -378,7 +378,11 @@ def populate_sample_cell(
     # Crop traces to sample circle
     # First check if any geometries intersect
     # If not: sample_features is an empty GeoDataFrame
-    if any(trace_candidates.intersects(sample_circle)):  # type: ignore
+    if any(
+        trace_candidate.intersects(sample_circle)
+        for trace_candidate in trace_candidates.geometry.values
+    ):
+        # if any(trace_candidates.intersects(sample_circle)):  # type: ignore
         sample_traces = crop_to_target_areas(
             traces=trace_candidates,
             areas=gpd.GeoSeries([sample_circle]),
@@ -386,15 +390,16 @@ def populate_sample_cell(
         )
     else:
         sample_traces = traces.iloc[0:0]
-    if any(nodes.intersects(sample_circle)):
+    if any(node.intersects(sample_circle) for node in nodes.geometry.values):
+        # if any(nodes.intersects(sample_circle)):
         # TODO: Is node clipping stable?
         sample_nodes = gpd.clip(node_candidates, sample_circle)
-        assert isinstance(sample_nodes, gpd.GeoDataFrame)
         assert all([isinstance(val, Point) for val in sample_nodes.geometry.values])
     else:
         sample_nodes = nodes.iloc[0:0]
 
     assert isinstance(sample_nodes, gpd.GeoDataFrame)
+    assert isinstance(sample_traces, gpd.GeoDataFrame)
 
     sample_node_type_values = sample_nodes[CLASS_COLUMN].values
     assert isinstance(sample_node_type_values, np.ndarray)
