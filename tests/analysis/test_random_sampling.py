@@ -46,7 +46,7 @@ def test_network_random_sampler_manual():
             assert np.isclose(radius, sampler.max_radius)
         assert target_centroid.within(sampler.target_circle)
 
-        # TODO: Errors are possible.
+        # TODO: Errors are possible and will randomly occur.
         assert (
             sum(network.branch_types == Error_branch) / len(network.branch_types)
             < 0.0001
