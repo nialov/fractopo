@@ -11,10 +11,10 @@ import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
-from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
 from fractopo.general import (
     Col,
+    SetRangeTuple,
     determine_azimuth,
     determine_set,
     intersection_count_to_boundary_weight,

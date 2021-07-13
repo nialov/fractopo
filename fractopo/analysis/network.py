@@ -15,8 +15,8 @@ from matplotlib.projections import PolarAxes
 from shapely.geometry import MultiPolygon, Point, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
-from fractopo import SetRangeTuple
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
+from fractopo.analysis.contour_grid import run_grid_sampling
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
     branches_intersect_boundary,
@@ -36,6 +36,7 @@ from fractopo.general import (
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     EE_branch,
+    SetRangeTuple,
     bool_arrays_sum,
     crop_to_target_areas,
     determine_boundary_intersecting_lines,

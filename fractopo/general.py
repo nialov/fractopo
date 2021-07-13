@@ -26,11 +26,8 @@ from shapely.geometry import (
     Polygon,
     box,
 )
-from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
-
-from fractopo import BoundsTuple, PointTuple, SetRangeTuple
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
@@ -65,6 +62,10 @@ LOGNORMAL = "lognormal"
 EXPONENTIAL = "exponential"
 
 NULL_SET = "-1"
+
+SetRangeTuple = Tuple[Tuple[float, float], ...]
+BoundsTuple = Tuple[float, float, float, float]
+PointTuple = Tuple[float, float]
 
 
 @unique

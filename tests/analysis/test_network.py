@@ -16,8 +16,8 @@ from pandas.testing import assert_frame_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
-from fractopo import SetRangeTuple
 from fractopo.analysis.network import Network
+from fractopo.general import SetRangeTuple
 from tests import Helpers
 
 
