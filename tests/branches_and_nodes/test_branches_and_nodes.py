@@ -188,7 +188,7 @@ def test_snap_traces_simple():
     )
     first_coords = simple_snapped_traces[0].coords
     first_coords_points = [Point(c) for c in first_coords]
-    assert any([p.intersects(simple_snapped_traces[1]) for p in first_coords_points])
+    assert any(p.intersects(simple_snapped_traces[1]) for p in first_coords_points)
     # assert Point(0.99, 0).intersects(
     #     gpd.GeoSeries([Point(xy) for xy in simple_snapped_traces.iloc[1].coords])
     # )

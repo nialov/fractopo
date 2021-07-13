@@ -51,11 +51,13 @@ def test_create_grid():
     """
     Test create_grid.
     """
+    assert isinstance(branches, gpd.GeoDataFrame)
     grid = contour_grid.create_grid(cell_width, branches)
     assert isinstance(grid, gpd.GeoDataFrame)
     some_intersect = False
     for cell in grid.geometry:
-        if any(branches.intersects(cell)):
+        # if any(branches.intersects(cell)):
+        if any(branch.intersects(cell) for branch in branches.geometry.values):
             some_intersect = True
     assert some_intersect
     return grid

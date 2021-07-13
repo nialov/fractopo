@@ -517,7 +517,7 @@ def insert_point_to_linestring(
     if point.has_z:
         logging.warning("Point contains z-coordinates. These will be lost.")
 
-    if any([point.intersects(Point(xy)) for xy in trace.coords]):
+    if any(point.intersects(Point(xy)) for xy in trace.coords):
         logging.error(
             "Point already matches a coordinate point in trace.\n"
             f"point: {point.wkt}, trace: {trace.wkt}\n"

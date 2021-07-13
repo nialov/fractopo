@@ -45,9 +45,11 @@ def test_network_random_sampler_manual():
         if not network.trace_gdf.shape[0] <= trace_gdf.shape[0]:
             assert np.isclose(radius, sampler.max_radius)
         assert target_centroid.within(sampler.target_circle)
+
+        # TODO: Errors are possible.
         assert (
             sum(network.branch_types == Error_branch) / len(network.branch_types)
-            < 0.001
+            < 0.0001
         )
     return circle_samples
 
