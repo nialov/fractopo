@@ -1005,8 +1005,19 @@ def crop_to_target_areas(
     # Match the crs
     traces, areas = match_crs(traces, areas)
 
+    traces.reset_index(drop=True, inplace=True)
+    spatial_index = pygeos_spatial_index(traces)
+
+    areas_bounds: Tuple[float, float, float, float] = tuple(areas.total_bounds)
+    assert len(areas_bounds) == 4
+
+    candidate_idxs = spatial_index_intersection(
+        spatial_index=spatial_index, coordinates=areas_bounds
+    )
+    candidate_traces = traces.iloc[candidate_idxs]
+
     # Clip traces to target areas
-    clipped_traces = gpd.clip(traces, areas)
+    clipped_traces = gpd.clip(candidate_traces, areas)
 
     # Clipping might result in Point geometries
     # Filter to only LineStrings and MultiLineStrings
