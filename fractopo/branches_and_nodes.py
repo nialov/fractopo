@@ -294,9 +294,6 @@ def get_branch_identities(
             spatial_index=node_spatial_index, coordinates=geom_bounds(branch)
         )
         # node_candidate_idxs = list(node_spatial_index.intersection(branch.bounds))
-        node_candidate_idxs = spatial_index_intersection(
-            spatial_index=node_spatial_index, coordinates=geom_bounds(branch)
-        )
         node_candidates = nodes.iloc[node_candidate_idxs]
         node_candidate_types = [node_identities[i] for i in node_candidate_idxs]
 
