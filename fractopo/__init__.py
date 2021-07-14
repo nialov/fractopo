@@ -1,18 +1,14 @@
 """
-Main package with general utilites.
+fractopo.
 
-Analysis and validation tools in subpackages.
+Fracture Network Analysis
 """
 import logging
 
 from fractopo.analysis.network import Network
 from fractopo.tval.trace_validation import Validation
 
-# Versioneer import
-from ._version import get_versions
+__version__ = "0.0.1.post246.dev0+646e5fa"
 
-# Versioneer handles
-__version__ = get_versions()["version"]
-del get_versions
 
 logging.info(f"Main imports available from fractopo/__init__.py: {Network, Validation}")

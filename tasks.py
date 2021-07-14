@@ -68,7 +68,14 @@ def nox_parallel(c):
     print(f"{len(results)} nox sessions ran succesfully.")
 
 
-@task(pre=[requirements])
+@task
+def update_version(c):
+    """
+    Update pyproject.toml version string.
+    """
+    c.run("nox --session update_version")
+
+
 def ci_test(c):
     """
     Test suite for continous integration testing.

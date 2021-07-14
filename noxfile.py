@@ -234,6 +234,19 @@ def docs(session):
     )
 
 
+@nox.session
+def update_version(session):
+    """
+    Update package version from git vcs.
+    """
+    # Install poetry-dynamic-versioning
+    session.install("poetry-dynamic-versioning")
+
+    # Run poetry-dynamic-versioning to update version tag in pyproject.toml
+    # and fractopo/__init__.py
+    session.run("poetry-dynamic-versioning")
+
+
 @nox.session(reuse_venv=True)
 def profile_network_analysis(session):
     """
