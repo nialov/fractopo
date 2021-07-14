@@ -133,7 +133,7 @@ def test_network(
 
         for key, value in network.numerical_network_description().items():
             network_attributes[key] = round(
-                value.item() if hasattr(value, "item") else value, 5
+                value.item() if hasattr(value, "item") else value, 2
             )
 
     data_regression.check(network_attributes)

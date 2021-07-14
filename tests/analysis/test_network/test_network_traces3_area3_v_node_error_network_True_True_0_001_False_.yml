@@ -1,78 +1,78 @@
 Areal Frequency B20: 0.0
 Areal Frequency P20: 0.0
-Branch Mean Length: 6470.77725
+Branch Mean Length: 6470.78
 C - C: 0
 C - E: 0
 C - I: 0
 Connection Frequency: 0.0
 Connections per Branch: 0.0
 Connections per Trace: 0.0
-Dimensionless Intensity B22: 0.11842
-Dimensionless Intensity P22: 0.11842
+Dimensionless Intensity B22: 0.12
+Dimensionless Intensity P22: 0.12
 E: 0
 E - E: 0
 Fracture Density (Mauldon): 0.0
 Fracture Intensity (Mauldon): 0.0
-Fracture Intensity B21: 2.0e-05
-Fracture Intensity P21: 2.0e-05
+Fracture Intensity B21: 0.0
+Fracture Intensity P21: 0.0
 I: 4
 I - E: 0
 I - I: 2
 Number of Branches: 2.0
 Number of Traces: 2.0
-Trace Mean Length: 6470.77725
+Trace Mean Length: 6470.78
 Trace Mean Length (Mauldon): 0.0
 X: 0
 Y: 0
-branch exponential Kolmogorov-Smirnov distance D: 0.3645
-branch exponential lambda: 0.00015
-branch exponential loglikelihood: -19.54887
+branch exponential Kolmogorov-Smirnov distance D: 0.36
+branch exponential lambda: 0.0
+branch exponential loglikelihood: -19.55
 branch lengths cut off proportion: 0.0
-branch lognormal Kolmogorov-Smirnov distance D: 0.36461
-branch lognormal loglikelihood: -15.64298
-branch lognormal mu: -1942.00357
-branch lognormal sigma: 88.83973
-branch lognormal vs. exponential R: 0.68332
-branch lognormal vs. exponential p: 0.4944
-branch power_law Kolmogorov-Smirnov distance D: 0.36466
-branch power_law alpha: 1.24731
-branch power_law cut-off: 3.97829
-branch power_law exponent: -0.24731
-branch power_law sigma: 0.17487
-branch power_law vs. exponential R: 0.68294
-branch power_law vs. exponential p: 0.49465
-branch power_law vs. lognormal R: 0.00133
-branch power_law vs. lognormal p: 0.99894
-branch power_law vs. truncated_power_law R: -0.31727
-branch power_law vs. truncated_power_law p: 0.49485
-branch truncated_power_law Kolmogorov-Smirnov distance D: 0.39565
-branch truncated_power_law alpha: 1.10366
-branch truncated_power_law exponent: -0.10366
-branch truncated_power_law lambda: 1.0e-05
+branch lognormal Kolmogorov-Smirnov distance D: 0.36
+branch lognormal loglikelihood: -15.64
+branch lognormal mu: -1942.0
+branch lognormal sigma: 88.84
+branch lognormal vs. exponential R: 0.68
+branch lognormal vs. exponential p: 0.49
+branch power_law Kolmogorov-Smirnov distance D: 0.36
+branch power_law alpha: 1.25
+branch power_law cut-off: 3.98
+branch power_law exponent: -0.25
+branch power_law sigma: 0.17
+branch power_law vs. exponential R: 0.68
+branch power_law vs. exponential p: 0.49
+branch power_law vs. lognormal R: 0.0
+branch power_law vs. lognormal p: 1.0
+branch power_law vs. truncated_power_law R: -0.32
+branch power_law vs. truncated_power_law p: 0.49
+branch truncated_power_law Kolmogorov-Smirnov distance D: 0.4
+branch truncated_power_law alpha: 1.1
+branch truncated_power_law exponent: -0.1
+branch truncated_power_law lambda: 0.0
 branch truncated_power_law loglikelihood: -15.41
-trace exponential Kolmogorov-Smirnov distance D: 0.3645
-trace exponential lambda: 0.00015
-trace exponential loglikelihood: -19.54887
+trace exponential Kolmogorov-Smirnov distance D: 0.36
+trace exponential lambda: 0.0
+trace exponential loglikelihood: -19.55
 trace lengths cut off proportion: 0.0
-trace lognormal Kolmogorov-Smirnov distance D: 0.36461
-trace lognormal loglikelihood: -15.64298
-trace lognormal mu: -1942.00357
-trace lognormal sigma: 88.83973
-trace lognormal vs. exponential R: 0.68332
-trace lognormal vs. exponential p: 0.4944
-trace power_law Kolmogorov-Smirnov distance D: 0.36466
-trace power_law alpha: 1.24731
-trace power_law cut-off: 3.97829
-trace power_law exponent: -0.24731
-trace power_law sigma: 0.17487
-trace power_law vs. exponential R: 0.68294
-trace power_law vs. exponential p: 0.49465
-trace power_law vs. lognormal R: 0.00133
-trace power_law vs. lognormal p: 0.99894
-trace power_law vs. truncated_power_law R: -0.31727
-trace power_law vs. truncated_power_law p: 0.49485
-trace truncated_power_law Kolmogorov-Smirnov distance D: 0.39565
-trace truncated_power_law alpha: 1.10366
-trace truncated_power_law exponent: -0.10366
-trace truncated_power_law lambda: 1.0e-05
+trace lognormal Kolmogorov-Smirnov distance D: 0.36
+trace lognormal loglikelihood: -15.64
+trace lognormal mu: -1942.0
+trace lognormal sigma: 88.84
+trace lognormal vs. exponential R: 0.68
+trace lognormal vs. exponential p: 0.49
+trace power_law Kolmogorov-Smirnov distance D: 0.36
+trace power_law alpha: 1.25
+trace power_law cut-off: 3.98
+trace power_law exponent: -0.25
+trace power_law sigma: 0.17
+trace power_law vs. exponential R: 0.68
+trace power_law vs. exponential p: 0.49
+trace power_law vs. lognormal R: 0.0
+trace power_law vs. lognormal p: 1.0
+trace power_law vs. truncated_power_law R: -0.32
+trace power_law vs. truncated_power_law p: 0.49
+trace truncated_power_law Kolmogorov-Smirnov distance D: 0.4
+trace truncated_power_law alpha: 1.1
+trace truncated_power_law exponent: -0.1
+trace truncated_power_law lambda: 0.0
 trace truncated_power_law loglikelihood: -15.41
