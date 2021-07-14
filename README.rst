@@ -20,8 +20,8 @@ Development status
 
    -  Installation on Windows is currently not supported due to problems
       with installation of ``gdal``-based packages like geopandas.
-   -  Contour grid sampling is sometimes slow and requires refactor at
-      some point.
+   -  Contour grid sampling is slow due to ``geopandas.clip`` not being
+      enough performant for extensive use.
    -  ``snap_traces`` in branch and node determination is not completely
       stable. Some edge cases cause artifacts which only sometimes are
       recognized as error branches. (Mostly solved as of 1.3.2021).
@@ -33,7 +33,7 @@ Development status
 Full documentation
 ------------------
 
--  Documentation hosted on Read the Docs:
+-  Documentation is hosted on Read the Docs:
 
    -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html>`__
 
@@ -41,9 +41,9 @@ Installation
 ------------
 
 Currently installation is supported only for linux-based operating
-systems. There's a known problem with installing any ``gdal``-based Python
-package onto a Windows machine. (Could be circumvented at some point by
-using conda.)
+systems. There's a known problem with installing any ``gdal``-based
+Python package onto a Windows machine. (Could be circumvented at some
+point by using ``conda``.)
 
 Omit ``--dev`` or ``[dev]`` for regular installation. Keep if you want
 to test/develop or otherwise install all development python
@@ -112,9 +112,13 @@ Trace and target area data can be validated for further analysis with a
 
 .. code:: python
 
-   from fractopo.tval.trace_validation import Validation
+   from fractopo import Validation
+
    validation = Validation(
-       trace_data, area_data, name="mytraces", allow_fix=True,
+       trace_data,
+       area_data,
+       name="mytraces",
+       allow_fix=True,
    )
 
    # Validation is done explicitly with `run_validation` method
@@ -158,11 +162,19 @@ visualizing different parameters and attributes of trace data.
 
 .. code:: python
 
-   from fractopo.analysis.network import Network
+    >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
+    '0-20'
+
+.. code:: python
+
+   from fractopo import Network
 
    # Initialize Network object and determine the topological branches and nodes
    network = Network(
-       trace_data, area_data, name="mynetwork", determine_branches_nodes=True,
+       trace_data,
+       area_data,
+       name="mynetwork",
+       determine_branches_nodes=True,
    )
 
    # Properties are easily accessible
