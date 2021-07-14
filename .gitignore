@@ -22,3 +22,6 @@ venv/
 requirements.txt
 
 network_profile.py
+*.whl
+*.gz
+dist
