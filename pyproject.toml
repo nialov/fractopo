@@ -97,9 +97,6 @@ skip = "fractopo/_version.py"
 [tool.pylint.master]
 fail-under = "9.5"
 
-[tool.pylint.master]
-fail-under = "9.5"
-
 [tool.pylint.report]
 output-format = "text"
 
@@ -113,5 +110,6 @@ disable = [
     "W0212",
     "W1203",
     ]
+
 [tool.pylint.similarities]
 ignore-imports = true
