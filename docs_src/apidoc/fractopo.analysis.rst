@@ -9,6 +9,7 @@ Submodules
 
    fractopo.analysis.anisotropy
    fractopo.analysis.azimuth
+   fractopo.analysis.contour_grid
    fractopo.analysis.length_distributions
    fractopo.analysis.line_data
    fractopo.analysis.network

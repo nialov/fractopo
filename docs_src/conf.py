@@ -33,7 +33,6 @@ release = imported_package.__version__  # type: ignore
 # -- General configuration ---------------------------------------------------
 
 extensions = [
-    "recommonmark",
     "sphinx.ext.autodoc",
     "sphinx_rtd_theme",
     "nbsphinx",
