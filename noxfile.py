@@ -263,3 +263,17 @@ def profile_network_analysis(session):
         "tests/profile_runtime.html",
         "tests/profile_runtime.py",
     )
+
+@nox.session
+def build(session):
+    """
+    Build package with poetry.
+    """
+    # Install poetry
+    session.install("poetry")
+
+    # Install dependencies to poetry
+    session.run("poetry", "install")
+
+    # Build
+    session.run("poetry", "build")

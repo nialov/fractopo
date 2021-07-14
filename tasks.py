@@ -3,10 +3,7 @@ Invoke tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
-
-from invoke import UnexpectedExit, task
-
-NOX_PARALLEL_SESSIONS = ("tests_pip",)
+from invoke import task
 
 PACKAGE_NAME = "fractopo"
 
@@ -27,34 +24,6 @@ def format_and_lint(c):
     c.run("nox --session format_and_lint")
 
 
-@task(pre=[requirements])
-def nox_parallel(c):
-    """
-    Run selected nox test suite sessions in parallel.
-    """
-    # Run asynchronously and collect promises
-    print(f"Running {len(NOX_PARALLEL_SESSIONS)} nox test sessions.")
-    promises = [
-        c.run(
-            f"nox --session {nox_test} --no-color",
-            asynchronous=True,
-            timeout=360,
-        )
-        for nox_test in NOX_PARALLEL_SESSIONS
-    ]
-
-    # Join all promises
-    results = [promise.join() for promise in promises]
-
-    # Check if Result has non-zero exit code (should've already thrown error.)
-    for result in results:
-        if result.exited != 0:
-            raise UnexpectedExit(result)
-
-    # Report to user of success.
-    print(f"{len(results)} nox sessions ran succesfully.")
-
-
 @task
 def update_version(c):
     """
@@ -73,21 +42,12 @@ def ci_test(c):
     c.run("nox --session tests_pip")
 
 
-@task(pre=[requirements, nox_parallel])
-def test(_):
-    """
-    Run tests.
-
-    This is an extensive suite. It first tests in current environment and then
-    creates virtual sessions with nox to test installation -> tests.
-    """
-
-
 @task(pre=[requirements, update_version])
 def docs(c):
     """
     Make documentation to docs using nox.
     """
+    print("Making documentation.")
     c.run("nox --session docs")
 
 
@@ -96,10 +56,20 @@ def notebooks(c):
     """
     Execute and fill notebooks.
     """
+    print("Executing and filling notebooks.")
     c.run("nox --session notebooks")
 
 
-@task(pre=[update_version, test, format_and_lint, docs, notebooks])
+@task(pre=[requirements])
+def build(c):
+    """
+    Build package with poetry
+    """
+    print("Building package with poetry.")
+    c.run("nox --session build")
+
+
+@task(pre=[update_version, format_and_lint, docs, notebooks, build])
 def make(_):
     """
     Make all.

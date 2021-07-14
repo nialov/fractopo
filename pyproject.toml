@@ -97,20 +97,21 @@ skip = "fractopo/_version.py"
 [tool.pylint.master]
 fail-under = "9.5"
 
+[tool.pylint.master]
+fail-under = "9.5"
+
 [tool.pylint.report]
 output-format = "text"
 
 [tool.pylint.messages_control]
 max-line-length = 100
-# disable = "C0103, R0913, W1203"
 disable = [
     "C0103",
     "R0902",
     "R0913",
     "R0914",
-    "W1203",
     "W0212",
+    "W1203",
     ]
-
 [tool.pylint.similarities]
 ignore-imports = true

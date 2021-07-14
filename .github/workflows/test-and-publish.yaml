@@ -45,16 +45,12 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Install setuptools, wheel, invoke and nox
+      - name: Install invoke and nox
         run: >-
-          python -m pip install --upgrade pip
-          python -m pip install poetry invoke nox
-      - name: Update requirements with nox session
-        run: >-
-          invoke requirements
+          python -m pip install invoke nox
       - name: Build binary wheel and a source tarball
         run: >-
-          poetry build
+          invoke build
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
