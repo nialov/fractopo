@@ -790,6 +790,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            True,  # circular_target_area
         ),
         (
             kb11_traces,  # traces
@@ -798,6 +799,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
         (
             kb11_traces.iloc[0:100],  # traces
@@ -806,6 +808,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
         (
             v_node_network_error_gdf,  # traces
@@ -814,6 +817,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
     ]
 

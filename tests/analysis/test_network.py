@@ -39,6 +39,7 @@ def test_azimuth_set_relationships_regression(file_regression):
         azimuth_set_ranges=azimuth_set_ranges,
         azimuth_set_names=azimuth_set_names,
         snap_threshold=0.001,
+        circular_target_area=False,
     ).azimuth_set_relationships
     file_regression.check(relations_df.to_string())
 
@@ -61,12 +62,21 @@ def test_length_set_relationships_regression(file_regression):
         trace_length_set_names=trace_length_set_names,
         trace_length_set_ranges=trace_length_set_ranges,
         snap_threshold=0.001,
+        circular_target_area=False,
     ).azimuth_set_relationships
     file_regression.check(relations_df.to_string())
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,determine_branches_nodes,truncate_traces,snap_threshold",
+    """
+    traces,
+    area,
+    name,
+    determine_branches_nodes,
+    truncate_traces,
+    snap_threshold,
+    circular_target_area
+    """,
     Helpers.test_network_params,
 )
 def test_network(
@@ -76,6 +86,7 @@ def test_network(
     determine_branches_nodes,
     truncate_traces,
     snap_threshold,
+    circular_target_area,
     file_regression,
     data_regression,
     num_regression,
@@ -96,6 +107,7 @@ def test_network(
         branch_length_set_names=("A", "B"),
         trace_length_set_ranges=((0.1, 1), (1, 2)),
         branch_length_set_ranges=((0.1, 1), (1, 2)),
+        circular_target_area=circular_target_area,
     )
 
     assert area.shape[0] == len(network.representative_points())
