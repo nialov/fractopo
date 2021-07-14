@@ -1,6 +1,67 @@
+[tool.poetry]
+name = "fractopo"
+version = "0.0.1.post246.dev0+646e5fa"
+description = "Fracture Network Analysis"
+authors = ["nialov <nikolasovaskainen@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+geopandas = "==0.9.0"
+pandas = "*"
+numpy = "*"
+shapely = "*"
+pygeos = "==0.8"
+scipy = "*"
+powerlaw = "*"
+python-ternary = "*"
+sklearn = "*"
+seaborn = "*"
+matplotlib = "*"
+click = "*"
+descartes = "*"
+
+# Extras
+# Coverage
+coverage = {version = "*", optional = true}
+coverage-badge = {version = "*", optional = true}
+
+# Docs
+sphinx = {version = "*", optional = true}
+sphinx-rtd-theme = {version = "*", optional = true}
+nbsphinx = {version = "*", optional = true}
+
+# Linting and formatting
+pylint = {version = "*", optional = true}
+rstcheck = {version = "*", optional = true}
+black = {version = "*", optional = true}
+black-nb = {version = "*", optional = true}
+isort = {version = "*", optional = true}
+
+[tool.poetry.dev-dependencies]
+bleach = ">=3.3.0"
+hypothesis = "*"
+invoke = "*"
+ipython = "*"
+jedi = "==0.17.2"
+jupyterlab = "*"
+nox = "*"
+pyinstrument = "*"
+pytest = "*"
+pytest-regressions = "*"
+
+[tool.poetry.extras]
+coverage = ["coverage", "coverage-badge"]
+docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx"]
+format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort"] 
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry-dynamic-versioning]
 enable = true
 vcs = "git"
+
 [tool.pytest.ini_options]
 testpaths =[
     "tests",
@@ -33,7 +94,20 @@ multi_line_output = 3
 src_paths = ["fractopo", "tests"]
 skip = "fractopo/_version.py"
 
-[tool.coverage.run]
-omit =[
-    "fractopo/_version.py",
+[tool.pylint.report]
+output-format = "text"
+
+[tool.pylint.messages_control]
+max-line-length = 100
+# disable = "C0103, R0913, W1203"
+disable = [
+    "C0103",
+    "R0902",
+    "R0913",
+    "R0914",
+    "W1203",
+    "W0212",
     ]
+
+[tool.pylint.similarities]
+ignore-imports = true

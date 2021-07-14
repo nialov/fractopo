@@ -1,34 +1,32 @@
 """
 Nox test suite.
 """
-import logging
 from pathlib import Path
-from shutil import copy2, copytree, rmtree
+from shutil import rmtree
 from typing import List
 
 import nox
 
 # Variables
-package_name = "fractopo"
+PACKAGE_NAME = "fractopo"
 
 # Paths
-docs_apidoc_dir_path = Path("docs_src/apidoc")
-docs_dir_path = Path("docs")
-coverage_svg_path = Path("docs_src/imgs/coverage.svg")
+DOCS_APIDOC_DIR_PATH = Path("docs_src/apidoc")
+DOCS_DIR_PATH = Path("docs")
+COVERAGE_SVG_PATH = Path("docs_src/imgs/coverage.svg")
 
 # Path strings
-tests_name = "tests"
-pipfile_lock = "Pipfile.lock"
-notebooks_name = "notebooks"
-docs_notebooks_name = "docs_src/notebooks"
-tasks_name = "tasks.py"
-noxfile_name = "noxfile.py"
-pylama_config = "pylama.ini"
+TESTS_NAME = "tests"
+NOTEBOOKS_NAME = "notebooks"
+TASKS_NAME = "tasks.py"
+NOXFILE_NAME = "noxfile.py"
+DEV_REQUIREMENTS = "requirements.txt"
+DOCS_REQUIREMENTS = "docs_src/requirements.txt"
 
 # Globs
-docs_notebooks = Path("docs_src/notebooks").glob("*.ipynb")
-regular_notebooks = Path(notebooks_name).glob("*.ipynb")
-all_notebooks = list(docs_notebooks) + list(regular_notebooks)
+DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
+REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
+ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
 
 def filter_paths_to_existing(*iterables) -> List[str]:
@@ -53,37 +51,12 @@ def fill_notebook(session, notebook: Path):
     )
 
 
-@nox.session(python="3.8")
-def tests_pipenv(session: nox.Session):
+def install_dev(session, extras: str = ""):
     """
-    Run test suite with pipenv sync.
+    Install all package and dev dependencies.
     """
-    tmp_dir = session.create_tmp()
-    for to_copy in (package_name, tests_name, pipfile_lock, notebooks_name):
-        if Path(to_copy).is_dir():
-            copytree(to_copy, Path(tmp_dir) / to_copy)
-        elif Path(to_copy).is_file():
-            copy2(to_copy, tmp_dir)
-        elif Path(to_copy).exists():
-            ValueError("File not dir or file.")
-        else:
-            logging.error(f"Expected {to_copy} to exist.")
-    session.chdir(tmp_dir)
-    session.install("pipenv")
-    session.run("pipenv", "--rm", success_codes=[0, 1])
-    session.run(
-        "pipenv",
-        "sync",
-        "--python",
-        f"{session.python}",
-        "--dev",
-        "--bare",
-    )
-    session.run(
-        "pipenv",
-        "run",
-        "pytest",
-    )
+    session.install(f".{extras}")
+    session.install("-r", DEV_REQUIREMENTS)
 
 
 @nox.session(python="3.8")
@@ -91,21 +64,31 @@ def tests_pip(session):
     """
     Run test suite with pip install.
     """
+    # Check if any tests exist
+    tests_path = Path(TESTS_NAME)
+    if (
+        (not tests_path.exists())
+        or (tests_path.is_file())
+        or (len(list(tests_path.iterdir())) == 0)
+    ):
+        print("No tests in {TESTS_NAME} directory.")
+        return
+
     # Install dependencies dev + coverage
-    session.install(".[dev,coverage]")
+    install_dev(session=session, extras="[coverage]")
 
     # Test with pytest and determine coverage
-    session.run("coverage", "run", "--source", package_name, "-m", "pytest")
+    session.run("coverage", "run", "--source", PACKAGE_NAME, "-m", "pytest")
 
     # Fails with test coverage under 70
     session.run("coverage", "report", "--fail-under", "70")
 
     # Make coverage-badge image
-    if coverage_svg_path.exists():
-        coverage_svg_path.unlink()
-    elif not coverage_svg_path.parent.exists():
-        coverage_svg_path.parent.mkdir(parents=True)
-    session.run("coverage-badge", "-o", str(coverage_svg_path))
+    if COVERAGE_SVG_PATH.exists():
+        COVERAGE_SVG_PATH.unlink()
+    elif not COVERAGE_SVG_PATH.parent.exists():
+        COVERAGE_SVG_PATH.parent.mkdir(parents=True)
+    session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
 
 
 @nox.session(python="3.8")
@@ -116,22 +99,34 @@ def notebooks(session):
     Notebooks are usually run in remote so use pip install.
     Note that notebooks shouldn't have side effects i.e. file disk file writing.
     """
-    session.install(".[dev]")
+    # Check if any notebooks exist.
+    if len(ALL_NOTEBOOKS) == 0:
+        print("No notebooks found.")
+        return
+
+    # Install dev dependencies
+    install_dev(session=session)
+
     # Test notebook(s)
-    for notebook in all_notebooks:
+    for notebook in ALL_NOTEBOOKS:
         fill_notebook(session=session, notebook=notebook)
 
 
 @nox.session(python="3.8")
-def format(session):
+def format_and_lint(session):
     """
-    Format Python files, notebooks and docs_src.
+    Format and lint python files, notebooks and docs_src.
     """
-    # Install only format dependencies
-    session.install("black", "black-nb", "isort")
     existing_paths = filter_paths_to_existing(
-        package_name, tests_name, tasks_name, noxfile_name
+        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME
     )
+
+    if len(existing_paths) == 0:
+        print("Nothing to format or lint.")
+        return
+
+    # Install formatting and lint dependencies
+    install_dev(session=session, extras="[format-lint]")
 
     # Format python files
     session.run("black", *existing_paths)
@@ -143,20 +138,8 @@ def format(session):
     )
 
     # Format notebooks
-    for notebook in all_notebooks:
+    for notebook in ALL_NOTEBOOKS:
         session.run("black-nb", str(notebook))
-
-
-@nox.session(python="3.8")
-def lint(session):
-    """
-    Lint python files, notebooks and docs_src.
-    """
-    # Install only lint dependencies
-    session.install("rstcheck", "sphinx", "black", "black-nb", "isort", "pylama")
-    existing_paths = filter_paths_to_existing(
-        package_name, tests_name, tasks_name, noxfile_name
-    )
 
     # Lint docs
     session.run(
@@ -175,15 +158,13 @@ def lint(session):
         *existing_paths,
     )
 
-    # Lint with pylama
+    # Lint with pylint
     session.run(
-        "pylama",
-        "-o",
-        pylama_config,
+        "pylint",
         *existing_paths,
     )
 
-    for notebook in all_notebooks:
+    for notebook in ALL_NOTEBOOKS:
         # Lint notebooks with black-nb (all should be formatted.)
         session.run("black-nb", "--check", str(notebook))
 
@@ -191,10 +172,25 @@ def lint(session):
 @nox.session
 def requirements(session):
     """
-    Sync Pipfile to setup.py with pipenv-setup.
+    Sync poetry requirements from pyproject.toml to requirements.txt.
     """
-    session.install("pipenv-setup")
-    session.run("pipenv-setup", "sync", "--pipfile", "--dev")
+    # Install poetry
+    session.install("poetry")
+
+    # Sync dev requirements
+    session.run("poetry", "export", "--without-hashes", "--dev", "-o", DEV_REQUIREMENTS)
+
+    # Sync docs requirements
+    session.run(
+        "poetry",
+        "export",
+        "--without-hashes",
+        "--dev",
+        "-E",
+        "docs",
+        "-o",
+        DOCS_REQUIREMENTS,
+    )
 
 
 @nox.session
@@ -204,24 +200,26 @@ def docs(session):
 
     Installation mimics readthedocs install.
     """
-    # Install with setup.py[dev] installation
-    session.install(".[dev,docs]")
+    # Install from docs_src/requirements.txt that has been synced with docs
+    # requirements
+    session.install(".")
+    session.install("-r", DOCS_REQUIREMENTS)
 
     # Remove old apidocs
-    if docs_apidoc_dir_path.exists():
-        rmtree(docs_apidoc_dir_path)
+    if DOCS_APIDOC_DIR_PATH.exists():
+        rmtree(DOCS_APIDOC_DIR_PATH)
 
     # Remove all old docs
-    if docs_dir_path.exists():
-        rmtree(docs_dir_path)
+    if DOCS_DIR_PATH.exists():
+        rmtree(DOCS_DIR_PATH)
 
     # Execute and fill cells in docs notebooks
-    for notebook in docs_notebooks:
+    for notebook in DOCS_NOTEBOOKS:
         fill_notebook(session=session, notebook=notebook)
 
     # Create apidocs
     session.run(
-        "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{package_name}", "-e", "-f"
+        "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
     )
 
     # Create docs in ./docs folder
@@ -252,8 +250,9 @@ def profile_network_analysis(session):
     """
     Profile Network analysis with pyinstrument.
     """
-    # Install with setup.py[dev] installation
-    session.install(".[dev]", "pyinstrument")
+    # Install dev and pyinstrument
+    install_dev(session)
+    session.install("pyinstrument")
 
     # Run pyprofiler
     session.run(

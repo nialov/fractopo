@@ -1,10 +1,16 @@
 name: test-and-publish
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "41 7 * * 5"
 
 jobs:
   # Test
-  pytest-and-coverage:
+  pytest-coverage-format-lint:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
@@ -22,9 +28,11 @@ jobs:
           pip install nox invoke
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test
+      - name: Lint with invoke -> nox -> linters
+        run: invoke format-and-lint
 
   build-and-publish:
-    needs: pytest-and-coverage
+    needs: pytest-coverage-format-lint
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     # Pushes to PyPI on tagged commit pushes of master branch
     # Additionally tests building with setuptools on all branches

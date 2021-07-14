@@ -3,41 +3,28 @@ Invoke tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
-from pathlib import Path
 
 from invoke import UnexpectedExit, task
 
-nox_parallel_sessions = (
-    "tests_pipenv",
-    "tests_pip",
-)
+NOX_PARALLEL_SESSIONS = ("tests_pip",)
 
-package_name = "fractopo"
-coverage_badge_svg_path = Path("docs_src/imgs/coverage.svg")
+PACKAGE_NAME = "fractopo"
 
 
 @task
 def requirements(c):
     """
-    Sync requirements from Pipfile to setup.py.
+    Sync requirements.
     """
     c.run("nox --session requirements")
 
 
-@task
-def format(c):
+@task(pre=[requirements])
+def format_and_lint(c):
     """
-    Format everything.
+    Format and lint everything.
     """
-    c.run("nox --session format")
-
-
-@task(pre=[format])
-def lint(c):
-    """
-    Lint everything.
-    """
-    c.run("nox --session lint")
+    c.run("nox --session format_and_lint")
 
 
 @task(pre=[requirements])
@@ -46,14 +33,14 @@ def nox_parallel(c):
     Run selected nox test suite sessions in parallel.
     """
     # Run asynchronously and collect promises
-    print(f"Running {len(nox_parallel_sessions)} nox test sessions.")
+    print(f"Running {len(NOX_PARALLEL_SESSIONS)} nox test sessions.")
     promises = [
         c.run(
             f"nox --session {nox_test} --no-color",
             asynchronous=True,
             timeout=360,
         )
-        for nox_test in nox_parallel_sessions
+        for nox_test in NOX_PARALLEL_SESSIONS
     ]
 
     # Join all promises
@@ -76,6 +63,7 @@ def update_version(c):
     c.run("nox --session update_version")
 
 
+@task(pre=[requirements, update_version])
 def ci_test(c):
     """
     Test suite for continous integration testing.
@@ -85,7 +73,7 @@ def ci_test(c):
     c.run("nox --session tests_pip")
 
 
-@task(pre=[nox_parallel])
+@task(pre=[requirements, nox_parallel])
 def test(_):
     """
     Run tests.
@@ -95,7 +83,7 @@ def test(_):
     """
 
 
-@task(pre=[requirements])
+@task(pre=[requirements, update_version])
 def docs(c):
     """
     Make documentation to docs using nox.
@@ -103,7 +91,15 @@ def docs(c):
     c.run("nox --session docs")
 
 
-@task(pre=[requirements, test, lint, docs])
+@task(pre=[requirements])
+def notebooks(c):
+    """
+    Execute and fill notebooks.
+    """
+    c.run("nox --session notebooks")
+
+
+@task(pre=[update_version, test, format_and_lint, docs, notebooks])
 def make(_):
     """
     Make all.
