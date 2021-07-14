@@ -107,69 +107,6 @@ def check_gdf_contents(obtained_filename, expected_filename):
         assert all(idxrow1 == idxrow2)
 
 
-# def test_branches_and_nodes_old(file_regression):
-#     (
-#         valid_geoseries,
-#         invalid_geoseries,
-#         valid_areas_geoseries,
-#         invalid_areas_geoseries,
-#     ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
-#     branch_gdf, node_gdf = branches_and_nodes.branches_and_nodes(
-#         valid_geoseries, valid_areas_geoseries, Helpers.snap_threshold
-#     )
-#     # Use --force-regen to remake if fails after trace_builder changes.
-#     file_regression.check(str(branch_gdf) + str(node_gdf))
-
-#     for node_id in node_gdf[CLASS_COLUMN].values:
-#         assert node_id in [I_node, X_node, Y_node, E_node]
-#     assert (
-#         len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "X"])
-#         > 0
-#     )
-#     assert (
-#         len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "Y"])
-#         > 0
-#     )
-#     assert (
-#         len([node_id for node_id in node_gdf[CLASS_COLUMN].values if node_id == "I"])
-#         > 1
-#     )
-
-
-# @pytest.mark.parametrize(
-#     "traces_geosrs, areas_geosrs",
-#     [
-#         (Helpers.get_traces_geosrs(), Helpers.get_areas_geosrs()),
-#     ],
-# )
-# def test_get_branch_identities_old(traces_geosrs, areas_geosrs):
-#     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces_old(
-#         traces_geosrs, Helpers.snap_threshold
-#     )
-#     det_nodes, _ = branches_and_nodes.determine_nodes(
-#         gpd.GeoDataFrame({"geometry": traces_geosrs}), snap_threshold=0.01
-#     )
-#     nodes_geosrs = branches_and_nodes.remove_identical_sindex(
-#         gpd.GeoSeries(det_nodes), Helpers.snap_threshold
-#     )
-#     node_identities = branches_and_nodes.get_node_identities(
-#         traces_geosrs, nodes_geosrs, areas_geosrs, Helpers.snap_threshold
-#     )
-#     branches_geosrs = gpd.GeoSeries([b for b in traces_geosrs.unary_union])
-#     result = branches_and_nodes.get_branch_identities(
-#         branches_geosrs, nodes_geosrs, node_identities, Helpers.snap_threshold
-#     )
-#     assert all(
-#         [
-#             branch in result
-#             for branch in (
-#                 branches_and_nodes.CC_branch,
-#                 branches_and_nodes.CI_branch,
-#             )
-#         ]
-#     )
-
-
 def test_snap_traces_simple():
     """
     Test snap_traces with simple data.
@@ -189,10 +126,6 @@ def test_snap_traces_simple():
     first_coords = simple_snapped_traces[0].coords
     first_coords_points = [Point(c) for c in first_coords]
     assert any(p.intersects(simple_snapped_traces[1]) for p in first_coords_points)
-    # assert Point(0.99, 0).intersects(
-    #     gpd.GeoSeries([Point(xy) for xy in simple_snapped_traces.iloc[1].coords])
-    # )
-    # is_in_ls = False
     assert all([isinstance(ls, LineString) for ls in simple_snapped_traces])
     for xy in simple_snapped_traces[1].coords:
         p = Point(xy)

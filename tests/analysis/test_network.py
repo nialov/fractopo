@@ -21,7 +21,7 @@ from fractopo.general import SetRangeTuple
 from tests import Helpers
 
 
-def test_azimuth_set_relationships_regression(file_regression):
+def test_azimuth_set_relationships_regression(dataframe_regression):
     """
     Test for azimuth set relationship regression.
     """
@@ -41,10 +41,12 @@ def test_azimuth_set_relationships_regression(file_regression):
         snap_threshold=0.001,
         circular_target_area=False,
     ).azimuth_set_relationships
-    file_regression.check(relations_df.to_string())
+
+    dataframe_regression.check(pd.DataFrame(relations_df.value_counts()))
+    # file_regression.check(relations_df.to_string())
 
 
-def test_length_set_relationships_regression(file_regression):
+def test_length_set_relationships_regression(dataframe_regression):
     """
     Test for length set relationship regression.
     """
@@ -64,7 +66,8 @@ def test_length_set_relationships_regression(file_regression):
         snap_threshold=0.001,
         circular_target_area=False,
     ).azimuth_set_relationships
-    file_regression.check(relations_df.to_string())
+
+    dataframe_regression.check(pd.DataFrame(relations_df.value_counts()))
 
 
 @pytest.mark.parametrize(
@@ -138,7 +141,7 @@ def test_network(
     if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
 
         # Do not check massive branch counts
-        file_regression.check(network.branch_gdf.sort_index().to_json())
+        file_regression.check(network.branch_gdf.sort_index().to_json(indent=1))
         network_extensive_testing(
             network=network, traces=traces, area=area, snap_threshold=snap_threshold
         )

@@ -91,7 +91,7 @@ def test_crop_to_target_areas(file_regression):
         traces=trace_data, areas=area_data, snap_threshold=0.01
     )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
-    file_regression.check(cropped_traces.sort_index().to_json())
+    file_regression.check(cropped_traces.sort_index().to_json(indent=1))
 
 
 def test_dissolve_multi_part_traces(file_regression):
@@ -105,7 +105,7 @@ def test_dissolve_multi_part_traces(file_regression):
     )
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
-    file_regression.check(dissolved_traces.sort_index().to_json())
+    file_regression.check(dissolved_traces.sort_index().to_json(indent=1))
 
 
 @pytest.mark.parametrize(
