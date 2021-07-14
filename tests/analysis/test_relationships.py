@@ -40,7 +40,6 @@ def test_determine_nodes_intersecting_sets(
     """
     intersects_both_sets = determine_nodes_intersecting_sets(
         trace_series_two_sets,
-        set_array,
         set_names_two_sets,
         node_series_xy,
         buffer_value,
