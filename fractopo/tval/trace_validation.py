@@ -301,7 +301,7 @@ class Validation:
         ...     geom=geom,
         ...     validator=validator,
         ...     current_errors=current_errors,
-        ...     allow_fix=allow_fix
+        ...     allow_fix=allow_fix,
         ... )
         >>> fixed_geom.wkt, updated_errors, ignore_geom
         ('LINESTRING (0 0, 1 1, 2 2)', [], False)

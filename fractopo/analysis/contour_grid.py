@@ -36,10 +36,10 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
 
     >>> branches = gpd.GeoSeries(
     ...     [
-    ...             LineString([(1, 1), (2, 2)]),
-    ...             LineString([(2, 2), (3, 3)]),
-    ...             LineString([(3, 0), (2, 2)]),
-    ...             LineString([(2, 2), (-2, 5)]),
+    ...         LineString([(1, 1), (2, 2)]),
+    ...         LineString([(2, 2), (3, 3)]),
+    ...         LineString([(3, 0), (2, 2)]),
+    ...         LineString([(2, 2), (-2, 5)]),
     ...     ]
     ... )
     >>> create_grid(cell_width=0.1, branches=branches).head(5)

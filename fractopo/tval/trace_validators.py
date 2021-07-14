@@ -82,15 +82,13 @@ class GeomTypeValidator(BaseValidator):
 
         E.g. mergeable MultiLineString
 
-        >>> mls = MultiLineString(
-        ...         [((0, 0), (1, 1)), ((1, 1), (2, 2))]
-        ... )
+        >>> mls = MultiLineString([((0, 0), (1, 1)), ((1, 1), (2, 2))])
         >>> GeomTypeValidator.fix_method(geom=mls).wkt
         'LINESTRING (0 0, 1 1, 2 2)'
 
         Unhandled types will just return as None.
 
-        >>> GeomTypeValidator.fix_method(geom=Point(1,1)) is None
+        >>> GeomTypeValidator.fix_method(geom=Point(1, 1)) is None
         True
 
         """
@@ -108,7 +106,7 @@ class GeomTypeValidator(BaseValidator):
 
         E.g. Anything but LineString
 
-        >>> GeomTypeValidator.validation_method(Point(1,1))
+        >>> GeomTypeValidator.validation_method(Point(1, 1))
         False
 
         With LineString:
@@ -133,7 +131,9 @@ class MultiJunctionValidator(BaseValidator):
         """
         Validate for multi junctions between traces.
 
-        >>> MultiJunctionValidator.validation_method(idx=1, faulty_junctions=set([1, 2]))
+        >>> MultiJunctionValidator.validation_method(
+        ...     idx=1, faulty_junctions=set([1, 2])
+        ... )
         False
 
         """
@@ -251,14 +251,22 @@ class MultipleCrosscutValidator(BaseValidator):
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -1)])
         >>> trace_candidates = gpd.GeoSeries(
-        ...     [LineString([Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)])]
+        ...     [
+        ...         LineString(
+        ...             [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+        ...         )
+        ...     ]
         ... )
         >>> MultipleCrosscutValidator.validation_method(geom, trace_candidates)
         False
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -4.5)])
         >>> trace_candidates = gpd.GeoSeries(
-        ...     [LineString([Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)])]
+        ...     [
+        ...         LineString(
+        ...             [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+        ...         )
+        ...     ]
         ... )
         >>> MultipleCrosscutValidator.validation_method(geom, trace_candidates)
         True
@@ -299,7 +307,10 @@ class UnderlappingSnapValidator(BaseValidator):
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> geom = LineString(
-        ...     [(0, 0), (0, 1 + snap_threshold * snap_threshold_error_multiplier * 0.99)]
+        ...     [
+        ...         (0, 0),
+        ...         (0, 1 + snap_threshold * snap_threshold_error_multiplier * 0.99),
+        ...     ]
         ... )
         >>> trace_candidates = gpd.GeoSeries([LineString([(-1, 1), (1, 1)])])
         >>> UnderlappingSnapValidator.validation_method(
@@ -375,7 +386,9 @@ class TargetAreaSnapValidator(BaseValidator):
         Validate for trace underlaps.
 
         >>> geom = LineString([(0, 0), (0, 1)])
-        >>> area = gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])])
+        >>> area = gpd.GeoDataFrame(
+        ...     geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])]
+        ... )
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> area_edge_snap_multiplier = 1.0
@@ -389,7 +402,9 @@ class TargetAreaSnapValidator(BaseValidator):
         True
 
         >>> geom = LineString([(0.5, 0.5), (0.5, 0.98)])
-        >>> area = gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])])
+        >>> area = gpd.GeoDataFrame(
+        ...     geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])]
+        ... )
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> area_edge_snap_multiplier = 10

@@ -20,10 +20,10 @@ def determine_anisotropy_classification(c: str) -> int:
 
     E.g.
 
-    >>> determine_anisotropy_classification('C - C')
+    >>> determine_anisotropy_classification("C - C")
     1
 
-    >>> determine_anisotropy_classification('C - E')
+    >>> determine_anisotropy_classification("C - E")
     0
 
     """

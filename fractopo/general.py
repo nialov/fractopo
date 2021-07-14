@@ -472,7 +472,9 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     Assumes geometries are LineStrings which are consequently collected into
     a single MultiLineString which is prepared with shapely.prepared.prep.
 
-    >>> traces = gpd.GeoSeries([LineString([(0,0),(1,1)]),LineString([(0,1),(0,-1)])])
+    >>> traces = gpd.GeoSeries(
+    ...     [LineString([(0, 0), (1, 1)]), LineString([(0, 1), (0, -1)])]
+    ... )
     >>> prepare_geometry_traces(traces).context.wkt
     'MULTILINESTRING ((0 0, 1 1), (0 1, 0 -1))'
 
@@ -950,17 +952,17 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
 
     >>> multilinestrings = [
     ...     MultiLineString(
-    ...             [
-    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
-    ...                  LineString([(1.9999, 2), (-2, 5)]),
-    ...             ]
-    ...                    ),
+    ...         [
+    ...             LineString([(1, 1), (2, 2), (3, 3)]),
+    ...             LineString([(1.9999, 2), (-2, 5)]),
+    ...         ]
+    ...     ),
     ...     MultiLineString(
-    ...             [
-    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
-    ...                  LineString([(1.9999, 2), (-2, 5)]),
-    ...             ]
-    ...                    ),
+    ...         [
+    ...             LineString([(1, 1), (2, 2), (3, 3)]),
+    ...             LineString([(1.9999, 2), (-2, 5)]),
+    ...         ]
+    ...     ),
     ... ]
     >>> result_linestrings = mls_to_ls(multilinestrings)
     >>> print([ls.wkt for ls in result_linestrings])
@@ -988,11 +990,11 @@ def crop_to_target_areas(
 
     >>> traces = gpd.GeoSeries(
     ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
-    ...     )
+    ... )
     >>> areas = gpd.GeoSeries(
     ...     [
-    ...            Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
-    ...            Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
+    ...         Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
+    ...         Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
     ...     ]
     ... )
     >>> cropped_traces = crop_to_target_areas(traces, areas, 0.01)

@@ -44,7 +44,9 @@ def determine_crosscut_abutting_relationships(
     >>> trace_series = gpd.GeoSeries(
     ...     [LineString([(0, 0), (1, 0)]), LineString([(0, 1), (0, -1)])]
     ... )
-    >>> node_series = gpd.GeoSeries([Point(0, 0), Point(1, 0), Point(0, 1), Point(0, -1)])
+    >>> node_series = gpd.GeoSeries(
+    ...     [Point(0, 0), Point(1, 0), Point(0, 1), Point(0, -1)]
+    ... )
     >>> node_types = np.array(["Y", "I", "I", "I"])
     >>> set_array = np.array(["1", "2"])
     >>> set_names = ("1", "2")

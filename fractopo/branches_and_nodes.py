@@ -141,15 +141,21 @@ def get_branch_identities(
 
     >>> branches = gpd.GeoSeries(
     ...     [
-    ...            LineString([(1, 1), (2, 2)]),
-    ...            LineString([(2, 2), (3, 3)]),
-    ...            LineString([(3, 0), (2, 2)]),
-    ...            LineString([(2, 2), (-2, 5)]),
+    ...         LineString([(1, 1), (2, 2)]),
+    ...         LineString([(2, 2), (3, 3)]),
+    ...         LineString([(3, 0), (2, 2)]),
+    ...         LineString([(2, 2), (-2, 5)]),
     ...     ]
     ... )
     >>> nodes = gpd.GeoSeries(
-    ...     [Point(2, 2), Point(1, 1), Point(3, 3), Point(3, 0), Point(-2, 5),]
-    ...     )
+    ...     [
+    ...         Point(2, 2),
+    ...         Point(1, 1),
+    ...         Point(3, 3),
+    ...         Point(3, 0),
+    ...         Point(-2, 5),
+    ...     ]
+    ... )
     >>> node_identities = ["X", "I", "I", "I", "E"]
     >>> snap_threshold = 0.001
     >>> get_branch_identities(branches, nodes, node_identities, snap_threshold)
@@ -383,7 +389,7 @@ def additional_snapping_func(
     >>> point = Point(2.25, 0.1)
     >>> additional_snapping = [
     ...     (0, point),
-    ...     ]
+    ... ]
     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
@@ -394,7 +400,7 @@ def additional_snapping_func(
     >>> point = Point(2.25, 0.1)
     >>> additional_snapping = [
     ...     (0, point),
-    ...     ]
+    ... ]
     >>> additional_snapping_func(trace, idx, additional_snapping).wkt
     'LINESTRING (0 0, 1 0, 2 0, 3 0)'
 
@@ -1121,7 +1127,9 @@ def node_identities_from_branches(
     >>> branches = gpd.GeoSeries(branches_list)
     >>> areas = gpd.GeoSeries([area_polygon])
     >>> snap_threshold = 0.001
-    >>> nodes, identities = node_identities_from_branches(branches, areas, snap_threshold)
+    >>> nodes, identities = node_identities_from_branches(
+    ...     branches, areas, snap_threshold
+    ... )
     >>> [node.wkt for node in nodes]
     ['POINT (0 0)', 'POINT (1 1)', 'POINT (2 2)', 'POINT (2 0)']
     >>> identities
