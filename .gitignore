@@ -9,17 +9,16 @@ hypothesis
 .hypothesis
 .vim
 .esri.gz
-concurrency.ipynb
-sampleproject.egg-info/
-fractopo.egg-info/
-.esri.gz
+*.rej
+.hypogpd/
 docs/
-README.html
+fractopo.egg-info/
+readme.html
+tests/profile_runtime.html
+venv/
+
+# We do not want to include requirements.txt
+# It is merely for backwards compatible pip installs
+requirements.txt
+
 network_profile.py
-network_profiling.profile
-venv
-notebooks/fractopo_network_debug.ipynb
-**-Copy*.ipynb
-tests/sample_data/justus_getaberget_fault
-*.html
-.hypogpd
