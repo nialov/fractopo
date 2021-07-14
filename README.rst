@@ -1,8 +1,7 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Lint| |Coverage|
-|Binder|
+|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder|
 
 ``fractopo`` is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
@@ -162,8 +161,8 @@ visualizing different parameters and attributes of trace data.
 
 .. code:: python
 
-    >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
-    '0-20'
+   >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
+   '0-20'
 
 .. code:: python
 
@@ -192,8 +191,6 @@ visualizing different parameters and attributes of trace data.
    :target: https://pypi.python.org/pypi/fractopo
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish.yaml?query=branch%3Amaster
-.. |Lint| image:: https://github.com/nialov/fractopo/workflows/lint/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/lint.yaml?query=branch%3Amaster
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
