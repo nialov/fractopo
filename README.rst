@@ -52,7 +52,7 @@ dependencies.
 Pip
 ~~~
 
-The module is on `PyPI <pypi.org>`__.
+The module is on `PyPI <https://www.pypi.org>`__.
 
 .. code:: bash
 
