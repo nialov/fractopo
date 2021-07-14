@@ -175,6 +175,7 @@ visualizing different parameters and attributes of trace data.
        area_data,
        name="mynetwork",
        determine_branches_nodes=True,
+       snap_threshold=0.001,
    )
 
    # Properties are easily accessible
