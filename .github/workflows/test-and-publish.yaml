@@ -1,10 +1,12 @@
 name: test-and-publish
 
 on:
+  # run on all pushes to any branch
   push:
-    branches: [master]
+  # run only on master pull requests
   pull_request:
     branches: [master]
+  # also run periodically
   schedule:
     - cron: "41 7 * * 5"
 
@@ -45,6 +47,7 @@ jobs:
           python-version: 3.8
       - name: Install setuptools, wheel, invoke and nox
         run: >-
+          python -m pip install --upgrade pip
           python -m pip install poetry invoke nox
       - name: Update requirements with nox session
         run: >-
