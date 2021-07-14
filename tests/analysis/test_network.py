@@ -320,24 +320,3 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
                 boundary_intersect_count[f"{name} Boundary 2 Intersect Count"],
             )
         )
-
-
-# def test_getaberget_fault_network():
-#     """
-#     Debug test with material causing unary_union fault.
-#     """
-#     traces = Helpers.unary_err_traces.sample(frac=0.1)
-#     areas = Helpers.unary_err_areas
-#     assert isinstance(traces, gpd.GeoDataFrame)
-#     assert isinstance(areas, gpd.GeoDataFrame)
-
-#     network = Network(
-#         trace_gdf=traces,
-#         area_gdf=areas,
-#         determine_branches_nodes=True,
-#         truncate_traces=True,
-#         snap_threshold=0.001,
-#         unary_size_threshold=13000,
-#     )
-
-#     assert network.branch_gdf.shape[0] >= network.trace_gdf.shape[0]

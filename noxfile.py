@@ -193,7 +193,7 @@ def requirements(session):
     )
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def docs(session):
     """
     Make documentation.
