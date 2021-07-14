@@ -1,6 +1,5 @@
 """Contains Validator classes which each have their own error to handle and mark."""
 import logging
-from abc import abstractmethod
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
@@ -50,20 +49,18 @@ class BaseValidator:
     LINESTRING_ONLY = True
 
     @staticmethod
-    @abstractmethod
     def fix_method(**_) -> Optional[LineString]:
         """
         Abstract fix method.
         """
-        raise NotImplementedError
+        raise NotImplementedError("fix_method not implemented.")
 
     @staticmethod
-    @abstractmethod
     def validation_method(**_) -> bool:
         """
         Abstract validation method.
         """
-        raise NotImplementedError
+        raise NotImplementedError("validation_method not implemented.")
 
 
 class GeomTypeValidator(BaseValidator):
@@ -268,15 +265,11 @@ class MultipleCrosscutValidator(BaseValidator):
 
         """
         intersection_geoms = trace_candidates.intersection(geom)
-        if any(
-            [
-                len(list(geom.geoms)) > 2
-                for geom in intersection_geoms
-                if isinstance(geom, MultiPoint)
-            ]
-        ):
-            return False
-        return True
+        return not any(
+            len(list(geom.geoms)) > 2
+            for geom in intersection_geoms
+            if isinstance(geom, MultiPoint)
+        )
 
 
 class UnderlappingSnapValidator(BaseValidator):
@@ -355,9 +348,8 @@ class UnderlappingSnapValidator(BaseValidator):
                         # Underlapping
                         cls.ERROR = cls._UNDERLAPPING
                         return False
-                    else:
-                        cls.ERROR = cls._OVERLAPPING
-                        return False
+                    cls.ERROR = cls._OVERLAPPING
+                    return False
 
         return True
 
@@ -434,31 +426,52 @@ class TargetAreaSnapValidator(BaseValidator):
         return True
 
     @staticmethod
-    def is_candidate_underlapping(
+    def simple_underlapping_checks(
         endpoint: Point,
         geom: LineString,
         area_polygon: Union[Polygon, MultiPolygon],
         snap_threshold: float,
-    ):
+    ) -> Optional[bool]:
         """
-        Determine if endpoint is candidate for Underlapping error.
+        Perform simple underlapping checks.
         """
+        endpoint_within = endpoint.within(area_polygon)
         # If not even inside target area, not a candidate
-        if not endpoint.within(area_polygon):
+        if not endpoint_within:
             return False
 
         # Easy case: endpoint within target area and trace completely inside
         # target area
-        if endpoint.within(area_polygon) and geom.within(area_polygon):
+        if endpoint_within and geom.within(area_polygon):
             return True
 
         # Does an affine scale to catch traces that intersect the target area
         # edge at their other endpoint. This check overlaps with previous but
         # shapely.affinity.scale is not completely 'stable'
-        if endpoint.within(area_polygon) and geom.within(
+        if endpoint_within and geom.within(
             scale(area_polygon, xfact=1 + snap_threshold, yfact=1 + snap_threshold)
         ):
             return True
+
+    @staticmethod
+    def is_candidate_underlapping(
+        endpoint: Point,
+        geom: LineString,
+        area_polygon: Union[Polygon, MultiPolygon],
+        snap_threshold: float,
+    ) -> bool:
+        """
+        Determine if endpoint is candidate for Underlapping error.
+        """
+        is_simple_underlapping = TargetAreaSnapValidator.simple_underlapping_checks(
+            endpoint=endpoint,
+            geom=geom,
+            area_polygon=area_polygon,
+            snap_threshold=snap_threshold,
+        )
+
+        if is_simple_underlapping is not None:
+            return is_simple_underlapping
 
         # Split trace with area polygon
         geom_split = list(split(geom, area_polygon))

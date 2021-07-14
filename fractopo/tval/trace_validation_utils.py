@@ -133,7 +133,7 @@ def split_to_determine_triangle_errors(
         if len(segments) > 3:
             return True
         middle = determine_middle_in_triangle(
-            [ls for ls in segments.geoms],
+            list(segments.geoms),
             snap_threshold=snap_threshold,
             snap_threshold_error_multiplier=triangle_error_snap_multiplier,
         )
@@ -216,7 +216,7 @@ def is_underlapping(
     if len(split_results) == 1:
         # Do not intersect
         return True
-    elif len(split_results) > 1:
+    if len(split_results) > 1:
         for segment in split_results:
             if (
                 segment.distance(endpoint)
@@ -224,13 +224,12 @@ def is_underlapping(
             ):
                 # Dangling end, overlapping
                 return False
-    else:
-        logging.error(
-            "Expected is_underlapping to be resolvable.\n"
-            f"{geom=}\n"
-            f"{trace=}\n"
-            f"{endpoint=}\n"
-            f"{snap_threshold=}\n"
-            f"{snap_threshold_error_multiplier=}"
-        )
-        return None
+    logging.error(
+        "Expected is_underlapping to be resolvable.\n"
+        f"{geom=}\n"
+        f"{trace=}\n"
+        f"{endpoint=}\n"
+        f"{snap_threshold=}\n"
+        f"{snap_threshold_error_multiplier=}"
+    )
+    return None

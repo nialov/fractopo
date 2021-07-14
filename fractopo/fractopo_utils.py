@@ -77,25 +77,21 @@ class LineMerge:
             -first_unit_vector, second_unit_vector, threshold_angle=tolerance
         )
         # Get coordinates
-        first_coords = first.coords
-        second_coords = second.coords
+        first_coords_list = list(first.coords)
+        second_coords_list = list(second.coords)
         if (
             first_end.buffer(buffer_value).intersects(second_start.buffer(buffer_value))
             and are_close
         ):
             # First ends in the start of second -> Sequence of coords is correct
             # Do not include first coordinate of second in new
-            new_coords = [coord for coord in first_coords] + [
-                coord for coord in second_coords
-            ][1:]
+            new_coords = first_coords_list + second_coords_list[1:]
         elif (
             first_end.buffer(buffer_value).intersects(second_end.buffer(buffer_value))
             and are_close_reverse
         ):
             # First ends in second end
-            new_coords = [coord for coord in first_coords] + list(
-                reversed([coord for coord in second_coords])
-            )[1:]
+            new_coords = first_coords_list + list(reversed(second_coords_list))[1:]
         elif (
             first_start.buffer(buffer_value).intersects(
                 second_start.buffer(buffer_value)
@@ -103,17 +99,13 @@ class LineMerge:
             and are_close_reverse
         ):
             # First starts from the same as second
-            new_coords = list(reversed([coord for coord in second_coords]))[:-1] + [
-                coord for coord in first_coords
-            ]
+            new_coords = list(reversed(second_coords_list))[:-1] + first_coords_list
         elif (
             first_start.buffer(buffer_value).intersects(second_end.buffer(buffer_value))
             and are_close
         ):
             # First starts from end of second
-            new_coords = [coord for coord in second_coords][:-1] + [
-                coord for coord in first_coords
-            ]
+            new_coords = second_coords_list[:-1] + first_coords_list
         else:
             return None
         return LineString(new_coords)

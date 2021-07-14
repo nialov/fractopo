@@ -67,7 +67,7 @@ def determine_crosscut_abutting_relationships(
     """
     assert len(set_array) == len(trace_series)
     assert len(node_series) == len(node_types)
-    assert all([isinstance(val, LineString) for val in trace_series.geometry.values])
+    assert all(isinstance(val, LineString) for val in trace_series.geometry.values)
     # Determines xy relations and dynamically creates a dataframe as an aid for
     # plotting the relations
 
@@ -92,7 +92,7 @@ def determine_crosscut_abutting_relationships(
             trace_series.loc[set_array == second_set],  # type: ignore
         )
 
-        if any([series.shape[0] == 0 for series in trace_series_two_sets]):
+        if any(series.shape[0] == 0 for series in trace_series_two_sets):
             logging.warning("Expected first_set and second_set to both contain traces.")
             return relations_df
         set_names_two_sets = (first_set, second_set)
@@ -101,7 +101,6 @@ def determine_crosscut_abutting_relationships(
         intersects_both_sets = determine_nodes_intersecting_sets(
             trace_series_two_sets=trace_series_two_sets,  # type: ignore
             set_names_two_sets=set_names_two_sets,
-            set_array=set_array,
             node_series_xy=node_series_xy,  # type: ignore
             buffer_value=buffer_value,
         )
@@ -122,7 +121,7 @@ def determine_crosscut_abutting_relationships(
         y_count = 0
         y_reverse_count = 0
 
-        for item in [val for val in intersect_series.iteritems()]:
+        for item in list(intersect_series.iteritems()):
             value = item[1]
             if item[0][0] == X_node:
                 x_count = value
@@ -162,7 +161,6 @@ def determine_crosscut_abutting_relationships(
 
 def determine_nodes_intersecting_sets(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
-    set_array: np.ndarray,
     set_names_two_sets: Tuple[str, str],
     node_series_xy: gpd.GeoSeries,
     buffer_value: float,
@@ -178,12 +176,11 @@ def determine_nodes_intersecting_sets(
     >>> traces = gpd.GeoSeries([LineString([(0, 0), (1, 1)])]), gpd.GeoSeries(
     ...     [LineString([(0, 1), (0, -1)])]
     ... )
-    >>> set_array = np.array(["1", "2"])
     >>> set_names_two_sets = ("1", "2")
     >>> nodes_xy = gpd.GeoSeries([Point(0, 0), Point(1, 1), Point(0, 1), Point(0, -1)])
     >>> buffer_value = 0.001
     >>> determine_nodes_intersecting_sets(
-    ...     traces, set_array, set_names_two_sets, nodes_xy, buffer_value
+    ...     traces, set_names_two_sets, nodes_xy, buffer_value
     ... )
     [True, False, False, False]
 
@@ -265,16 +262,9 @@ def determine_intersects(
     # Creates a rtree from all start- and endpoints of set 1
     # Used in deducting in which set a trace abuts (Y-node)
     first_set_points = list(
-        chain(
-            *[
-                endpoints
-                for endpoints in trace_series_first_set.geometry.apply(
-                    get_trace_endpoints
-                ).values
-            ]
-        )
+        chain(*list(trace_series_first_set.geometry.apply(get_trace_endpoints).values))
     )
-    assert all([isinstance(p, Point) for p in first_set_points])
+    assert all(isinstance(p, Point) for p in first_set_points)
     first_setpointtree = STRtree(first_set_points)
     node: Point
     node_class: str

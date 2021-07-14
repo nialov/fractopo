@@ -72,7 +72,7 @@ class Network:
     # and double intersections with 0, non-intersecting are multiplied by one
     # (no change).
     # TODO: Defaults to true
-    circular_target_area: bool = True
+    circular_target_area: bool = False
 
     # Azimuth sets
     # ============
@@ -120,8 +120,11 @@ class Network:
     # TODO: No Optional property return types.
 
     @staticmethod
-    def _default_length_set_ranges(count, min, max):
-        arr = np.linspace(min, max, count + 1)
+    def _default_length_set_ranges(count, min_value, max_value):
+        """
+        Get default lengt set ranges.
+        """
+        arr = np.linspace(min_value, max_value, count + 1)
         starts = arr[0 : count + 1]
         ends = arr[1:]
         assert len(starts) == len(ends)
@@ -746,7 +749,7 @@ class Network:
             label = self.name
         if self.node_counts is None:
             logging.error("Expected node_gdf to be defined for plot_xyi.")
-            return
+            return None
         return plot_xyi_plot(node_counts_list=[self.node_counts], labels=[label])
 
     def plot_branch(
@@ -759,7 +762,7 @@ class Network:
             label = self.name
         if self.branch_counts is None:
             logging.error("Expected branch_gdf to be defined for plot_xyi.")
-            return
+            return None
         return plot_branch_plot(branch_counts_list=[self.branch_counts], labels=[label])
 
     def plot_parameters(
@@ -785,6 +788,9 @@ class Network:
     def plot_anisotropy(
         self, label: Optional[str] = None, color: Optional[str] = None
     ) -> Optional[Tuple[Figure, Axes]]:
+        """
+        Plot anisotropy of connectivity plot.
+        """
         if label is None:
             label = self.name
         if not self._is_branch_gdf_defined():
@@ -796,8 +802,8 @@ class Network:
         fig, ax = plot_anisotropy_plot(
             anisotropy_sum=anisotropy_sum,
             sample_intervals=sample_intervals,
-            label=label,  # type: ignore
-            color=color,
+            # label=label,  # type: ignore
+            # color=color,
         )
         return fig, ax
 

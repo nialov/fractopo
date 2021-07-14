@@ -31,12 +31,11 @@ def determine_anisotropy_classification(c: str) -> int:
         return 0
     if c == "C - C":
         return 1
-    elif c == "C - I":
+    if c == "C - I":
         return 0
-    elif c == "I - I":
+    if c == "I - I":
         return 0
-    else:
-        return 0
+    return 0
 
 
 def determine_anisotropy_sum(
@@ -116,8 +115,8 @@ def determine_anisotropy_value(
 def plot_anisotropy_plot(
     anisotropy_sum: np.ndarray,
     sample_intervals: np.ndarray,
-    label: str,
-    color: Optional[str] = None,
+    # label: str,
+    # color: Optional[str] = None,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
     """
     Plot anisotropy values to new figure.

@@ -56,9 +56,10 @@ def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
     }
 
 
-def decorate_xyi_ax(
-    ax: Axes, tax: TernaryAxesSubplot, label: str, node_counts: Dict[str, int]
-):
+def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, int]):
+    """
+    Decorate xyi plot.
+    """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
     text = f"n: {xcount+ycount+icount}\n"
     f"X-nodes: {xcount}\n"
@@ -108,11 +109,9 @@ def plot_xyi_plot(
     plot_xyi_plot_ax(
         node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
     )
-    decorate_xyi_ax(ax, tax, label=labels[0], node_counts=node_counts_list[0])
+    decorate_xyi_ax(ax, tax, node_counts=node_counts_list[0])
     if len(node_counts_list) > 1:
-        for node_counts, label, color in zip(
-            node_counts_list[1:], labels[1:], colors[1:]
-        ):
+        for node_counts, label, _ in zip(node_counts_list[1:], labels[1:], colors[1:]):
             point = node_counts_to_point(node_counts)
             if point is None:
                 continue
@@ -131,12 +130,11 @@ def node_counts_to_point(node_counts: Dict[str, int]):
     sumcount = xcount + ycount + icount
     if sumcount == 0:
         return None
-    else:
-        xp = 100 * xcount / sumcount
-        yp = 100 * ycount / sumcount
-        ip = 100 * icount / sumcount
-        point = [(xp, ip, yp)]
-        return point
+    xp = 100 * xcount / sumcount
+    yp = 100 * ycount / sumcount
+    ip = 100 * icount / sumcount
+    point = [(xp, ip, yp)]
+    return point
 
 
 def branch_counts_to_point(branch_counts: Dict[str, int]):
@@ -188,7 +186,7 @@ def plot_xyi_plot_ax(
     """
     if color is None:
         color = "black"
-    xcount, ycount, icount = _get_xyi_counts(node_counts)
+    # xcount, ycount, icount = _get_xyi_counts(node_counts)
     point = node_counts_to_point(node_counts)
     if point is not None:
         plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
@@ -221,11 +219,9 @@ def plot_branch_plot(
     plot_branch_plot_ax(
         branch_counts=branch_counts_list[0], label=labels[0], tax=tax, color=colors[0]
     )
-    decorate_branch_ax(
-        ax=ax, tax=tax, label=labels[0], branch_counts=branch_counts_list[0]
-    )
+    decorate_branch_ax(ax=ax, tax=tax, branch_counts=branch_counts_list[0])
     if len(branch_counts_list) > 1:
-        for branch_counts, label, color in zip(
+        for branch_counts, label, _ in zip(
             branch_counts_list[1:], labels[1:], colors[1:]
         ):
             point = branch_counts_to_point(branch_counts)
@@ -244,6 +240,9 @@ def plot_ternary_point(
     color: Optional[str] = "black",
     s: float = 25,
 ):
+    """
+    Plot point to a ternary figure.
+    """
     tax.scatter(
         point,
         marker=marker,
@@ -261,9 +260,12 @@ def plot_branch_plot_ax(
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
 ):
+    """
+    Plot ternary branch plot to tax.
+    """
     if color is None:
         color = "black"
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
+    # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     point = branch_counts_to_point(branch_counts)
     if point is not None:
         plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
@@ -281,9 +283,12 @@ def plot_branch_plot_ax(
 def decorate_branch_ax(
     ax: Axes,
     tax: TernaryAxesSubplot,
-    label: str,
+    # label: str,
     branch_counts: Dict[str, int],
 ):
+    """
+    Decorate ternary branch plot.
+    """
     cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     text = f"n: {cc_count+ci_count+ii_count}\n"
     f"CC-branches: {cc_count}\n"
@@ -490,6 +495,9 @@ def plot_parameters_plot(
 def determine_set_counts(
     set_names: np.ndarray, set_array: np.ndarray
 ) -> Dict[str, int]:
+    """
+    Determine counts in for each set.
+    """
     return {
         set_name: amount if (amount := sum(set_array == set_name)) is not None else 0
         for set_name in set_names
@@ -500,8 +508,11 @@ def plot_set_count(
     set_counts: Dict[str, int],
     label: str,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+    """
+    Plot set counts.
+    """
     fig, ax = plt.subplots(figsize=(7, 7))
-    wedges, label_texts, count_texts = ax.pie(
+    _, label_texts, _ = ax.pie(
         x=[set_counts[key] for key in set_counts],
         labels=[key for key in set_counts],
         autopct="%.1f%%",
@@ -517,6 +528,9 @@ def plot_set_count(
 
 
 def initialize_ternary_points(ax, tax):
+    """
+    Initialize ternary points figure ax and tax.
+    """
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.set_frame_on(False)
@@ -556,10 +570,10 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
     """
 
     def tern_find_last_x(c, x_start=0):
-        x, i, y = tern_yi_func(c, x_start)
+        x, _, y = tern_yi_func(c, x_start)
         while y > 0:
             x_start += 0.01
-            x, i, y = tern_yi_func(c, x_start)
+            x, _, y = tern_yi_func(c, x_start)
         return x
 
     def tern_yi_func_perc(c, x):
@@ -602,6 +616,9 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
 
 
 def initialize_ternary_branches_points(ax, tax):
+    """
+    Initialize ternary branches plot ax and tax.
+    """
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.set_frame_on(False)
@@ -657,7 +674,7 @@ def tern_plot_branch_lines(tax):
         (0.81, 0.01, 0.18),
         (1, 0, 0),
     ]
-    for idx, p in enumerate(points):
+    for idx, _ in enumerate(points):
         points[idx] = points[idx][0] * 100, points[idx][1] * 100, points[idx][2] * 100
 
     text_loc = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]

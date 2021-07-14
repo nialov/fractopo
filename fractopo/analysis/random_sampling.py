@@ -71,8 +71,7 @@ class NetworkRandomSampler:
                 "Expected random_choice to be"
                 f" convertable to RandomChoice enum. {random_choice=}"
             )
-        else:
-            return random_choice
+        return random_choice
 
     @staticmethod
     def trace_gdf_should_contain_traces(
@@ -83,7 +82,7 @@ class NetworkRandomSampler:
         """
         if not trace_gdf.shape[0] > 0:
             raise ValueError("Expected non-empty trace_gdf.")
-        if not all([isinstance(val, LineString) for val in trace_gdf.geometry.values]):
+        if not all(isinstance(val, LineString) for val in trace_gdf.geometry.values):
             raise TypeError("Expected only LineStrings in trace_gdf.")
         return trace_gdf
 

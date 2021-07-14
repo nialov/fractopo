@@ -170,13 +170,6 @@ def plot_azimuth_ax(
         fmt="",
         ha="left",
     )
-    # TODO: No effect
-    # if isinstance(rlines, list):
-    #     rline: plt.Line2D
-    #     for rline in rlines:
-    #         rline.set_linestyle("dashed")
-    #         rline.set_linewidth(1)
-    #         rline.set_color("black")
 
     # Tick labels
     labels = ax.get_xticklabels()

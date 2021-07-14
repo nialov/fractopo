@@ -87,14 +87,13 @@ def plot_fit_on_ax(
         )
     else:
         raise ValueError(f"Expected fit_distribution to be one of {list(Dist)}")
-    return
 
 
 def _setup_length_plot_axlims(
     ax: Axes,
     length_array: np.ndarray,
     ccm_array: np.ndarray,
-    cut_off: float,
+    # cut_off: float,
 ):
     """
     Set ax limits for length plotting.
@@ -147,7 +146,6 @@ def plot_distribution_fits(
         ax=ax,
         length_array=truncated_length_array,
         ccm_array=ccm_array,
-        cut_off=xmin,  # type: ignore
     )
     return fit, fig, ax
 
@@ -266,5 +264,4 @@ def describe_powerlaw_fit(
     }
     if label is None:
         return base
-    else:
-        return {f"{label} {key}": value for key, value in base.items()}
+    return {f"{label} {key}": value for key, value in base.items()}

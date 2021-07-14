@@ -42,8 +42,7 @@ def _column_array_property(
 ) -> Optional[np.ndarray]:
     if column.value in gdf:
         return gdf[column.value].to_numpy()
-    else:
-        return None
+    return None
 
 
 @dataclass
