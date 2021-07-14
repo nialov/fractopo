@@ -99,7 +99,7 @@ class Network:
     branch_gdf: Optional[gpd.GeoDataFrame] = None
     node_gdf: Optional[gpd.GeoDataFrame] = None
     determine_branches_nodes: bool = False
-    snap_threshold: float = 0.01
+    snap_threshold: float = 0.001
     # If unary_union fails try lower and higher values
     unary_size_threshold: int = 5000
 
