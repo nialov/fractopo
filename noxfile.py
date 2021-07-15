@@ -264,6 +264,7 @@ def profile_network_analysis(session):
         "tests/profile_runtime.py",
     )
 
+
 @nox.session
 def build(session):
     """
