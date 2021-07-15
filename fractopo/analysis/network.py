@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from shapely.geometry import MultiPolygon, Point, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
@@ -909,3 +911,26 @@ class Network:
             resolve_branches_and_nodes=False,
         )
         return sampled_grid
+
+    def plot_contour(
+        self, parameter: str, sampled_grid: gpd.GeoDataFrame
+    ) -> Tuple[Figure, Axes]:
+        """
+        Plot contour plot of a geometric or topological parameter.
+
+        Creating the contour grid is expensive so the ``sampled_grid`` must
+        be first created with ``Network.contour_grid`` method and then passed
+        to this one for plotting.
+        """
+        assert all(isinstance(val, Polygon) for val in sampled_grid.geometry.values)
+        fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+        sampled_grid.plot(
+            column=parameter,
+            legend=True,
+            cax=cax,
+            ax=ax,
+            legend_kwds={"label": parameter},
+        )
+        return fig, ax
