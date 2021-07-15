@@ -2,14 +2,23 @@
 Tests for contour_grid.
 """
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from shapely.geometry import LineString, Point, Polygon
 
 import tests
 from fractopo.analysis import contour_grid
 from fractopo.analysis.network import Network
-from fractopo.general import CC_branch, CI_branch, II_branch, pygeos_spatial_index
+from fractopo.general import (
+    CC_branch,
+    CI_branch,
+    II_branch,
+    Param,
+    pygeos_spatial_index,
+)
 from tests import Helpers
 
 cell_width = 0.10
@@ -76,11 +85,11 @@ def test_sample_grid():
 
 
 @pytest.mark.parametrize(
-    "traces,areas,snap_threshold", Helpers.test_run_grid_sampling_params
+    "traces,areas,snap_threshold", Helpers.test_network_contour_grid_params
 )
-def test_run_grid_sampling(traces, areas, snap_threshold, dataframe_regression):
+def test_network_contour_grid(traces, areas, snap_threshold, dataframe_regression):
     """
-    Test sample_grid with network determined b and n.
+    Test contour_grid with network determined b and n.
     """
     traces = traces.iloc[0:150]
     network = Network(
@@ -91,24 +100,20 @@ def test_run_grid_sampling(traces, areas, snap_threshold, dataframe_regression):
         truncate_traces=True,
         circular_target_area=False,
     )
-    result = network.contour_grid()
-    # branches, nodes = network.branch_gdf, network.node_gdf
-    # assert isinstance(branches, gpd.GeoDataFrame)
-    # assert isinstance(nodes, gpd.GeoDataFrame)
-    # result = contour_grid.run_grid_sampling(
-    #     traces=network.trace_gdf,
-    #     branches=branches,
-    #     nodes=nodes,
-    #     snap_threshold=snap_threshold,
-    #     cell_width=5,
-    # )
+    sampled_grid = network.contour_grid()
+    fig, ax = network.plot_contour(
+        parameter=Param.FRACTURE_INTENSITY_P21.value, sampled_grid=sampled_grid
+    )
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
+    plt.close(fig=fig)
 
-    assert isinstance(result, gpd.GeoDataFrame)
-    assert result.shape[0] > 0
-    assert isinstance(result.geometry.values[0], Polygon)
+    assert isinstance(sampled_grid, gpd.GeoDataFrame)
+    assert sampled_grid.shape[0] > 0
+    assert isinstance(sampled_grid.geometry.values[0], Polygon)
 
     dataframe_regression.check(
-        pd.DataFrame(result).sort_index().drop(columns=["geometry"])
+        pd.DataFrame(sampled_grid).sort_index().drop(columns=["geometry"])
     )
 
 

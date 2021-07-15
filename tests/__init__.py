@@ -1128,7 +1128,7 @@ class Helpers:
         ),
     ]
 
-    test_run_grid_sampling_params = [
+    test_network_contour_grid_params = [
         (
             kb11_traces,  # traces
             kb11_area,  # areas
