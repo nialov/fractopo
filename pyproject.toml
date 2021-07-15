@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.0.1.post273.dev0+06a3892"
+version = "0.0.1.post277.dev0+27d30df"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 
