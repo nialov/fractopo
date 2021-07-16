@@ -17,7 +17,7 @@ from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.analysis.network import Network
-from fractopo.general import SetRangeTuple
+from fractopo.general import Number, SetRangeTuple
 from tests import Helpers
 
 
@@ -117,7 +117,7 @@ def test_network(
     assert isinstance(network.numerical_network_description(), dict)
     for key, item in network.numerical_network_description().items():
         assert isinstance(key, str)
-        if not isinstance(item, (int, float)):
+        if not isinstance(item, (int, float, str)):
             assert isinstance(item.item(), (int, float))
 
     assert isinstance(network.target_areas, list)
@@ -129,12 +129,14 @@ def test_network(
     for attribute in ("node_counts", "branch_counts"):
         # network_attributes[attribute] = getattr(network, attribute)
         for key, value in getattr(network, attribute).items():
-            network_attributes[key] = int(value)
+            if not np.isnan(value):
+                network_attributes[key] = int(value)
 
         for key, value in network.numerical_network_description().items():
-            network_attributes[key] = round(
-                value.item() if hasattr(value, "item") else value, 2
-            )
+            if isinstance(value, (float, int)):
+                network_attributes[key] = round(
+                    value.item() if hasattr(value, "item") else value, 2
+                )
 
     data_regression.check(network_attributes)
 
