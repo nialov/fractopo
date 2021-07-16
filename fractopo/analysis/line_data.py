@@ -10,15 +10,18 @@ import numpy as np
 import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
 
 from fractopo.analysis import azimuth, length_distributions, parameters
 from fractopo.general import (
+    BOUNDARY_INTERSECT_KEYS,
     Col,
     SetRangeTuple,
     determine_azimuth,
     determine_set,
     intersection_count_to_boundary_weight,
     numpy_to_python_type,
+    raise_determination_error,
 )
 
 # Math and analysis imports
@@ -138,7 +141,7 @@ class LineData:
         return column_array
 
     @property
-    def length_array(self):
+    def length_array(self) -> np.ndarray:
         """
         Array of trace or branch lengths.
         """
@@ -150,16 +153,21 @@ class LineData:
                 else 1.0
             )
             self.line_gdf[Col.LENGTH.value] = column_array
+        assert isinstance(column_array, np.ndarray)
         return column_array
 
     @property
-    def length_set_array(self) -> Optional[np.ndarray]:
+    def length_set_array(self) -> np.ndarray:
         """
         Array of trace or branch length set ids.
         """
         if self.length_set_names is None or self.length_set_ranges is None:
             logging.error("Expected length_set_names and _ranges to be defined.")
-            return None
+            raise_determination_error(
+                "length_set_array",
+                determine_target="length set attributes",
+                verb="initializing",
+            )
         column_array = _column_array_property(column=Col.LENGTH_SET, gdf=self.line_gdf)
         if column_array is None:
             column_array = np.array(
@@ -204,16 +212,19 @@ class LineData:
         return self._automatic_fit
 
     @property
-    def boundary_intersect_count(self) -> Optional[Dict[str, int]]:
+    def boundary_intersect_count(self) -> Dict[str, int]:
         """
         Get counts of line intersects with boundary.
         """
-        if not isinstance(self.area_boundary_intersects, np.ndarray):
-            return None
         keys, counts = np.unique(self.area_boundary_intersects, return_counts=True)
         keys = list(map(str, keys))
         counts = list(map(numpy_to_python_type, counts))
         key_counts = dict(zip(keys, counts))
+        for default_key in BOUNDARY_INTERSECT_KEYS:
+            if default_key not in key_counts:
+                key_counts[default_key] = np.nan
+        assert len(key_counts) == 3
+        assert all(np.isin(BOUNDARY_INTERSECT_KEYS, list(key_counts)))
         return key_counts
 
     def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
@@ -257,7 +268,9 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
         )
 
-    def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
+    def plot_azimuth(
+        self, label: str
+    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
         """

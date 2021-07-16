@@ -133,7 +133,7 @@ def populate_sample_cell(
     if len(trace_candidates) == 0:
         return determine_topology_parameters(
             trace_length_array=np.array([]),
-            node_counts=determine_node_type_counts(np.array([])),
+            node_counts=determine_node_type_counts(np.array([]), branches_defined=True),
             area=sample_circle_area,
         )
     if resolve_branches_and_nodes:
@@ -181,7 +181,9 @@ def populate_sample_cell(
     sample_node_type_values = sample_nodes[CLASS_COLUMN].values
     assert isinstance(sample_node_type_values, np.ndarray)
 
-    node_counts = determine_node_type_counts(sample_node_type_values)
+    node_counts = determine_node_type_counts(
+        sample_node_type_values, branches_defined=True
+    )
 
     topology_parameters = determine_topology_parameters(
         trace_length_array=sample_traces.geometry.length.values,

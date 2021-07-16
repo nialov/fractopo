@@ -23,6 +23,7 @@ from fractopo.general import (
     I_node,
     IE_branch,
     II_branch,
+    Number,
     Param,
     X_node,
     Y_node,
@@ -71,10 +72,10 @@ def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, in
     Decorate xyi plot.
     """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
-    text = f"n: {xcount+ycount+icount}\n"
-    f"X-nodes: {xcount}\n"
-    f"Y-nodes: {ycount}\n"
-    f"I-nodes: {icount}\n"
+    text = f"""n: {xcount+ycount+icount}
+X-nodes: {xcount}
+Y-nodes: {ycount}
+I-nodes: {icount}"""
     initialize_ternary_points(ax, tax)
     tern_plot_the_fing_lines(tax)
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
@@ -300,10 +301,12 @@ def decorate_branch_ax(
     Decorate ternary branch plot.
     """
     cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
-    text = f"n: {cc_count+ci_count+ii_count}\n"
-    f"CC-branches: {cc_count}\n"
-    f"CI-branches: {ci_count}\n"
-    f"II-branches: {ii_count}\n"
+    text = (
+        f"n: {cc_count+ci_count+ii_count}\n"
+        f"CC-branches: {cc_count}\n"
+        f"CI-branches: {ci_count}\n"
+        f"II-branches: {ii_count}\n"
+    )
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     ax.text(
         0.86,
@@ -550,7 +553,7 @@ def plot_set_count(
     fig, ax = plt.subplots(figsize=(7, 7))
     _, label_texts, _ = ax.pie(
         x=[set_counts[key] for key in set_counts],
-        labels=[key for key in set_counts],
+        labels=list(set_counts),
         autopct="%.1f%%",
         explode=[0.025 for _ in set_counts],
         pctdistance=0.5,

@@ -74,6 +74,7 @@ RELATIVE_CENSORING = "Relative Censoring"
 SetRangeTuple = Tuple[Tuple[float, float], ...]
 BoundsTuple = Tuple[float, float, float, float]
 PointTuple = Tuple[float, float]
+Number = Union[float, int]
 
 
 @unique
@@ -140,6 +141,8 @@ class Param(Enum):
     def get_unit_for_column(cls, column: str) -> str:
         """
         Return unit for parameter name.
+
+        Assumes that metric system is used in coordinate system.
         """
         units_for_columns = {
             cls.NUMBER_OF_TRACES.value: "-",
@@ -200,9 +203,7 @@ def determine_set(
     raise ValueError("Expected set value ranges to not overlap.")
 
 
-def is_set(
-    value: Union[float, int], value_range: Tuple[float, float], loop_around: bool
-) -> bool:
+def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -> bool:
     """
     Determine if value fits within the given value_range.
 
@@ -710,10 +711,13 @@ def determine_valid_intersection_points(
             logging.info(
                 f"Empty geometry in determine_valid_intersection_points: {geom.wkt}"
             )
+        elif isinstance(geom, LineString):
+            logging.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
         else:
-            # TODO: LineStrings occur here due to stacked traces. These can
-            # occur because of validation.
-            pass
+            raise TypeError(
+                "Expected Point, MultiPoint or LineString geometries"
+                " in determine_valid_intersection_points."
+            )
     assert all(isinstance(p, Point) for p in valid_interaction_points)
     return valid_interaction_points
 
@@ -1322,6 +1326,18 @@ def extend_bounds(
 def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
     """
     Calculate integer sum of two arrays.
+
+    Resulting array consists only of integers 0, 1 and 2.
+
+    >>> arr_1 = np.array([True, False, False])
+    >>> arr_2 = np.array([True, True, False])
+    >>> bool_arrays_sum(arr_1, arr_2)
+    array([2, 1, 0])
+
+    >>> arr_1 = np.array([True, True])
+    >>> arr_2 = np.array([True, True])
+    >>> bool_arrays_sum(arr_1, arr_2)
+    array([2, 2])
     """
     assert arr_1.dtype == "bool"
     assert arr_2.dtype == "bool"
@@ -1437,3 +1453,16 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
         )
     vector = np.array([x2 - x1, y2 - y1])
     return vector / np.linalg.norm(vector)
+
+
+def raise_determination_error(
+    attribute: str,
+    determine_target: str = "branches and nodes",
+    verb: str = "determining",
+):
+    """
+    Raise AttributeError if attribute cannot be determined.
+    """
+    raise AttributeError(
+        f"Cannot determine {attribute} without {verb} {determine_target}."
+    )

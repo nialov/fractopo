@@ -12,8 +12,10 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
+from fractopo.general import Number
 
-def _calc_ideal_bin_width(n: Union[int, float], axial=True) -> float:
+
+def _calc_ideal_bin_width(n: Number, axial=True) -> float:
     """
     Calculate ideal bin width. axial or vector data.
 
@@ -90,8 +92,8 @@ def _calc_locs(bin_width: float) -> np.ndarray:
 def determine_azimuth_bins(
     azimuth_array: np.ndarray,
     length_array: Optional[np.ndarray] = None,
-    bin_multiplier: Union[float, int] = 1,
-) -> Dict[str, np.ndarray]:
+    bin_multiplier: Number = 1,
+) -> Dict[str, Union[np.ndarray, float]]:
     """
     Calculate azimuth bins for plotting azimuth rose plots.
 
@@ -257,7 +259,7 @@ def plot_azimuth_plot(
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
     label: str,
-) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
+) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
     """
     Plot azimuth rose plot to its own figure.
 

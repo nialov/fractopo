@@ -792,7 +792,7 @@ def safer_unary_union(
     # Try normal union without any funny business
     # This will be compared to the split approach result and better will
     # be returned
-    normal_full_union = traces_geosrs.unary_union
+    normal_full_union: MultiLineString = traces_geosrs.unary_union
 
     if isinstance(normal_full_union, LineString):
         return MultiLineString([normal_full_union])
@@ -837,7 +837,7 @@ def safer_unary_union(
     # full_union should always be better or equivalent to normal unary_union.
     # (better when unary_union fails silently)
     if isinstance(full_union, MultiLineString):
-        assert isinstance(normal_full_union, BaseMultipartGeometry)
+        assert isinstance(full_union, BaseMultipartGeometry)
         if len(full_union.geoms) >= len(normal_full_union.geoms):
             return full_union
         raise ValueError(
