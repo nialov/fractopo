@@ -35,13 +35,24 @@ from fractopo.analysis.relationships import (
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import (
+    CENSORING,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
+    NAME,
+    RADIUS,
+    RELATIVE_CENSORING,
+    REPRESENTATIVE_POINT,
     EE_branch,
+    Number,
+    Param,
     SetRangeTuple,
     bool_arrays_sum,
+    calc_circle_radius,
     crop_to_target_areas,
     determine_boundary_intersecting_lines,
+    pygeos_spatial_index,
+    raise_determination_error,
+    spatial_index_intersection,
 )
 
 
@@ -109,6 +120,10 @@ class Network:
     # ====================
     # trace_length_cut_off: Optional[float] = None
     # branch_length_cut_off: Optional[float] = None
+
+    censoring_area: Union[
+        Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
+    ] = None
 
     # Private caching attributes
     # ==========================
@@ -598,19 +613,52 @@ class Network:
             branch_key_counts[f"Branch Boundary {key} Intersect Count"] = item
         return branch_key_counts
 
-    def numerical_network_description(self) -> Dict[str, Union[float, int]]:
+    def numerical_network_description(self) -> Dict[str, Number]:
         """
         Collect numerical network attributes and return them as a dictionary.
         """
-        parameters = self.parameters if self.parameters is not None else {}
-        branch_counts = self.branch_counts if self.branch_counts is not None else {}
-        node_counts = self.node_counts if self.node_counts is not None else {}
+        parameters = self.parameters
+        branch_counts = self.branch_counts if self.branch_counts is not None else dict()
+        node_counts = self.node_counts if self.node_counts is not None else dict()
+        default_boundary_intersect_count = {
+            key: np.nan for key in BOUNDARY_INTERSECT_KEYS
+        }
+        trace_boundary_intersect_count = (
+            self.trace_boundary_intersect_count
+            if self.trace_boundary_intersect_count is not None
+            else default_boundary_intersect_count
+        )
+        branch_boundary_intersect_count = (
+            self.branch_boundary_intersect_count
+            if self.branch_boundary_intersect_count is not None
+            else default_boundary_intersect_count
+        )
+        radius = {
+            RADIUS: (
+                calc_circle_radius(parameters[Param.AREA.value])
+                if self.circular_target_area
+                else np.nan
+            )
+        }
+        censoring_value = (
+            self.estimate_censoring() if self.censoring_area is not None else np.nan
+        )
+        censoring_and_relative = {
+            CENSORING: censoring_value,
+            RELATIVE_CENSORING: censoring_value / parameters[Param.AREA.value],
+        }
         description = {
-            **node_counts,
+            **trace_boundary_intersect_count,
+            **branch_boundary_intersect_count,
             **branch_counts,
-            **self.trace_lengths_powerlaw_fit_description,
-            **self.branch_lengths_powerlaw_fit_description,
+            **node_counts,
             **parameters,
+            **radius,
+            **self.branch_lengths_powerlaw_fit_description,
+            **self.trace_lengths_powerlaw_fit_description,
+            NAME: self.name,
+            REPRESENTATIVE_POINT: MultiPoint(self.representative_points()).centroid.wkt,
+            **censoring_and_relative,
         }
 
         func_descriptors = [
@@ -743,29 +791,43 @@ class Network:
 
     def plot_xyi(
         self, label: Optional[str] = None
-    ) -> Optional[Tuple[Figure, Axes, TernaryAxesSubplot]]:
+    ) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
         """
         Plot ternary plot of node types.
         """
         if label is None:
             label = self.name
         if self.node_counts is None:
-            logging.error("Expected node_gdf to be defined for plot_xyi.")
-            return None
-        return plot_xyi_plot(node_counts_list=[self.node_counts], labels=[label])
+            raise AttributeError("Expected node_gdf to be defined for plot_xyi.")
+        if any(np.isnan(list(self.node_counts.values()))):
+            raise ValueError(f"Expected no nan in node_counts: {self.node_counts}")
+        node_counts_ints = {
+            key: int(value)
+            for key, value in self.node_counts.items()
+            if not np.isnan(value)
+        }
+        if len(node_counts_ints) != len(self.node_counts):
+            raise ValueError(f"Expected no nan in node_counts: {self.node_counts}")
+        return plot_xyi_plot(node_counts_list=[node_counts_ints], labels=[label])
 
     def plot_branch(
         self, label: Optional[str] = None
-    ) -> Optional[Tuple[Figure, Axes, TernaryAxesSubplot]]:
+    ) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
         """
         Plot ternary plot of branch types.
         """
         if label is None:
             label = self.name
         if self.branch_counts is None:
-            logging.error("Expected branch_gdf to be defined for plot_xyi.")
-            return None
-        return plot_branch_plot(branch_counts_list=[self.branch_counts], labels=[label])
+            raise AttributeError("Expected branch_gdf to be defined for plot_xyi.")
+        branch_counts_ints = {
+            key: int(value)
+            for key, value in self.branch_counts.items()
+            if not np.isnan(value)
+        }
+        if len(branch_counts_ints) != len(self.branch_counts):
+            raise ValueError(f"Expected no nan in branch_counts: {self.branch_counts}")
+        return plot_branch_plot(branch_counts_list=[branch_counts_ints], labels=[label])
 
     def plot_parameters(
         self, label: Optional[str] = None, color: Optional[str] = None
@@ -934,3 +996,68 @@ class Network:
             legend_kwds={"label": parameter},
         )
         return fig, ax
+    def estimate_censoring(
+        self,
+        censoring_area: Union[
+            Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
+        ] = None,
+    ):
+        """
+        Estimate the amount of censoring caused by e.g. vegetation.
+
+        Requires that Network is initialized with ``censoring_gdf`` or that
+        its passed here. If passed here the passed area is always used.
+        """
+        # Either censoring_area is passed directly or its passed in Network
+        # creation. Otherwise raise ValueError.
+        if censoring_area is None:
+            if self.censoring_area is None:
+                raise ValueError(
+                    "Expected censoring_area as an argument or initialized"
+                    f" as Network (name:{self.name}) attribute."
+                )
+            censoring_area = self.censoring_area
+
+        # Gather into GeoSeries or GeoDataFrame, if not already.
+        if not isinstance(censoring_area, (gpd.GeoSeries, gpd.GeoDataFrame)):
+            polygons: List[Polygon] = []
+            if isinstance(censoring_area, Polygon):
+                polygons = [censoring_area]
+            elif isinstance(censoring_area, MultiPolygon):
+                polygons = list(censoring_area.geoms)
+            censoring_geodata = gpd.GeoSeries(polygons, crs=self.trace_gdf.crs)
+        else:
+            censoring_geodata = censoring_area
+
+        # Determine bounds of Network.area_gdf
+        network_area_bounds_arr = self.get_area_gdf().total_bounds
+        network_area_bounds: Tuple[float, float, float, float] = (
+            network_area_bounds_arr[0],
+            network_area_bounds_arr[1],
+            network_area_bounds_arr[2],
+            network_area_bounds_arr[3],
+        )
+
+        # Use spatial index to filter censoring polygons that are not near the
+        # network
+        sindex = pygeos_spatial_index(censoring_geodata)
+        index_intersection = spatial_index_intersection(
+            spatial_index=sindex, coordinates=network_area_bounds
+        )
+        candidate_idxs = list(
+            index_intersection if index_intersection is not None else []
+        )
+        if len(candidate_idxs) == 0:
+            return 0.0
+        candidates = censoring_geodata.iloc[candidate_idxs]
+
+        # Clip the censoring areas with the network area and calculate the area
+        # sum of leftover area.
+        censoring_value = gpd.clip(candidates, self.get_area_gdf()).area.sum()
+        unpacked_value = (
+            censoring_value.item()
+            if hasattr(censoring_value, "item")
+            else censoring_value
+        )
+        assert isinstance(unpacked_value, float)
+        return unpacked_value

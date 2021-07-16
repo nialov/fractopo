@@ -54,6 +54,7 @@ X_node = "X"
 Y_node = "Y"
 I_node = "I"
 E_node = "E"
+BOUNDARY_INTERSECT_KEYS = ("0", "1", "2")
 
 CONNECTION_COLUMN = "Connection"
 CLASS_COLUMN = "Class"
@@ -63,6 +64,12 @@ LOGNORMAL = "lognormal"
 EXPONENTIAL = "exponential"
 
 NULL_SET = "-1"
+
+REPRESENTATIVE_POINT = "Representative Point"
+RADIUS = "Radius"
+NAME = "Name"
+CENSORING = "Censoring"
+RELATIVE_CENSORING = "Relative Censoring"
 
 SetRangeTuple = Tuple[Tuple[float, float], ...]
 BoundsTuple = Tuple[float, float, float, float]
@@ -107,6 +114,7 @@ class Param(Enum):
     FRACTURE_INTENSITY_MAULDON = "Fracture Intensity (Mauldon)"
     FRACTURE_DENSITY_MAULDON = "Fracture Density (Mauldon)"
     CONNECTION_FREQUENCY = "Connection Frequency"
+    AREA = "Area"
 
     @classmethod
     def log_scale_columns(cls) -> List[str]:
@@ -150,6 +158,7 @@ class Param(Enum):
             cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
             cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
             cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
+            cls.AREA.value: r"$m^2$",
         }
         assert len(units_for_columns) == len(list(cls))
         return units_for_columns[column]

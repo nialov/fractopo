@@ -29,22 +29,32 @@ from fractopo.general import (
 )
 
 
-def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
+def determine_node_type_counts(
+    node_types: np.ndarray, branches_defined: bool
+) -> Dict[str, Number]:
     """
     Determine node type counts.
     """
     return {
-        str(node_class): (sum(node_types == node_class) if len(node_types) > 0 else 0)
+        str(node_class): (
+            (sum(node_types == node_class) if len(node_types) > 0 else 0)
+            if branches_defined
+            else np.nan
+        )
         for node_class in (X_node, Y_node, I_node, E_node)
     }
 
 
-def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
+def determine_branch_type_counts(
+    branch_types: np.ndarray, branches_defined: bool
+) -> Dict[str, Number]:
     """
     Determine branch type counts.
     """
     return {
         str(branch_class): sum(branch_types == branch_class)
+        if branches_defined
+        else np.nan
         for branch_class in (
             CC_branch,
             CI_branch,
@@ -322,34 +332,59 @@ def decorate_branch_ax(
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    node_counts: Dict[str, int],
+    node_counts: Dict[str, Number],
     area: float,
+    branches_defined: bool = True,
     correct_mauldon: bool = True,
-):
+) -> Dict[str, float]:
     """
     Determine topology parameters.
 
     Number of traces and branches are determined by node counting.
     """
+    radius = np.sqrt(area / np.pi)
+    characteristic_length_traces = (
+        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
+    )
+    fracture_intensity = trace_length_array.sum() / area
+    dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
+
+    # Collect parameters that do not require topology determination into a dict
+    params_without_topology = {
+        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
+        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
+        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
+        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
+        Param.AREA.value: area,
+    }
+
+    if not branches_defined:
+        nan_dict = {
+            param.value: np.nan
+            for param in Param
+            if param.value not in params_without_topology
+        }
+        all_params_without_topo = {**params_without_topology, **nan_dict}
+        assert all(param.value in all_params_without_topo for param in Param)
+
+        return all_params_without_topo
+
+    if any(np.isnan(list(node_counts.values()))):
+        raise ValueError(f"Expected no nan in node_counts: {node_counts}")
     assert isinstance(trace_length_array, np.ndarray)
     assert isinstance(node_counts, dict)
     assert isinstance(area, float)
     number_of_traces = (node_counts[Y_node] + node_counts[I_node]) / 2
+    aerial_frequency_traces = number_of_traces / area
     number_of_branches = (
         (node_counts[X_node] * 4) + (node_counts[Y_node] * 3) + node_counts[I_node]
     ) / 2
-    fracture_intensity = trace_length_array.sum() / area
-    aerial_frequency_traces = number_of_traces / area
     aerial_frequency_branches = number_of_branches / area
-    characteristic_length_traces = (
-        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
-    )
     characteristic_length_branches = (
         (trace_length_array.sum() / number_of_branches)
         if number_of_branches > 0
         else 0.0
     )
-    dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
     dimensionless_intensity_branches = (
         fracture_intensity * characteristic_length_branches
     )
@@ -363,34 +398,27 @@ def determine_topology_parameters(
         if number_of_branches > 0
         else 0.0
     )
-
-    radius = np.sqrt(area / np.pi)
-
     trace_mean_length_mauldon = (
         (
             ((np.pi * radius) / 2)
             * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
         )
-        if node_counts[I_node] + node_counts[Y_node] > 0 and correct_mauldon
-        else 0.0
+        if node_counts[I_node] + node_counts[Y_node] > 0
+        else (0.0 if correct_mauldon else np.nan)
     )
     fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
     fracture_intensity_mauldon = (
         (trace_mean_length_mauldon * fracture_density_mauldon)
         if correct_mauldon
-        else 0.0
+        else np.nan
     )
     connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
-    topology_parameters = {
+
+    params_with_topology = {
         Param.NUMBER_OF_TRACES.value: number_of_traces,
-        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
-        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
-        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
-        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
-        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
-        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
         Param.BRANCH_MEAN_LENGTH.value: characteristic_length_branches,
-        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
+        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
+        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
         Param.DIMENSIONLESS_INTENSITY_B22.value: dimensionless_intensity_branches,
         Param.CONNECTIONS_PER_TRACE.value: connections_per_trace,
         Param.CONNECTIONS_PER_BRANCH.value: connections_per_branch,
@@ -398,8 +426,16 @@ def determine_topology_parameters(
         Param.FRACTURE_DENSITY_MAULDON.value: fracture_density_mauldon,
         Param.TRACE_MEAN_LENGTH_MAULDON.value: trace_mean_length_mauldon,
         Param.CONNECTION_FREQUENCY.value: connection_frequency,
+        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
     }
-    return topology_parameters
+
+    all_parameters = {**params_without_topology, **params_with_topology}
+    assert len(all_parameters) == sum(
+        [len(params_without_topology), len(params_with_topology)]
+    )
+    assert all(param.value in all_parameters for param in Param)
+
+    return all_parameters
 
 
 def plot_parameters_plot(
