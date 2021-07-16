@@ -1,6 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
+import logging
 from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Optional, Tuple, Union
@@ -191,19 +192,26 @@ class NetworkRandomSampler:
 
         Returns the network, the sample circle centroid and circle radius.
         """
+        # Create random Polygon circle within area
         target_circle, target_centroid, radius = self.random_target_circle()
+
+        # Collect into GeoDataFrame and set crs if it exists in input frame
         area_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: [target_circle]})
         if self.trace_gdf.crs is not None:
             area_gdf = area_gdf.set_crs(self.trace_gdf.crs)
+
         try:
-            network = Network(
+            network_maybe = Network(
                 trace_gdf=self.trace_gdf,
                 area_gdf=area_gdf,
                 name=target_centroid.wkt,
                 determine_branches_nodes=True,
                 snap_threshold=self.snap_threshold,
             )
-        except ValueError:
-            network = None
+        except ValueError as err:
+            logging.error(
+                f"Exception occurred during creation of random_network_sample:\n{err}"
+            )
+            network_maybe = None
 
-        return network, target_centroid, radius
+        return network_maybe, target_centroid, radius
