@@ -5,11 +5,11 @@ Fracture Network Analysis
 """
 import logging
 
-from fractopo.analysis.network import Network
 from fractopo.analysis.multi_network import MultiNetwork
+from fractopo.analysis.network import Network
 from fractopo.tval.trace_validation import Validation
 
-__version__ = "0.0.1.post283.dev0+f03dfab"
+__version__ = "0.0.1.post291.dev0+8e990fb"
 
 
 logging.info(

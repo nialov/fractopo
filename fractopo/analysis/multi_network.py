@@ -5,7 +5,8 @@ MultiNetwork implementation for handling multiple network analysis.
 from dataclasses import dataclass
 from typing import Sequence
 
-from fractopo import Network, general
+from fractopo import general
+from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 
 
