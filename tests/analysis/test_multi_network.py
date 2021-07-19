@@ -23,6 +23,9 @@ def test_multinetwork_subsample(network_params, samples: int):
     assert isinstance(subsamples, list)
     assert len(networks) * samples == len(subsamples)
 
+    for subsample in subsamples:
+        if subsample.error:
+            raise subsample.result
     identifiers = [subsample.identifier for subsample in subsamples]
     assert not any(subsample.error for subsample in subsamples)
 

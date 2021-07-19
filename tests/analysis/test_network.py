@@ -263,6 +263,7 @@ def test_network_kb11_manual():
         determine_branches_nodes=True,
         truncate_traces=True,
         snap_threshold=0.001,
+        circular_target_area=False,
     )
     return network
 

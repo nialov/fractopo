@@ -2,8 +2,8 @@ Area: 1237.9
 Areal Frequency B20: 0.22
 Areal Frequency P20: 0.07
 Branch Boundary 0 Intersect Count: 285
-Branch Boundary 1 Intersect Count: .nan
-Branch Boundary 2 Intersect Count: .nan
+Branch Boundary 1 Intersect Count: 0
+Branch Boundary 2 Intersect Count: 0
 Branch Mean Length: 1.06
 C - C: 194
 C - E: 28
@@ -28,8 +28,8 @@ Number of Traces: 86.0
 Radius: .nan
 Relative Censoring: .nan
 Trace Boundary 0 Intersect Count: 100
-Trace Boundary 1 Intersect Count: .nan
-Trace Boundary 2 Intersect Count: .nan
+Trace Boundary 1 Intersect Count: 0
+Trace Boundary 2 Intersect Count: 0
 Trace Mean Length: 2.87
 Trace Mean Length (Mauldon): 5.08
 X: 38
