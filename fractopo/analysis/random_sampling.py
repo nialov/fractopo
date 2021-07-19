@@ -34,6 +34,18 @@ class RandomChoice(Enum):
 
 
 @dataclass
+class RandomSample:
+
+    """
+    Dataclass for sampling results.
+    """
+
+    network_maybe: Optional[Network]
+    target_centroid: Point
+    radius: float
+
+
+@dataclass
 class NetworkRandomSampler:
 
     """
@@ -45,6 +57,7 @@ class NetworkRandomSampler:
     min_radius: float
     snap_threshold: float
     random_choice: Union[RandomChoice, str]
+    name: str
 
     def __post_init__(self):
         """
@@ -186,7 +199,7 @@ class NetworkRandomSampler:
 
         return random_target_circle, random_target_centroid, radius
 
-    def random_network_sample(self) -> Tuple[Optional[Network], Point, float]:
+    def random_network_sample(self) -> RandomSample:
         """
         Get random Network sample with a random target area.
 
@@ -214,4 +227,30 @@ class NetworkRandomSampler:
             )
             network_maybe = None
 
-        return network_maybe, target_centroid, radius
+        return RandomSample(network_maybe, target_centroid, radius)
+
+    @classmethod
+    def random_network_sampler(
+        cls,
+        network: Network,
+        min_radius: float,
+        random_choice: RandomChoice = RandomChoice.radius,
+    ):
+        """
+        Initialize ``NetworkRandomSampler`` for random sampling.
+
+        Assumes that ``Network`` target area is a single ``Polygon`` circle.
+        """
+        if not network.circular_target_area:
+            raise ValueError(
+                "Expected passed ``Network`` to be initialized with"
+                " circular_target_area as ``True``."
+            )
+        return NetworkRandomSampler(
+            trace_gdf=network.trace_gdf,
+            area_gdf=network.get_area_gdf(),
+            min_radius=min_radius,
+            snap_threshold=network.snap_threshold,
+            random_choice=random_choice,
+            name=network.name,
+        )
