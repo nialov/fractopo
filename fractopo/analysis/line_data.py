@@ -216,13 +216,14 @@ class LineData:
         """
         Get counts of line intersects with boundary.
         """
+        assert self.area_boundary_intersects is not None
         keys, counts = np.unique(self.area_boundary_intersects, return_counts=True)
         keys = list(map(str, keys))
         counts = list(map(numpy_to_python_type, counts))
         key_counts = dict(zip(keys, counts))
         for default_key in BOUNDARY_INTERSECT_KEYS:
             if default_key not in key_counts:
-                key_counts[default_key] = np.nan
+                key_counts[default_key] = 0
         assert len(key_counts) == 3
         assert all(np.isin(BOUNDARY_INTERSECT_KEYS, list(key_counts)))
         return key_counts

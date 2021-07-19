@@ -643,9 +643,6 @@ class Network:
         parameters = self.parameters
         branch_counts = self.branch_counts
         node_counts = self.node_counts
-        # default_boundary_intersect_count = {
-        #     key: np.nan for key in BOUNDARY_INTERSECT_KEYS
-        # }
         trace_boundary_intersect_count = self.trace_boundary_intersect_count
         branch_boundary_intersect_count = self.branch_boundary_intersect_count
         radius = {
