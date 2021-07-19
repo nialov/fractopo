@@ -222,13 +222,19 @@ class NetworkRandomSampler:
                 determine_branches_nodes=True,
                 snap_threshold=self.snap_threshold,
             )
+
         except ValueError as err:
             logging.error(
                 f"Exception occurred during creation of random_network_sample:\n{err}"
             )
             network_maybe = None
 
-        return RandomSample(network_maybe, target_centroid, radius, name=self.name)
+        return RandomSample(
+            network_maybe=network_maybe,
+            target_centroid=target_centroid,
+            radius=radius,
+            name=self.name,
+        )
 
     @classmethod
     def random_network_sampler(

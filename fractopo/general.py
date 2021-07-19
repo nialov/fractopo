@@ -1526,9 +1526,7 @@ def multiprocess(
             except Exception as exc:
 
                 # Catch and log critical failures
-                logging.error(
-                    f"Validation exception with {futures[future]}:\n\n" f"{exc}"
-                )
+                logging.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
                 collect_results.append(
                     ProcessResult(identifier=identifier, error=True, result=exc)
                 )
