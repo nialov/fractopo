@@ -161,11 +161,6 @@ visualizing different parameters and attributes of trace data.
 
 .. code:: python
 
-   >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
-   '0-20'
-
-.. code:: python
-
    from fractopo import Network
 
    # Initialize Network object and determine the topological branches and nodes
