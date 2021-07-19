@@ -636,7 +636,7 @@ class Network:
             branch_key_counts[f"Branch Boundary {key} Intersect Count"] = item
         return branch_key_counts
 
-    def numerical_network_description(self) -> Dict[str, Number]:
+    def numerical_network_description(self) -> Dict[str, Union[Number, str]]:
         """
         Collect numerical network attributes and return them as a dictionary.
         """
