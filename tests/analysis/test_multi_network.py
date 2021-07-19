@@ -2,10 +2,12 @@
 Tests for multi_network.py.
 """
 
+import pandas as pd
 import pytest
 
 import tests
 from fractopo import MultiNetwork, Network
+from fractopo.analysis import subsampling
 
 
 @pytest.mark.parametrize("network_params,samples", tests.test_multinetwork_params())
@@ -26,3 +28,9 @@ def test_multinetwork_subsample(network_params, samples: int):
 
     for network in networks:
         assert network.name in identifiers
+
+    gathered = subsampling.gather_subsample_descriptions(subsample_results=subsamples)
+
+    assert isinstance(gathered, pd.DataFrame)
+
+    assert gathered.shape[0] > 0
