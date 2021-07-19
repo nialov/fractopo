@@ -5,10 +5,12 @@ import logging
 import math
 import random
 from bisect import bisect
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, List, Set, Tuple, Union
+from typing import Any, Callable, List, Sequence, Set, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
@@ -75,6 +77,18 @@ SetRangeTuple = Tuple[Tuple[float, float], ...]
 BoundsTuple = Tuple[float, float, float, float]
 PointTuple = Tuple[float, float]
 Number = Union[float, int]
+
+
+@dataclass
+class ProcessResult:
+
+    """
+    Dataclass for multiprocessing result parsing.
+    """
+
+    identifier: str
+    result: Any
+    error: bool
 
 
 @unique
@@ -1466,3 +1480,56 @@ def raise_determination_error(
     raise AttributeError(
         f"Cannot determine {attribute} without {verb} {determine_target}."
     )
+
+
+def multiprocess(
+    function_to_call: Callable,
+    keyword_arguments: Sequence,
+    arguments_identifier=lambda _: "",
+    repeats: int = 0,
+) -> List[ProcessResult]:
+    """
+    Process function calls in parallel.
+
+    Returns result as a list where the error is appended when execution fails.
+    """
+    # Collect results into a list
+    collect_results: List[ProcessResult] = []
+
+    # multiprocessing!
+    with ProcessPoolExecutor() as executor:
+
+        keyword_arguments = list(keyword_arguments) * (repeats + 1)
+
+        # Iterate over invalids. submit as tasks
+        futures = {
+            executor.submit(function_to_call, keyword_arg): keyword_arg
+            for keyword_arg in keyword_arguments
+        }
+
+        # Collect all tasks as they complete
+        # Will not be in same order as submitted
+        for future in as_completed(futures):
+
+            identifier = arguments_identifier(futures[future])
+            # If execution critically fails it will be caught and logged
+            try:
+
+                # Get result from Future
+                # This will throw an error (if it happened in process)
+                result = future.result()
+
+                # Collect result
+                collect_results.append(
+                    ProcessResult(identifier=identifier, result=result, error=False)
+                )
+            except Exception as exc:
+
+                # Catch and log critical failures
+                logging.error(
+                    f"Validation exception with {futures[future]}:\n\n" f"{exc}"
+                )
+                collect_results.append(
+                    ProcessResult(identifier=identifier, error=True, result=exc)
+                )
+    return collect_results
