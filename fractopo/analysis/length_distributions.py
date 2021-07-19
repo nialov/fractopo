@@ -3,7 +3,7 @@ Utilities for analyzing and plotting length distributions for line data.
 """
 from enum import Enum, unique
 from textwrap import wrap
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import powerlaw
@@ -72,7 +72,7 @@ def plot_length_data_on_ax(
 def plot_fit_on_ax(
     ax: Axes,
     fit: powerlaw.Fit,
-    fit_distribution: Literal[Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW],
+    fit_distribution: Dist,
 ) -> None:
     """
     Plot powerlaw model to ax.

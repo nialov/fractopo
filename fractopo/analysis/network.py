@@ -1,7 +1,7 @@
 """
 Analyse and plot trace map data with Network.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -126,12 +126,20 @@ class Network:
 
     # Private caching attributes
     # ==========================
-    _anisotropy: Optional[Tuple[np.ndarray, np.ndarray]] = None
-    _parameters: Optional[Dict[str, float]] = None
-    _azimuth_set_relationships: Optional[pd.DataFrame] = None
-    _trace_length_set_relationships: Optional[pd.DataFrame] = None
-    _trace_intersects_target_area_boundary: Optional[np.ndarray] = None
-    _branch_intersects_target_area_boundary: Optional[np.ndarray] = None
+    _anisotropy: Optional[Tuple[np.ndarray, np.ndarray]] = field(
+        default=None, repr=False
+    )
+    _parameters: Optional[Dict[str, float]] = field(default=None, repr=False)
+    _azimuth_set_relationships: Optional[pd.DataFrame] = field(default=None, repr=False)
+    _trace_length_set_relationships: Optional[pd.DataFrame] = field(
+        default=None, repr=False
+    )
+    _trace_intersects_target_area_boundary: Optional[np.ndarray] = field(
+        default=None, repr=False
+    )
+    _branch_intersects_target_area_boundary: Optional[np.ndarray] = field(
+        default=None, repr=False
+    )
 
     @staticmethod
     def _default_length_set_ranges(count, min_value, max_value):
@@ -1022,8 +1030,9 @@ class Network:
         """
         Estimate the amount of censoring caused by e.g. vegetation.
 
-        Requires that Network is initialized with ``censoring_gdf`` or that
-        its passed here. If passed here the passed area is always used.
+        Requires that ``Network`` is initialized with ``censoring_gdf`` or that
+        its passed here. If passed here the passed area is always used
+        overriding the one given at ``Network`` initilization.
         """
         # Either censoring_area is passed directly or its passed in Network
         # creation. Otherwise raise ValueError.
@@ -1077,4 +1086,5 @@ class Network:
             else censoring_value
         )
         assert isinstance(unpacked_value, float)
+        assert unpacked_value >= 0.0
         return unpacked_value

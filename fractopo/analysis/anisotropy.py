@@ -1,7 +1,7 @@
 """
 Anisotropy of connectivity determination utilities.
 """
-from typing import Optional, Tuple
+from typing import Tuple
 
 import matplotlib
 import numpy as np
