@@ -221,8 +221,9 @@ class NetworkRandomSampler:
                 name=self.name,
                 determine_branches_nodes=True,
                 snap_threshold=self.snap_threshold,
+                circular_target_area=True,
+                truncate_traces=True,
             )
-
         except ValueError as err:
             logging.error(
                 f"Exception occurred during creation of random_network_sample:\n{err}"
