@@ -775,11 +775,11 @@ class Helpers:
         )
     ]
 
-    geta_1_traces = gpd.read_file(
-        "tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg"
+    geta_1_traces = read_geofile(
+        Path("tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg")
     )
-    geta_1_1_area = gpd.read_file(
-        "tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg"
+    geta_1_1_area = read_geofile(
+        Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg")
     )
 
     test_network_params = [
@@ -1360,4 +1360,51 @@ def test_populate_sample_cell_new_params():
             gpd.GeoDataFrame(geometry=[LineString([(-5, 1), (5, 1)])]),
             0.001,
         )
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_multinetwork_params():
+    """
+    Params for test_multinetwork.
+    """
+    return [
+        (
+            (
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-1",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-2",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+            ),
+            1,
+        ),
+        (
+            (
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-1",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-2",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+            ),
+            2,
+        ),
     ]
