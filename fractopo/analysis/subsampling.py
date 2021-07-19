@@ -18,9 +18,13 @@ from fractopo.analysis.random_sampling import (
 
 def create_sample(sampler: NetworkRandomSampler):
     """
-    Sample with ``NetworkRandomSampler``.
+    Sample with ``NetworkRandomSampler`` and return ``Network`` description.
     """
-    return sampler.random_network_sample()
+    random_sample = sampler.random_network_sample()
+    if random_sample.network_maybe is None:
+        return None
+    else:
+        return random_sample.network_maybe.numerical_network_description()
 
 
 def subsample_networks(
@@ -61,12 +65,8 @@ def gather_subsample_descriptions(
     """
     descriptions = []
     for subsample in subsample_results:
-        random_sample = subsample.result
-        assert isinstance(random_sample, RandomSample)
-        if random_sample.network_maybe is None:
-            continue
-        else:
-            description = random_sample.network_maybe.numerical_network_description()
+        random_sample_description = subsample.result
+        assert isinstance(random_sample_description, dict)
 
-        descriptions.append(description)
+        descriptions.append(random_sample_description)
     return pd.DataFrame(descriptions)
