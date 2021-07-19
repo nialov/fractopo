@@ -43,6 +43,7 @@ class RandomSample:
     network_maybe: Optional[Network]
     target_centroid: Point
     radius: float
+    name: str
 
 
 @dataclass
@@ -217,7 +218,7 @@ class NetworkRandomSampler:
             network_maybe = Network(
                 trace_gdf=self.trace_gdf,
                 area_gdf=area_gdf,
-                name=target_centroid.wkt,
+                name=self.name,
                 determine_branches_nodes=True,
                 snap_threshold=self.snap_threshold,
             )
@@ -227,7 +228,7 @@ class NetworkRandomSampler:
             )
             network_maybe = None
 
-        return RandomSample(network_maybe, target_centroid, radius)
+        return RandomSample(network_maybe, target_centroid, radius, name=self.name)
 
     @classmethod
     def random_network_sampler(
