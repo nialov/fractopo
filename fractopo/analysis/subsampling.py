@@ -1,7 +1,7 @@
 """
 Utilities for Network subsampling.
 """
-from typing import Dict, List, Sequence, Union
+from typing import List, Sequence
 
 import pandas as pd
 
@@ -12,7 +12,8 @@ from fractopo.analysis.random_sampling import (
     RandomChoice,
     RandomSample,
 )
-from fractopo.general import Number
+
+# from fractopo.general import Number
 
 
 def create_sample(sampler: NetworkRandomSampler):

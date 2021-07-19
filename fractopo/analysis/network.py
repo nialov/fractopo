@@ -641,21 +641,13 @@ class Network:
         Collect numerical network attributes and return them as a dictionary.
         """
         parameters = self.parameters
-        branch_counts = self.branch_counts if self.branch_counts is not None else dict()
-        node_counts = self.node_counts if self.node_counts is not None else dict()
-        default_boundary_intersect_count = {
-            key: np.nan for key in BOUNDARY_INTERSECT_KEYS
-        }
-        trace_boundary_intersect_count = (
-            self.trace_boundary_intersect_count
-            if self.trace_boundary_intersect_count is not None
-            else default_boundary_intersect_count
-        )
-        branch_boundary_intersect_count = (
-            self.branch_boundary_intersect_count
-            if self.branch_boundary_intersect_count is not None
-            else default_boundary_intersect_count
-        )
+        branch_counts = self.branch_counts
+        node_counts = self.node_counts
+        # default_boundary_intersect_count = {
+        #     key: np.nan for key in BOUNDARY_INTERSECT_KEYS
+        # }
+        trace_boundary_intersect_count = self.trace_boundary_intersect_count
+        branch_boundary_intersect_count = self.branch_boundary_intersect_count
         radius = {
             RADIUS: (
                 calc_circle_radius(parameters[Param.AREA.value])
