@@ -27,7 +27,7 @@ def format_and_lint(c):
 @task
 def update_version(c):
     """
-    Update pyproject.toml version string.
+    Update pyproject.toml and package/__init__.py version strings.
     """
     c.run("nox --session update_version")
 
@@ -69,7 +69,35 @@ def build(c):
     c.run("nox --session build")
 
 
-@task(pre=[update_version, format_and_lint, docs, notebooks, build])
+@task(pre=[requirements])
+def typecheck(c):
+    """
+    Typecheck ``fractopo`` with ``mypy``.
+    """
+    print("Typechecking Python code with mypy.")
+    c.run("nox --session typecheck")
+
+
+@task(pre=[requirements])
+def performance_profile(c):
+    """
+    Profile fractopo performance with ``pyinstrument``.
+    """
+    print("Profiling fractopo performance with pyinstrument.")
+    c.run("nox --session profile_performance")
+
+
+@task(
+    pre=[
+        update_version,
+        format_and_lint,
+        docs,
+        notebooks,
+        build,
+        typecheck,
+        performance_profile,
+    ]
+)
 def make(_):
     """
     Make all.

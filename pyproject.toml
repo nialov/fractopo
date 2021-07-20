@@ -37,6 +37,9 @@ black = {version = "*", optional = true}
 black-nb = {version = "*", optional = true}
 isort = {version = "*", optional = true}
 
+# Typecheck
+mypy = {version = "*", optional = true}
+
 [tool.poetry.dev-dependencies]
 bleach = "*"
 hypothesis = "*"
@@ -53,6 +56,7 @@ pytest-regressions = "*"
 coverage = ["coverage", "coverage-badge"]
 docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx"]
 format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort"] 
+typecheck = ["mypy"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]

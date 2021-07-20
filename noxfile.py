@@ -292,3 +292,54 @@ def build(session):
 
     # Build
     session.run("poetry", "build")
+
+
+@nox.session(reuse_venv=True)
+def profile_performance(session):
+    """
+    Profile fractopo runtime performance.
+
+    User must implement the actual performance utility.
+    """
+    # Install dev and pyinstrument
+    install_dev(session)
+    session.install("pyinstrument")
+
+    # Create temporary path
+    save_file = f"{session.create_tmp()}/profile_runtime.html"
+
+    if not PROFILE_SCRIPT_PATH.exists():
+        raise FileNotFoundError(
+            f"Expected {PROFILE_SCRIPT_PATH} to exist for performance profiling."
+        )
+
+    # Run pyprofiler
+    session.run(
+        "pyinstrument",
+        "--renderer",
+        "html",
+        "--outfile",
+        save_file,
+        str(PROFILE_SCRIPT_PATH),
+    )
+
+    resolved_path = Path(save_file).resolve()
+    print(f"\nPerformance profile saved at {resolved_path}.")
+
+
+@nox.session
+def typecheck(session):
+    """
+    Typecheck Python code.
+    """
+    existing_paths = filter_paths_to_existing(PACKAGE_NAME)
+
+    if len(existing_paths) == 0:
+        print("Nothing to typecheck.")
+        return
+
+    # Install package and typecheck dependencies
+    install_dev(session=session, extras="[typecheck]")
+
+    # Format python files
+    session.run("mypy", *existing_paths)
