@@ -27,10 +27,7 @@ sphinx:
 # requirements required to build your docs
 # Install with pip install .[dev] .[docs]
 python:
-  version: 3.8
+  version: "3.8"
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - dev
-        - docs
+    - requirements: requirements.txt
+    - requirements: docs_src/requirements.txt
