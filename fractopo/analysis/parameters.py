@@ -500,8 +500,8 @@ def plot_parameters_plot(
         if column in log_scale_columns:
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
-        locs, labels = plt.xticks()
-        labels = ["\n".join(wrap(label.get_text(), 6)) for label in labels]
+        locs, xtick_labels = plt.xticks()
+        xtick_labels = ["\n".join(wrap(label.get_text(), 6)) for label in xtick_labels]
         plt.yticks(fontsize="xx-large", color="black")
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS
@@ -532,7 +532,7 @@ def plot_parameters_plot(
 
 
 def determine_set_counts(
-    set_names: np.ndarray, set_array: np.ndarray
+    set_names: Tuple[str, ...], set_array: np.ndarray
 ) -> Dict[str, int]:
     """
     Determine counts in for each set.

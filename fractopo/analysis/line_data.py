@@ -147,14 +147,17 @@ class LineData:
         """
         column_array = _column_array_property(column=Col.LENGTH, gdf=self.line_gdf)
         if column_array is None:
-            column_array = (
+            new_column_array = (
                 self.line_gdf.geometry.length.to_numpy() * self.length_boundary_weights
                 if self.area_boundary_intersects is not None
                 else 1.0
             )
-            self.line_gdf[Col.LENGTH.value] = column_array
-        assert isinstance(column_array, np.ndarray)
-        return column_array
+            self.line_gdf[Col.LENGTH.value] = new_column_array
+
+        else:
+            new_column_array = column_array
+        assert isinstance(new_column_array, np.ndarray)
+        return new_column_array
 
     @property
     def length_set_array(self) -> np.ndarray:
@@ -269,9 +272,7 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
         )
 
-    def plot_azimuth(
-        self, label: str
-    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+    def plot_azimuth(self, label: str) -> Tuple[azimuth.AzimuthBins, Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
         """

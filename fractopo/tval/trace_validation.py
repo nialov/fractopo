@@ -172,7 +172,7 @@ class Validation:
     def run_validation(
         self,
         first_pass=True,
-        choose_validators: Optional[List[ValidatorClass]] = None,
+        choose_validators: Optional[Tuple[ValidatorClass]] = None,
         allow_empty_area: bool = True,
     ) -> gpd.GeoDataFrame:
         """

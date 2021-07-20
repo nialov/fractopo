@@ -486,9 +486,9 @@ def plot_crosscut_abutting_relationships_plot(
                 ax.set_xticks(xticks)
                 ax.set_xticklabels(xticklabels)
 
-                xticklabels = ax.get_xticklabels()
+                xticklabels_texts = ax.get_xticklabels()
 
-                for xtick in xticklabels:
+                for xtick in xticklabels_texts:
                     xtick.set_fontweight("bold")
                     xtick.set_fontsize(12)
 

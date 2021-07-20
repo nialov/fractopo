@@ -215,7 +215,7 @@ class NetworkRandomSampler:
             area_gdf = area_gdf.set_crs(self.trace_gdf.crs)
 
         try:
-            network_maybe = Network(
+            network_maybe: Optional[Network] = Network(
                 trace_gdf=self.trace_gdf,
                 area_gdf=area_gdf,
                 name=self.name,

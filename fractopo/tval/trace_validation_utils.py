@@ -101,16 +101,18 @@ def segmentize_linestring(
     assert isinstance(linestring, LineString)
     segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
-        segment_coords: Tuple[Tuple[float, float], Tuple[float, float]] = tuple(
-            coord
-            for coord in (
-                linestring.interpolate(dist).coords[0],
-                linestring.interpolate(dist + threshold_length).coords[0],
-            )
-        )
-        segments.append(segment_coords)
+        segments.append(linestring_segment(linestring, dist, threshold_length))
 
     return segments
+
+
+def linestring_segment(linestring: LineString, dist: float, threshold_length: float):
+    """
+    Get LineString segment from dist to dist + threshold_length.
+    """
+    coord_1 = linestring.interpolate(dist).coords[0]
+    coord_2 = linestring.interpolate(dist + threshold_length).coords[0]
+    return coord_1, coord_2
 
 
 def split_to_determine_triangle_errors(
@@ -140,7 +142,7 @@ def split_to_determine_triangle_errors(
         if len(middle) > 0:
             seg_lengths: List[float] = [seg.length for seg in middle]
         else:
-            seg_lengths: List[float] = [seg.length for seg in segments.geoms]
+            seg_lengths = [seg.length for seg in segments.geoms]
         for seg_length in seg_lengths:
             if (
                 snap_threshold / triangle_error_snap_multiplier

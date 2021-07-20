@@ -573,15 +573,8 @@ def get_trace_endpoints(
             "Non LineString geometry passed into get_trace_endpoints.\n"
             f"trace: {trace}"
         )
-    return tuple(
-        (
-            endpoint
-            for endpoint in (
-                Point(trace.coords[0]),
-                Point(trace.coords[-1]),
-            )
-        )
-    )
+    points = Point(trace.coords[0]), Point(trace.coords[-1])
+    return points
 
 
 def get_trace_coord_points(trace: LineString) -> List[Point]:
@@ -743,13 +736,13 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
     Enforces only Point returns.
     """
     intersection = first.intersection(second)
-    collect_points = []
+    collect_points: List[Point] = []
     if isinstance(intersection, LineString) and intersection.is_empty:
         pass
     elif isinstance(intersection, Point):
         collect_points = [intersection]
     elif isinstance(intersection, MultiPoint):
-        collect_points: List[Point] = list(intersection.geoms)
+        collect_points = list(intersection.geoms)
     else:
         logging.error(f"Expected Point or empty intersection, got: {intersection}")
     return collect_points
@@ -1040,7 +1033,7 @@ def crop_to_target_areas(
     traces.reset_index(drop=True, inplace=True)
     spatial_index = pygeos_spatial_index(traces)
 
-    areas_bounds: Tuple[float, float, float, float] = tuple(areas.total_bounds)
+    areas_bounds = total_bounds(areas)
     assert len(areas_bounds) == 4
 
     candidate_idxs = spatial_index_intersection(
@@ -1175,7 +1168,7 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
     Get random points within Polygon.
     """
     min_x, min_y, max_x, max_y = geom_bounds(poly)
-    points = []
+    points: List[Point] = []
 
     while len(points) < num_points:
         random_point = Point(
@@ -1240,6 +1233,20 @@ def geom_bounds(
         bounds[3],
     )
     return bounds_tuple
+
+
+def total_bounds(
+    geodata: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+) -> Tuple[float, float, float, float]:
+    """
+    Get total bounds of geodataset.
+    """
+    bounds = geodata.total_bounds
+    if not len(bounds) == 4:
+        raise ValueError(
+            f"Expected total_bounds to return an array of length 4: {bounds}."
+        )
+    return bounds[0], bounds[1], bounds[2], bounds[3]
 
 
 def pygeos_spatial_index(

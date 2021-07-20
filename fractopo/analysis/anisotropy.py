@@ -162,10 +162,10 @@ def plot_anisotropy_ax(
     # CREATE CURVED STRUCTURE AROUND SCATTER AND ARROWS
     angles.append(359.999)
     double_anisotropy = np.concatenate([double_anisotropy, double_anisotropy[0:1]])
-    angles = np.array(angles)
+    angles_arr = np.array(angles)
 
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
-    theta = np.deg2rad(angles)  # type: ignore
+    theta = np.deg2rad(angles_arr)  # type: ignore
     cs = CubicSpline(theta, double_anisotropy, bc_type="periodic")
     xnew = np.linspace(theta.min(), theta.max(), 300)
     power_smooth = cs(xnew)

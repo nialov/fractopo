@@ -16,8 +16,9 @@ from pandas.testing import assert_frame_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
+from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
-from fractopo.general import Number, SetRangeTuple
+from fractopo.general import SetRangeTuple
 from tests import Helpers
 
 
@@ -233,7 +234,7 @@ def network_extensive_testing(
             assert isinstance(other, powerlaw.Fit)
         elif len(fig_returns) == 3 and "azimuth" in plot:
             other, fig, ax = fig_returns
-            assert isinstance(other, dict)
+            assert isinstance(other, AzimuthBins)
         else:
             raise ValueError("Expected 3 max returns.")
         assert isinstance(fig, Figure)

@@ -467,6 +467,7 @@ class TargetAreaSnapValidator(BaseValidator):
             scale(area_polygon, xfact=1 + snap_threshold, yfact=1 + snap_threshold)
         ):
             return True
+        return None
 
     @staticmethod
     def is_candidate_underlapping(

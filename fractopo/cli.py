@@ -4,7 +4,7 @@ Command-line integration of fractopo with click.
 import time
 from itertools import chain
 from pathlib import Path
-from typing import Union
+from typing import Optional, Tuple, Type, Union
 
 import click
 import fiona
@@ -128,7 +128,9 @@ def tracevalidate(
         SNAP_THRESHOLD=snap_threshold,
     )
     if only_area_validation:
-        choose_validators = [TargetAreaSnapValidator]
+        choose_validators: Optional[Tuple[Type[TargetAreaSnapValidator]]] = (
+            TargetAreaSnapValidator,
+        )
     else:
         choose_validators = None
     validated_trace = validation.run_validation(

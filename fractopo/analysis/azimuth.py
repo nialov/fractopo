@@ -3,6 +3,7 @@ Functions for plotting rose plots.
 """
 
 import math
+from dataclasses import dataclass
 from textwrap import wrap
 from typing import Dict, Optional, Tuple, Union
 
@@ -13,6 +14,18 @@ from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
 from fractopo.general import Number
+
+
+@dataclass
+class AzimuthBins:
+
+    """
+    Dataclass for azimuth rose plot bin data.
+    """
+
+    bin_width: float
+    bin_locs: np.ndarray
+    bin_heights: np.ndarray
 
 
 def _calc_ideal_bin_width(n: Number, axial=True) -> float:
@@ -93,19 +106,21 @@ def determine_azimuth_bins(
     azimuth_array: np.ndarray,
     length_array: Optional[np.ndarray] = None,
     bin_multiplier: Number = 1,
-) -> Dict[str, Union[np.ndarray, float]]:
+) -> AzimuthBins:
     """
     Calculate azimuth bins for plotting azimuth rose plots.
 
     E.g.
 
-    >>> from pprint import pprint
     >>> azimuth_array = np.array([25, 50, 145, 160])
     >>> length_array = np.array([5, 5, 10, 60])
-    >>> pprint(determine_azimuth_bins(azimuth_array, length_array))
-    {'bin_heights': array([ 5,  5,  0, 70]),
-     'bin_locs': array([ 22.5,  67.5, 112.5, 157.5]),
-     'bin_width': 45.0}
+    >>> azi_bins = determine_azimuth_bins(azimuth_array, length_array)
+    >>> azi_bins.bin_heights
+    array([ 5,  5,  0, 70])
+    >>> azi_bins.bin_locs
+    array([ 22.5,  67.5, 112.5, 157.5])
+    >>> azi_bins.bin_width
+    45.0
 
     """
     # Ideal width of rose plot bin based on sample size.
@@ -123,7 +138,7 @@ def determine_azimuth_bins(
     # Height of rose plot bins.
     bin_heights, _ = np.histogram(azimuth_array, bin_edges, weights=length_array)
 
-    return dict(bin_width=bin_width, bin_locs=bin_locs, bin_heights=bin_heights)
+    return AzimuthBins(bin_width=bin_width, bin_locs=bin_locs, bin_heights=bin_heights)
 
 
 def plot_azimuth_ax(
@@ -259,15 +274,20 @@ def plot_azimuth_plot(
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
     label: str,
-) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
     Plot azimuth rose plot to its own figure.
 
     Returns rose plot bin parameters, figure, ax
     """
-    azimuth_bin_dict = determine_azimuth_bins(azimuth_array, length_array)
+    azimuth_bins = determine_azimuth_bins(azimuth_array, length_array)
     fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))
-    ax = plot_azimuth_ax(**azimuth_bin_dict, ax=ax)
+    ax = plot_azimuth_ax(
+        bin_heights=azimuth_bins.bin_heights,
+        bin_locs=azimuth_bins.bin_locs,
+        bin_width=azimuth_bins.bin_width,
+        ax=ax,
+    )
     # TODO: Is length_array always required
     decorate_azimuth_ax(
         ax=ax,
@@ -277,7 +297,7 @@ def plot_azimuth_plot(
         set_names=azimuth_set_names,
     )
     return (
-        azimuth_bin_dict,
+        azimuth_bins,
         fig,
         ax,
     )

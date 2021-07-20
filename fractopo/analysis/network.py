@@ -17,6 +17,7 @@ from shapely.geometry import MultiPoint, MultiPolygon, Point, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
+from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.contour_grid import run_grid_sampling
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
@@ -34,7 +35,6 @@ from fractopo.analysis.relationships import (
 )
 from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import (
-    BOUNDARY_INTERSECT_KEYS,
     CENSORING,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
@@ -53,6 +53,7 @@ from fractopo.general import (
     pygeos_spatial_index,
     raise_determination_error,
     spatial_index_intersection,
+    total_bounds,
 )
 
 
@@ -298,7 +299,7 @@ class Network:
         """
         if not self._is_branch_gdf_defined():
             raise_determination_error("node_series")
-        return self.node_gdf.geometry
+        return self.get_node_gdf().geometry
 
     @property
     def branch_series(self) -> gpd.GeoSeries:
@@ -396,7 +397,9 @@ class Network:
         """
         if not self._is_branch_gdf_defined():
             raise_determination_error("node_types")
-        return self.node_gdf[CLASS_COLUMN].to_numpy()
+        node_class_series = self.get_node_gdf()[CLASS_COLUMN]
+        assert isinstance(node_class_series, pd.Series)
+        return node_class_series.to_numpy()
 
     @property
     def node_counts(self) -> Dict[str, Number]:
@@ -414,7 +417,9 @@ class Network:
         """
         if not self._is_branch_gdf_defined():
             raise_determination_error("branch_types")
-        return self.branch_gdf[CONNECTION_COLUMN].to_numpy()
+        branch_connection_series = self.get_branch_gdf()[CONNECTION_COLUMN]
+        assert isinstance(branch_connection_series, pd.Series)
+        return branch_connection_series.to_numpy()
 
     @property
     def branch_counts(self) -> Dict[str, Number]:
@@ -430,7 +435,7 @@ class Network:
         """
         Get total area.
         """
-        return self.area_gdf.geometry.area.sum()
+        return self.get_area_gdf().geometry.area.sum()
 
     @property
     def parameters(self) -> Dict[str, float]:
@@ -551,7 +556,7 @@ class Network:
         Get all target areas from area_gdf.
         """
         target_areas = []
-        for target_area in self.area_gdf.geometry.values:
+        for target_area in self.get_area_gdf().geometry.values:
             if not isinstance(target_area, (Polygon, MultiPolygon)):
                 raise TypeError("Expected (Multi)Polygon geometries in area_gdf.")
             target_areas.append(target_area)
@@ -687,7 +692,7 @@ class Network:
         """
         Get representative point(s) of target area(s).
         """
-        return self.area_gdf.representative_point().to_list()
+        return self.get_area_gdf().representative_point().to_list()
 
     def trace_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
@@ -783,7 +788,7 @@ class Network:
 
     def plot_trace_azimuth(
         self, label: Optional[str] = None
-    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+    ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot trace azimuth rose plot.
         """
@@ -793,7 +798,7 @@ class Network:
 
     def plot_branch_azimuth(
         self, label: Optional[str] = None
-    ) -> Tuple[Dict[str, np.ndarray], Figure, PolarAxes]:
+    ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot branch azimuth rose plot.
         """
@@ -965,7 +970,7 @@ class Network:
         """
         if cell_width is None:
             # Use trace bounds to calculate a width
-            min_x, min_y, max_x, max_y = self.branch_gdf.total_bounds
+            min_x, min_y, max_x, max_y = total_bounds(self.get_branch_gdf())
             x_diff = max_x - min_x
             y_diff = max_y - min_y
             if x_diff < y_diff:
