@@ -317,16 +317,17 @@ class Helpers:
     sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
-    kb11_traces = gpd.read_file(sample_trace_data)
-    kb11_area = gpd.read_file(sample_area_data)
+    kb11_traces = read_geofile(sample_trace_data)
+    kb11_area = read_geofile(sample_area_data)
     assert isinstance(kb11_traces, gpd.GeoDataFrame)
     assert isinstance(kb11_area, gpd.GeoDataFrame)
 
     kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
     kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
 
-    kb7_traces = gpd.read_file(kb7_trace_path)
-    kb7_area = gpd.read_file(kb7_area_path)
+    kb7_traces = read_geofile(kb7_trace_path)
+    kb7_area = read_geofile(kb7_area_path)
+
     test_tracevalidate_params = [
         (
             Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
