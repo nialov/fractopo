@@ -92,7 +92,6 @@ def test_network(
     circular_target_area,
     file_regression,
     data_regression,
-    num_regression,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -140,10 +139,12 @@ def test_network(
 
     data_regression.check(network_attributes)
 
-    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
+    if determine_branches_nodes and network.get_branch_gdf().shape[0] < 500:
 
+        sorted_branch_gdf = network.get_branch_gdf().sort_index()
+        assert isinstance(sorted_branch_gdf, gpd.GeoDataFrame)
         # Do not check massive branch counts
-        file_regression.check(network.branch_gdf.sort_index().to_json(indent=1))
+        file_regression.check(sorted_branch_gdf.to_json(indent=1))
         network_extensive_testing(
             network=network, traces=traces, area=area, snap_threshold=snap_threshold
         )
@@ -152,14 +153,6 @@ def test_network(
     assert network.trace_intersects_target_area_boundary.dtype == "int"
     assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
     assert network.branch_intersects_target_area_boundary.dtype == "int64"
-
-    num_regression.check(
-        {
-            "branch_boundary_intersects": list(
-                network.branch_intersects_target_area_boundary
-            ),
-        }
-    )
 
 
 def network_extensive_testing(
