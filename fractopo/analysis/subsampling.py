@@ -3,15 +3,12 @@ Utilities for Network subsampling.
 """
 from typing import List, Sequence
 
+import numpy as np
 import pandas as pd
 
 from fractopo import general
 from fractopo.analysis.network import Network
-from fractopo.analysis.random_sampling import (
-    NetworkRandomSampler,
-    RandomChoice,
-    RandomSample,
-)
+from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 
 # from fractopo.general import Number
 
@@ -20,6 +17,8 @@ def create_sample(sampler: NetworkRandomSampler):
     """
     Sample with ``NetworkRandomSampler`` and return ``Network`` description.
     """
+    # Set random seed instead of inheriting the seed from parent process
+    np.random.seed()
     random_sample = sampler.random_network_sample()
     if random_sample.network_maybe is None:
         return None
