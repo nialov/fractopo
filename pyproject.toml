@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.0.1.post312.dev0+fc92755"
+version = "0.0.1.post313.dev0+6e57a2f"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 
@@ -10,7 +10,7 @@ geopandas = "==0.9.0"
 pandas = "*"
 numpy = "*"
 shapely = "*"
-pygeos = "==0.8"
+pygeos = "==0.10.1"
 scipy = "*"
 powerlaw = "*"
 python-ternary = "*"
@@ -38,11 +38,11 @@ black-nb = {version = "*", optional = true}
 isort = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
-bleach = ">=3.3.0"
+bleach = "*"
 hypothesis = "*"
 invoke = "*"
 ipython = "*"
-jedi = "==0.17.2"
+jedi = "*"
 jupyterlab = "*"
 nox = "*"
 pyinstrument = "*"
