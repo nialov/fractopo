@@ -14,6 +14,7 @@ PACKAGE_NAME = "fractopo"
 DOCS_APIDOC_DIR_PATH = Path("docs_src/apidoc")
 DOCS_DIR_PATH = Path("docs")
 COVERAGE_SVG_PATH = Path("docs_src/imgs/coverage.svg")
+PROFILE_SCRIPT_PATH = Path("tests/_profile.py")
 
 # Path strings
 TESTS_NAME = "tests"
@@ -246,13 +247,23 @@ def update_version(session):
 
 
 @nox.session(reuse_venv=True)
-def profile_network_analysis(session):
+def profile_performance(session):
     """
-    Profile Network analysis with pyinstrument.
+    Profile module runtime performance.
+
+    User must implement the actual performance utility.
     """
     # Install dev and pyinstrument
     install_dev(session)
     session.install("pyinstrument")
+
+    # Create temporary path
+    save_file = f"{session.create_tmp()}/profile_runtime.html"
+
+    if not PROFILE_SCRIPT_PATH.exists():
+        raise FileNotFoundError(
+            f"Expected {PROFILE_SCRIPT_PATH} to exist for performance profiling."
+        )
 
     # Run pyprofiler
     session.run(
@@ -260,9 +271,12 @@ def profile_network_analysis(session):
         "--renderer",
         "html",
         "--outfile",
-        "tests/profile_runtime.html",
-        "tests/profile_runtime.py",
+        save_file,
+        str(PROFILE_SCRIPT_PATH),
     )
+
+    resolved_path = Path(save_file).resolve()
+    print(f"\nPerformance profile saved at {resolved_path}.")
 
 
 @nox.session

@@ -16,6 +16,7 @@ fractopo.egg-info/
 readme.html
 tests/profile_runtime.html
 venv/
+*.html
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs
