@@ -63,7 +63,7 @@ def notebooks(c):
 @task(pre=[requirements])
 def build(c):
     """
-    Build package with poetry
+    Build package with poetry.
     """
     print("Building package with poetry.")
     c.run("nox --session build")
@@ -85,6 +85,13 @@ def performance_profile(c):
     """
     print("Profiling fractopo performance with pyinstrument.")
     c.run("nox --session profile_performance")
+
+
+@task(pre=[format_and_lint, ci_test, build, docs])
+def prepush(_):
+    """
+    Test suite for locally verifying continous integration results upstream.
+    """
 
 
 @task(
