@@ -11,10 +11,10 @@ from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
     geom_bounds,
-    spatial_index_intersection,
     get_trace_endpoints,
     pygeos_spatial_index,
     safe_buffer,
+    spatial_index_intersection,
 )
 
 

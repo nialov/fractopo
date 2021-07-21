@@ -2,10 +2,11 @@
 Tests for fractopo_utils.py.
 """
 
-from tests import Helpers
 import geopandas as gpd
-import fractopo.fractopo_utils as fractopo_utils
 from shapely.geometry import Point
+
+import fractopo.fractopo_utils as fractopo_utils
+from tests import Helpers
 
 
 def test_remove_identical_sindex():
