@@ -19,57 +19,6 @@ from tests.sample_data.py_samples import samples
 # Import trace_validator
 
 
-def test_remove_identical_sindex():
-    """
-    Test remove_identical_sindex.
-    """
-    geosrs = Helpers.get_geosrs_identicals()
-    geosrs_orig_length = len(geosrs)
-    result = branches_and_nodes.remove_identical_sindex(geosrs, Helpers.snap_threshold)
-    result_length = len(result)
-    assert geosrs_orig_length > result_length
-    assert geosrs_orig_length - result_length == 2
-
-
-def test_remove_snapping_in_remove_identicals():
-    """
-    Test remove_identical_sindex with identicals.
-    """
-    snap_thresholds = [
-        Helpers.snap_threshold,
-        Helpers.snap_threshold * 2,
-        Helpers.snap_threshold * 4,
-        Helpers.snap_threshold * 8,
-    ]
-    for sn in snap_thresholds:
-        # Snap distances for Points should always be within snapping
-        # threshold
-        geosrs = gpd.GeoSeries([Point(1, 1), Point(1 + sn * 0.99, 1)])
-        result = branches_and_nodes.remove_identical_sindex(geosrs, sn)
-        assert len(geosrs) - len(result) == 1
-
-
-# def test_get_node_identities():
-#     traces_geosrs = Helpers.get_traces_geosrs()
-#     areas_geosrs = Helpers.get_areas_geosrs()
-#     traces_geosrs, any_changed_applied = branches_and_nodes.snap_traces_old(
-#         traces_geosrs, Helpers.snap_threshold
-#     )
-#     det_nodes, _ = branches_and_nodes.determine_nodes(
-#         gpd.GeoDataFrame({"geometry": traces_geosrs}), snap_threshold=0.01
-#     )
-#     nodes_geosrs = branches_and_nodes.remove_identical_sindex(
-#         gpd.GeoSeries(det_nodes), Helpers.snap_threshold
-#     )
-#     result = branches_and_nodes.get_node_identities(
-#         traces_geosrs, nodes_geosrs, areas_geosrs, Helpers.snap_threshold
-#     )
-#     assert "X" in result and "Y" in result and "I" in result
-#     assert len([r for r in result if r == "X"]) == 1
-#     assert len([r for r in result if r == "Y"]) == 1
-#     assert len([r for r in result if r == "I"]) == 5
-
-
 # number_of_I_nodes: int, number_of_XY_nodes: int, number_of_E_nodes: int
 @pytest.mark.parametrize(
     "number_of_I_nodes, number_of_XY_nodes, number_of_E_nodes, should_pass",
@@ -115,7 +64,7 @@ def test_snap_traces_simple():
         [LineString([(0, 0), (0.99, 0)]), LineString([(1, -1), (1, 1)])]
     )
     simple_snap_threshold = 0.02
-    simple_snapped_traces, any_changed_applied = branches_and_nodes.snap_traces(
+    simple_snapped_traces, _ = branches_and_nodes.snap_traces(
         [
             line
             for line in simple_traces.geometry.values
@@ -152,22 +101,6 @@ def test_insert_point_to_linestring(linestring, point, snap_threshold, assumed_r
         assert list(result.coords).index(tuple(*point.coords)) == 1
     else:
         assert result.wkt == assumed_result.wkt
-
-
-# def test_additional_snapping_func():
-#     ls = LineString([(0, 0), (1, 1), (2, 2)])
-#     idx = 0
-#     p = Point(0.5, 0.5)
-#     additional_snapping = [(0, p)]
-#     result = branches_and_nodes.additional_snapping_func(ls, idx, additional_snapping)
-#     # Assert it is in list
-#     assert tuple(*p.coords) in list(result.coords)
-#     # Assert index is correct
-#     assert list(result.coords).index(tuple(*p.coords)) == 1
-#     unchanged_result = branches_and_nodes.additional_snapping_func(
-#         ls, 1, additional_snapping
-#     )
-#     assert unchanged_result == ls
 
 
 def test_nice_traces():

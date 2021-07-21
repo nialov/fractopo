@@ -5,12 +5,13 @@ from itertools import count
 from typing import List, Tuple, Union
 
 import geopandas as gpd
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point
 
 from fractopo.general import (
     compare_unit_vector_orientation,
     create_unit_vector,
     geom_bounds,
+    spatial_index_intersection,
     get_trace_endpoints,
     pygeos_spatial_index,
     safe_buffer,
@@ -233,3 +234,38 @@ class LineMerge:
         if traces.crs is not None:
             gdf = gdf.set_crs(traces.crs)
         return gdf
+
+
+def remove_identical_sindex(
+    geosrs: gpd.GeoSeries, snap_threshold: float
+) -> gpd.GeoSeries:
+    """
+    Remove stacked nodes by using a search buffer the size of snap_threshold.
+    """
+    geosrs = geosrs.reset_index(inplace=False, drop=True)
+    spatial_index = geosrs.sindex
+    identical_idxs = []
+    point: Point
+    for idx, point in enumerate(geosrs.geometry.values):
+        if idx in identical_idxs:
+            continue
+        # point = point.buffer(snap_threshold) if snap_threshold != 0 else point
+        p_candidate_idxs = (
+            # list(spatial_index.intersection(point.buffer(snap_threshold).bounds))
+            spatial_index_intersection(
+                spatial_index=spatial_index,
+                coordinates=geom_bounds(safe_buffer(geom=point, radius=snap_threshold)),
+            )
+            if snap_threshold != 0
+            else list(spatial_index.intersection(point.coords[0]))
+        )
+        p_candidate_idxs.remove(idx)
+        p_candidates = geosrs.iloc[p_candidate_idxs]
+        inter = p_candidates.distance(point) < snap_threshold
+        colliding = inter.loc[inter]
+        if len(colliding) > 0:
+            index_to_list = colliding.index.to_list()
+            assert len(index_to_list) > 0
+            assert all(isinstance(i, int) for i in index_to_list)
+            identical_idxs.extend(index_to_list)
+    return geosrs.drop(identical_idxs)
