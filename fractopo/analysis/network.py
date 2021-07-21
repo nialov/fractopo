@@ -450,6 +450,7 @@ class Network:
                 node_counts=self.node_counts,  # type: ignore
                 area=self.total_area,
                 branches_defined=self._is_branch_gdf_defined(),
+                correct_mauldon=self.circular_target_area,
             )
         return self._parameters
 
@@ -1012,7 +1013,7 @@ class Network:
             ax=ax,
             legend_kwds={"label": parameter},
         )
-        ax.set_title(self.name)
+        ax.set_title(f"{ self.name } -- {parameter}")
         return fig, ax
 
     def estimate_censoring(

@@ -401,20 +401,29 @@ def determine_topology_parameters(
         if number_of_branches > 0
         else 0.0
     )
-    trace_mean_length_mauldon = (
-        (
-            ((np.pi * radius) / 2)
-            * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
+    if correct_mauldon:
+        trace_mean_length_mauldon = (
+            (
+                ((np.pi * radius) / 2)
+                * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
+            )
+            if node_counts[I_node] + node_counts[Y_node] > 0
+            else 0.0
         )
-        if node_counts[I_node] + node_counts[Y_node] > 0
-        else (0.0 if correct_mauldon else np.nan)
-    )
-    fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
-    fracture_intensity_mauldon = (
-        (trace_mean_length_mauldon * fracture_density_mauldon)
-        if correct_mauldon
-        else np.nan
-    )
+        fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (
+            area * 2
+        )
+        fracture_intensity_mauldon = (
+            trace_mean_length_mauldon * fracture_density_mauldon
+        )
+    else:
+        # If Network target area is not circular mauldon parameters cannot be
+        # determined.
+        (
+            trace_mean_length_mauldon,
+            fracture_density_mauldon,
+            fracture_intensity_mauldon,
+        ) = (np.nan, np.nan, np.nan)
     connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
 
     params_with_topology = {

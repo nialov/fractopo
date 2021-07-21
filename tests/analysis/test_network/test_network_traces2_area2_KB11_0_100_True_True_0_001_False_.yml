@@ -16,8 +16,8 @@ Dimensionless Intensity B22: 0.25
 Dimensionless Intensity P22: 0.66
 E: 28
 E - E: 0
-Fracture Density (Mauldon): 0.07
-Fracture Intensity (Mauldon): 0.35
+Fracture Density (Mauldon): .nan
+Fracture Intensity (Mauldon): .nan
 Fracture Intensity B21: 0.23
 Fracture Intensity P21: 0.23
 I: 63
@@ -31,7 +31,7 @@ Trace Boundary 0 Intersect Count: 100
 Trace Boundary 1 Intersect Count: 0
 Trace Boundary 2 Intersect Count: 0
 Trace Mean Length: 2.87
-Trace Mean Length (Mauldon): 5.08
+Trace Mean Length (Mauldon): .nan
 X: 38
 Y: 109
 branch exponential Kolmogorov-Smirnov distance D: 0.21
