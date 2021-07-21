@@ -332,7 +332,7 @@ def determine_intersect(
     Determine what intersection the node represents.
     """
     if node_class == "X":
-        if (l1 is True) and (l2 is True):  # It's an x-node between sets
+        if l1 and l2:  # It's an x-node between sets
             sets = (first_set, second_set)
             addition = {
                 "node": node,
@@ -341,7 +341,7 @@ def determine_intersect(
                 "error": False,
             }
 
-        elif (l1 is True) and (l2 is False):  # It's an x-node inside set 1
+        elif l1 and not l2:  # It's an x-node inside set 1
             raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
@@ -349,7 +349,7 @@ def determine_intersect(
             # sets = (first_set, first_set)
             # addition = {'node': node, 'nodeclass': c, 'sets': sets}
 
-        elif (l1 is False) and (l2 is True):  # It's an x-node inside set 2
+        elif not l1 and l2:  # It's an x-node inside set 2
             raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"

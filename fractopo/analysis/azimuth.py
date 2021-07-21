@@ -5,7 +5,7 @@ Functions for plotting rose plots.
 import math
 from dataclasses import dataclass
 from textwrap import wrap
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt

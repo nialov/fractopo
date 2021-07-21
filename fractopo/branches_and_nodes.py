@@ -846,7 +846,9 @@ def safer_unary_union(
         )
     if isinstance(full_union, LineString):
         return MultiLineString([full_union])
-    raise TypeError(f"Expected (Multi)LineString from unary_union. Got {full_union}")
+    raise TypeError(
+        f"Expected (Multi)LineString from unary_union. Got {full_union.wkt}"
+    )
 
 
 def part_unary_union(
@@ -1174,6 +1176,8 @@ def node_identities_from_branches(
         return [], []
 
     # Collect into two lists
-    nodes, identities = zip(*collected_nodes.values())
+    values = list(collected_nodes.values())
+    nodes = [value[0] for value in values]
+    identities = [value[1] for value in values]
 
-    return list(nodes), list(identities)
+    return nodes, identities

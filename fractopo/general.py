@@ -947,15 +947,12 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     dtype: bool
 
     """
-    total_bounds = geoseries.total_bounds
-    bounding_poly: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
+    total_bounds_geoseries = total_bounds(geoseries)
+    bounding_poly: Polygon = scale(box(*total_bounds_geoseries), xfact=2, yfact=2)
     if any(
         geom.intersects(bounding_poly.boundary) for geom in geoseries.geometry.values
     ):
-        # if any(geoseries.intersects(bounding_polygon.boundary)):
-        # bounding_polygon = bounding_polygon.buffer(1)
-        bounding_poly = bounding_poly.buffer(1)
-        assert isinstance(bounding_poly, Polygon)
+        bounding_poly = safe_buffer(bounding_poly, radius=1.0)
         if any(
             geom.intersects(bounding_poly.boundary)
             for geom in geoseries.geometry.values
@@ -1043,6 +1040,7 @@ def crop_to_target_areas(
 
     # Clip traces to target areas
     clipped_traces = gpd.clip(candidate_traces, areas)
+    assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
 
     # Clipping might result in Point geometries
     # Filter to only LineStrings and MultiLineStrings
@@ -1153,7 +1151,9 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
     return linestrings
 
 
-def safe_buffer(geom: Union[Point, LineString], radius: float, **kwargs) -> Polygon:
+def safe_buffer(
+    geom: Union[Point, LineString, Polygon], radius: float, **kwargs
+) -> Polygon:
     """
     Get type checked Polygon buffer.
     """
@@ -1404,62 +1404,6 @@ def calc_circle_radius(area: float) -> float:
     """
     assert not area < 0
     return np.sqrt(area / np.pi)
-
-
-# def bounding_grid(cell_width: float, geodataset: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-#     """
-#     Create an empty rectangular polygon grid for sampling.
-
-#     Grid is created to always contain all geometries in ``geodataset``.
-#     """
-#     assert cell_width > 0
-#     assert len(geodataset) > 0
-#     assert all(
-#         [
-#             isinstance(val, (BaseGeometry, BaseMultipartGeometry))
-#             for val in geodataset.geometry.values
-#         ]
-#     )
-
-#     # Get total bounds of geometries
-#     x_min, y_min, x_max, y_max = geodataset.total_bounds
-#     cell_height = cell_width
-
-#     # Calculate cell row and column counts
-#     rows = int(np.ceil((y_max - y_min) / cell_height))
-#     cols = int(np.ceil((x_max - x_min) / cell_width))
-
-#     # Initialize grid start coordinates
-#     x_left_origin = x_min
-#     x_right_origin = x_min + cell_width
-#     y_top_origin = y_max
-#     y_bottom_origin = y_max - cell_height
-#     polygons = []
-
-#     # Create grid cell polygons
-#     for _ in range(cols):
-#         y_top = y_top_origin
-#         y_bottom = y_bottom_origin
-#         for _ in range(rows):
-#             polygons.append(
-#                 Polygon(
-#                     [
-#                         (x_left_origin, y_top),
-#                         (x_right_origin, y_top),
-#                         (x_right_origin, y_bottom),
-#                         (x_left_origin, y_bottom),
-#                     ]
-#                 )
-#             )
-#             y_top = y_top - cell_height
-#             y_bottom = y_bottom - cell_height
-#         x_left_origin = x_left_origin + cell_width
-#         x_right_origin = x_right_origin + cell_width
-
-#     # Create GeoDataFrame with grid polygons
-#     grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=geodataset.crs)
-#     assert len(grid) != 0
-#     return grid
 
 
 def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:

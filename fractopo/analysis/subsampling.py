@@ -22,8 +22,7 @@ def create_sample(sampler: NetworkRandomSampler):
     random_sample = sampler.random_network_sample()
     if random_sample.network_maybe is None:
         return None
-    else:
-        return random_sample.network_maybe.numerical_network_description()
+    return random_sample.network_maybe.numerical_network_description()
 
 
 def subsample_networks(

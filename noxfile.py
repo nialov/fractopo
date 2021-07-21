@@ -98,7 +98,7 @@ def notebooks(session):
     Run notebooks.
 
     Notebooks are usually run in remote so use pip install.
-    Note that notebooks shouldn't have side effects i.e. file disk file writing.
+    Note that notebooks shouldn't have side effects i.e. disk file writing.
     """
     # Check if any notebooks exist.
     if len(ALL_NOTEBOOKS) == 0:
@@ -244,39 +244,6 @@ def update_version(session):
     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
     # and fractopo/__init__.py
     session.run("poetry-dynamic-versioning")
-
-
-@nox.session(reuse_venv=True)
-def profile_performance(session):
-    """
-    Profile module runtime performance.
-
-    User must implement the actual performance utility.
-    """
-    # Install dev and pyinstrument
-    install_dev(session)
-    session.install("pyinstrument")
-
-    # Create temporary path
-    save_file = f"{session.create_tmp()}/profile_runtime.html"
-
-    if not PROFILE_SCRIPT_PATH.exists():
-        raise FileNotFoundError(
-            f"Expected {PROFILE_SCRIPT_PATH} to exist for performance profiling."
-        )
-
-    # Run pyprofiler
-    session.run(
-        "pyinstrument",
-        "--renderer",
-        "html",
-        "--outfile",
-        save_file,
-        str(PROFILE_SCRIPT_PATH),
-    )
-
-    resolved_path = Path(save_file).resolve()
-    print(f"\nPerformance profile saved at {resolved_path}.")
 
 
 @nox.session
