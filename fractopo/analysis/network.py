@@ -788,24 +788,28 @@ class Network:
         )
 
     def plot_trace_azimuth(
-        self, label: Optional[str] = None
+        self, label: Optional[str] = None, append_azimuth_set_text: bool = False
     ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot trace azimuth rose plot.
         """
         if label is None:
             label = self.name
-        return self.trace_data.plot_azimuth(label=label)
+        return self.trace_data.plot_azimuth(
+            label=label, append_azimuth_set_text=append_azimuth_set_text
+        )
 
     def plot_branch_azimuth(
-        self, label: Optional[str] = None
+        self, label: Optional[str] = None, append_azimuth_set_text: bool = False
     ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot branch azimuth rose plot.
         """
         if label is None:
             label = self.name
-        return self.branch_data.plot_azimuth(label=label)
+        return self.branch_data.plot_azimuth(
+            label=label, append_azimuth_set_text=append_azimuth_set_text
+        )
 
     def plot_xyi(
         self, label: Optional[str] = None

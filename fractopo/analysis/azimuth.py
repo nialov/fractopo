@@ -232,6 +232,7 @@ def decorate_azimuth_ax(
     length_array: np.ndarray,
     set_array: np.ndarray,
     set_names: Tuple[str, ...],
+    append_azimuth_set_text: bool = False,
 ):
     """
     Decorate azimuth rose plot ax.
@@ -243,7 +244,7 @@ def decorate_azimuth_ax(
         title,
         x=0.94,
         y=0.8,
-        fontsize=20,
+        fontsize=18,
         fontweight="bold",
         fontfamily="DejaVu Sans",
         va="top",
@@ -253,11 +254,12 @@ def decorate_azimuth_ax(
     )
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     text = f"n ={len(set_array)}\n"
-    text = text + _create_azimuth_set_text(length_array, set_array, set_names)
+    if append_azimuth_set_text:
+        text = text + _create_azimuth_set_text(length_array, set_array, set_names)
     ax.text(
-        0.94,
-        0.3,
-        text,
+        x=0.96,
+        y=0.3,
+        s=text,
         transform=ax.transAxes,
         fontsize=12,
         weight="roman",
@@ -274,6 +276,7 @@ def plot_azimuth_plot(
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
     label: str,
+    append_azimuth_set_text: bool = False,
 ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
     Plot azimuth rose plot to its own figure.
@@ -295,6 +298,7 @@ def plot_azimuth_plot(
         length_array=length_array,
         set_array=azimuth_set_array,
         set_names=azimuth_set_names,
+        append_azimuth_set_text=append_azimuth_set_text,
     )
     return (
         azimuth_bins,
