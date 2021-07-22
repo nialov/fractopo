@@ -39,10 +39,10 @@ Full documentation
 Installation
 ------------
 
-Currently installation is supported only for linux-based operating
-systems. There's a known problem with installing any ``gdal``-based
-Python package onto a Windows machine. (Could be circumvented at some
-point by using ``conda``.)
+Currently installation is supported only for ``linux``-based operating
+systems and ``MacOS``. There's a known problem with installing any
+``gdal``-based Python package onto a Windows machine. (Could be
+circumvented at some point by using ``conda``.)
 
 Omit ``--dev`` or ``[dev]`` for regular installation. Keep if you want
 to test/develop or otherwise install all development python
