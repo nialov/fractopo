@@ -33,13 +33,14 @@ def update_version(c):
 
 
 @task(pre=[requirements, update_version])
-def ci_test(c):
+def ci_test(c, python=""):
     """
     Test suite for continous integration testing.
 
     Installs with pip, tests with pytest and checks coverage with coverage.
     """
-    c.run("nox --session tests_pip")
+    python_version = "" if len(python) == 0 else f"-p {python}"
+    c.run(f"nox --session tests_pip {python_version}")
 
 
 @task(pre=[requirements, update_version])
