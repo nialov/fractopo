@@ -9,7 +9,7 @@ from fractopo.analysis.multi_network import MultiNetwork
 from fractopo.analysis.network import Network
 from fractopo.tval.trace_validation import Validation
 
-__version__ = "0.0.1.post340.dev0+d4a7ab3"
+__version__ = "0.0.1.post346.dev0+058aa92"
 
 
 logging.info(
