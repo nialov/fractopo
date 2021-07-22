@@ -12,12 +12,13 @@ on:
 
 jobs:
   # Test
-  pytest-coverage-format-lint:
-    runs-on: ubuntu-latest
+  pytest-coverage:
+    name: Test and check coverage of 🐍 code
     strategy:
       matrix:
-        # Install python versions 3.8 and 3.9
         python-version: [3.8, 3.9]
+        platform: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -29,25 +30,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install nox invoke
       - name: Test with invoke -> nox -> pytest
-        # Specify python version, will be one from python-version matrix
-        # If not specified nox will try to use available ones which
-        # might lead to uncertainty
         run: invoke ci-test --python ${{ matrix.python-version }}
+
+  format-lint:
+    runs-on: ubuntu-latest
+    name: Format and lint 🐍 code
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install nox invoke
       - name: Lint with invoke -> nox -> linters
         run: invoke format-and-lint
 
   build-and-publish:
-    needs: pytest-coverage-format-lint
+    runs-on: ubuntu-latest
+    # Requires that unit tests pass but doesn't require lints
+    needs: pytest-coverage
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     # Pushes to PyPI on tagged commit pushes of master branch
     # Additionally tests building with setuptools on all branches
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
-          # Use python 3.8 for building and publishing
           python-version: 3.8
       - name: Install invoke and nox
         run: >-
