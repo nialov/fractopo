@@ -1,5 +1,6 @@
 ---
 repos:
+  # Check commit messages on commit
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v2.17.13
     hooks:
