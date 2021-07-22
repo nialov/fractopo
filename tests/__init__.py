@@ -103,8 +103,8 @@ class Helpers:
         geometry=[bounding_polygon(v_node_network_error_gdf)]
     )
 
-    hastholmen_traces = gpd.read_file("tests/sample_data/hastholmen_traces.geojson")
-    hastholmen_area = gpd.read_file("tests/sample_data/hastholmen_area.geojson")
+    hastholmen_traces = read_geofile(Path("tests/sample_data/hastholmen_traces.geojson"))
+    hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
 
     @staticmethod
     def random_data_column(iterable):
@@ -145,6 +145,9 @@ class Helpers:
 
     @classmethod
     def invalid_gdf_null_get(cls):
+        """
+        Get gdf with None and empty geometries.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: [None, LineString()],
@@ -155,10 +158,16 @@ class Helpers:
 
     @staticmethod
     def valid_area_gdf_get():
+        """
+        Get a valid area gdf.
+        """
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.valid_areas_geoseries})
 
     @staticmethod
     def invalid_area_gdf_get():
+        """
+        Get an invalid area gdf.
+        """
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.invalid_areas_geoseries})
 
     faulty_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
@@ -169,6 +178,9 @@ class Helpers:
 
     @classmethod
     def valid_gdf_with_faulty_error_col_get(cls):
+        """
+        Get valid gdf with faulty error column.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: Helpers.valid_traces,
@@ -257,18 +269,30 @@ class Helpers:
 
     @classmethod
     def get_nice_traces(cls):
+        """
+        Get nice traces GeoSeries.
+        """
         return cls.nice_traces.copy()
 
     @classmethod
     def get_traces_geosrs(cls):
+        """
+        Get traces GeoSeries.
+        """
         return cls.traces_geosrs.copy()
 
     @classmethod
     def get_areas_geosrs(cls):
+        """
+        Get areas GeoSeries.
+        """
         return cls.areas_geosrs.copy()
 
     @classmethod
     def get_geosrs_identicals(cls):
+        """
+        Get GeoSeries with identical geometries.
+        """
         return cls.geosrs_identicals.copy()
 
     line_1 = LineString([(0, 0), (0.5, 0.5)])
