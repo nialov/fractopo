@@ -4,7 +4,6 @@ Analysis and plotting of geometric and topological parameters.
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple
 
-import matplotlib
 import numpy as np
 import pandas as pd
 import ternary
@@ -555,7 +554,7 @@ def determine_set_counts(
 def plot_set_count(
     set_counts: Dict[str, int],
     label: str,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+) -> Tuple[Figure, Axes]:
     """
     Plot set counts.
     """

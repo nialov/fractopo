@@ -103,7 +103,9 @@ class Helpers:
         geometry=[bounding_polygon(v_node_network_error_gdf)]
     )
 
-    hastholmen_traces = read_geofile(Path("tests/sample_data/hastholmen_traces.geojson"))
+    hastholmen_traces = read_geofile(
+        Path("tests/sample_data/hastholmen_traces.geojson")
+    )
     hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
 
     @staticmethod

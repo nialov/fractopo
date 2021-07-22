@@ -5,7 +5,7 @@ Tests for fractopo_utils.py.
 import geopandas as gpd
 from shapely.geometry import Point
 
-import fractopo.fractopo_utils as fractopo_utils
+from fractopo import fractopo_utils
 from tests import Helpers
 
 
