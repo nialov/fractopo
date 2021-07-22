@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.0.1.post335.dev0+c78b69e"
+version = "0.0.1.post340.dev0+d4a7ab3"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 
@@ -108,6 +108,7 @@ output-format = "text"
 max-line-length = 100
 disable = [
     "C0103",
+    "C0302",
     "R0902",
     "R0913",
     "R0914",
