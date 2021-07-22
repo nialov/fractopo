@@ -59,7 +59,7 @@ def gather_subsample_descriptions(
     subsample_results: List[general.ProcessResult],
 ) -> pd.DataFrame:
     """
-    Gather results for a list of subsampling ProcessResults.
+    Gather results from a list of subsampling ProcessResults.
     """
     descriptions = []
     for subsample in subsample_results:
