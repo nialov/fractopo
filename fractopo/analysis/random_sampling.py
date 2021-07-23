@@ -84,7 +84,7 @@ class NetworkRandomSampler:
 
             raise TypeError(
                 "Expected random_choice to be"
-                f" convertable to RandomChoice enum. {random_choice=}"
+                f" convertable to RandomChoice enum: {random_choice}."
             )
         return random_choice
 
@@ -119,7 +119,7 @@ class NetworkRandomSampler:
         Check that value is positive.
         """
         if not min_radius > 0:
-            raise ValueError(f"Expected positive non-zero min_radius. {min_radius=}")
+            raise ValueError(f"Expected positive non-zero min_radius: {min_radius}.")
         return min_radius
 
     @property

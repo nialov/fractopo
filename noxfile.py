@@ -29,7 +29,7 @@ DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
 REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
-PYTHON_VERSIONS = ["3.8", "3.9"]
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
 
 
 def filter_paths_to_existing(*iterables) -> List[str]:

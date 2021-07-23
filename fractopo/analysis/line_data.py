@@ -3,10 +3,11 @@ Trace and branch data analysis with LineData class abstraction.
 """
 import logging
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -24,27 +25,15 @@ from fractopo.general import (
     raise_determination_error,
 )
 
-# Math and analysis imports
-# Plotting imports
-# DataFrame analysis imports
-
-
-# Own code imports
-
 
 def _column_array_property(
-    column: Literal[
-        Col.AZIMUTH,
-        Col.LENGTH,
-        Col.AZIMUTH_SET,
-        Col.LENGTH_SET,
-        Col.LENGTH_WEIGHTS,
-        Col.LENGTH_NON_WEIGHTED,
-    ],
+    column: Col,
     gdf: gpd.GeoDataFrame,
 ) -> Optional[np.ndarray]:
     if column.value in gdf:
-        return gdf[column.value].to_numpy()
+        values = gdf[column.value]
+        assert isinstance(values, pd.Series)
+        return values.to_numpy()
     return None
 
 

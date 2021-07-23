@@ -546,7 +546,9 @@ def determine_set_counts(
     Determine counts in for each set.
     """
     return {
-        set_name: amount if (amount := sum(set_array == set_name)) is not None else 0
+        set_name: sum(set_array == set_name)
+        if sum(set_array == set_name) is not None
+        else 0
         for set_name in set_names
     }
 

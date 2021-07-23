@@ -130,7 +130,8 @@ def plot_distribution_fits(
         # Determine powerlaw, exponential, lognormal fits
         fit = determine_fit(length_array, cut_off)
     # Get fit xmin
-    xmin = xmin if isinstance((xmin := fit.xmin), (int, float)) else 0.0
+    # xmin = fit.xmin if isinstance(fit.xmin, (int, float)) else 0.0
+    # xmin = xmin if isinstance((xmin := fit.xmin), (int, float)) else 0.0
     # Create figure, ax
     fig, ax = plt.subplots(figsize=(7, 7))
     # Get the x, y data from fit

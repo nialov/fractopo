@@ -226,12 +226,14 @@ def is_underlapping(
             ):
                 # Dangling end, overlapping
                 return False
+    logging_prints = {
+        "geom": geom,
+        "trace": trace,
+        "endpoint": endpoint,
+        "snap_threshold": snap_threshold,
+        "snap_threshold_error_multiplier": snap_threshold_error_multiplier,
+    }
     logging.error(
-        "Expected is_underlapping to be resolvable.\n"
-        f"{geom=}\n"
-        f"{trace=}\n"
-        f"{endpoint=}\n"
-        f"{snap_threshold=}\n"
-        f"{snap_threshold_error_multiplier=}"
+        f"Expected is_underlapping to be resolvable.\nvalues:{logging_prints}"
     )
     return None

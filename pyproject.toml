@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.0.1.post346.dev0+058aa92"
+version = "0.0.1.post351.dev0+015284e"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 
@@ -8,7 +8,7 @@ authors = ["nialov <nikolasovaskainen@gmail.com>"]
 tracevalidate = "fractopo.cli:tracevalidate"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 geopandas = "==0.9.0"
 pygeos = "==0.10.1"
 pandas = "*"

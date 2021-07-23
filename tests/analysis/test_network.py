@@ -1,7 +1,7 @@
 """
 Tests for Network.
 """
-from typing import Tuple
+from typing import Dict, List, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -22,7 +22,25 @@ from fractopo.general import SetRangeTuple
 from tests import Helpers
 
 
-def test_azimuth_set_relationships_regression(dataframe_regression):
+def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
+    """
+    Turn relations_df to a dict.
+    """
+    relations_df_dict = dict()
+
+    for set_name, values in df.groupby("sets"):
+        assert isinstance(set_name, tuple)
+        relations_df_dict[
+            str(set_name)
+            .replace(" ", "_")
+            .replace("(", "")
+            .replace(")", "")
+            .replace(",", "")
+        ] = list(values[["x", "y", "y-reverse"]].values[0])
+    return relations_df_dict
+
+
+def test_azimuth_set_relationships_regression(num_regression):
     """
     Test for azimuth set relationship regression.
     """
@@ -43,11 +61,12 @@ def test_azimuth_set_relationships_regression(dataframe_regression):
         circular_target_area=False,
     ).azimuth_set_relationships
 
-    dataframe_regression.check(pd.DataFrame(relations_df.value_counts()))
-    # file_regression.check(relations_df.to_string())
+    relations_df_dict = relations_df_to_dict(relations_df)
+
+    num_regression.check(relations_df_dict)
 
 
-def test_length_set_relationships_regression(dataframe_regression):
+def test_length_set_relationships_regression(num_regression):
     """
     Test for length set relationship regression.
     """
@@ -68,7 +87,9 @@ def test_length_set_relationships_regression(dataframe_regression):
         circular_target_area=False,
     ).azimuth_set_relationships
 
-    dataframe_regression.check(pd.DataFrame(relations_df.value_counts()))
+    relations_df_dict = relations_df_to_dict(relations_df)
+
+    num_regression.check(relations_df_dict)
 
 
 @pytest.mark.parametrize(
