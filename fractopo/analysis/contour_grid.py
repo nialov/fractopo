@@ -159,11 +159,11 @@ def populate_sample_cell(
         trace_candidate.intersects(sample_circle)
         for trace_candidate in trace_candidates.geometry.values
     ):
-        # if any(trace_candidates.intersects(sample_circle)):  # type: ignore
         sample_traces = crop_to_target_areas(
             traces=trace_candidates,
             areas=gpd.GeoSeries([sample_circle]),
             snap_threshold=snap_threshold,
+            is_filtered=True,
         )
     else:
         sample_traces = traces.iloc[0:0]
