@@ -10,12 +10,12 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, Callable, List, Sequence, Set, Tuple, Union, Optional
-import pygeos
+from typing import Any, Callable, List, Optional, Sequence, Set, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import pygeos
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
 from shapely import prepared
