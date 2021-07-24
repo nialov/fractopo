@@ -85,8 +85,12 @@ def test_crop_to_target_areas(file_regression):
 
     Also does regression testing with known right data.
     """
-    trace_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/traces.gpkg"))
-    area_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/mls_area.gpkg"))
+    trace_data = general.read_geofile(
+        Path("tests/sample_data/mls_crop_samples/traces.gpkg")
+    )
+    area_data = general.read_geofile(
+        Path("tests/sample_data/mls_crop_samples/mls_area.gpkg")
+    )
     cropped_traces = general.crop_to_target_areas(
         traces=trace_data, areas=area_data, snap_threshold=0.01
     )

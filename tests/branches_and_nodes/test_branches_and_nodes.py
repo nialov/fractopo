@@ -144,7 +144,7 @@ def test_crop_to_target_area():
         assert False
     except TypeError:
         pass
-    assert isinstance(valid_result, gpd.GeoSeries)
+    assert isinstance(valid_result, (gpd.GeoDataFrame, gpd.GeoSeries))
     assert valid_geoseries.geometry.length.mean() > valid_result.geometry.length.mean()
 
 
