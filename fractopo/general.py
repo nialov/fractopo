@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, Callable, List, Sequence, Set, Tuple, Union
+from typing import Any, Callable, List, Sequence, Set, Tuple, Union, Optional
+import pygeos
 
 import geopandas as gpd
 import numpy as np
@@ -995,10 +996,29 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
     return linestrings
 
 
+def efficient_clip(
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+) -> gpd.GeoDataFrame:
+    """
+    Perform efficient clip of LineString geometries with a Polygon.
+    """
+    pygeos_traces = pygeos.from_shapely(traces.geometry.values)
+    pygeos_polygons = pygeos.from_shapely(areas.geometry.values)
+    pygeos_multipolygon = pygeos.multipolygons(pygeos_polygons)
+    intersection = pygeos.intersection(pygeos_traces, pygeos_multipolygon)
+    assert isinstance(intersection, np.ndarray)
+    geodataframe = gpd.GeoDataFrame(geometry=intersection, crs=traces.crs)
+    assert "geometry" in geodataframe.columns
+    return geodataframe
+
+
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     snap_threshold: float,
+    is_filtered: bool = False,
+    keep_column_data: bool = False,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
     Crop traces to the area polygons.
@@ -1015,7 +1035,7 @@ def crop_to_target_areas(
     ...     ]
     ... )
     >>> cropped_traces = crop_to_target_areas(traces, areas, 0.01)
-    >>> print([trace.wkt for trace in cropped_traces])
+    >>> print([trace.wkt for trace in cropped_traces.geometry.values])
     ['LINESTRING (-1.9 4.924998124953124, -2 5)']
 
     """
@@ -1027,19 +1047,30 @@ def crop_to_target_areas(
     # Match the crs
     traces, areas = match_crs(traces, areas)
 
-    traces.reset_index(drop=True, inplace=True)
-    spatial_index = pygeos_spatial_index(traces)
+    if not is_filtered:
+        traces.reset_index(drop=True, inplace=True)
+        spatial_index = pygeos_spatial_index(traces)
 
-    areas_bounds = total_bounds(areas)
-    assert len(areas_bounds) == 4
+        areas_bounds = total_bounds(areas)
+        assert len(areas_bounds) == 4
 
-    candidate_idxs = spatial_index_intersection(
-        spatial_index=spatial_index, coordinates=areas_bounds
-    )
-    candidate_traces = traces.iloc[candidate_idxs]
+        candidate_idxs = spatial_index_intersection(
+            spatial_index=spatial_index, coordinates=areas_bounds
+        )
+        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces.iloc[
+            candidate_idxs
+        ]
+    else:
+        candidate_traces = traces
 
-    # Clip traces to target areas
-    clipped_traces = gpd.clip(candidate_traces, areas)
+    if keep_column_data:
+        # geopandas.clip keeps the column data
+        clipped_traces = gpd.clip(candidate_traces, areas)
+    else:
+        # pygeos.intersection does not
+        clipped_traces = efficient_clip(candidate_traces, areas)
+
+    assert hasattr(clipped_traces, "geometry")
     assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
 
     # Clipping might result in Point geometries
