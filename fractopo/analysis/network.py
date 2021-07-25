@@ -47,6 +47,7 @@ from fractopo.general import (
     Param,
     SetRangeTuple,
     bool_arrays_sum,
+    numpy_to_python_type,
     calc_circle_radius,
     crop_to_target_areas,
     determine_boundary_intersecting_lines,
@@ -1078,12 +1079,13 @@ class Network:
 
         # Clip the censoring areas with the network area and calculate the area
         # sum of leftover area.
-        censoring_value = gpd.clip(candidates, self.get_area_gdf()).area.sum()
-        unpacked_value = (
-            censoring_value.item()
-            if hasattr(censoring_value, "item")
-            else censoring_value
-        )
+        clipped = gpd.clip(candidates, self.get_area_gdf())
+        if not isinstance(clipped, (gpd.GeoDataFrame, gpd.GeoSeries)):
+            raise TypeError(
+                f"Expected clipped is of geopandas data type. Got: {type( clipped ), clipped}."
+            )
+        censoring_value = clipped.area.sum()
+        unpacked_value = numpy_to_python_type(censoring_value)
         assert isinstance(unpacked_value, float)
         assert unpacked_value >= 0.0
         return unpacked_value
