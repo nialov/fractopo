@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+import tests
 from fractopo.analysis import parameters
 from fractopo.general import Param
 from tests import Helpers
@@ -80,3 +81,18 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     assert all([isinstance(fig, Figure) for fig in figs])
     assert all([isinstance(ax, Axes) for ax in axes])
     plt.close()
+
+
+@pytest.mark.parametrize(
+    "x_values,y_values,i_values,number_of_bins",
+    tests.test_ternary_heatmapping_params(),
+)
+def test_ternary_heatmapping(x_values, y_values, i_values, number_of_bins):
+    """
+    Test ternary_heatmapping.
+    """
+    fig, tax = parameters.ternary_heatmapping(
+        x_values, y_values, i_values, number_of_bins
+    )
+    assert isinstance(fig, Figure)
+    assert isinstance(tax, ternary.TernaryAxesSubplot)

@@ -1435,3 +1435,23 @@ def test_multinetwork_params():
             2,
         ),
     ]
+
+
+def test_ternary_heatmapping_params():
+    """
+    Params for test_ternary_heatmapping.
+    """
+    return [
+        (
+            np.array([0.2, 0.8, 0.1]),
+            np.array([0.4, 0.1, 0.4]),
+            np.array([0.4, 0.1, 0.5]),
+            15,
+        ),
+        (
+            np.array([0.4, 0.1, 0.4]),
+            np.array([0.2, 0.8, 0.1]),
+            np.array([0.4, 0.1, 0.5]),
+            15,
+        ),
+    ]
