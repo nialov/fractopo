@@ -1,8 +1,10 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
+import logging
+from itertools import compress
 from textwrap import wrap
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -11,6 +13,7 @@ from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from scipy.ndimage.filters import gaussian_filter
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.general import (
@@ -111,26 +114,87 @@ def plot_xyi_plot(
     a single node_types -array is accepted i.e. a single XYI-value is easily
     plotted.
     """
+    one_label = len(labels) == 1
     if colors is None:
         colors = [None for _ in node_counts_list]
+    elif len(colors) != len(node_counts_list):
+        raise ValueError(
+            f"Expected colors (len={len(colors)}) to be of"
+            f" same size as node_counts_list (len={len(node_counts_list)})."
+        )
     scale = 100
     fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_xyi_plot_ax(
-        node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
-    )
-    decorate_xyi_ax(ax, tax, node_counts=node_counts_list[0])
-    if len(node_counts_list) > 1:
-        for node_counts, label, _ in zip(node_counts_list[1:], labels[1:], colors[1:]):
-            point = node_counts_to_point(node_counts)
-            if point is None:
-                continue
-            plot_ternary_point(point=point, marker="X", label=label, tax=tax)
+    if len(node_counts_list) == 1:
+        plot_xyi_plot_ax(
+            node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
+        )
+        decorate_xyi_ax(ax, tax, node_counts=node_counts_list[0])
+    else:
+        points = [
+            node_counts_to_point(node_count, scale=100)
+            for node_count in node_counts_list
+        ]
+        points_is_not_none = [point is not None for point in points]
+        points = list(compress(points, points_is_not_none))
+
+        if one_label:
+            tax.scatter(
+                points,
+                label=labels[0],
+                color=colors[0],
+                **ternary_point_kwargs(),
+            )
+        else:
+            labels = list(compress(labels, points_is_not_none))
+            colors = list(compress(colors, points_is_not_none))
+            assert len(points) == len(labels)
+            assert len(points) == len(colors)
+            for point, label, color in zip(points, labels, colors):
+                tax.scatter([point], label=label, color=color, **ternary_point_kwargs())
 
     return fig, ax, tax
 
 
-def node_counts_to_point(node_counts: Dict[str, int]):
+def ternary_heatmapping(
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    i_values: np.ndarray,
+    number_of_bins: int,
+    scale_divider: float = 1.0,
+    ax: Optional[Axes] = None,
+) -> Tuple[Figure, ternary.TernaryAxesSubplot]:
+    """
+    Plot ternary heatmap.
+
+    Modified from: https://github.com/marcharper/python-ternary/issues/81
+    """
+    scale = number_of_bins / scale_divider
+    histogram, _ = np.histogramdd(
+        (x_values, y_values, i_values),
+        bins=(number_of_bins, number_of_bins, number_of_bins),
+        range=((0, 1), (0, 1), (0, 1)),
+    )
+    histogram_normed = histogram / np.sum(histogram)
+
+    # 3D smoothing and interpolation
+    kde = gaussian_filter(histogram_normed, sigma=2)
+    interp_dict = dict()
+
+    binx = np.linspace(0, 1, number_of_bins)
+    for i in range(len(binx)):
+        for j in range(len(binx)):
+            for k in range(len(binx)):
+                interp_dict[(i, j, k)] = kde[i, j, k]
+
+    fig, tax = ternary.figure(ax=ax, scale=scale)
+    tax.heatmap(interp_dict)
+    return fig, tax
+
+
+def node_counts_to_point(
+    node_counts: Dict[str, int], scale: int = 100
+) -> Optional[Tuple[float, float, float]]:
     """
     Create ternary point from node_counts.
 
@@ -138,12 +202,12 @@ def node_counts_to_point(node_counts: Dict[str, int]):
     """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
     sumcount = xcount + ycount + icount
-    if sumcount == 0:
+    if sumcount == 0 or np.isclose(sumcount, 0.0):
         return None
-    xp = 100 * xcount / sumcount
-    yp = 100 * ycount / sumcount
-    ip = 100 * icount / sumcount
-    point = [(xp, ip, yp)]
+    xp = scale * xcount / sumcount
+    yp = scale * ycount / sumcount
+    ip = scale * icount / sumcount
+    point = (xp, ip, yp)
     return point
 
 
@@ -197,9 +261,12 @@ def plot_xyi_plot_ax(
     if color is None:
         color = "black"
     # xcount, ycount, icount = _get_xyi_counts(node_counts)
-    point = node_counts_to_point(node_counts)
+    point = node_counts_to_point(node_counts, scale=100)
     if point is not None:
-        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        tax.scatter(
+            points=[point], **ternary_point_kwargs(marker="o"), label=label, color=color
+        )
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
@@ -237,13 +304,14 @@ def plot_branch_plot(
             point = branch_counts_to_point(branch_counts)
             if point is None:
                 continue
-            plot_ternary_point(point=point, marker="o", label=label, tax=tax)
+            tax.scatter(point, **ternary_point_kwargs(marker="o"), label=label)
+            # plot_ternary_point(point=point, marker="o", label=label, tax=tax)
 
     return fig, ax, tax
 
 
 def plot_ternary_point(
-    point: List[Tuple[float, float, float]],
+    points: List[Tuple[float, float, float]],
     marker: str,
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
@@ -254,13 +322,30 @@ def plot_ternary_point(
     Plot point to a ternary figure.
     """
     tax.scatter(
-        point,
+        points,
         marker=marker,
         label=label,
         alpha=1,
         zorder=4,
         s=s,
         color=color,
+    )
+
+
+def ternary_point_kwargs(
+    alpha=1.0,
+    zorder=4,
+    s: float = 25,
+    marker="X",
+):
+    """
+    Plot point to a ternary figure.
+    """
+    return dict(
+        alpha=alpha,
+        zorder=zorder,
+        s=s,
+        marker=marker,
     )
 
 
@@ -278,7 +363,10 @@ def plot_branch_plot_ax(
     # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     point = branch_counts_to_point(branch_counts)
     if point is not None:
-        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        tax.scatter(
+            points=point, **ternary_point_kwargs(marker="o"), label=label, color=color
+        )
+        # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
