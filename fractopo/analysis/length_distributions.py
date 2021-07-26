@@ -41,9 +41,9 @@ def determine_fit(
     Determine powerlaw (along other) length distribution fits for given data.
     """
     fit = (
-        powerlaw.Fit(length_array, xmin=cut_off)
+        powerlaw.Fit(length_array, xmin=cut_off, verbose=False)
         if cut_off is not None
-        else powerlaw.Fit(length_array)
+        else powerlaw.Fit(length_array, verbose=False)
     )
     return fit
 
