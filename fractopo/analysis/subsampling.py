@@ -1,6 +1,7 @@
 """
 Utilities for Network subsampling.
 """
+import logging
 from typing import List, Sequence
 
 import numpy as np
@@ -64,7 +65,13 @@ def gather_subsample_descriptions(
     descriptions = []
     for subsample in subsample_results:
         random_sample_description = subsample.result
-        assert isinstance(random_sample_description, dict)
+        if not isinstance(random_sample_description, dict):
+            logging.error(
+                "Expected result random_sample_description to be a dict.\n"
+                f" Got: {type(random_sample_description), random_sample_description}\n"
+                f"with subsample: {subsample}."
+            )
+            continue
 
         descriptions.append(random_sample_description)
     return pd.DataFrame(descriptions)
