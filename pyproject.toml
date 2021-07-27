@@ -32,6 +32,7 @@ coverage-badge = {version = "*", optional = true}
 sphinx = {version = "*", optional = true}
 sphinx-rtd-theme = {version = "*", optional = true}
 nbsphinx = {version = "*", optional = true}
+sphinx-gallery = {version = "*", optional = true}
 
 # Linting and formatting
 pylint = {version = "*", optional = true}
@@ -57,7 +58,7 @@ pytest-regressions = "*"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
-docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx"]
+docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery"]
 format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort"] 
 typecheck = ["mypy"]
 
