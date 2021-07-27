@@ -1,10 +1,9 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
-import logging
 from itertools import compress
 from textwrap import wrap
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd

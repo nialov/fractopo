@@ -11,8 +11,6 @@ from fractopo import general
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 
-# from fractopo.general import Number
-
 
 def create_sample(sampler: NetworkRandomSampler):
     """

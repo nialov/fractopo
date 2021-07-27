@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Callable, List, Sequence, Set, Tuple, Union
 
 import geopandas as gpd
 import numpy as np

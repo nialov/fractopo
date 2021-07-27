@@ -331,7 +331,7 @@ def determine_intersect(
     """
     Determine what intersection the node represents.
 
-    TODO: Too many branches.
+    TODO: R0912: Too many branches.
     """
     if node_class == "X":
         if l1 and l2:  # It's an x-node between sets
