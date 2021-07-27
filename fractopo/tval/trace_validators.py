@@ -1,8 +1,11 @@
-"""Contains Validator classes which each have their own error to handle and mark."""
+"""
+Contains Validator classes which each have their own error to handle and mark.
+"""
 import logging
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
+import numpy as np
 from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
@@ -33,19 +36,12 @@ class BaseValidator:
 
     """
     Base validator that all classes inherit.
+
+    TODO: Validation requires overhaul at some point.
     """
 
     ERROR = "BASE ERROR"
     INTERACTION_NODES_COLUMN = "IP"
-    # Default snap threshold
-    # SNAP_THRESHOLD = 0.01
-    # SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
-    # AREA_EDGE_SNAP_MULTIPLIER = 1.0
-    # TRIANGLE_ERROR_SNAP_MULTIPLIER = 10.0
-    # OVERLAP_DETECTION_MULTIPLIER = 50.0
-    # SHARP_AVG_THRESHOLD = 80
-    # SHARP_PREV_SEG_THRESHOLD = 70
-
     LINESTRING_ONLY = True
 
     @staticmethod
@@ -504,14 +500,14 @@ class TargetAreaSnapValidator(BaseValidator):
         ]
 
         # More than 1 shouldn't intersect one endpoint
-        if not len(endpoint_segments) == 1:
-            logging.error("Expected only one segment to be close to endpoint.")
+        if len(endpoint_segments) != 1:
+            logging.warning("Expected only one segment to be close to endpoint.")
             return False
         endpoint_segment = endpoint_segments[0]
 
         # Make sure result of split is LineString
         if not isinstance(endpoint_segment, LineString):
-            logging.error("Expected endpoint_segment to be of type LineString.")
+            logging.warning("Expected endpoint_segment to be of type LineString.")
             return False
 
         # If the LineString intersects polygon boundary -> not a candidate
@@ -692,13 +688,17 @@ class SharpCornerValidator(BaseValidator):
             # If LineString consists of two Points -> No sharp corners.
             return True
         trace_unit_vector = create_unit_vector(geom_coords[0], geom_coords[-1])
+        if any(np.isnan(trace_unit_vector)):
+            return False
         for idx, segment_start in enumerate(geom_coords):
             if idx == len(geom_coords) - 1:
                 break
             segment_end: Point = geom_coords[idx + 1]
             segment_unit_vector = create_unit_vector(segment_start, segment_end)
             # Compare the two unit vectors
-            if not compare_unit_vector_orientation(
+            if any(
+                np.isnan(segment_unit_vector)
+            ) or not compare_unit_vector_orientation(
                 trace_unit_vector, segment_unit_vector, sharp_avg_threshold
             ):
                 return False
@@ -708,7 +708,9 @@ class SharpCornerValidator(BaseValidator):
                 prev_segment_unit_vector = create_unit_vector(
                     geom_coords[idx - 1], geom_coords[idx]
                 )
-                if not compare_unit_vector_orientation(
+                if any(
+                    np.isnan(prev_segment_unit_vector)
+                ) or not compare_unit_vector_orientation(
                     segment_unit_vector,
                     prev_segment_unit_vector,
                     sharp_prev_seg_threshold,

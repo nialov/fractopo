@@ -904,6 +904,8 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     segment_vector = np.array(
         [segment_end[0] - segment_start[0], segment_end[1] - segment_start[1]]
     )
+    if any(np.isnan(segment_vector)):
+        return np.array([np.nan, np.nan])
     segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
     return segment_unit_vector
 
