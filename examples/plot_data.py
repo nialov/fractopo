@@ -1,6 +1,6 @@
 """
-Creating a fractopo network from trace data
-===========================================
+Plotting the trace data used as input in ``fractopo``
+=====================================================
 
 Data is loaded into ``fractopo`` using ``geopandas`` which can load from
 a wide variety of sources.
@@ -9,7 +9,11 @@ a wide variety of sources.
 # %%
 # Here we load data from the internet from the ``fractopo`` GitHub repository.
 
+# Import geopandas for loading and handling gis data
 import geopandas as gpd
+
+# Import matplotlib for plotting
+import matplotlib.pyplot as plt
 
 trace_data_url = (
     "https://raw.githubusercontent.com/nialov/"
@@ -35,8 +39,6 @@ name = "KB11"
 # Plotting the loaded data
 # ------------------------
 
-# Import matplotlib
-import matplotlib.pyplot as plt
 
 # Initialize the figure and ax in which data is plotted
 fig, ax = plt.subplots(figsize=(9, 9))
@@ -50,29 +52,3 @@ area.boundary.plot(ax=ax, color="red")
 
 # Give the figure a title
 ax.set_title(f"{name}, Coordinate Reference System = {traces.crs}")
-
-# %%
-# Creating a fractopo Network
-# ---------------------------
-
-# Import Network class from fractopo
-from fractopo import Network
-
-kb11_network = Network(
-    trace_gdf=traces,
-    area_gdf=area,
-    truncate_traces=True,
-    circular_target_area=False,
-    determine_branches_nodes=True,
-    snap_threshold=0.001,
-)
-
-# %%
-# Plotting using the Network
-# --------------------------
-
-# Rose plot of network branch orientations
-kb11_network.plot_branch_azimuth()
-
-# XYI-plot of topological node counts
-kb11_network.plot_xyi()
