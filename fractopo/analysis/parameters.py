@@ -539,16 +539,17 @@ def determine_topology_parameters(
 def plot_parameters_plot(
     topology_parameters_list: List[Dict[str, float]],
     labels: List[str],
-    colors=Optional[List[str]],
+    colors: Optional[List[str]] = None,
 ):
     """
     Plot topological parameters.
-
     """
     log_scale_columns = Param.log_scale_columns()
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
 
-    columns_to_plot = [param.value for param in Param]
+    columns_to_plot = [
+        param.value for param in Param if param.value in topology_parameters_list[0]
+    ]
     figs, axes = [], []
 
     for column in columns_to_plot:
