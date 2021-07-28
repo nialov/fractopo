@@ -26,3 +26,4 @@ network_profile.py
 *.whl
 *.gz
 dist
+docs_src/auto_examples

@@ -23,6 +23,8 @@ TASKS_NAME = "tasks.py"
 NOXFILE_NAME = "noxfile.py"
 DEV_REQUIREMENTS = "requirements.txt"
 DOCS_REQUIREMENTS = "docs_src/requirements.txt"
+DOCS_EXAMPLES = "examples"
+DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
 
 # Globs
 DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
@@ -121,7 +123,7 @@ def format_and_lint(session):
     Format and lint python files, notebooks and docs_src.
     """
     existing_paths = filter_paths_to_existing(
-        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME
+        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME, DOCS_EXAMPLES
     )
 
     if len(existing_paths) == 0:
@@ -225,14 +227,21 @@ def docs(session):
         "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
     )
 
-    # Create docs in ./docs folder
-    session.run(
-        "sphinx-build",
-        "./docs_src",
-        "./docs",
-        "-b",
-        "html",
-    )
+    try:
+        # Create docs in ./docs folder
+        session.run(
+            "sphinx-build",
+            "./docs_src",
+            "./docs",
+            "-b",
+            "html",
+        )
+
+    finally:
+        # Clean up sphinx-gallery folder in ./docs_src/auto_examples
+        auto_examples_path = Path(DOCS_AUTO_EXAMPLES)
+        if auto_examples_path.exists():
+            rmtree(auto_examples_path)
 
 
 @nox.session
