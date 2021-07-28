@@ -1082,7 +1082,8 @@ class Network:
         clipped = gpd.clip(candidates, self.get_area_gdf())
         if not isinstance(clipped, (gpd.GeoDataFrame, gpd.GeoSeries)):
             raise TypeError(
-                f"Expected clipped is of geopandas data type. Got: {type( clipped ), clipped}."
+                "Expected clipped is of geopandas data type."
+                f" Got: {type( clipped ), clipped}."
             )
         censoring_value = clipped.area.sum()
         unpacked_value = numpy_to_python_type(censoring_value)
