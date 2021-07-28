@@ -6,15 +6,16 @@ Visualizing azimuth sets
 # Initializing
 # ------------
 
-import matplotlib.pyplot as plt
 from pprint import pprint
+
+import matplotlib.pyplot as plt
 
 # Load kb11_network network from examples/make_kb11_network.py
 from make_kb11_network import kb11_network
 
 # %%
 
-pprint(kb11_network.azimuth_set_names, kb11_network.azimuth_set_ranges)
+pprint((kb11_network.azimuth_set_names, kb11_network.azimuth_set_ranges))
 
 # %%
 
