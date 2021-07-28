@@ -3,12 +3,6 @@
 Contents
 ========
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Introduction
-
-   ../README
-
 Trace data must be validated using ``fractopo`` validation functionality before
 analysis.
 
@@ -41,11 +35,12 @@ Example notebooks contain:
 
 .. toctree::
    :maxdepth: 1
-   :caption: Example workflows in Jupyter notebooks
+   :caption: Example workflows
 
    notebooks/fractopo_validation_1
    notebooks/fractopo_validation_2
    notebooks/fractopo_network_1
+   auto_examples/index
 
 .. toctree::
    :maxdepth: 1
