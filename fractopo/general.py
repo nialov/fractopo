@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, Callable, List, Sequence, Set, Tuple, Union
+from typing import Any, Callable, List, Sequence, Set, Tuple, Union, overload
 
 import geopandas as gpd
 import numpy as np
@@ -199,11 +199,18 @@ def determine_set(
     >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
     '0-20'
 
-    Example with `loop_around = True`
+    Example with
 
     >>> determine_set(50.0, [(0, 20), (160, 60)], ["0-20", "160-60"], True)
     '160-60'
 
+    :param value: Value to determine set of.
+    :param value_ranges: Ranges of each set.
+    :param set_names: Names of each set.
+    :param loop_around: Whether the sets loop around. This is the case for
+        radial data such as azimuths but not the case for length data.
+    :return: Set string in which value belongs.
+    :raises ValueError: When set value ranges overlap.
     """
     assert len(value_ranges) == len(set_names)
     possible_set_name = [
@@ -230,6 +237,12 @@ def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -
 
     >>> is_set(5, (175, 15), True)
     True
+
+    :param value: Value to determine.
+    :param value_range Tuple[float,: The range of values.
+    :param loop_around: Whether the range loops around. This is the case for
+        radial data such as azimuths but not the case for length data.
+    :return: Is it within range.
     """
     if loop_around:
         if value_range[0] > value_range[1]:
@@ -241,7 +254,9 @@ def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -
     return False
 
 
-def is_azimuth_close(first: float, second: float, tolerance: float, halved=True):
+def is_azimuth_close(
+    first: float, second: float, tolerance: float, halved: bool = True
+):
     """
     Determine are azimuths first and second within tolerance.
 
@@ -256,6 +271,10 @@ def is_azimuth_close(first: float, second: float, tolerance: float, halved=True)
     >>> is_azimuth_close(20, 179, 15)
     False
 
+    :param first: First azimuth value to compare.
+    :param second: Second azimuth value to compare.
+    :param tolerance: Tolerance for closeness.
+    :param halved: Are the azimuths azial (i.e. ``halved=True``) or vectors.
     """
     diff = abs(first - second)
     if halved:
@@ -272,7 +291,7 @@ def determine_regression_azimuth(line: LineString) -> float:
     Determine azimuth of line LineString with linear regression.
 
     A scikit-learn LinearRegression is fitted to the x, y coordinates of the
-    given `line` and the azimuth of the fitted linear line is returned.
+    given  and the azimuth of the fitted linear line is returned.
 
     The azimuth is returned in range [0, 180].
 
@@ -290,6 +309,11 @@ def determine_regression_azimuth(line: LineString) -> float:
     >>> determine_regression_azimuth(line)
     0.0
 
+
+    :param line: The line of which azimuth is determined.
+    :return: The determined azimuth in range [0, 180].
+    :raises ValueError: When ``LinearRegression`` returns
+        unexpected coefficients.
     """
     x, y = zip(*line.coords)
     x = np.array(x).reshape((-1, 1))
@@ -330,6 +354,11 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
 
     >>> determine_azimuth(LineString([(0, 0), (-1, -1)]), True)
     45.0
+
+    :param line: The line of which azimuth is determined.
+    :param halved: Whether to return result in range [0, 180]
+        (halved=True) or [0, 360] (halved=False).
+    :return: The determined azimuth.
     """
     coord_list = list(line.coords)
     start_x = coord_list[0][0]
@@ -346,22 +375,20 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
     return azimuth
 
 
-def calc_strike(dip_direction):
+def calc_strike(dip_direction: float) -> float:
     """
     Calculate strike from dip direction. Right-handed rule.
 
     E.g.:
 
-    >>> calc_strike(50)
-    320
+    >>> calc_strike(50.0)
+    320.0
 
-    >>> calc_strike(180)
-    90
+    >>> calc_strike(180.0)
+    90.0
 
-    :param dip_direction: Dip direction of plane
-    :type dip_direction: float
-    :return: Strike of plane
-    :rtype: float
+    :param dip_direction: The direction of dip.
+    :return: Converted strike.
     """
     strike = dip_direction - 90
     if strike < 0:
@@ -369,14 +396,12 @@ def calc_strike(dip_direction):
     return strike
 
 
-def azimu_half(degrees):
+def azimu_half(degrees: float) -> float:
     """
     Transform azimuth from 180-360 range to range 0-180.
 
     :param degrees: Degrees in range 0 - 360
-    :type degrees: float
     :return: Degrees in range 0 - 180
-    :rtype: float
     """
     if degrees >= 180:
         degrees = degrees - 180
@@ -399,7 +424,6 @@ def sd_calc(data):
     :param data: Array of degrees
     :type data: np.ndarray
     :return: Standard deviation
-    :rtype: float
     """
     n = len(data)
     if n <= 1:
@@ -494,15 +518,14 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     """
     Prepare trace_series geometries for a faster spatial analysis.
 
-    Assumes geometries are LineStrings which are consequently collected into
-    a single MultiLineString which is prepared with shapely.prepared.prep.
+    Assumes geometries are LineStrings which are consequently collected into a
+    single MultiLineString which is prepared with shapely.prepared.prep.
 
     >>> traces = gpd.GeoSeries(
     ...     [LineString([(0, 0), (1, 1)]), LineString([(0, 1), (0, -1)])]
     ... )
     >>> prepare_geometry_traces(traces).context.wkt
     'MULTILINESTRING ((0 0, 1 1), (0 1, 0 -1))'
-
     """
     traces = trace_series.geometry.values
     traces = np.asarray(traces).tolist()  # type: ignore
@@ -897,6 +920,11 @@ def zip_equal(*iterables):
 def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     """
     Create numpy unit vector from two shapely Points.
+
+    :param start_point: The start point.
+    :param end_point: The end point.
+    :return: The unit vector that points from ``start_point`` to
+        ``end_point``.
     """
     # Convert Point coordinates to (x, y)
     segment_start = point_to_xy(start_point)
@@ -1004,12 +1032,21 @@ def efficient_clip(
 ) -> gpd.GeoDataFrame:
     """
     Perform efficient clip of LineString geometries with a Polygon.
+
+    :param traces: Trace data.
+    :param areas: Area data.
+    :return: Traces clipped with the area data.
     """
+    # Transform to pygeos types
     pygeos_traces = pygeos.from_shapely(traces.geometry.values)
     pygeos_polygons = pygeos.from_shapely(areas.geometry.values)
     pygeos_multipolygon = pygeos.multipolygons(pygeos_polygons)
+
+    # Perform intersection
     intersection = pygeos.intersection(pygeos_traces, pygeos_multipolygon)
     assert isinstance(intersection, np.ndarray)
+
+    # Collect into GeoDataFrame.
     geodataframe = gpd.GeoDataFrame(geometry=intersection, crs=traces.crs)
     assert "geometry" in geodataframe.columns
     return geodataframe
@@ -1040,6 +1077,15 @@ def crop_to_target_areas(
     >>> print([trace.wkt for trace in cropped_traces.geometry.values])
     ['LINESTRING (-1.9 4.924998124953124, -2 5)']
 
+    :param traces: Trace data.
+    :param areas: Area data.
+    :param snap_threshold: Distance threshold for snapping.
+    :param is_filtered: Has preliminary spatial filtering already been
+        done. If not the traces will be filtered first with a spatial index.
+    :param keep_column_data: Is column data of traces required to persist.
+    :return: Cropped traces.
+    :raises TypeError: If all geometries in the end result are not
+        ``LineString's``.
     """
     # Only handle LineStrings
     if not all(isinstance(trace, LineString) for trace in traces.geometry.values):
@@ -1102,6 +1148,22 @@ def crop_to_target_areas(
     clipped_and_dissolved_traces.reset_index(inplace=True, drop=True)
 
     return clipped_and_dissolved_traces
+
+
+@overload
+def dissolve_multi_part_traces(traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    Overload for gpd.GeoDataFrame.
+    """
+    ...
+
+
+@overload
+def dissolve_multi_part_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
+    """
+    Overload for gpd.GeoSeries.
+    """
+    ...
 
 
 def dissolve_multi_part_traces(
@@ -1287,6 +1349,12 @@ def pygeos_spatial_index(
 ) -> PyGEOSSTRTreeIndex:
     """
     Get PyGEOSSTRTreeIndex from geopandas dataset.
+
+    :param geodataset: Geodataset of which
+        spatial index is wanted.
+    :return: ``pygeos`` spatial index.
+    :raises TypeError: If the geodataset ``sindex`` attribute was not a
+        ``pygeos`` spatial index object.
     """
     sindex = geodataset.sindex
     if not isinstance(sindex, PyGEOSSTRTreeIndex):
@@ -1296,7 +1364,13 @@ def pygeos_spatial_index(
 
 def read_geofile(path: Path) -> gpd.GeoDataFrame:
     """
-    Read a filepath for a GeoDataFrame representable geo-object.
+    Read a filepath for a ``GeoDataFrame`` representable geo-object.
+
+    :param path: ``pathlib.Path`` to a ``GeoDataFrame``
+        representable spatial file.
+    :return: ``geopandas.GeoDataFrame`` read from the file.
+    :raises TypeError: If the file could not be parsed as a ``GeoDataFrame``
+        by ``geopandas``.
     """
     data = gpd.read_file(path)
     if not isinstance(data, gpd.GeoDataFrame):
@@ -1414,7 +1488,7 @@ def intersection_count_to_boundary_weight(intersection_count: int) -> int:
     raise ValueError(f"Expected 0,1,2 as intersection_count. Got: {intersection_count}")
 
 
-def numpy_to_python_type(value):
+def numpy_to_python_type(value: Any):
     """
     Convert numpy dtype variable to Python type, if possible.
     """

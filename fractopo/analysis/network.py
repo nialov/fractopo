@@ -67,6 +67,35 @@ class Network:
     Consists of at its simplest of validated traces. All other datasets are
     optional but most analyses are locked behind the addition of atleast the
     target area dataset.
+
+    :param trace_gdf: ``GeoDataFrame`` containing trace data
+        i.e. ``shapely.geometry.LineString's``.
+    :param area_gdf: ``GeoDataFrame`` containing
+        target area data i.e. ``(Multi)Polygon's``.
+    :param name: Name the Network.
+    :param determine_branches_nodes: Whether to determine branches and nodes.
+    :param snap_threshold: The snapping distance threshold to identify
+        snapped traces.
+    :param truncate_traces: Whether to crop the traces at the target area
+        boundary.
+    :param circular_target_area: Is the target are a circle.
+    :param azimuth_set_names: Names of each azimuth set.
+    :param azimuth_set_ranges: Ranges of each azimuth set.
+    :param trace_length_set_names: Names of each trace length set.
+    :param trace_length_set_ranges: Ranges of each trace length set.
+    :param branch_length_set_names: Names of each branch length set.
+    :param branch_length_set_ranges: Ranges of each branch length set.
+    :param branch_gdf: ``GeoDataFrame`` containing branch data.
+        It is recommeded to let ``fractopo.Network`` determine both
+        branches and nodes instead of passing them here.
+    :param node_gdf: GeoDataFrame containing node data.
+        It is recommeded to let fractopo.Network determine both
+        branches and nodes instead of passing them here.
+    :param unary_size_threshold: Determining branches and nodes can rarely fail
+        and return a truncated dataset. In the **very** rare case this happens
+        you can try decreasing this number.
+    :param censoring_area: Geometry that delineates the area in which trace
+        digitization was uncertain due to censoring caused by e.g. vegetation.
     """
 
     # Base data
@@ -76,6 +105,9 @@ class Network:
 
     # Name the network for e.g. plot titles
     name: str = "Network"
+
+    determine_branches_nodes: bool = False
+    snap_threshold: float = 0.001
 
     # The traces can be cut to end at the boundary of the target area
     # Defaults to True
@@ -90,12 +122,12 @@ class Network:
 
     # Azimuth sets
     # ============
+    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
     azimuth_set_ranges: SetRangeTuple = (
         (0, 60),
         (60, 120),
         (120, 180),
     )
-    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
 
     # Length sets
     # ===========
@@ -112,15 +144,8 @@ class Network:
     # ==================
     branch_gdf: Optional[gpd.GeoDataFrame] = None
     node_gdf: Optional[gpd.GeoDataFrame] = None
-    determine_branches_nodes: bool = False
-    snap_threshold: float = 0.001
     # If unary_union fails try lower and higher values
     unary_size_threshold: int = 5000
-
-    # Length distributions
-    # ====================
-    # trace_length_cut_off: Optional[float] = None
-    # branch_length_cut_off: Optional[float] = None
 
     censoring_area: Union[
         Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
@@ -146,7 +171,9 @@ class Network:
     @staticmethod
     def _default_length_set_ranges(count, min_value, max_value):
         """
-        Get default lengt set ranges.
+        Get default length set ranges.
+
+        TODO: Currently not used.
         """
         arr = np.linspace(min_value, max_value, count + 1)
         starts = arr[0 : count + 1]
@@ -155,13 +182,16 @@ class Network:
         as_gen = ((start, end) for start, end in zip(starts, ends))
         return tuple(as_gen)
 
-    def __setattr__(self, name: str, value: Any) -> None:
+    def __setattr__(self, name: str, value: Any):
         """
         Override default __setattr__ to force DataFrame copying.
 
         Normally DataFrames are passed as references instead of passing
         reference allowing side-effects. Also resets LineData for branch
         data when setting it.
+
+        :param name: Name of the attribute.
+        :param value: Value of the attribute.
         """
         if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
             self.__dict__[name] = value.copy()
@@ -184,6 +214,9 @@ class Network:
 
         If the data is passed later to attribute, __setattr__ will also
         handle copying.
+
+        :raises ValueError: If trace ``GeoDataFrame`` is empty after
+            ``crop_to_target_areas``.
         """
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
@@ -233,6 +266,8 @@ class Network:
     def get_area_gdf(self) -> gpd.GeoDataFrame:
         """
         Get area_gdf if it is given.
+
+        :return: Target area ``GeoDataFrame``.
         """
         if self.area_gdf is None:
             raise_determination_error("area", verb="initilization", determine_target="")
@@ -241,6 +276,8 @@ class Network:
     def get_branch_gdf(self) -> gpd.GeoDataFrame:
         """
         Get branch_gdf if it is determined.
+
+        :return: Branches ``GeoDataFrame``.
         """
         if self.branch_gdf is None:
             raise_determination_error("branches")
@@ -249,6 +286,8 @@ class Network:
     def get_node_gdf(self) -> gpd.GeoDataFrame:
         """
         Get node_gdf if it is determined.
+
+        :return: Nodes GeoDataFrame.
         """
         if self.node_gdf is None:
             raise_determination_error("nodes")

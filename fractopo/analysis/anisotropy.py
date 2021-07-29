@@ -10,13 +10,16 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import CubicSpline
 
 
-def determine_anisotropy_classification(c: str) -> int:
+def determine_anisotropy_classification(branch_classification: str) -> int:
     """
     Return value based on branch classification.
 
     Only C-C branches have a value, but this can be changed here.
     Classification can differ from 'C - C', 'C - I', 'I - I' (e.g. 'C - E') in
     which case a value (0) is still returned.
+
+    :param branch_classification: Branch classification string.
+    :return: Classification encoded as integer.
 
     E.g.
 
@@ -25,15 +28,14 @@ def determine_anisotropy_classification(c: str) -> int:
 
     >>> determine_anisotropy_classification("C - E")
     0
-
     """
-    if c not in ("C - C", "C - I", "I - I"):
+    if branch_classification not in ("C - C", "C - I", "I - I"):
         return 0
-    if c == "C - C":
+    if branch_classification == "C - C":
         return 1
-    if c == "C - I":
+    if branch_classification == "C - I":
         return 0
-    if c == "I - I":
+    if branch_classification == "I - I":
         return 0
     return 0
 
@@ -45,6 +47,14 @@ def determine_anisotropy_sum(
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
+    Determine the sums of branch anisotropies.
+
+    :param azimuth_array: Array of branch azimuth values.
+    :param branch_types: Array of branch type classication strings.
+    :param length_array: Array of branch lengths.
+    :param sample_intervals: Array of the sampling intervals.
+    :return: Sums of branch anisotropies.
+
     E.g.
 
     >>> from pprint import pprint

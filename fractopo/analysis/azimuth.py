@@ -50,7 +50,6 @@ def _calc_ideal_bin_width(n: Number, axial=True) -> float:
     :param axial: Whether data is axial or vector
     :type axial: bool
     :return: Bin width in degrees
-    :rtype: float
     :raises: ValueError
     """
     if n <= 0:
@@ -94,7 +93,6 @@ def _calc_locs(bin_width: float) -> np.ndarray:
     :param bin_width: Real bin width
     :type bin_width: float
     :return: Array of locations
-    :rtype: np.ndarray
     """
     start = bin_width / 2
     end = 180 + bin_width / 2
