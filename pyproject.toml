@@ -3,9 +3,32 @@ name = "fractopo"
 version = "0.1.0"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
+readme = "README.rst"
+license = "MIT"
+homepage = "https://github.com/nialov/fractopo"
+repository = "https://github.com/nialov/fractopo"
+documentation = "https://fractopo.readthedocs.io/en/latest/"
+keywords = [
+    "data",
+    "gis",
+    "geology",
+    "fracture",
+    "topology",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: GIS",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only"
+]
+include = ["CHANGELOG.md"]
 
 [tool.poetry.scripts]
 tracevalidate = "fractopo.cli:tracevalidate"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/nialov/fractopo/issues"
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
