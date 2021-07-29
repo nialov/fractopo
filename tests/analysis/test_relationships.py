@@ -1,6 +1,7 @@
 """
 Tests for relationship detection.
 """
+from itertools import chain
 from typing import List, Optional, Tuple
 
 import geopandas as gpd
@@ -8,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from shapely.geometry import MultiLineString
 from shapely.prepared import PreparedGeometry
@@ -56,6 +58,9 @@ def test_determine_nodes_intersecting_sets(
     Helpers.test_prepare_geometry_traces_params,
 )
 def test_prepare_geometry_traces(trace_series: gpd.GeoSeries):
+    """
+    Test prepare_geometry_traces.
+    """
     prepared_traces = prepare_geometry_traces(trace_series)
     assert isinstance(prepared_traces, PreparedGeometry)
     assert isinstance(prepared_traces.context, MultiLineString)
@@ -146,5 +151,6 @@ def test_plot_crosscut_abutting_relationships_plot():
     figs, fig_axes = plot_crosscut_abutting_relationships_plot(
         relations_df=relations_df, set_array=set_array, set_names=set_names
     )
-    assert all([isinstance(fig, Figure) for fig in figs])  # type: ignore
+    assert all(isinstance(fig, Figure) for fig in figs)
+    assert all(isinstance(ax, Axes) for ax in chain(*fig_axes))
     plt.close()

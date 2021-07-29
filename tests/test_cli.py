@@ -15,8 +15,13 @@ from tests import Helpers
 @pytest.mark.parametrize(
     "trace_path, area_path, auto_fix", Helpers.test_tracevalidate_params
 )
+@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
 def test_tracevalidate(
-    trace_path: Path, area_path: Path, auto_fix: str, tmp_path: Path
+    trace_path: Path,
+    area_path: Path,
+    auto_fix: str,
+    tmp_path: Path,
+    snap_threshold: float,
 ):
     """
     Tests tracevalidate click functionality.
@@ -31,7 +36,8 @@ def test_tracevalidate(
         str(output_file),
         "--summary",
         "--snap-threshold",
-        "0.01",
+        # should be valid for both 0.01 and 0.001
+        str(snap_threshold),
     ]
     result = clirunner.invoke(cli.tracevalidate, cli_args)
     # Check that exit code is 0 (i.e. ran succesfully.)

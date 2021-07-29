@@ -79,7 +79,11 @@ def test_bounding_polygon(geoseries):
         assert geom.within(result)
 
 
-def test_crop_to_target_areas(file_regression):
+@pytest.mark.parametrize("keep_column_data", [True, False])
+@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
+def test_crop_to_target_areas(
+    keep_column_data: bool, snap_threshold: float, file_regression
+):
     """
     Test cropping traces to target area with known right example data results.
 
@@ -92,10 +96,14 @@ def test_crop_to_target_areas(file_regression):
         Path("tests/sample_data/mls_crop_samples/mls_area.gpkg")
     )
     cropped_traces = general.crop_to_target_areas(
-        traces=trace_data, areas=area_data, snap_threshold=0.01
+        traces=trace_data,
+        areas=area_data,
+        snap_threshold=snap_threshold,
+        keep_column_data=keep_column_data,
     )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
-    file_regression.check(cropped_traces.sort_index().to_json(indent=1))
+    cropped_traces.sort_index(inplace=True)
+    file_regression.check(cropped_traces.to_json(indent=1))
 
 
 def test_dissolve_multi_part_traces(file_regression):
@@ -104,12 +112,13 @@ def test_dissolve_multi_part_traces(file_regression):
 
     Dissolve should copy all attribute data to new dissolved LineStrings.
     """
-    trace_data = gpd.read_file(
+    trace_data = general.read_geofile(
         Path("tests/sample_data/mls_crop_samples/mls_traces.gpkg")
     )
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
-    file_regression.check(dissolved_traces.sort_index().to_json(indent=1))
+    dissolved_traces.sort_index(inplace=True)
+    file_regression.check(dissolved_traces.to_json(indent=1))
 
 
 @pytest.mark.parametrize(

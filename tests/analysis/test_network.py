@@ -40,16 +40,32 @@ def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
     return relations_df_dict
 
 
-def test_azimuth_set_relationships_regression(num_regression):
+@pytest.mark.parametrize(
+    "azimuth_set_ranges",
+    [
+        (
+            (0, 60),
+            (60, 120),
+            (120, 180),
+        ),
+        (
+            (0, 30),
+            (30, 60),
+            (70, 80),
+        ),
+        (
+            (30, 50),
+            (50, 60),
+        ),
+    ],
+)
+def test_azimuth_set_relationships_regression(
+    azimuth_set_ranges: SetRangeTuple, num_regression
+):
     """
     Test for azimuth set relationship regression.
     """
-    azimuth_set_ranges: SetRangeTuple = (
-        (0, 60),
-        (60, 120),
-        (120, 180),
-    )
-    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
+    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
     relations_df: pd.DataFrame = Network(
         Helpers.kb7_traces,  # type: ignore
         Helpers.kb7_area,  # type: ignore
@@ -59,6 +75,7 @@ def test_azimuth_set_relationships_regression(num_regression):
         azimuth_set_names=azimuth_set_names,
         snap_threshold=0.001,
         circular_target_area=False,
+        truncate_traces=True,
     ).azimuth_set_relationships
 
     relations_df_dict = relations_df_to_dict(relations_df)

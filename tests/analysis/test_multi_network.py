@@ -10,15 +10,16 @@ from fractopo import MultiNetwork, Network
 from fractopo.analysis import subsampling
 
 
+@pytest.mark.parametrize("min_radius", [4.0, 5.0, 7.5])
 @pytest.mark.parametrize("network_params,samples", tests.test_multinetwork_params())
-def test_multinetwork_subsample(network_params, samples: int):
+def test_multinetwork_subsample(network_params, samples: int, min_radius: float):
     """
     Test MultiNetwork.subsample.
     """
     networks = [Network(**kwargs) for kwargs in network_params]
     multi_network = MultiNetwork(networks=networks)
 
-    subsamples = multi_network.subsample(min_radius=5.0, samples=samples)
+    subsamples = multi_network.subsample(min_radius=min_radius, samples=samples)
 
     assert isinstance(subsamples, list)
     assert len(networks) * samples == len(subsamples)

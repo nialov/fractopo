@@ -21,7 +21,7 @@ from fractopo.general import (
 )
 from tests import Helpers
 
-cell_width = 0.10
+CELL_WIDTH = 0.10
 branches = gpd.GeoDataFrame(
     {
         "geometry": [
@@ -57,7 +57,8 @@ nodes = gpd.GeoDataFrame(
 )
 
 
-def test_create_grid():
+@pytest.mark.parametrize("cell_width", [CELL_WIDTH, 0.15, 0.25, 0.5])
+def test_create_grid(cell_width: float):
     """
     Test create_grid.
     """
@@ -73,13 +74,14 @@ def test_create_grid():
     return grid
 
 
-def test_sample_grid():
+@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
+def test_sample_grid(snap_threshold: float):
     """
     Test sampling a grid.
     """
-    grid = test_create_grid()
+    grid = test_create_grid(cell_width=CELL_WIDTH)
     grid_with_topo = contour_grid.sample_grid(
-        grid, branches, nodes, snap_threshold=0.01
+        grid, branches, nodes, snap_threshold=snap_threshold
     )
     assert isinstance(grid_with_topo, gpd.GeoDataFrame)
 
@@ -112,9 +114,8 @@ def test_network_contour_grid(traces, areas, snap_threshold, dataframe_regressio
     assert sampled_grid.shape[0] > 0
     assert isinstance(sampled_grid.geometry.values[0], Polygon)
 
-    dataframe_regression.check(
-        pd.DataFrame(sampled_grid).sort_index().drop(columns=["geometry"])
-    )
+    sampled_grid.sort_index(inplace=True)
+    dataframe_regression.check(pd.DataFrame(sampled_grid).drop(columns=["geometry"]))
 
 
 @pytest.mark.parametrize(
