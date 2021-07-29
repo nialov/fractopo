@@ -34,7 +34,7 @@ Usage
 
 Usage is demonstrated in complementary ``Jupyter Notebooks``.
 
--  `Network analysis <../notebooks/fractopo_network_1>`__
+-  `Network analysis <notebooks/fractopo_network_1.html>`__
 
    -  Loading data for analysis with ``geopandas``
    -  Visualizing traces and target area
@@ -45,7 +45,7 @@ Usage is demonstrated in complementary ``Jupyter Notebooks``.
    -  Crosscutting and abutting relationships between azimuth sets
    -  Node and branch proportions
 
-Also see `gallery of example scripts <../auto_examples/index.rst>`__
+Also see `gallery of example scripts <auto_examples/index.html>`__
 
 References
 ----------

@@ -33,8 +33,7 @@ tool.  After trace data validation, ``Network`` analysis can be conducted.
    :maxdepth: 1
    :caption: Analyzing trace data
 
-   analysis/basics
-   analysis/topological_branches_and_nodes
+   analysis
    notebooks/fractopo_network_1
    auto_examples/index
 
