@@ -194,6 +194,7 @@ class Network:
                     self.trace_gdf,
                     self.get_area_gdf(),
                     snap_threshold=self.snap_threshold,
+                    keep_column_data=True,
                 )
             )
             self.trace_gdf.reset_index(inplace=True, drop=True)
@@ -436,7 +437,10 @@ class Network:
         """
         Get total area.
         """
-        return self.get_area_gdf().geometry.area.sum()
+        area_sum = numpy_to_python_type(self.get_area_gdf().geometry.area.sum())
+        assert isinstance(area_sum, float)
+        assert area_sum >= 0.0
+        return area_sum
 
     @property
     def parameters(self) -> Dict[str, float]:
@@ -694,7 +698,10 @@ class Network:
         """
         Get representative point(s) of target area(s).
         """
-        return self.get_area_gdf().representative_point().to_list()
+        point_list = self.get_area_gdf().representative_point().to_list()
+        assert isinstance(point_list, list)
+        assert all(isinstance(point, Point) for point in point_list)
+        return point_list
 
     def trace_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
@@ -1018,7 +1025,7 @@ class Network:
             ax=ax,
             legend_kwds={"label": parameter},
         )
-        ax.set_title(f"{ self.name } -- {parameter}")
+        ax.set_title(f"{ self.name } - {parameter}")
         return fig, ax
 
     def estimate_censoring(
@@ -1056,13 +1063,7 @@ class Network:
             censoring_geodata = censoring_area
 
         # Determine bounds of Network.area_gdf
-        network_area_bounds_arr = self.get_area_gdf().total_bounds
-        network_area_bounds: Tuple[float, float, float, float] = (
-            network_area_bounds_arr[0],
-            network_area_bounds_arr[1],
-            network_area_bounds_arr[2],
-            network_area_bounds_arr[3],
-        )
+        network_area_bounds = total_bounds(self.get_area_gdf())
 
         # Use spatial index to filter censoring polygons that are not near the
         # network
@@ -1081,9 +1082,9 @@ class Network:
         # sum of leftover area.
         clipped = gpd.clip(candidates, self.get_area_gdf())
         if not isinstance(clipped, (gpd.GeoDataFrame, gpd.GeoSeries)):
+            vals = type(clipped), clipped
             raise TypeError(
-                "Expected clipped is of geopandas data type."
-                f" Got: {type( clipped ), clipped}."
+                f"Expected that clipped is of geopandas data type. Got: {vals}."
             )
         censoring_value = clipped.area.sum()
         unpacked_value = numpy_to_python_type(censoring_value)

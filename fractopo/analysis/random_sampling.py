@@ -17,6 +17,7 @@ from fractopo.general import (
     calc_circle_radius,
     random_points_within,
     safe_buffer,
+    numpy_to_python_type,
 )
 
 
@@ -134,7 +135,8 @@ class NetworkRandomSampler:
         """
         Calculate max radius from given area_gdf.
         """
-        radius = np.sqrt(self.target_circle.area / np.pi)
+        radius = numpy_to_python_type(np.sqrt(self.target_circle.area / np.pi))
+        assert isinstance(radius, float)
         if self.min_radius > radius:
             raise ValueError("Expected min_radius smaller than max_radius.")
         return radius

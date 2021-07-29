@@ -1436,7 +1436,9 @@ def calc_circle_radius(area: float) -> float:
     Calculate radius from area.
     """
     assert not area < 0
-    return np.sqrt(area / np.pi)
+    radius = numpy_to_python_type(np.sqrt(area / np.pi))
+    assert isinstance(radius, float)
+    return radius
 
 
 def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
@@ -1450,7 +1452,9 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
             f"Expected no nan values in point_to_point_unit_vector: {x1, y1, x2, y2}"
         )
     vector = np.array([x2 - x1, y2 - y1])
-    return vector / np.linalg.norm(vector)
+    normed_vector = vector / np.linalg.norm(vector)
+    assert isinstance(normed_vector, np.ndarray)
+    return normed_vector
 
 
 def raise_determination_error(

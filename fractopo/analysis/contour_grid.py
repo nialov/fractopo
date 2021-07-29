@@ -164,6 +164,7 @@ def populate_sample_cell(
             areas=gpd.GeoSeries([sample_circle]),
             snap_threshold=snap_threshold,
             is_filtered=True,
+            keep_column_data=False,
         )
     else:
         sample_traces = traces.iloc[0:0]

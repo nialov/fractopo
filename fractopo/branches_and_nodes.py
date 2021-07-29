@@ -41,6 +41,7 @@ from fractopo.general import (
     geom_bounds,
     get_trace_coord_points,
     get_trace_endpoints,
+    numpy_to_python_type,
     line_intersection_to_points,
     point_to_point_unit_vector,
     pygeos_spatial_index,
@@ -219,8 +220,10 @@ def angle_to_point(
         raise ValueError(
             "Could not detemine point relationships. Vectors printed above."
         )
-    assert 360 >= np.rad2deg(rad_angle) >= 0
-    return np.rad2deg(rad_angle)
+    degrees = numpy_to_python_type(np.rad2deg(rad_angle))
+    assert 360.0 >= degrees >= 0.0
+    assert isinstance(degrees, float)
+    return degrees
 
 
 def insert_point_to_linestring(
@@ -926,8 +929,11 @@ def branches_and_nodes(
     # Clip if necessary
     if not already_clipped:
         traces_geosrs = crop_to_target_areas(
-            traces_geosrs, areas_geosrs, snap_threshold=snap_threshold
-        )
+            traces_geosrs,
+            areas_geosrs,
+            snap_threshold=snap_threshold,
+            keep_column_data=False,
+        ).geometry
 
     # Remove too small geometries.
     traces_geosrs = traces_geosrs.loc[
