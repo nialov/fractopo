@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.0.1.post382.dev0+376fa7b"
+version = "0.0.1.post384.dev0+e7b73b9"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 
@@ -33,6 +33,7 @@ sphinx = {version = "*", optional = true}
 sphinx-rtd-theme = {version = "*", optional = true}
 nbsphinx = {version = "*", optional = true}
 sphinx-gallery = {version = "*", optional = true}
+sphinx-autodoc-typehints = {version = "*", optional = true}
 
 # Linting and formatting
 pylint = {version = "*", optional = true}
@@ -58,7 +59,13 @@ pytest-regressions = "*"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
-docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery"]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+    "sphinx-gallery",
+    "sphinx-autodoc-typehints"
+]
 format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort"] 
 typecheck = ["mypy"]
 
