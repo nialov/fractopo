@@ -85,7 +85,7 @@ class Validation:
         Set _intersect_nodes and _endpoint_nodes attributes.
         """
         self._intersect_nodes, self._endpoint_nodes = determine_general_nodes(
-            self.traces, self.SNAP_THRESHOLD
+            self.traces
         )
 
     @property
@@ -101,8 +101,7 @@ class Validation:
             self.set_general_nodes()
         if self._endpoint_nodes is not None:
             return self._endpoint_nodes
-        else:
-            raise TypeError("Expected self._endpoint_nodes to not be None.")
+        raise TypeError("Expected self._endpoint_nodes to not be None.")
 
     @property
     def intersect_nodes(self) -> List[Tuple[Point, ...]]:
@@ -117,8 +116,7 @@ class Validation:
             self.set_general_nodes()
         if self._intersect_nodes is not None:
             return self._intersect_nodes
-        else:
-            raise TypeError("Expected self._intersect_nodes to not be None.")
+        raise TypeError("Expected self._intersect_nodes to not be None.")
 
     @property
     def spatial_index(self) -> Optional[PyGEOSSTRTreeIndex]:
@@ -174,7 +172,7 @@ class Validation:
     def run_validation(
         self,
         first_pass=True,
-        choose_validators: Optional[List[ValidatorClass]] = None,
+        choose_validators: Optional[Tuple[ValidatorClass]] = None,
         allow_empty_area: bool = True,
     ) -> gpd.GeoDataFrame:
         """
@@ -200,7 +198,7 @@ class Validation:
 
         # Check if chosen validators require determining nodes.
         self.determine_validation_nodes = any(
-            [validator in VALIDATION_REQUIRES_NODES for validator in validators]
+            validator in VALIDATION_REQUIRES_NODES for validator in validators
         )
 
         # Check if target area is completely void of traces
@@ -303,7 +301,7 @@ class Validation:
         ...     geom=geom,
         ...     validator=validator,
         ...     current_errors=current_errors,
-        ...     allow_fix=allow_fix
+        ...     allow_fix=allow_fix,
         ... )
         >>> fixed_geom.wkt, updated_errors, ignore_geom
         ('LINESTRING (0 0, 1 1, 2 2)', [], False)
@@ -318,7 +316,7 @@ class Validation:
             if isinstance(geom, MultiLineString):
                 logging.debug("MultiLineString geometry with validator ls only.")
             return geom, current_errors, True
-        elif (
+        if (
             not validator.validation_method(geom=geom, **kwargs)
             and validator.ERROR not in current_errors
         ):

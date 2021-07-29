@@ -1,49 +1,30 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Lint| |Coverage|
-|Binder|
+|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder|
 
 ``fractopo`` is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
 
-.. figure:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/fractopo_2d_diagram.png
+.. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
 
    Overview of fractopo
 
-Development status
-------------------
-
--  In constant development, will have breaking changes.
--  Critical issues:
-
-   -  Installation on Windows is currently not supported due to problems
-      with installation of ``gdal``-based packages like geopandas.
-   -  Contour grid sampling is sometimes slow and requires refactor at
-      some point.
-   -  ``snap_traces`` in branch and node determination is not completely
-      stable. Some edge cases cause artifacts which only sometimes are
-      recognized as error branches. (Mostly solved as of 1.3.2021).
-
-      -  Reinforces that some amount of responsibility is always in the
-         hands of the digitizer.
-      -  Issue mostly avoided with a ``snap_threshold`` of 0.001
-
 Full documentation
 ------------------
 
--  Documentation hosted on Read the Docs:
+-  Documentation is hosted on Read the Docs:
 
    -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html>`__
 
 Installation
 ------------
 
-Currently installation is supported only for linux-based operating
-systems. There's a known problem with installing any ``gdal``-based Python
-package onto a Windows machine. (Could be circumvented at some point by
-using conda.)
+Currently installation is supported only for ``linux``-based operating
+systems and ``MacOS``. There's a known problem with installing any
+``gdal``-based Python package onto a Windows machine. (Could be
+circumvented at some point by using ``conda``.)
 
 Omit ``--dev`` or ``[dev]`` for regular installation. Keep if you want
 to test/develop or otherwise install all development python
@@ -52,7 +33,7 @@ dependencies.
 Pip
 ~~~
 
-The module is on PyPI.
+The module is on `PyPI <https://www.pypi.org>`__.
 
 .. code:: bash
 
@@ -63,32 +44,39 @@ Or locally for development:
 
 .. code:: bash
 
-   git clone https://github.com/nialov/fractopo --depth 1
+   git clone https://github.com/nialov/fractopo
    cd fractopo
    # Omit [dev] from end if you do not want installation for development
    pip install --editable .[dev]
 
-Pipenv
+poetry
 ~~~~~~
+
+For usage:
+
+.. code:: bash
+
+   poetry add fractopo
+
+For development:
 
 .. code:: bash
 
    git clone https://github.com/nialov/fractopo --depth 1
    cd fractopo
-   # Omit --dev from end if you do not want installation for development
-   pipenv sync --dev
+   poetry install
 
 Usage
 -----
 
-See `Notebooks with examples <https://tinyurl.com/yb4tj47e>`__ for more
-advanced usage guidance and examples.
+See `Full documentation <https://tinyurl.com/yb4tj47e>`__ for usage
+guidance and examples.
 
 Input data
 ~~~~~~~~~~
 
-Reading and writing spatial filetypes is done in geopandas and you
-should see geopandas documentation for more advanced read-write use
+Reading and writing spatial filetypes is done in ``geopandas`` and you
+should see ``geopandas`` documentation for more advanced read-write use
 cases:
 
 -  https://geopandas.org/
@@ -112,9 +100,13 @@ Trace and target area data can be validated for further analysis with a
 
 .. code:: python
 
-   from fractopo.tval.trace_validation import Validation
+   from fractopo import Validation
+
    validation = Validation(
-       trace_data, area_data, name="mytraces", allow_fix=True,
+       trace_data,
+       area_data,
+       name="mytraces",
+       allow_fix=True,
    )
 
    # Validation is done explicitly with `run_validation` method
@@ -152,17 +144,33 @@ data.
 Geometric and topological trace network analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Trace and target area data (``GeoDataFrame``\ s) are passed into a
+Trace and target area data (``GeoDataFrames``) are passed into a
 ``Network`` object which has properties and functions for returning and
 visualizing different parameters and attributes of trace data.
 
 .. code:: python
 
-   from fractopo.analysis.network import Network
+   from fractopo import Network
 
    # Initialize Network object and determine the topological branches and nodes
    network = Network(
-       trace_data, area_data, name="mynetwork", determine_branches_nodes=True,
+       trace_data,
+       area_data,
+       # Give the Network a name!
+       name="mynetwork",
+       # Specify whether to determine topological branches and nodes
+       # (Required for almost all analysis)
+       determine_branches_nodes=True,
+       # Specify the snapping distance threshold to define when traces are
+       # snapped to each other
+       snap_threshold=0.001,
+       # If the target area used in digitization is a circle, the knowledge can
+       # be used in some analysis
+       circular_target_area=True,
+       # Analysis on traces can be done for the full inputted dataset or the
+       # traces can be cropped to the target area before analysis (cropping
+       # recommended)
+       truncate_traces=True,
    )
 
    # Properties are easily accessible
@@ -173,14 +181,34 @@ visualizing different parameters and attributes of trace data.
    # Plotting is done by plot_ -prefixed methods
    network.plot_trace_lengths()
 
+Development status
+------------------
+
+-  Breaking changes are possible and expected.
+-  Critical issues:
+
+   -  Installation on Windows is currently not supported due to problems
+      with installation of `gdal <https://gdal.org/>`__-based packages
+      like `geopandas <https://geopandas.org/>`__.
+   -  Trace validation should be refactored at some point.
+
+      -  Though keeping in mind that the current implementation works
+         well.
+
+   -  ``snap_traces`` in branch and node determination is not perfect.
+      Some edge cases cause artifacts which only sometimes are
+      recognized as error branches. However these cases are very rare.
+
+      -  Reinforces that some amount of responsibility is always in the
+         hands of the digitizer.
+      -  Issue mostly avoided when using a ``snap_threshold`` of 0.001
+
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish.yaml?query=branch%3Amaster
-.. |Lint| image:: https://github.com/nialov/fractopo/workflows/lint/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/lint.yaml?query=branch%3Amaster
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg

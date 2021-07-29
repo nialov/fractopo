@@ -1,7 +1,7 @@
 """
 Anisotropy of connectivity determination utilities.
 """
-from typing import Optional, Tuple
+from typing import Tuple
 
 import matplotlib
 import numpy as np
@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import CubicSpline
 
 
-def determine_anisotropy_classification(c: str) -> int:
+def determine_anisotropy_classification(branch_classification: str) -> int:
     """
     Return value based on branch classification.
 
@@ -18,25 +18,26 @@ def determine_anisotropy_classification(c: str) -> int:
     Classification can differ from 'C - C', 'C - I', 'I - I' (e.g. 'C - E') in
     which case a value (0) is still returned.
 
+    :param branch_classification: Branch classification string.
+    :return: Classification encoded as integer.
+
     E.g.
 
-    >>> determine_anisotropy_classification('C - C')
+    >>> determine_anisotropy_classification("C - C")
     1
 
-    >>> determine_anisotropy_classification('C - E')
+    >>> determine_anisotropy_classification("C - E")
     0
-
     """
-    if c not in ("C - C", "C - I", "I - I"):
+    if branch_classification not in ("C - C", "C - I", "I - I"):
         return 0
-    if c == "C - C":
+    if branch_classification == "C - C":
         return 1
-    elif c == "C - I":
+    if branch_classification == "C - I":
         return 0
-    elif c == "I - I":
+    if branch_classification == "I - I":
         return 0
-    else:
-        return 0
+    return 0
 
 
 def determine_anisotropy_sum(
@@ -46,6 +47,14 @@ def determine_anisotropy_sum(
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
+    Determine the sums of branch anisotropies.
+
+    :param azimuth_array: Array of branch azimuth values.
+    :param branch_types: Array of branch type classication strings.
+    :param length_array: Array of branch lengths.
+    :param sample_intervals: Array of the sampling intervals.
+    :return: Sums of branch anisotropies.
+
     E.g.
 
     >>> from pprint import pprint
@@ -116,8 +125,8 @@ def determine_anisotropy_value(
 def plot_anisotropy_plot(
     anisotropy_sum: np.ndarray,
     sample_intervals: np.ndarray,
-    label: str,
-    color: Optional[str] = None,
+    # label: str,
+    # color: Optional[str] = None,
 ) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:  # type: ignore
     """
     Plot anisotropy values to new figure.
@@ -163,10 +172,10 @@ def plot_anisotropy_ax(
     # CREATE CURVED STRUCTURE AROUND SCATTER AND ARROWS
     angles.append(359.999)
     double_anisotropy = np.concatenate([double_anisotropy, double_anisotropy[0:1]])
-    angles = np.array(angles)
+    angles_arr = np.array(angles)
 
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.CubicSpline.html
-    theta = np.deg2rad(angles)  # type: ignore
+    theta = np.deg2rad(angles_arr)  # type: ignore
     cs = CubicSpline(theta, double_anisotropy, bc_type="periodic")
     xnew = np.linspace(theta.min(), theta.max(), 300)
     power_smooth = cs(xnew)

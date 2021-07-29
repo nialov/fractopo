@@ -18,7 +18,6 @@ Submodules
 
    fractopo.branches_and_nodes
    fractopo.cli
-   fractopo.contour_grid
    fractopo.fractopo_utils
    fractopo.general
 

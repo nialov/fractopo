@@ -1,3 +1,93 @@
+[tool.poetry]
+name = "fractopo"
+version = "0.0.1.post390.dev0+a4df9cf"
+description = "Fracture Network Analysis"
+authors = ["nialov <nikolasovaskainen@gmail.com>"]
+
+[tool.poetry.scripts]
+tracevalidate = "fractopo.cli:tracevalidate"
+
+[tool.poetry.dependencies]
+python = "^3.7.1"
+geopandas = "==0.9.0"
+pygeos = "==0.10.1"
+pandas = "~1.3"
+shapely = "~1.7"
+numpy = "*"
+scipy = "*"
+powerlaw = "*"
+python-ternary = "*"
+sklearn = "*"
+seaborn = "*"
+matplotlib = "*"
+click = "*"
+descartes = "*"
+
+# Extras
+# Coverage
+coverage = {version = "*", optional = true}
+coverage-badge = {version = "*", optional = true}
+
+# Docs
+sphinx = {version = "*", optional = true}
+sphinx-rtd-theme = {version = "*", optional = true}
+nbsphinx = {version = "*", optional = true}
+sphinx-gallery = {version = "*", optional = true}
+sphinx-autodoc-typehints = {version = "*", optional = true}
+
+# Linting and formatting
+pylint = {version = "*", optional = true}
+rstcheck = {version = "*", optional = true}
+black = {version = "*", optional = true}
+black-nb = {version = "*", optional = true}
+blacken-docs = {version = "*", optional = true}
+blackdoc = {version = "*", optional = true}
+isort = {version = "*", optional = true}
+
+# Typecheck
+mypy = {version = "*", optional = true}
+
+[tool.poetry.dev-dependencies]
+bleach = "*"
+hypothesis = "*"
+invoke = "*"
+ipython = "*"
+jedi = "*"
+jupyterlab = "*"
+nox = "*"
+pyinstrument = "*"
+pytest = "*"
+pytest-regressions = "*"
+
+[tool.poetry.extras]
+coverage = ["coverage", "coverage-badge"]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+    "sphinx-gallery",
+    "sphinx-autodoc-typehints"
+]
+format-lint = [
+    "pylint",
+    "rstcheck",
+    "sphinx",
+    "black",
+    "black-nb",
+    "isort",
+    "blacken-docs",
+    "blackdoc"
+]
+typecheck = ["mypy"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+
 [tool.pytest.ini_options]
 testpaths =[
     "tests",
@@ -30,7 +120,30 @@ multi_line_output = 3
 src_paths = ["fractopo", "tests"]
 skip = "fractopo/_version.py"
 
-[tool.coverage.run]
-omit =[
-    "fractopo/_version.py",
+[tool.pylint.master]
+fail-under = "9.5"
+
+[tool.pylint.report]
+output-format = "text"
+
+[tool.pylint.messages_control]
+max-line-length = 100
+disable = [
+    "C0103",
+    "C0302",
+    "R0902",
+    "R0913",
+    "R0914",
+    "W0212",
+    "W0703",
+    "W1203",
     ]
+
+[tool.pylint.similarities]
+ignore-imports = true
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

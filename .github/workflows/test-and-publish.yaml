@@ -1,15 +1,23 @@
 name: test-and-publish
 
-on: [push, pull_request]
+on:
+  # run on all pushes to any branch
+  push:
+  # run only on master pull requests
+  pull_request:
+    branches: [master]
+  # also run periodically
+  schedule:
+    - cron: "41 7 * * 5"
 
 jobs:
-  # Test
-  pytest-and-coverage:
-    runs-on: ubuntu-latest
+  pytest-coverage:
+    name: Test and check coverage of 🐍 code
     strategy:
-      max-parallel: 2
       matrix:
-        python-version: [3.8]
+        python-version: [3.7, 3.8, 3.9]
+        platform: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -21,29 +29,60 @@ jobs:
           python -m pip install --upgrade pip
           pip install nox invoke
       - name: Test with invoke -> nox -> pytest
-        run: invoke ci-test
+        run: invoke ci-test --python ${{ matrix.python-version }}
+
+  format-lint:
+    runs-on: ubuntu-latest
+    name: Format and lint 🐍 code
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install nox invoke
+      - name: Lint with invoke -> nox -> linters
+        run: invoke format-and-lint
+
+  docs:
+    runs-on: ubuntu-latest
+    name: Build documentation
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 🐍
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies including pandoc 🐼
+        run: |
+          sudo apt install pandoc
+          python -m pip install --upgrade pip
+          pip install nox invoke
+      - name: Build docs with invoke -> nox session
+        run: invoke docs
 
   build-and-publish:
-    needs: pytest-and-coverage
+    runs-on: ubuntu-latest
+    # Requires that unit tests pass but doesn't require lints
+    needs: pytest-coverage
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     # Pushes to PyPI on tagged commit pushes of master branch
     # Additionally tests building with setuptools on all branches
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
-      - name: Install setuptools, wheel, invoke and nox
+      - name: Install invoke and nox
         run: >-
-          python -m pip install setuptools wheel invoke nox
-      - name: Update requirements with nox session
-        run: >-
-          invoke requirements
+          python -m pip install invoke nox
       - name: Build binary wheel and a source tarball
         run: >-
-          python setup.py sdist bdist_wheel
+          invoke build
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')

@@ -1,6 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
+import logging
 from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Optional, Tuple, Union
@@ -14,6 +15,7 @@ from fractopo.general import (
     GEOMETRY_COLUMN,
     calc_circle_area,
     calc_circle_radius,
+    numpy_to_python_type,
     random_points_within,
     safe_buffer,
 )
@@ -33,6 +35,19 @@ class RandomChoice(Enum):
 
 
 @dataclass
+class RandomSample:
+
+    """
+    Dataclass for sampling results.
+    """
+
+    network_maybe: Optional[Network]
+    target_centroid: Point
+    radius: float
+    name: str
+
+
+@dataclass
 class NetworkRandomSampler:
 
     """
@@ -44,6 +59,7 @@ class NetworkRandomSampler:
     min_radius: float
     snap_threshold: float
     random_choice: Union[RandomChoice, str]
+    name: str
 
     def __post_init__(self):
         """
@@ -69,10 +85,9 @@ class NetworkRandomSampler:
 
             raise TypeError(
                 "Expected random_choice to be"
-                f" convertable to RandomChoice enum. {random_choice=}"
+                f" convertable to RandomChoice enum: {random_choice}."
             )
-        else:
-            return random_choice
+        return random_choice
 
     @staticmethod
     def trace_gdf_should_contain_traces(
@@ -83,7 +98,7 @@ class NetworkRandomSampler:
         """
         if not trace_gdf.shape[0] > 0:
             raise ValueError("Expected non-empty trace_gdf.")
-        if not all([isinstance(val, LineString) for val in trace_gdf.geometry.values]):
+        if not all(isinstance(val, LineString) for val in trace_gdf.geometry.values):
             raise TypeError("Expected only LineStrings in trace_gdf.")
         return trace_gdf
 
@@ -105,7 +120,7 @@ class NetworkRandomSampler:
         Check that value is positive.
         """
         if not min_radius > 0:
-            raise ValueError(f"Expected positive non-zero min_radius. {min_radius=}")
+            raise ValueError(f"Expected positive non-zero min_radius: {min_radius}.")
         return min_radius
 
     @property
@@ -120,7 +135,8 @@ class NetworkRandomSampler:
         """
         Calculate max radius from given area_gdf.
         """
-        radius = np.sqrt(self.target_circle.area / np.pi)
+        radius = numpy_to_python_type(np.sqrt(self.target_circle.area / np.pi))
+        assert isinstance(radius, float)
         if self.min_radius > radius:
             raise ValueError("Expected min_radius smaller than max_radius.")
         return radius
@@ -186,25 +202,65 @@ class NetworkRandomSampler:
 
         return random_target_circle, random_target_centroid, radius
 
-    def random_network_sample(self) -> Tuple[Optional[Network], Point, float]:
+    def random_network_sample(self) -> RandomSample:
         """
         Get random Network sample with a random target area.
 
         Returns the network, the sample circle centroid and circle radius.
         """
+        # Create random Polygon circle within area
         target_circle, target_centroid, radius = self.random_target_circle()
+
+        # Collect into GeoDataFrame and set crs if it exists in input frame
         area_gdf = gpd.GeoDataFrame({GEOMETRY_COLUMN: [target_circle]})
         if self.trace_gdf.crs is not None:
             area_gdf = area_gdf.set_crs(self.trace_gdf.crs)
+
         try:
-            network = Network(
+            network_maybe: Optional[Network] = Network(
                 trace_gdf=self.trace_gdf,
                 area_gdf=area_gdf,
-                name=target_centroid.wkt,
+                name=self.name,
                 determine_branches_nodes=True,
                 snap_threshold=self.snap_threshold,
+                circular_target_area=True,
+                truncate_traces=True,
             )
-        except ValueError:
-            network = None
+        except ValueError as err:
+            logging.error(
+                f"Exception occurred during creation of random_network_sample:\n{err}"
+            )
+            network_maybe = None
 
-        return network, target_centroid, radius
+        return RandomSample(
+            network_maybe=network_maybe,
+            target_centroid=target_centroid,
+            radius=radius,
+            name=self.name,
+        )
+
+    @classmethod
+    def random_network_sampler(
+        cls,
+        network: Network,
+        min_radius: float,
+        random_choice: RandomChoice = RandomChoice.radius,
+    ):
+        """
+        Initialize ``NetworkRandomSampler`` for random sampling.
+
+        Assumes that ``Network`` target area is a single ``Polygon`` circle.
+        """
+        if not network.circular_target_area:
+            raise ValueError(
+                "Expected passed ``Network`` to be initialized with"
+                " circular_target_area as ``True``."
+            )
+        return NetworkRandomSampler(
+            trace_gdf=network.trace_gdf,
+            area_gdf=network.get_area_gdf(),
+            min_radius=min_radius,
+            snap_threshold=network.snap_threshold,
+            random_choice=random_choice,
+            name=network.name,
+        )

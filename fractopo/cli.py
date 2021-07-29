@@ -4,7 +4,7 @@ Command-line integration of fractopo with click.
 import time
 from itertools import chain
 from pathlib import Path
-from typing import Union
+from typing import Optional, Tuple, Type, Union
 
 import click
 import fiona
@@ -33,9 +33,9 @@ def describe_results(validated: gpd.GeoDataFrame, error_column: str):
     Describe validation results to stdout.
     """
     error_count = sum([len(val) != 0 for val in validated[error_column].values])
-    error_types = set(
-        [c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)]
-    )
+    error_types = {
+        c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)
+    }
     count_string = f"Out of {validated.shape[0]} traces, {error_count} were invalid."
     type_string = f"There were {len(error_types)} error types. These were:\n"
     for error_type in error_types:
@@ -49,12 +49,12 @@ def make_output_dir(trace_path: Path) -> Path:
     Make timestamped output dir.
     """
     localtime = time.localtime()
-    min = localtime.tm_min
+    tm_min = localtime.tm_min
     hour = localtime.tm_hour
     day = localtime.tm_mday
     month = localtime.tm_mon
     year = localtime.tm_year
-    timestr = "_".join(map(str, [day, month, year, hour, min]))
+    timestr = "_".join(map(str, [day, month, year, hour, tm_min]))
     output_dir = trace_path.parent / f"validated_{timestr}"
     if not output_dir.exists():
         output_dir.mkdir()
@@ -111,7 +111,7 @@ def tracevalidate(
     # Assert that read files result in GeoDataFrames
     traces: gpd.GeoDataFrame = read_geofile(trace_path)
     areas: gpd.GeoDataFrame = read_geofile(area_path)
-    if not all([isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)]):
+    if not all(isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)):
         raise TypeError(
             "Expected trace and area data to be resolvable as GeoDataFrames."
         )
@@ -128,7 +128,9 @@ def tracevalidate(
         SNAP_THRESHOLD=snap_threshold,
     )
     if only_area_validation:
-        choose_validators = [TargetAreaSnapValidator]
+        choose_validators: Optional[Tuple[Type[TargetAreaSnapValidator]]] = (
+            TargetAreaSnapValidator,
+        )
     else:
         choose_validators = None
     validated_trace = validation.run_validation(

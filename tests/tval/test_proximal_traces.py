@@ -40,4 +40,4 @@ def test_is_within_buffer_distance_regression(file_regression):
     )
     assert proximal_traces.MERGE_COLUMN in result.columns
     assert isinstance(result, gpd.GeoDataFrame)
-    file_regression.check(result.to_json())
+    file_regression.check(result.sort_index().to_json(indent=1))

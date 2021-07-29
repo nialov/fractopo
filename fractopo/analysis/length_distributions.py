@@ -3,7 +3,7 @@ Utilities for analyzing and plotting length distributions for line data.
 """
 from enum import Enum, unique
 from textwrap import wrap
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import powerlaw
@@ -41,9 +41,9 @@ def determine_fit(
     Determine powerlaw (along other) length distribution fits for given data.
     """
     fit = (
-        powerlaw.Fit(length_array, xmin=cut_off)
+        powerlaw.Fit(length_array, xmin=cut_off, verbose=False)
         if cut_off is not None
-        else powerlaw.Fit(length_array)
+        else powerlaw.Fit(length_array, verbose=False)
     )
     return fit
 
@@ -72,7 +72,7 @@ def plot_length_data_on_ax(
 def plot_fit_on_ax(
     ax: Axes,
     fit: powerlaw.Fit,
-    fit_distribution: Literal[Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW],
+    fit_distribution: Dist,
 ) -> None:
     """
     Plot powerlaw model to ax.
@@ -87,14 +87,13 @@ def plot_fit_on_ax(
         )
     else:
         raise ValueError(f"Expected fit_distribution to be one of {list(Dist)}")
-    return
 
 
 def _setup_length_plot_axlims(
     ax: Axes,
     length_array: np.ndarray,
     ccm_array: np.ndarray,
-    cut_off: float,
+    # cut_off: float,
 ):
     """
     Set ax limits for length plotting.
@@ -130,8 +129,6 @@ def plot_distribution_fits(
     if fit is None:
         # Determine powerlaw, exponential, lognormal fits
         fit = determine_fit(length_array, cut_off)
-    # Get fit xmin
-    xmin = xmin if isinstance((xmin := fit.xmin), (int, float)) else 0.0
     # Create figure, ax
     fig, ax = plt.subplots(figsize=(7, 7))
     # Get the x, y data from fit
@@ -147,7 +144,6 @@ def plot_distribution_fits(
         ax=ax,
         length_array=truncated_length_array,
         ccm_array=ccm_array,
-        cut_off=xmin,  # type: ignore
     )
     return fit, fig, ax
 
@@ -266,5 +262,4 @@ def describe_powerlaw_fit(
     }
     if label is None:
         return base
-    else:
-        return {f"{label} {key}": value for key, value in base.items()}
+    return {f"{label} {key}": value for key, value in base.items()}

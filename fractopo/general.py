@@ -5,14 +5,17 @@ import logging
 import math
 import random
 from bisect import bisect
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, List, Set, Tuple, Union
+from typing import Any, Callable, List, Sequence, Set, Tuple, Union, overload
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import pygeos
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
 from shapely import prepared
@@ -26,10 +29,9 @@ from shapely.geometry import (
     Polygon,
     box,
 )
+from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
-
-from fractopo import BoundsTuple, PointTuple, SetRangeTuple
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
@@ -55,6 +57,7 @@ X_node = "X"
 Y_node = "Y"
 I_node = "I"
 E_node = "E"
+BOUNDARY_INTERSECT_KEYS = ("0", "1", "2")
 
 CONNECTION_COLUMN = "Connection"
 CLASS_COLUMN = "Class"
@@ -64,6 +67,29 @@ LOGNORMAL = "lognormal"
 EXPONENTIAL = "exponential"
 
 NULL_SET = "-1"
+
+REPRESENTATIVE_POINT = "Representative Point"
+RADIUS = "Radius"
+NAME = "Name"
+CENSORING = "Censoring"
+RELATIVE_CENSORING = "Relative Censoring"
+
+SetRangeTuple = Tuple[Tuple[float, float], ...]
+BoundsTuple = Tuple[float, float, float, float]
+PointTuple = Tuple[float, float]
+Number = Union[float, int]
+
+
+@dataclass
+class ProcessResult:
+
+    """
+    Dataclass for multiprocessing result parsing.
+    """
+
+    identifier: str
+    result: Any
+    error: bool
 
 
 @unique
@@ -104,6 +130,7 @@ class Param(Enum):
     FRACTURE_INTENSITY_MAULDON = "Fracture Intensity (Mauldon)"
     FRACTURE_DENSITY_MAULDON = "Fracture Density (Mauldon)"
     CONNECTION_FREQUENCY = "Connection Frequency"
+    AREA = "Area"
 
     @classmethod
     def log_scale_columns(cls) -> List[str]:
@@ -129,6 +156,8 @@ class Param(Enum):
     def get_unit_for_column(cls, column: str) -> str:
         """
         Return unit for parameter name.
+
+        Assumes that metric system is used in coordinate system.
         """
         units_for_columns = {
             cls.NUMBER_OF_TRACES.value: "-",
@@ -147,8 +176,9 @@ class Param(Enum):
             cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
             cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
             cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
+            cls.AREA.value: r"$m^2$",
         }
-        assert len(units_for_columns) == len([param for param in cls])
+        assert len(units_for_columns) == len(list(cls))
         return units_for_columns[column]
 
 
@@ -169,11 +199,18 @@ def determine_set(
     >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
     '0-20'
 
-    Example with `loop_around = True`
+    Example with
 
     >>> determine_set(50.0, [(0, 20), (160, 60)], ["0-20", "160-60"], True)
     '160-60'
 
+    :param value: Value to determine set of.
+    :param value_ranges: Ranges of each set.
+    :param set_names: Names of each set.
+    :param loop_around: Whether the sets loop around. This is the case for
+        radial data such as azimuths but not the case for length data.
+    :return: Set string in which value belongs.
+    :raises ValueError: When set value ranges overlap.
     """
     assert len(value_ranges) == len(set_names)
     possible_set_name = [
@@ -183,15 +220,12 @@ def determine_set(
     ]
     if len(possible_set_name) == 0:
         return NULL_SET
-    elif len(possible_set_name) == 1:
+    if len(possible_set_name) == 1:
         return possible_set_name[0]
-    else:
-        raise ValueError("Expected set value ranges to not overlap.")
+    raise ValueError("Expected set value ranges to not overlap.")
 
 
-def is_set(
-    value: Union[float, int], value_range: Tuple[float, float], loop_around: bool
-) -> bool:
+def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -> bool:
     """
     Determine if value fits within the given value_range.
 
@@ -203,6 +237,12 @@ def is_set(
 
     >>> is_set(5, (175, 15), True)
     True
+
+    :param value: Value to determine.
+    :param value_range Tuple[float,: The range of values.
+    :param loop_around: Whether the range loops around. This is the case for
+        radial data such as azimuths but not the case for length data.
+    :return: Is it within range.
     """
     if loop_around:
         if value_range[0] > value_range[1]:
@@ -214,7 +254,9 @@ def is_set(
     return False
 
 
-def is_azimuth_close(first: float, second: float, tolerance: float, halved=True):
+def is_azimuth_close(
+    first: float, second: float, tolerance: float, halved: bool = True
+):
     """
     Determine are azimuths first and second within tolerance.
 
@@ -229,6 +271,10 @@ def is_azimuth_close(first: float, second: float, tolerance: float, halved=True)
     >>> is_azimuth_close(20, 179, 15)
     False
 
+    :param first: First azimuth value to compare.
+    :param second: Second azimuth value to compare.
+    :param tolerance: Tolerance for closeness.
+    :param halved: Are the azimuths azial (i.e. ``halved=True``) or vectors.
     """
     diff = abs(first - second)
     if halved:
@@ -245,7 +291,7 @@ def determine_regression_azimuth(line: LineString) -> float:
     Determine azimuth of line LineString with linear regression.
 
     A scikit-learn LinearRegression is fitted to the x, y coordinates of the
-    given `line` and the azimuth of the fitted linear line is returned.
+    given  and the azimuth of the fitted linear line is returned.
 
     The azimuth is returned in range [0, 180].
 
@@ -263,6 +309,11 @@ def determine_regression_azimuth(line: LineString) -> float:
     >>> determine_regression_azimuth(line)
     0.0
 
+
+    :param line: The line of which azimuth is determined.
+    :return: The determined azimuth in range [0, 180].
+    :raises ValueError: When ``LinearRegression`` returns
+        unexpected coefficients.
     """
     x, y = zip(*line.coords)
     x = np.array(x).reshape((-1, 1))
@@ -303,6 +354,11 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
 
     >>> determine_azimuth(LineString([(0, 0), (-1, -1)]), True)
     45.0
+
+    :param line: The line of which azimuth is determined.
+    :param halved: Whether to return result in range [0, 180]
+        (halved=True) or [0, 360] (halved=False).
+    :return: The determined azimuth.
     """
     coord_list = list(line.coords)
     start_x = coord_list[0][0]
@@ -319,22 +375,20 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
     return azimuth
 
 
-def calc_strike(dip_direction):
+def calc_strike(dip_direction: float) -> float:
     """
     Calculate strike from dip direction. Right-handed rule.
 
     E.g.:
 
-    >>> calc_strike(50)
-    320
+    >>> calc_strike(50.0)
+    320.0
 
-    >>> calc_strike(180)
-    90
+    >>> calc_strike(180.0)
+    90.0
 
-    :param dip_direction: Dip direction of plane
-    :type dip_direction: float
-    :return: Strike of plane
-    :rtype: float
+    :param dip_direction: The direction of dip.
+    :return: Converted strike.
     """
     strike = dip_direction - 90
     if strike < 0:
@@ -342,14 +396,12 @@ def calc_strike(dip_direction):
     return strike
 
 
-def azimu_half(degrees):
+def azimu_half(degrees: float) -> float:
     """
     Transform azimuth from 180-360 range to range 0-180.
 
     :param degrees: Degrees in range 0 - 360
-    :type degrees: float
     :return: Degrees in range 0 - 180
-    :rtype: float
     """
     if degrees >= 180:
         degrees = degrees - 180
@@ -372,7 +424,6 @@ def sd_calc(data):
     :param data: Array of degrees
     :type data: np.ndarray
     :return: Standard deviation
-    :rtype: float
     """
     n = len(data)
     if n <= 1:
@@ -438,8 +489,6 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
 # def curviness(linestring):
 #     """
 #     Determine curviness of LineString.
-
-#     TODO: Invalid.
 #     """
 #     try:
 #         coords = list(linestring.coords)
@@ -469,13 +518,14 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     """
     Prepare trace_series geometries for a faster spatial analysis.
 
-    Assumes geometries are LineStrings which are consequently collected into
-    a single MultiLineString which is prepared with shapely.prepared.prep.
+    Assumes geometries are LineStrings which are consequently collected into a
+    single MultiLineString which is prepared with shapely.prepared.prep.
 
-    >>> traces = gpd.GeoSeries([LineString([(0,0),(1,1)]),LineString([(0,1),(0,-1)])])
+    >>> traces = gpd.GeoSeries(
+    ...     [LineString([(0, 0), (1, 1)]), LineString([(0, 1), (0, -1)])]
+    ... )
     >>> prepare_geometry_traces(traces).context.wkt
     'MULTILINESTRING ((0 0, 1 1), (0 1, 0 -1))'
-
     """
     traces = trace_series.geometry.values
     traces = np.asarray(traces).tolist()  # type: ignore
@@ -497,18 +547,17 @@ def match_crs(
     if len(all_crs) == 0:
         # No crs in either input
         return first, second
-    elif len(all_crs) == 2 and all_crs[0] == all_crs[1]:
+    if len(all_crs) == 2 and all_crs[0] == all_crs[1]:
         # Two valid and they're the same
         return first, second
-    elif len(all_crs) == 1:
+    if len(all_crs) == 1:
         # One valid crs in inputs
         crs = all_crs[0]
         first.crs = crs
         second.crs = crs
         return first, second
-    else:
-        # Two crs that are not the same
-        return first, second
+    # Two crs that are not the same
+    return first, second
 
 
 def replace_coord_in_trace(
@@ -532,10 +581,9 @@ def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
     assert point in coord_points
     if point == coord_points[-1]:
         return coord_points[-2]
-    elif point == coord_points[0]:
+    if point == coord_points[0]:
         return coord_points[1]
-    else:
-        raise ValueError("Expected point to be a coord in trace.")
+    raise ValueError("Expected point to be a coord in trace.")
 
 
 def get_trace_endpoints(
@@ -549,15 +597,8 @@ def get_trace_endpoints(
             "Non LineString geometry passed into get_trace_endpoints.\n"
             f"trace: {trace}"
         )
-    return tuple(
-        (
-            endpoint
-            for endpoint in (
-                Point(trace.coords[0]),
-                Point(trace.coords[-1]),
-            )
-        )
-    )
+    points = Point(trace.coords[0]), Point(trace.coords[-1])
+    return points
 
 
 def get_trace_coord_points(trace: LineString) -> List[Point]:
@@ -584,7 +625,7 @@ def point_to_xy(point: Point) -> Tuple[float, float]:
 
 
 def determine_general_nodes(
-    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame], snap_threshold: float
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame]
 ) -> Tuple[List[Tuple[Point, ...]], List[Tuple[Point, ...]]]:
     """
     Determine points of intersection and endpoints of given trace LineStrings.
@@ -610,9 +651,8 @@ def determine_general_nodes(
     for idx, geom in enumerate(traces.geometry.values):
         if not isinstance(geom, LineString):
 
-            # Intersections and endpoints cannot be defined for
+            # Intersections and endpoints are not defined for
             # MultiLineStrings
-            # TODO: Or can they? Probably shouldn't
             intersect_nodes.append(())
             endpoint_nodes.append(())
             continue
@@ -633,8 +673,6 @@ def determine_general_nodes(
             [isinstance(geom, LineString) for geom in trace_candidates.geometry.values]
         ]
 
-        # trace_candidates.index = trace_candidates_idx
-        # TODO: Is intersection enough? Most Y-intersections might be underlapping.
         intersection_geoms = determine_valid_intersection_points_no_vnode(
             trace_candidates, geom
         )
@@ -644,14 +682,12 @@ def determine_general_nodes(
                 endpoint
                 for endpoint in get_trace_endpoints(geom)
                 if not any(
-                    [
-                        # TODO: Intersection results in inaccurate geoms ->
-                        # tolerance is actually close to a snap_threshold
-                        # This represents a hard limit to snapping threshold.
-                        np.isclose(endpoint.distance(intersection_geom), 0, atol=1e-3)
-                        for intersection_geom in intersection_geoms
-                        if not intersection_geom.is_empty
-                    ]
+                    # Intersection results in inaccurate geoms ->
+                    # tolerance is actually close to a snap_threshold
+                    # This represents a hard limit to snapping threshold.
+                    np.isclose(endpoint.distance(intersection_geom), 0, atol=1e-3)
+                    for intersection_geom in intersection_geoms
+                    if not intersection_geom.is_empty
                 )
             )
         )
@@ -697,17 +733,23 @@ def determine_valid_intersection_points(
     assert isinstance(intersection_geoms, gpd.GeoSeries)
     valid_interaction_points = []
     for geom in intersection_geoms.geometry.values:
+        assert isinstance(geom, (BaseGeometry, BaseMultipartGeometry))
         if isinstance(geom, Point):
             valid_interaction_points.append(geom)
         elif isinstance(geom, MultiPoint):
-            valid_interaction_points.extend([p for p in geom.geoms])
+            valid_interaction_points.extend(list(geom.geoms))
         elif geom.is_empty:
-            pass
+            logging.info(
+                f"Empty geometry in determine_valid_intersection_points: {geom.wkt}"
+            )
+        elif isinstance(geom, LineString):
+            logging.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
         else:
-            # TODO: LineStrings occur here due to stacked traces. These can
-            # occur because of validation.
-            pass
-    assert all([isinstance(p, Point) for p in valid_interaction_points])
+            raise TypeError(
+                "Expected Point, MultiPoint or LineString geometries"
+                " in determine_valid_intersection_points."
+            )
+    assert all(isinstance(p, Point) for p in valid_interaction_points)
     return valid_interaction_points
 
 
@@ -718,16 +760,15 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
     Enforces only Point returns.
     """
     intersection = first.intersection(second)
-    collect_points = []
+    collect_points: List[Point] = []
     if isinstance(intersection, LineString) and intersection.is_empty:
         pass
     elif isinstance(intersection, Point):
         collect_points = [intersection]
     elif isinstance(intersection, MultiPoint):
-        collect_points: List[Point] = list(intersection.geoms)
+        collect_points = list(intersection.geoms)
     else:
         logging.error(f"Expected Point or empty intersection, got: {intersection}")
-        pass
     return collect_points
 
 
@@ -814,7 +855,7 @@ def determine_node_junctions(
         ]
 
         # Iterate over the actual Points of the current trace
-        for i, point in enumerate(points):
+        for _, point in enumerate(points):
 
             # Get node candidates from spatial index
             node_candidates_idx = spatial_index_intersection(
@@ -847,7 +888,7 @@ def determine_node_junctions(
                 < snap_threshold * snap_threshold_error_multiplier
                 for intersecting_point in node_candidates.geometry.values
             ]
-            assert all([isinstance(val, bool) for val in intersection_data])
+            assert all(isinstance(val, bool) for val in intersection_data)
             # If no intersects for current node -> continue to next
             if sum(intersection_data) == 0:
                 continue
@@ -879,6 +920,11 @@ def zip_equal(*iterables):
 def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     """
     Create numpy unit vector from two shapely Points.
+
+    :param start_point: The start point.
+    :param end_point: The end point.
+    :return: The unit vector that points from ``start_point`` to
+        ``end_point``.
     """
     # Convert Point coordinates to (x, y)
     segment_start = point_to_xy(start_point)
@@ -886,6 +932,8 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     segment_vector = np.array(
         [segment_end[0] - segment_start[0], segment_end[1] - segment_start[1]]
     )
+    if any(np.isnan(segment_vector)):
+        return np.array([np.nan, np.nan])
     segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
     return segment_unit_vector
 
@@ -902,7 +950,7 @@ def compare_unit_vector_orientation(
     dot_product = np.dot(vec_1, vec_2)
     if np.isclose(dot_product, 1):
         return True
-    if 1 < dot_product or dot_product < -1 or np.isnan(dot_product):
+    if dot_product > 1 or dot_product < -1 or np.isnan(dot_product):
         return False
     rad_angle = np.arccos(dot_product)
     deg_angle = np.rad2deg(rad_angle)
@@ -930,15 +978,20 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     dtype: bool
 
     """
-    total_bounds = geoseries.total_bounds
-    bounding_polygon: Polygon = scale(box(*total_bounds), xfact=2, yfact=2)
-    if any(geoseries.intersects(bounding_polygon.boundary)):
-        bounding_polygon = bounding_polygon.buffer(1)
-        assert isinstance(bounding_polygon, Polygon)
-        if any(geoseries.intersects(bounding_polygon.boundary)):
-            raise ValueError("Expected no intersects.")
-    assert all(geoseries.within(bounding_polygon))
-    return bounding_polygon
+    total_bounds_geoseries = total_bounds(geoseries)
+    bounding_poly: Polygon = scale(box(*total_bounds_geoseries), xfact=2, yfact=2)
+    if any(
+        geom.intersects(bounding_poly.boundary) for geom in geoseries.geometry.values
+    ):
+        bounding_poly = safe_buffer(bounding_poly, radius=1.0)
+        if any(
+            geom.intersects(bounding_poly.boundary)
+            for geom in geoseries.geometry.values
+        ):
+            # if any(geoseries.intersects(bounding_polygon.boundary)):
+            raise ValueError("Expected no intersects after buffer.")
+    assert all(geoseries.within(bounding_poly))
+    return bounding_poly
 
 
 def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
@@ -947,17 +1000,17 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
 
     >>> multilinestrings = [
     ...     MultiLineString(
-    ...             [
-    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
-    ...                  LineString([(1.9999, 2), (-2, 5)]),
-    ...             ]
-    ...                    ),
+    ...         [
+    ...             LineString([(1, 1), (2, 2), (3, 3)]),
+    ...             LineString([(1.9999, 2), (-2, 5)]),
+    ...         ]
+    ...     ),
     ...     MultiLineString(
-    ...             [
-    ...                  LineString([(1, 1), (2, 2), (3, 3)]),
-    ...                  LineString([(1.9999, 2), (-2, 5)]),
-    ...             ]
-    ...                    ),
+    ...         [
+    ...             LineString([(1, 1), (2, 2), (3, 3)]),
+    ...             LineString([(1.9999, 2), (-2, 5)]),
+    ...         ]
+    ...     ),
     ... ]
     >>> result_linestrings = mls_to_ls(multilinestrings)
     >>> print([ls.wkt for ls in result_linestrings])
@@ -967,16 +1020,44 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
     """
     linestrings: List[LineString] = []
     for mls in multilinestrings:
-        linestrings.extend([ls for ls in mls.geoms])
-    if not all([isinstance(ls, LineString) for ls in linestrings]):
+        linestrings.extend(list(mls.geoms))
+    if not all(isinstance(ls, LineString) for ls in linestrings):
         raise ValueError("MultiLineStrings within MultiLineStrings?")
     return linestrings
+
+
+def efficient_clip(
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+) -> gpd.GeoDataFrame:
+    """
+    Perform efficient clip of LineString geometries with a Polygon.
+
+    :param traces: Trace data.
+    :param areas: Area data.
+    :return: Traces clipped with the area data.
+    """
+    # Transform to pygeos types
+    pygeos_traces = pygeos.from_shapely(traces.geometry.values)
+    pygeos_polygons = pygeos.from_shapely(areas.geometry.values)
+    pygeos_multipolygon = pygeos.multipolygons(pygeos_polygons)
+
+    # Perform intersection
+    intersection = pygeos.intersection(pygeos_traces, pygeos_multipolygon)
+    assert isinstance(intersection, np.ndarray)
+
+    # Collect into GeoDataFrame.
+    geodataframe = gpd.GeoDataFrame(geometry=intersection, crs=traces.crs)
+    assert "geometry" in geodataframe.columns
+    return geodataframe
 
 
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     snap_threshold: float,
+    is_filtered: bool = False,
+    keep_column_data: bool = False,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
     Crop traces to the area polygons.
@@ -985,28 +1066,60 @@ def crop_to_target_areas(
 
     >>> traces = gpd.GeoSeries(
     ...     [LineString([(1, 1), (2, 2), (3, 3)]), LineString([(1.9999, 2), (-2, 5)])]
-    ...     )
+    ... )
     >>> areas = gpd.GeoSeries(
     ...     [
-    ...            Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
-    ...            Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
+    ...         Polygon([(1, 1), (-1, 1), (-1, -1), (1, -1)]),
+    ...         Polygon([(-2.5, 6), (-1.9, 6), (-1.9, 4), (-2.5, 4)]),
     ...     ]
     ... )
     >>> cropped_traces = crop_to_target_areas(traces, areas, 0.01)
-    >>> print([trace.wkt for trace in cropped_traces])
+    >>> print([trace.wkt for trace in cropped_traces.geometry.values])
     ['LINESTRING (-1.9 4.924998124953124, -2 5)']
 
+    :param traces: Trace data.
+    :param areas: Area data.
+    :param snap_threshold: Distance threshold for snapping.
+    :param is_filtered: Has preliminary spatial filtering already been
+        done. If not the traces will be filtered first with a spatial index.
+    :param keep_column_data: Is column data of traces required to persist.
+    :return: Cropped traces.
+    :raises TypeError: If all geometries in the end result are not
+        ``LineString's``.
     """
     # Only handle LineStrings
-    if not all([isinstance(trace, LineString) for trace in traces.geometry.values]):
+    if not all(isinstance(trace, LineString) for trace in traces.geometry.values):
         raise TypeError(
             "Expected no MultiLineString geometries in crop_to_target_areas."
         )
     # Match the crs
     traces, areas = match_crs(traces, areas)
 
-    # Clip traces to target areas
-    clipped_traces = gpd.clip(traces, areas)
+    if not is_filtered:
+        traces.reset_index(drop=True, inplace=True)
+        spatial_index = pygeos_spatial_index(traces)
+
+        areas_bounds = total_bounds(areas)
+        assert len(areas_bounds) == 4
+
+        candidate_idxs = spatial_index_intersection(
+            spatial_index=spatial_index, coordinates=areas_bounds
+        )
+        candidate_traces: Union[gpd.GeoSeries, gpd.GeoDataFrame] = traces.iloc[
+            candidate_idxs
+        ]
+    else:
+        candidate_traces = traces
+
+    if keep_column_data:
+        # geopandas.clip keeps the column data
+        clipped_traces = gpd.clip(candidate_traces, areas)
+    else:
+        # pygeos.intersection does not
+        clipped_traces = efficient_clip(candidate_traces, areas)
+
+    assert hasattr(clipped_traces, "geometry")
+    assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
 
     # Clipping might result in Point geometries
     # Filter to only LineStrings and MultiLineStrings
@@ -1037,6 +1150,22 @@ def crop_to_target_areas(
     return clipped_and_dissolved_traces
 
 
+@overload
+def dissolve_multi_part_traces(traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """
+    Overload for gpd.GeoDataFrame.
+    """
+    ...
+
+
+@overload
+def dissolve_multi_part_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
+    """
+    Overload for gpd.GeoSeries.
+    """
+    ...
+
+
 def dissolve_multi_part_traces(
     traces: Union[gpd.GeoDataFrame, gpd.GeoSeries]
 ) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
@@ -1060,8 +1189,12 @@ def dissolve_multi_part_traces(
     # Dissolve MultiLineString geoms but keep same row data
     dissolved_rows = []
 
-    for _, row in mls_traces.iterrows():
-        as_linestrings = mls_to_ls([row.geometry])
+    as_linestrings_list = [mls_to_ls([geom]) for geom in mls_traces.geometry.values]
+    if isinstance(traces, gpd.GeoSeries):
+        return gpd.GeoSeries(list(chain(*as_linestrings_list)), crs=traces.crs)
+
+    for (_, row), as_linestrings in zip(mls_traces.iterrows(), as_linestrings_list):
+        # as_linestrings = mls_to_ls([row.geometry])
         if len(as_linestrings) == 0:
             raise ValueError("Expected atleast one geom from mls_to_ls.")
 
@@ -1073,10 +1206,9 @@ def dissolve_multi_part_traces(
 
     # Merge with ls_traces
     dissolved_traces = pd.concat([ls_traces, gpd.GeoDataFrame(dissolved_rows)])
+    assert isinstance(dissolved_traces, gpd.GeoDataFrame)
 
-    if not all(
-        [isinstance(val, LineString) for val in dissolved_traces.geometry.values]
-    ):
+    if not all(isinstance(val, LineString) for val in dissolved_traces.geometry.values):
         raise TypeError("Expected all LineStrings in dissolved_traces.")
     return dissolved_traces
 
@@ -1114,7 +1246,9 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
     return linestrings
 
 
-def safe_buffer(geom: Union[Point, LineString], radius: float, **kwargs) -> Polygon:
+def safe_buffer(
+    geom: Union[Point, LineString, Polygon], radius: float, **kwargs
+) -> Polygon:
     """
     Get type checked Polygon buffer.
     """
@@ -1129,7 +1263,7 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
     Get random points within Polygon.
     """
     min_x, min_y, max_x, max_y = geom_bounds(poly)
-    points = []
+    points: List[Point] = []
 
     while len(points) < num_points:
         random_point = Point(
@@ -1185,9 +1319,29 @@ def geom_bounds(
             bounds.append(val)
         else:
             raise TypeError("Expected numerical bounds.")
+    if len(bounds) != 4:
+        raise ValueError(f"Expected bounds of length 4. Got: {bounds}.")
+    bounds_tuple: Tuple[float, float, float, float] = (
+        bounds[0],
+        bounds[1],
+        bounds[2],
+        bounds[3],
+    )
+    return bounds_tuple
+
+
+def total_bounds(
+    geodata: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+) -> Tuple[float, float, float, float]:
+    """
+    Get total bounds of geodataset.
+    """
+    bounds = geodata.total_bounds
     if not len(bounds) == 4:
-        raise ValueError("Expected bounds of length 4.")
-    return tuple(bounds)
+        raise ValueError(
+            f"Expected total_bounds to return an array of length 4: {bounds}."
+        )
+    return bounds[0], bounds[1], bounds[2], bounds[3]
 
 
 def pygeos_spatial_index(
@@ -1195,6 +1349,12 @@ def pygeos_spatial_index(
 ) -> PyGEOSSTRTreeIndex:
     """
     Get PyGEOSSTRTreeIndex from geopandas dataset.
+
+    :param geodataset: Geodataset of which
+        spatial index is wanted.
+    :return: ``pygeos`` spatial index.
+    :raises TypeError: If the geodataset ``sindex`` attribute was not a
+        ``pygeos`` spatial index object.
     """
     sindex = geodataset.sindex
     if not isinstance(sindex, PyGEOSSTRTreeIndex):
@@ -1204,7 +1364,13 @@ def pygeos_spatial_index(
 
 def read_geofile(path: Path) -> gpd.GeoDataFrame:
     """
-    Read a filepath for a GeoDataFrame representable geo-object.
+    Read a filepath for a ``GeoDataFrame`` representable geo-object.
+
+    :param path: ``pathlib.Path`` to a ``GeoDataFrame``
+        representable spatial file.
+    :return: ``geopandas.GeoDataFrame`` read from the file.
+    :raises TypeError: If the file could not be parsed as a ``GeoDataFrame``
+        by ``geopandas``.
     """
     data = gpd.read_file(path)
     if not isinstance(data, gpd.GeoDataFrame):
@@ -1250,15 +1416,13 @@ def determine_boundary_intersecting_lines(
                 intersecting_idxs.append(candidate_idx)
                 endpoints = get_trace_endpoints(line)
                 if all(
-                    [
-                        endpoint.distance(target_area.boundary) < snap_threshold
-                        for endpoint in endpoints
-                    ]
+                    endpoint.distance(target_area.boundary) < snap_threshold
+                    for endpoint in endpoints
                 ):
                     cuts_through_idxs.append(candidate_idx)
 
                 elif not any(
-                    [endpoint.within(target_area) for endpoint in endpoints]
+                    endpoint.within(target_area) for endpoint in endpoints
                 ) and np.isclose(line.distance(target_area), 0):
                     cuts_through_idxs.append(candidate_idx)
 
@@ -1290,6 +1454,18 @@ def extend_bounds(
 def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
     """
     Calculate integer sum of two arrays.
+
+    Resulting array consists only of integers 0, 1 and 2.
+
+    >>> arr_1 = np.array([True, False, False])
+    >>> arr_2 = np.array([True, True, False])
+    >>> bool_arrays_sum(arr_1, arr_2)
+    array([2, 1, 0])
+
+    >>> arr_1 = np.array([True, True])
+    >>> arr_2 = np.array([True, True])
+    >>> bool_arrays_sum(arr_1, arr_2)
+    array([2, 2])
     """
     assert arr_1.dtype == "bool"
     assert arr_2.dtype == "bool"
@@ -1305,17 +1481,14 @@ def intersection_count_to_boundary_weight(intersection_count: int) -> int:
     assert isinstance(intersection_count, int)
     if intersection_count == 0:
         return 1
-    elif intersection_count == 1:
+    if intersection_count == 1:
         return 2
-    elif intersection_count == 2:
+    if intersection_count == 2:
         return 0
-    else:
-        raise ValueError(
-            f"Expected 0,1,2 as intersection_count. Got: {intersection_count}"
-        )
+    raise ValueError(f"Expected 0,1,2 as intersection_count. Got: {intersection_count}")
 
 
-def numpy_to_python_type(value):
+def numpy_to_python_type(value: Any):
     """
     Convert numpy dtype variable to Python type, if possible.
     """
@@ -1336,4 +1509,87 @@ def calc_circle_radius(area: float) -> float:
     """
     Calculate radius from area.
     """
-    return np.sqrt(area / np.pi)
+    assert not area < 0
+    radius = numpy_to_python_type(np.sqrt(area / np.pi))
+    assert isinstance(radius, float)
+    return radius
+
+
+def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
+    """
+    Create unit vector from point to other point.
+    """
+    x1, y1 = tuple(*point.coords)
+    x2, y2 = tuple(*other_point.coords)
+    if any(np.isnan([x1, y1, x2, y2])):
+        raise ValueError(
+            f"Expected no nan values in point_to_point_unit_vector: {x1, y1, x2, y2}"
+        )
+    vector = np.array([x2 - x1, y2 - y1])
+    normed_vector = vector / np.linalg.norm(vector)
+    assert isinstance(normed_vector, np.ndarray)
+    return normed_vector
+
+
+def raise_determination_error(
+    attribute: str,
+    determine_target: str = "branches and nodes",
+    verb: str = "determining",
+):
+    """
+    Raise AttributeError if attribute cannot be determined.
+    """
+    raise AttributeError(
+        f"Cannot determine {attribute} without {verb} {determine_target}."
+    )
+
+
+def multiprocess(
+    function_to_call: Callable,
+    keyword_arguments: Sequence,
+    arguments_identifier=lambda _: "",
+    repeats: int = 0,
+) -> List[ProcessResult]:
+    """
+    Process function calls in parallel.
+
+    Returns result as a list where the error is appended when execution fails.
+    """
+    # Collect results into a list
+    collect_results: List[ProcessResult] = []
+
+    # multiprocessing!
+    with ProcessPoolExecutor() as executor:
+
+        keyword_arguments = list(keyword_arguments) * (repeats + 1)
+
+        # Iterate over invalids. submit as tasks
+        futures = {
+            executor.submit(function_to_call, keyword_arg): keyword_arg
+            for keyword_arg in keyword_arguments
+        }
+
+        # Collect all tasks as they complete
+        # Will not be in same order as submitted
+        for future in as_completed(futures):
+
+            identifier = arguments_identifier(futures[future])
+            # If execution critically fails it will be caught and logged
+            try:
+
+                # Get result from Future
+                # This will throw an error (if it happened in process)
+                result = future.result()
+
+                # Collect result
+                collect_results.append(
+                    ProcessResult(identifier=identifier, result=result, error=False)
+                )
+            except Exception as exc:
+
+                # Catch and log critical failures
+                logging.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
+                collect_results.append(
+                    ProcessResult(identifier=identifier, error=True, result=exc)
+                )
+    return collect_results

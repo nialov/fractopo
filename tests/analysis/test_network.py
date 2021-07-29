@@ -1,7 +1,7 @@
 """
 Tests for Network.
 """
-from typing import Tuple
+from typing import Dict, List, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -16,21 +16,56 @@ from pandas.testing import assert_frame_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
-from fractopo import SetRangeTuple
+from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
+from fractopo.general import SetRangeTuple
 from tests import Helpers
 
 
-def test_azimuth_set_relationships_regression(file_regression):
+def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
+    """
+    Turn relations_df to a dict.
+    """
+    relations_df_dict = dict()
+
+    for set_name, values in df.groupby("sets"):
+        assert isinstance(set_name, tuple)
+        relations_df_dict[
+            str(set_name)
+            .replace(" ", "_")
+            .replace("(", "")
+            .replace(")", "")
+            .replace(",", "")
+        ] = list(values[["x", "y", "y-reverse"]].values[0])
+    return relations_df_dict
+
+
+@pytest.mark.parametrize(
+    "azimuth_set_ranges",
+    [
+        (
+            (0, 60),
+            (60, 120),
+            (120, 180),
+        ),
+        (
+            (0, 30),
+            (30, 60),
+            (70, 80),
+        ),
+        (
+            (30, 50),
+            (50, 60),
+        ),
+    ],
+)
+def test_azimuth_set_relationships_regression(
+    azimuth_set_ranges: SetRangeTuple, num_regression
+):
     """
     Test for azimuth set relationship regression.
     """
-    azimuth_set_ranges: SetRangeTuple = (
-        (0, 60),
-        (60, 120),
-        (120, 180),
-    )
-    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
+    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
     relations_df: pd.DataFrame = Network(
         Helpers.kb7_traces,  # type: ignore
         Helpers.kb7_area,  # type: ignore
@@ -39,11 +74,16 @@ def test_azimuth_set_relationships_regression(file_regression):
         azimuth_set_ranges=azimuth_set_ranges,
         azimuth_set_names=azimuth_set_names,
         snap_threshold=0.001,
+        circular_target_area=False,
+        truncate_traces=True,
     ).azimuth_set_relationships
-    file_regression.check(relations_df.to_string())
+
+    relations_df_dict = relations_df_to_dict(relations_df)
+
+    num_regression.check(relations_df_dict)
 
 
-def test_length_set_relationships_regression(file_regression):
+def test_length_set_relationships_regression(num_regression):
     """
     Test for length set relationship regression.
     """
@@ -61,12 +101,24 @@ def test_length_set_relationships_regression(file_regression):
         trace_length_set_names=trace_length_set_names,
         trace_length_set_ranges=trace_length_set_ranges,
         snap_threshold=0.001,
+        circular_target_area=False,
     ).azimuth_set_relationships
-    file_regression.check(relations_df.to_string())
+
+    relations_df_dict = relations_df_to_dict(relations_df)
+
+    num_regression.check(relations_df_dict)
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,determine_branches_nodes,truncate_traces,snap_threshold",
+    """
+    traces,
+    area,
+    name,
+    determine_branches_nodes,
+    truncate_traces,
+    snap_threshold,
+    circular_target_area
+    """,
     Helpers.test_network_params,
 )
 def test_network(
@@ -76,9 +128,9 @@ def test_network(
     determine_branches_nodes,
     truncate_traces,
     snap_threshold,
+    circular_target_area,
     file_regression,
     data_regression,
-    num_regression,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -96,13 +148,14 @@ def test_network(
         branch_length_set_names=("A", "B"),
         trace_length_set_ranges=((0.1, 1), (1, 2)),
         branch_length_set_ranges=((0.1, 1), (1, 2)),
+        circular_target_area=circular_target_area,
     )
 
     assert area.shape[0] == len(network.representative_points())
     assert isinstance(network.numerical_network_description(), dict)
     for key, item in network.numerical_network_description().items():
         assert isinstance(key, str)
-        if not isinstance(item, (int, float)):
+        if not isinstance(item, (int, float, str)):
             assert isinstance(item.item(), (int, float))
 
     assert isinstance(network.target_areas, list)
@@ -110,40 +163,35 @@ def test_network(
         [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
     )
 
-    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
-
-        # Do not check massive branch counts
-        file_regression.check(network.branch_gdf.sort_index().to_json())
-        network_extensive_testing(
-            network=network, traces=traces, area=area, snap_threshold=snap_threshold
-        )
-
     network_attributes = dict()
     for attribute in ("node_counts", "branch_counts"):
         # network_attributes[attribute] = getattr(network, attribute)
         for key, value in getattr(network, attribute).items():
-            network_attributes[key] = int(value)
+            if not np.isnan(value):
+                network_attributes[key] = int(value)
 
         for key, value in network.numerical_network_description().items():
-            try:
-                network_attributes[key] = round(value.item(), 5)
-            except AttributeError:
-                network_attributes[key] = round(value, 5)
+            if isinstance(value, (float, int)):
+                network_attributes[key] = round(
+                    value.item() if hasattr(value, "item") else value, 2
+                )
 
     data_regression.check(network_attributes)
+
+    if determine_branches_nodes and network.get_branch_gdf().shape[0] < 500:
+
+        sorted_branch_gdf = network.get_branch_gdf().sort_index()
+        assert isinstance(sorted_branch_gdf, gpd.GeoDataFrame)
+        # Do not check massive branch counts
+        file_regression.check(sorted_branch_gdf.to_json(indent=1))
+        network_extensive_testing(
+            network=network, traces=traces, area=area, snap_threshold=snap_threshold
+        )
 
     assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
     assert network.trace_intersects_target_area_boundary.dtype == "int"
     assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
     assert network.branch_intersects_target_area_boundary.dtype == "int64"
-
-    num_regression.check(
-        {
-            "branch_boundary_intersects": list(
-                network.branch_intersects_target_area_boundary
-            ),
-        }
-    )
 
 
 def network_extensive_testing(
@@ -159,6 +207,7 @@ def network_extensive_testing(
     copy_trace_gdf = network.trace_data.line_gdf.copy()
     copy_branch_gdf = network.branch_data.line_gdf.copy()
 
+    # Test resetting
     network.reset_length_data()
     assert_frame_equal(copy_trace_gdf, network.trace_data.line_gdf)
     assert_frame_equal(copy_branch_gdf, network.branch_data.line_gdf)
@@ -223,7 +272,7 @@ def network_extensive_testing(
             assert isinstance(other, powerlaw.Fit)
         elif len(fig_returns) == 3 and "azimuth" in plot:
             other, fig, ax = fig_returns
-            assert isinstance(other, dict)
+            assert isinstance(other, AzimuthBins)
         else:
             raise ValueError("Expected 3 max returns.")
         assert isinstance(fig, Figure)
@@ -246,6 +295,7 @@ def test_network_kb11_manual():
         determine_branches_nodes=True,
         truncate_traces=True,
         snap_threshold=0.001,
+        circular_target_area=False,
     )
     return network
 
@@ -254,9 +304,9 @@ def test_network_kb11_manual():
     "trace_gdf,area_gdf,name",
     Helpers.test_network_circular_target_area_params,
 )
-def test_network_circular_target_area(trace_gdf, area_gdf, name):
+def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression):
     """
-    Test circular_target_area var.
+    Test network circular_target_area.
     """
     network_circular = Network(
         trace_gdf=trace_gdf,
@@ -276,20 +326,14 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
     lengths_circular = network_circular.trace_length_array
     lengths_non_circular = network_non_circular.trace_length_array
 
-    assert np.isclose(lengths_circular[0], lengths_non_circular[0] * 2)
-    assert np.isclose(lengths_circular[1], lengths_non_circular[1])
-    assert np.isclose(lengths_circular[2], 0)
-    assert not np.isclose(lengths_non_circular[2], 0)
+    lengths_circular_sum = np.sum(lengths_circular)
+    lengths_non_circular_sum = np.sum(lengths_non_circular)
 
-    assert all(
-        np.isclose(
-            network_circular.trace_length_array_non_weighted, lengths_non_circular
-        )
-    )
-    assert all(
-        np.isclose(
-            network_non_circular.trace_length_array_non_weighted, lengths_non_circular
-        )
+    data_regression.check(
+        {
+            "circular_sum": lengths_circular_sum.item(),
+            "non_circular_sum": lengths_non_circular_sum.item(),
+        }
     )
 
     # test both traces and branches for right boundary_intersect_counts
@@ -311,24 +355,3 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name):
                 boundary_intersect_count[f"{name} Boundary 2 Intersect Count"],
             )
         )
-
-
-# def test_getaberget_fault_network():
-#     """
-#     Debug test with material causing unary_union fault.
-#     """
-#     traces = Helpers.unary_err_traces.sample(frac=0.1)
-#     areas = Helpers.unary_err_areas
-#     assert isinstance(traces, gpd.GeoDataFrame)
-#     assert isinstance(areas, gpd.GeoDataFrame)
-
-#     network = Network(
-#         trace_gdf=traces,
-#         area_gdf=areas,
-#         determine_branches_nodes=True,
-#         truncate_traces=True,
-#         snap_threshold=0.001,
-#         unary_size_threshold=13000,
-#     )
-
-#     assert network.branch_gdf.shape[0] >= network.trace_gdf.shape[0]

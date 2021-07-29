@@ -54,7 +54,7 @@ def line_generator(points: list):
     """
     Create a .LineString from a list of Points.
     """
-    assert all([isinstance(point, Point) for point in points])
+    assert all(isinstance(point, Point) for point in points)
     linestring = LineString(points)
     return linestring
 
@@ -65,7 +65,7 @@ def multi_line_generator(point_lists: list):
     """
     line_list = []
     for point_list in point_lists:
-        assert all([isinstance(point, Point) for point in point_list])
+        assert all(isinstance(point, Point) for point in point_list)
         line_list.append(LineString(point_list))
     multilinestring = MultiLineString(line_list)
     return multilinestring

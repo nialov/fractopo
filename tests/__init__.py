@@ -1,6 +1,7 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+from functools import lru_cache
 from pathlib import Path
 from typing import List
 
@@ -9,7 +10,14 @@ import numpy as np
 import pandas as pd
 import pytest
 from hypothesis.strategies import floats, integers, tuples
-from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, Polygon
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+    box,
+)
 from shapely.wkt import loads
 
 from fractopo.analysis import parameters
@@ -95,8 +103,10 @@ class Helpers:
         geometry=[bounding_polygon(v_node_network_error_gdf)]
     )
 
-    hastholmen_traces = gpd.read_file("tests/sample_data/hastholmen_traces.geojson")
-    hastholmen_area = gpd.read_file("tests/sample_data/hastholmen_area.geojson")
+    hastholmen_traces = read_geofile(
+        Path("tests/sample_data/hastholmen_traces.geojson")
+    )
+    hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
 
     @staticmethod
     def random_data_column(iterable):
@@ -137,6 +147,9 @@ class Helpers:
 
     @classmethod
     def invalid_gdf_null_get(cls):
+        """
+        Get gdf with None and empty geometries.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: [None, LineString()],
@@ -147,10 +160,16 @@ class Helpers:
 
     @staticmethod
     def valid_area_gdf_get():
+        """
+        Get a valid area gdf.
+        """
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.valid_areas_geoseries})
 
     @staticmethod
     def invalid_area_gdf_get():
+        """
+        Get an invalid area gdf.
+        """
         return gpd.GeoDataFrame({GEOMETRY_COLUMN: Helpers.invalid_areas_geoseries})
 
     faulty_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
@@ -161,6 +180,9 @@ class Helpers:
 
     @classmethod
     def valid_gdf_with_faulty_error_col_get(cls):
+        """
+        Get valid gdf with faulty error column.
+        """
         return gpd.GeoDataFrame(
             {
                 GEOMETRY_COLUMN: Helpers.valid_traces,
@@ -249,18 +271,30 @@ class Helpers:
 
     @classmethod
     def get_nice_traces(cls):
+        """
+        Get nice traces GeoSeries.
+        """
         return cls.nice_traces.copy()
 
     @classmethod
     def get_traces_geosrs(cls):
+        """
+        Get traces GeoSeries.
+        """
         return cls.traces_geosrs.copy()
 
     @classmethod
     def get_areas_geosrs(cls):
+        """
+        Get areas GeoSeries.
+        """
         return cls.areas_geosrs.copy()
 
     @classmethod
     def get_geosrs_identicals(cls):
+        """
+        Get GeoSeries with identical geometries.
+        """
         return cls.geosrs_identicals.copy()
 
     line_1 = LineString([(0, 0), (0.5, 0.5)])
@@ -309,16 +343,17 @@ class Helpers:
     sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
-    kb11_traces = gpd.read_file(sample_trace_data)
-    kb11_area = gpd.read_file(sample_area_data)
+    kb11_traces = read_geofile(sample_trace_data)
+    kb11_area = read_geofile(sample_area_data)
     assert isinstance(kb11_traces, gpd.GeoDataFrame)
     assert isinstance(kb11_area, gpd.GeoDataFrame)
 
     kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
     kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
 
-    kb7_traces = gpd.read_file(kb7_trace_path)
-    kb7_area = gpd.read_file(kb7_area_path)
+    kb7_traces = read_geofile(kb7_trace_path)
+    kb7_area = read_geofile(kb7_area_path)
+
     test_tracevalidate_params = [
         (
             Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
@@ -767,11 +802,11 @@ class Helpers:
         )
     ]
 
-    geta_1_traces = gpd.read_file(
-        "tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg"
+    geta_1_traces = read_geofile(
+        Path("tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg")
     )
-    geta_1_1_area = gpd.read_file(
-        "tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg"
+    geta_1_1_area = read_geofile(
+        Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg")
     )
 
     test_network_params = [
@@ -782,6 +817,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            True,  # circular_target_area
         ),
         (
             kb11_traces,  # traces
@@ -790,6 +826,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
         (
             kb11_traces.iloc[0:100],  # traces
@@ -798,6 +835,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
         (
             v_node_network_error_gdf,  # traces
@@ -806,6 +844,7 @@ class Helpers:
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
+            False,  # circular_target_area
         ),
     ]
 
@@ -1116,7 +1155,7 @@ class Helpers:
         ),
     ]
 
-    test_run_grid_sampling_params = [
+    test_network_contour_grid_params = [
         (
             kb11_traces,  # traces
             kb11_area,  # areas
@@ -1335,3 +1374,84 @@ class ValidationHelpers:
 
         assert len(all_errs) > 0
         return all_errs
+
+
+@lru_cache(maxsize=None)
+def test_populate_sample_cell_new_params():
+    """
+    Params for test_populate_sample_cell_new.
+    """
+    return [
+        (
+            box(0, 0, 2, 2),
+            gpd.GeoDataFrame(geometry=[LineString([(-5, 1), (5, 1)])]),
+            0.001,
+        )
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_multinetwork_params():
+    """
+    Params for test_multinetwork.
+    """
+    return [
+        (
+            (
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-1",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-2",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+            ),
+            1,
+        ),
+        (
+            (
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-1",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+                dict(
+                    trace_gdf=Helpers.geta_1_traces,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1-2",
+                    circular_target_area=True,
+                    snap_threshold=0.001,
+                ),
+            ),
+            2,
+        ),
+    ]
+
+
+def test_ternary_heatmapping_params():
+    """
+    Params for test_ternary_heatmapping.
+    """
+    return [
+        (
+            np.array([0.2, 0.8, 0.1]),
+            np.array([0.4, 0.1, 0.4]),
+            np.array([0.4, 0.1, 0.5]),
+            15,
+        ),
+        (
+            np.array([0.4, 0.1, 0.4]),
+            np.array([0.2, 0.8, 0.1]),
+            np.array([0.4, 0.1, 0.5]),
+            15,
+        ),
+    ]

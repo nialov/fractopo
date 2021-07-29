@@ -1,10 +1,10 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
+from itertools import compress
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple
 
-import matplotlib
 import numpy as np
 import pandas as pd
 import ternary
@@ -12,6 +12,7 @@ from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from scipy.ndimage.filters import gaussian_filter
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.general import (
@@ -23,22 +24,39 @@ from fractopo.general import (
     I_node,
     IE_branch,
     II_branch,
+    Number,
     Param,
     X_node,
     Y_node,
 )
 
 
-def determine_node_type_counts(node_types: np.ndarray) -> Dict[str, int]:
+def determine_node_type_counts(
+    node_types: np.ndarray, branches_defined: bool
+) -> Dict[str, Number]:
+    """
+    Determine node type counts.
+    """
     return {
-        str(node_class): sum(node_types == node_class)
+        str(node_class): (
+            (sum(node_types == node_class) if len(node_types) > 0 else 0)
+            if branches_defined
+            else np.nan
+        )
         for node_class in (X_node, Y_node, I_node, E_node)
     }
 
 
-def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
+def determine_branch_type_counts(
+    branch_types: np.ndarray, branches_defined: bool
+) -> Dict[str, Number]:
+    """
+    Determine branch type counts.
+    """
     return {
         str(branch_class): sum(branch_types == branch_class)
+        if branches_defined
+        else np.nan
         for branch_class in (
             CC_branch,
             CI_branch,
@@ -50,14 +68,15 @@ def determine_branch_type_counts(branch_types: np.ndarray) -> Dict[str, int]:
     }
 
 
-def decorate_xyi_ax(
-    ax: Axes, tax: TernaryAxesSubplot, label: str, node_counts: Dict[str, int]
-):
+def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, int]):
+    """
+    Decorate xyi plot.
+    """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
-    text = f"n: {xcount+ycount+icount}\n"
-    f"X-nodes: {xcount}\n"
-    f"Y-nodes: {ycount}\n"
-    f"I-nodes: {icount}\n"
+    text = f"""n: {xcount+ycount+icount}
+X-nodes: {xcount}
+Y-nodes: {ycount}
+I-nodes: {icount}"""
     initialize_ternary_points(ax, tax)
     tern_plot_the_fing_lines(tax)
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
@@ -94,28 +113,87 @@ def plot_xyi_plot(
     a single node_types -array is accepted i.e. a single XYI-value is easily
     plotted.
     """
+    one_label = len(labels) == 1
     if colors is None:
         colors = [None for _ in node_counts_list]
+    elif len(colors) != len(node_counts_list):
+        raise ValueError(
+            f"Expected colors (len={len(colors)}) to be of"
+            f" same size as node_counts_list (len={len(node_counts_list)})."
+        )
     scale = 100
     fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_xyi_plot_ax(
-        node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
-    )
-    decorate_xyi_ax(ax, tax, label=labels[0], node_counts=node_counts_list[0])
-    if len(node_counts_list) > 1:
-        for node_counts, label, color in zip(
-            node_counts_list[1:], labels[1:], colors[1:]
-        ):
-            point = node_counts_to_point(node_counts)
-            if point is None:
-                continue
-            plot_ternary_point(point=point, marker="X", label=label, tax=tax)
+    if len(node_counts_list) == 1:
+        plot_xyi_plot_ax(
+            node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
+        )
+        decorate_xyi_ax(ax, tax, node_counts=node_counts_list[0])
+    else:
+        points = [
+            node_counts_to_point(node_count, scale=100)
+            for node_count in node_counts_list
+        ]
+        points_is_not_none = [point is not None for point in points]
+        points = list(compress(points, points_is_not_none))
+
+        if one_label:
+            tax.scatter(
+                points,
+                label=labels[0],
+                color=colors[0],
+                **ternary_point_kwargs(),
+            )
+        else:
+            labels = list(compress(labels, points_is_not_none))
+            colors = list(compress(colors, points_is_not_none))
+            assert len(points) == len(labels)
+            assert len(points) == len(colors)
+            for point, label, color in zip(points, labels, colors):
+                tax.scatter([point], label=label, color=color, **ternary_point_kwargs())
 
     return fig, ax, tax
 
 
-def node_counts_to_point(node_counts: Dict[str, int]):
+def ternary_heatmapping(
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    i_values: np.ndarray,
+    number_of_bins: int,
+    scale_divider: float = 1.0,
+    ax: Optional[Axes] = None,
+) -> Tuple[Figure, ternary.TernaryAxesSubplot]:
+    """
+    Plot ternary heatmap.
+
+    Modified from: https://github.com/marcharper/python-ternary/issues/81
+    """
+    scale = number_of_bins / scale_divider
+    histogram, _ = np.histogramdd(
+        (x_values, y_values, i_values),
+        bins=(number_of_bins, number_of_bins, number_of_bins),
+        range=((0, 1), (0, 1), (0, 1)),
+    )
+    histogram_normed = histogram / np.sum(histogram)
+
+    # 3D smoothing and interpolation
+    kde = gaussian_filter(histogram_normed, sigma=2)
+    interp_dict = dict()
+
+    binx = np.linspace(0, 1, number_of_bins)
+    for i in range(len(binx)):
+        for j in range(len(binx)):
+            for k in range(len(binx)):
+                interp_dict[(i, j, k)] = kde[i, j, k]
+
+    fig, tax = ternary.figure(ax=ax, scale=scale)
+    tax.heatmap(interp_dict)
+    return fig, tax
+
+
+def node_counts_to_point(
+    node_counts: Dict[str, int], scale: int = 100
+) -> Optional[Tuple[float, float, float]]:
     """
     Create ternary point from node_counts.
 
@@ -123,14 +201,13 @@ def node_counts_to_point(node_counts: Dict[str, int]):
     """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
     sumcount = xcount + ycount + icount
-    if sumcount == 0:
+    if sumcount == 0 or np.isclose(sumcount, 0.0):
         return None
-    else:
-        xp = 100 * xcount / sumcount
-        yp = 100 * ycount / sumcount
-        ip = 100 * icount / sumcount
-        point = [(xp, ip, yp)]
-        return point
+    xp = scale * xcount / sumcount
+    yp = scale * ycount / sumcount
+    ip = scale * icount / sumcount
+    point = (xp, ip, yp)
+    return point
 
 
 def branch_counts_to_point(branch_counts: Dict[str, int]):
@@ -182,10 +259,13 @@ def plot_xyi_plot_ax(
     """
     if color is None:
         color = "black"
-    xcount, ycount, icount = _get_xyi_counts(node_counts)
-    point = node_counts_to_point(node_counts)
+    # xcount, ycount, icount = _get_xyi_counts(node_counts)
+    point = node_counts_to_point(node_counts, scale=100)
     if point is not None:
-        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        tax.scatter(
+            points=[point], **ternary_point_kwargs(marker="o"), label=label, color=color
+        )
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
@@ -215,31 +295,33 @@ def plot_branch_plot(
     plot_branch_plot_ax(
         branch_counts=branch_counts_list[0], label=labels[0], tax=tax, color=colors[0]
     )
-    decorate_branch_ax(
-        ax=ax, tax=tax, label=labels[0], branch_counts=branch_counts_list[0]
-    )
+    decorate_branch_ax(ax=ax, tax=tax, branch_counts=branch_counts_list[0])
     if len(branch_counts_list) > 1:
-        for branch_counts, label, color in zip(
+        for branch_counts, label, _ in zip(
             branch_counts_list[1:], labels[1:], colors[1:]
         ):
             point = branch_counts_to_point(branch_counts)
             if point is None:
                 continue
-            plot_ternary_point(point=point, marker="o", label=label, tax=tax)
+            tax.scatter(point, **ternary_point_kwargs(marker="o"), label=label)
+            # plot_ternary_point(point=point, marker="o", label=label, tax=tax)
 
     return fig, ax, tax
 
 
 def plot_ternary_point(
-    point: List[Tuple[float, float, float]],
+    points: List[Tuple[float, float, float]],
     marker: str,
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = "black",
     s: float = 25,
 ):
+    """
+    Plot point to a ternary figure.
+    """
     tax.scatter(
-        point,
+        points,
         marker=marker,
         label=label,
         alpha=1,
@@ -249,18 +331,41 @@ def plot_ternary_point(
     )
 
 
+def ternary_point_kwargs(
+    alpha=1.0,
+    zorder=4,
+    s: float = 25,
+    marker="X",
+):
+    """
+    Plot point to a ternary figure.
+    """
+    return dict(
+        alpha=alpha,
+        zorder=zorder,
+        s=s,
+        marker=marker,
+    )
+
+
 def plot_branch_plot_ax(
     branch_counts: Dict[str, int],
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
 ):
+    """
+    Plot ternary branch plot to tax.
+    """
     if color is None:
         color = "black"
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
+    # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     point = branch_counts_to_point(branch_counts)
     if point is not None:
-        plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        tax.scatter(
+            points=point, **ternary_point_kwargs(marker="o"), label=label, color=color
+        )
+        # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
     tax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.15),
@@ -275,14 +380,19 @@ def plot_branch_plot_ax(
 def decorate_branch_ax(
     ax: Axes,
     tax: TernaryAxesSubplot,
-    label: str,
+    # label: str,
     branch_counts: Dict[str, int],
 ):
+    """
+    Decorate ternary branch plot.
+    """
     cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
-    text = f"n: {cc_count+ci_count+ii_count}\n"
-    f"CC-branches: {cc_count}\n"
-    f"CI-branches: {ci_count}\n"
-    f"II-branches: {ii_count}\n"
+    text = (
+        f"n: {cc_count+ci_count+ii_count}\n"
+        f"CC-branches: {cc_count}\n"
+        f"CI-branches: {ci_count}\n"
+        f"II-branches: {ii_count}\n"
+    )
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     ax.text(
         0.86,
@@ -311,33 +421,59 @@ def decorate_branch_ax(
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    node_counts: Dict[str, int],
+    node_counts: Dict[str, Number],
     area: float,
-):
+    branches_defined: bool = True,
+    correct_mauldon: bool = True,
+) -> Dict[str, float]:
     """
     Determine topology parameters.
 
     Number of traces and branches are determined by node counting.
     """
+    radius = np.sqrt(area / np.pi)
+    characteristic_length_traces = (
+        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
+    )
+    fracture_intensity = trace_length_array.sum() / area
+    dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
+
+    # Collect parameters that do not require topology determination into a dict
+    params_without_topology = {
+        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
+        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
+        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
+        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
+        Param.AREA.value: area,
+    }
+
+    if not branches_defined:
+        nan_dict = {
+            param.value: np.nan
+            for param in Param
+            if param.value not in params_without_topology
+        }
+        all_params_without_topo = {**params_without_topology, **nan_dict}
+        assert all(param.value in all_params_without_topo for param in Param)
+
+        return all_params_without_topo
+
+    if any(np.isnan(list(node_counts.values()))):
+        raise ValueError(f"Expected no nan in node_counts: {node_counts}")
     assert isinstance(trace_length_array, np.ndarray)
     assert isinstance(node_counts, dict)
     assert isinstance(area, float)
     number_of_traces = (node_counts[Y_node] + node_counts[I_node]) / 2
+    aerial_frequency_traces = number_of_traces / area
     number_of_branches = (
         (node_counts[X_node] * 4) + (node_counts[Y_node] * 3) + node_counts[I_node]
     ) / 2
-    fracture_intensity = trace_length_array.sum() / area
-    aerial_frequency_traces = number_of_traces / area
     aerial_frequency_branches = number_of_branches / area
-    characteristic_length_traces = (
-        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
-    )
     characteristic_length_branches = (
         (trace_length_array.sum() / number_of_branches)
         if number_of_branches > 0
         else 0.0
     )
-    dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
     dimensionless_intensity_branches = (
         fracture_intensity * characteristic_length_branches
     )
@@ -351,29 +487,36 @@ def determine_topology_parameters(
         if number_of_branches > 0
         else 0.0
     )
-
-    radius = np.sqrt(area / np.pi)
-    trace_mean_length_mauldon = (
-        (
-            ((np.pi * radius) / 2)
-            * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
+    if correct_mauldon:
+        trace_mean_length_mauldon = (
+            (
+                ((np.pi * radius) / 2)
+                * (node_counts[E_node] / (node_counts[I_node] + node_counts[Y_node]))
+            )
+            if node_counts[I_node] + node_counts[Y_node] > 0
+            else 0.0
         )
-        if node_counts[I_node] + node_counts[Y_node] > 0
-        else 0.0
-    )
-    fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (area * 2)
-    fracture_intensity_mauldon = trace_mean_length_mauldon * fracture_density_mauldon
+        fracture_density_mauldon = (node_counts[I_node] + node_counts[Y_node]) / (
+            area * 2
+        )
+        fracture_intensity_mauldon = (
+            trace_mean_length_mauldon * fracture_density_mauldon
+        )
+    else:
+        # If Network target area is not circular mauldon parameters cannot be
+        # determined.
+        (
+            trace_mean_length_mauldon,
+            fracture_density_mauldon,
+            fracture_intensity_mauldon,
+        ) = (np.nan, np.nan, np.nan)
     connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
-    topology_parameters = {
+
+    params_with_topology = {
         Param.NUMBER_OF_TRACES.value: number_of_traces,
-        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
-        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
-        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
-        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
-        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
-        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
         Param.BRANCH_MEAN_LENGTH.value: characteristic_length_branches,
-        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
+        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
+        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
         Param.DIMENSIONLESS_INTENSITY_B22.value: dimensionless_intensity_branches,
         Param.CONNECTIONS_PER_TRACE.value: connections_per_trace,
         Param.CONNECTIONS_PER_BRANCH.value: connections_per_branch,
@@ -381,23 +524,32 @@ def determine_topology_parameters(
         Param.FRACTURE_DENSITY_MAULDON.value: fracture_density_mauldon,
         Param.TRACE_MEAN_LENGTH_MAULDON.value: trace_mean_length_mauldon,
         Param.CONNECTION_FREQUENCY.value: connection_frequency,
+        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
     }
-    return topology_parameters
+
+    all_parameters = {**params_without_topology, **params_with_topology}
+    assert len(all_parameters) == sum(
+        [len(params_without_topology), len(params_with_topology)]
+    )
+    assert all(param.value in all_parameters for param in Param)
+
+    return all_parameters
 
 
 def plot_parameters_plot(
     topology_parameters_list: List[Dict[str, float]],
     labels: List[str],
-    colors=Optional[List[str]],
+    colors: Optional[List[str]] = None,
 ):
     """
     Plot topological parameters.
-
     """
     log_scale_columns = Param.log_scale_columns()
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
 
-    columns_to_plot = [param.value for param in Param]
+    columns_to_plot = [
+        param.value for param in Param if param.value in topology_parameters_list[0]
+    ]
     figs, axes = [], []
 
     for column in columns_to_plot:
@@ -444,8 +596,8 @@ def plot_parameters_plot(
         if column in log_scale_columns:
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
-        locs, labels = plt.xticks()
-        labels = ["\n".join(wrap(label.get_text(), 6)) for label in labels]
+        locs, xtick_labels = plt.xticks()
+        xtick_labels = ["\n".join(wrap(label.get_text(), 6)) for label in xtick_labels]
         plt.yticks(fontsize="xx-large", color="black")
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS
@@ -476,10 +628,15 @@ def plot_parameters_plot(
 
 
 def determine_set_counts(
-    set_names: np.ndarray, set_array: np.ndarray
+    set_names: Tuple[str, ...], set_array: np.ndarray
 ) -> Dict[str, int]:
+    """
+    Determine counts in for each set.
+    """
     return {
-        set_name: amount if (amount := sum(set_array == set_name)) is not None else 0
+        set_name: sum(set_array == set_name)
+        if sum(set_array == set_name) is not None
+        else 0
         for set_name in set_names
     }
 
@@ -487,11 +644,14 @@ def determine_set_counts(
 def plot_set_count(
     set_counts: Dict[str, int],
     label: str,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
+) -> Tuple[Figure, Axes]:
+    """
+    Plot set counts.
+    """
     fig, ax = plt.subplots(figsize=(7, 7))
-    wedges, label_texts, count_texts = ax.pie(
+    _, label_texts, _ = ax.pie(
         x=[set_counts[key] for key in set_counts],
-        labels=[key for key in set_counts],
+        labels=list(set_counts),
         autopct="%.1f%%",
         explode=[0.025 for _ in set_counts],
         pctdistance=0.5,
@@ -505,6 +665,9 @@ def plot_set_count(
 
 
 def initialize_ternary_points(ax, tax):
+    """
+    Initialize ternary points figure ax and tax.
+    """
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.set_frame_on(False)
@@ -544,10 +707,10 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
     """
 
     def tern_find_last_x(c, x_start=0):
-        x, i, y = tern_yi_func(c, x_start)
+        x, _, y = tern_yi_func(c, x_start)
         while y > 0:
             x_start += 0.01
-            x, i, y = tern_yi_func(c, x_start)
+            x, _, y = tern_yi_func(c, x_start)
         return x
 
     def tern_yi_func_perc(c, x):
@@ -590,6 +753,9 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
 
 
 def initialize_ternary_branches_points(ax, tax):
+    """
+    Initialize ternary branches plot ax and tax.
+    """
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
     ax.set_frame_on(False)
@@ -645,7 +811,7 @@ def tern_plot_branch_lines(tax):
         (0.81, 0.01, 0.18),
         (1, 0, 0),
     ]
-    for idx, p in enumerate(points):
+    for idx, _ in enumerate(points):
         points[idx] = points[idx][0] * 100, points[idx][1] * 100, points[idx][2] * 100
 
     text_loc = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]

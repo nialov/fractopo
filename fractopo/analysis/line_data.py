@@ -3,47 +3,38 @@ Trace and branch data analysis with LineData class abstraction.
 """
 import logging
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import powerlaw
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.projections import PolarAxes
 
-from fractopo import SetRangeTuple
 from fractopo.analysis import azimuth, length_distributions, parameters
 from fractopo.general import (
+    BOUNDARY_INTERSECT_KEYS,
     Col,
+    SetRangeTuple,
     determine_azimuth,
     determine_set,
     intersection_count_to_boundary_weight,
     numpy_to_python_type,
+    raise_determination_error,
 )
-
-# Math and analysis imports
-# Plotting imports
-# DataFrame analysis imports
-
-
-# Own code imports
 
 
 def _column_array_property(
-    column: Literal[
-        Col.AZIMUTH,
-        Col.LENGTH,
-        Col.AZIMUTH_SET,
-        Col.LENGTH_SET,
-        Col.LENGTH_WEIGHTS,
-        Col.LENGTH_NON_WEIGHTED,
-    ],
+    column: Col,
     gdf: gpd.GeoDataFrame,
 ) -> Optional[np.ndarray]:
     if column.value in gdf:
-        return gdf[column.value].to_numpy()
-    else:
-        return None
+        values = gdf[column.value]
+        assert isinstance(values, pd.Series)
+        return values.to_numpy()
+    return None
 
 
 @dataclass
@@ -139,28 +130,36 @@ class LineData:
         return column_array
 
     @property
-    def length_array(self):
+    def length_array(self) -> np.ndarray:
         """
         Array of trace or branch lengths.
         """
         column_array = _column_array_property(column=Col.LENGTH, gdf=self.line_gdf)
         if column_array is None:
-            column_array = (
+            new_column_array = (
                 self.line_gdf.geometry.length.to_numpy() * self.length_boundary_weights
                 if self.area_boundary_intersects is not None
                 else 1.0
             )
-            self.line_gdf[Col.LENGTH.value] = column_array
-        return column_array
+            self.line_gdf[Col.LENGTH.value] = new_column_array
+
+        else:
+            new_column_array = column_array
+        assert isinstance(new_column_array, np.ndarray)
+        return new_column_array
 
     @property
-    def length_set_array(self) -> Optional[np.ndarray]:
+    def length_set_array(self) -> np.ndarray:
         """
         Array of trace or branch length set ids.
         """
         if self.length_set_names is None or self.length_set_ranges is None:
             logging.error("Expected length_set_names and _ranges to be defined.")
-            return None
+            raise_determination_error(
+                "length_set_array",
+                determine_target="length set attributes",
+                verb="initializing",
+            )
         column_array = _column_array_property(column=Col.LENGTH_SET, gdf=self.line_gdf)
         if column_array is None:
             column_array = np.array(
@@ -205,16 +204,20 @@ class LineData:
         return self._automatic_fit
 
     @property
-    def boundary_intersect_count(self) -> Optional[Dict[str, int]]:
+    def boundary_intersect_count(self) -> Dict[str, int]:
         """
         Get counts of line intersects with boundary.
         """
-        if not isinstance(self.area_boundary_intersects, np.ndarray):
-            return None
+        assert self.area_boundary_intersects is not None
         keys, counts = np.unique(self.area_boundary_intersects, return_counts=True)
         keys = list(map(str, keys))
         counts = list(map(numpy_to_python_type, counts))
         key_counts = dict(zip(keys, counts))
+        for default_key in BOUNDARY_INTERSECT_KEYS:
+            if default_key not in key_counts:
+                key_counts[default_key] = 0
+        assert len(key_counts) == 3
+        assert all(np.isin(BOUNDARY_INTERSECT_KEYS, list(key_counts)))
         return key_counts
 
     def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
@@ -258,7 +261,9 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
         )
 
-    def plot_azimuth(self, label: str) -> Tuple[Dict[str, np.ndarray], Figure, Axes]:
+    def plot_azimuth(
+        self, label: str, append_azimuth_set_text: bool = False
+    ) -> Tuple[azimuth.AzimuthBins, Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
         """
@@ -268,6 +273,7 @@ class LineData:
             self.azimuth_set_array,
             self.azimuth_set_names,
             label=label,
+            append_azimuth_set_text=append_azimuth_set_text,
         )
 
     def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:

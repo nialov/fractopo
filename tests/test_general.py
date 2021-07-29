@@ -18,6 +18,9 @@ from tests import Helpers
     "first,second,same,from_first,is_none", Helpers.test_match_crs_params
 )
 def test_match_crs(first, second, same: bool, from_first: bool, is_none: bool):
+    """
+    Test match_crs with pytest params.
+    """
     if from_first:
         original_crs = first.crs
     else:
@@ -40,22 +43,11 @@ def test_match_crs(first, second, same: bool, from_first: bool, is_none: bool):
     booleans(),
 )
 def test_is_azimuth_close(first, second, tolerance, halved):
+    """
+    Test is_azimuth_close with hypothesis.
+    """
     result = general.is_azimuth_close(first, second, tolerance, halved)
     assert isinstance(result, bool)
-
-
-# @given(Helpers.nice_polyline)
-# def test_determine_regression_azimuth(line: LineString):
-#     trace = LineString(line)
-#     result = general.determine_regression_azimuth(trace)
-#     assert isinstance(result, float)
-#     assert not np.isnan(result)  # type: ignore
-
-
-# @given()
-# def test_determine_set(value, value_range, loop_around):
-#     result = general.determine_set(value, value_range, loop_around)
-#     assert isinstance(result, bool)
 
 
 @pytest.mark.parametrize(
@@ -65,6 +57,9 @@ def test_is_azimuth_close(first, second, tolerance, halved):
 def test_determine_node_junctions(
     nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
 ):
+    """
+    Test determine_node_junctions with pytest params.
+    """
     result = general.determine_node_junctions(
         nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
     )
@@ -74,6 +69,9 @@ def test_determine_node_junctions(
 
 @pytest.mark.parametrize("geoseries", Helpers.test_bounding_polygon_params)
 def test_bounding_polygon(geoseries):
+    """
+    Test bounding_polygon with pytest params.
+    """
     result = general.bounding_polygon(geoseries)
     assert isinstance(result, Polygon)
     for geom in geoseries:
@@ -81,19 +79,31 @@ def test_bounding_polygon(geoseries):
         assert geom.within(result)
 
 
-def test_crop_to_target_areas(file_regression):
+@pytest.mark.parametrize("keep_column_data", [True, False])
+@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
+def test_crop_to_target_areas(
+    keep_column_data: bool, snap_threshold: float, file_regression
+):
     """
     Test cropping traces to target area with known right example data results.
 
     Also does regression testing with known right data.
     """
-    trace_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/traces.gpkg"))
-    area_data = gpd.read_file(Path("tests/sample_data/mls_crop_samples/mls_area.gpkg"))
+    trace_data = general.read_geofile(
+        Path("tests/sample_data/mls_crop_samples/traces.gpkg")
+    )
+    area_data = general.read_geofile(
+        Path("tests/sample_data/mls_crop_samples/mls_area.gpkg")
+    )
     cropped_traces = general.crop_to_target_areas(
-        traces=trace_data, areas=area_data, snap_threshold=0.01
+        traces=trace_data,
+        areas=area_data,
+        snap_threshold=snap_threshold,
+        keep_column_data=keep_column_data,
     )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
-    file_regression.check(cropped_traces.sort_index().to_json())
+    cropped_traces.sort_index(inplace=True)
+    file_regression.check(cropped_traces.to_json(indent=1))
 
 
 def test_dissolve_multi_part_traces(file_regression):
@@ -102,12 +112,13 @@ def test_dissolve_multi_part_traces(file_regression):
 
     Dissolve should copy all attribute data to new dissolved LineStrings.
     """
-    trace_data = gpd.read_file(
+    trace_data = general.read_geofile(
         Path("tests/sample_data/mls_crop_samples/mls_traces.gpkg")
     )
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
-    file_regression.check(dissolved_traces.sort_index().to_json())
+    dissolved_traces.sort_index(inplace=True)
+    file_regression.check(dissolved_traces.to_json(indent=1))
 
 
 @pytest.mark.parametrize(

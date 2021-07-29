@@ -24,7 +24,7 @@ def save_to_txt(wkts: List[str], name: str) -> Path:
 
 def load_from_txt(name: str) -> List[str]:
     """
-    Load list of wkt strings from wkts/name.txt.
+    Load list of wkt strings from wkts/``name``.txt.
     """
     load_path = Path(__file__).parent / "wkts" / f"{name}.txt"
     wkts = literal_eval(load_path.read_text())

@@ -1,17 +1,18 @@
 """
-Main package with general utilites.
+fractopo.
 
-Analysis and validation tools in subpackages.
+Fracture Network Analysis
 """
-from typing import Tuple
+import logging
 
-# Versioneer import
-from ._version import get_versions
+from fractopo.analysis.multi_network import MultiNetwork
+from fractopo.analysis.network import Network
+from fractopo.tval.trace_validation import Validation
 
-SetRangeTuple = Tuple[Tuple[float, float], ...]
-BoundsTuple = Tuple[float, float, float, float]
-PointTuple = Tuple[float, float]
+__version__ = "0.0.1.post390.dev0+a4df9cf"
 
-# Versioneer handles
-__version__ = get_versions()["version"]
-del get_versions
+
+logging.info(
+    "Main imports available from fractopo/__init__.py:"
+    f" {Network, Validation, MultiNetwork}"
+)

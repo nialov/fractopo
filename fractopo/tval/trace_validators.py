@@ -1,9 +1,11 @@
-"""Contains Validator classes which each have their own error to handle and mark."""
+"""
+Contains Validator classes which each have their own error to handle and mark.
+"""
 import logging
-from abc import abstractmethod
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
+import numpy as np
 from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
@@ -34,36 +36,27 @@ class BaseValidator:
 
     """
     Base validator that all classes inherit.
+
+    TODO: Validation requires overhaul at some point.
     """
 
     ERROR = "BASE ERROR"
     INTERACTION_NODES_COLUMN = "IP"
-    # Default snap threshold
-    # SNAP_THRESHOLD = 0.01
-    # SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
-    # AREA_EDGE_SNAP_MULTIPLIER = 1.0
-    # TRIANGLE_ERROR_SNAP_MULTIPLIER = 10.0
-    # OVERLAP_DETECTION_MULTIPLIER = 50.0
-    # SHARP_AVG_THRESHOLD = 80
-    # SHARP_PREV_SEG_THRESHOLD = 70
-
     LINESTRING_ONLY = True
 
     @staticmethod
-    @abstractmethod
     def fix_method(**_) -> Optional[LineString]:
         """
         Abstract fix method.
         """
-        raise NotImplementedError
+        raise NotImplementedError("fix_method not implemented.")
 
     @staticmethod
-    @abstractmethod
     def validation_method(**_) -> bool:
         """
         Abstract validation method.
         """
-        raise NotImplementedError
+        raise NotImplementedError("validation_method not implemented.")
 
 
 class GeomTypeValidator(BaseValidator):
@@ -85,15 +78,13 @@ class GeomTypeValidator(BaseValidator):
 
         E.g. mergeable MultiLineString
 
-        >>> mls = MultiLineString(
-        ...         [((0, 0), (1, 1)), ((1, 1), (2, 2))]
-        ... )
+        >>> mls = MultiLineString([((0, 0), (1, 1)), ((1, 1), (2, 2))])
         >>> GeomTypeValidator.fix_method(geom=mls).wkt
         'LINESTRING (0 0, 1 1, 2 2)'
 
         Unhandled types will just return as None.
 
-        >>> GeomTypeValidator.fix_method(geom=Point(1,1)) is None
+        >>> GeomTypeValidator.fix_method(geom=Point(1, 1)) is None
         True
 
         """
@@ -111,7 +102,7 @@ class GeomTypeValidator(BaseValidator):
 
         E.g. Anything but LineString
 
-        >>> GeomTypeValidator.validation_method(Point(1,1))
+        >>> GeomTypeValidator.validation_method(Point(1, 1))
         False
 
         With LineString:
@@ -136,7 +127,9 @@ class MultiJunctionValidator(BaseValidator):
         """
         Validate for multi junctions between traces.
 
-        >>> MultiJunctionValidator.validation_method(idx=1, faulty_junctions=set([1, 2]))
+        >>> MultiJunctionValidator.validation_method(
+        ...     idx=1, faulty_junctions=set([1, 2])
+        ... )
         False
 
         """
@@ -254,29 +247,33 @@ class MultipleCrosscutValidator(BaseValidator):
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -1)])
         >>> trace_candidates = gpd.GeoSeries(
-        ...     [LineString([Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)])]
+        ...     [
+        ...         LineString(
+        ...             [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+        ...         )
+        ...     ]
         ... )
         >>> MultipleCrosscutValidator.validation_method(geom, trace_candidates)
         False
 
         >>> geom = LineString([Point(-3, -4), Point(-3, -4.5)])
         >>> trace_candidates = gpd.GeoSeries(
-        ...     [LineString([Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)])]
+        ...     [
+        ...         LineString(
+        ...             [Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]
+        ...         )
+        ...     ]
         ... )
         >>> MultipleCrosscutValidator.validation_method(geom, trace_candidates)
         True
 
         """
         intersection_geoms = trace_candidates.intersection(geom)
-        if any(
-            [
-                len(list(geom.geoms)) > 2
-                for geom in intersection_geoms
-                if isinstance(geom, MultiPoint)
-            ]
-        ):
-            return False
-        return True
+        return not any(
+            len(list(geom.geoms)) > 2
+            for geom in intersection_geoms
+            if isinstance(geom, MultiPoint)
+        )
 
 
 class UnderlappingSnapValidator(BaseValidator):
@@ -306,7 +303,10 @@ class UnderlappingSnapValidator(BaseValidator):
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> geom = LineString(
-        ...     [(0, 0), (0, 1 + snap_threshold * snap_threshold_error_multiplier * 0.99)]
+        ...     [
+        ...         (0, 0),
+        ...         (0, 1 + snap_threshold * snap_threshold_error_multiplier * 0.99),
+        ...     ]
         ... )
         >>> trace_candidates = gpd.GeoSeries([LineString([(-1, 1), (1, 1)])])
         >>> UnderlappingSnapValidator.validation_method(
@@ -355,9 +355,8 @@ class UnderlappingSnapValidator(BaseValidator):
                         # Underlapping
                         cls.ERROR = cls._UNDERLAPPING
                         return False
-                    else:
-                        cls.ERROR = cls._OVERLAPPING
-                        return False
+                    cls.ERROR = cls._OVERLAPPING
+                    return False
 
         return True
 
@@ -383,7 +382,9 @@ class TargetAreaSnapValidator(BaseValidator):
         Validate for trace underlaps.
 
         >>> geom = LineString([(0, 0), (0, 1)])
-        >>> area = gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])])
+        >>> area = gpd.GeoDataFrame(
+        ...     geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])]
+        ... )
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> area_edge_snap_multiplier = 1.0
@@ -397,7 +398,9 @@ class TargetAreaSnapValidator(BaseValidator):
         True
 
         >>> geom = LineString([(0.5, 0.5), (0.5, 0.98)])
-        >>> area = gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])])
+        >>> area = gpd.GeoDataFrame(
+        ...     geometry=[Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])]
+        ... )
         >>> snap_threshold = 0.01
         >>> snap_threshold_error_multiplier = 1.1
         >>> area_edge_snap_multiplier = 10
@@ -434,31 +437,53 @@ class TargetAreaSnapValidator(BaseValidator):
         return True
 
     @staticmethod
-    def is_candidate_underlapping(
+    def simple_underlapping_checks(
         endpoint: Point,
         geom: LineString,
         area_polygon: Union[Polygon, MultiPolygon],
         snap_threshold: float,
-    ):
+    ) -> Optional[bool]:
         """
-        Determine if endpoint is candidate for Underlapping error.
+        Perform simple underlapping checks.
         """
+        endpoint_within = endpoint.within(area_polygon)
         # If not even inside target area, not a candidate
-        if not endpoint.within(area_polygon):
+        if not endpoint_within:
             return False
 
         # Easy case: endpoint within target area and trace completely inside
         # target area
-        if endpoint.within(area_polygon) and geom.within(area_polygon):
+        if endpoint_within and geom.within(area_polygon):
             return True
 
         # Does an affine scale to catch traces that intersect the target area
         # edge at their other endpoint. This check overlaps with previous but
         # shapely.affinity.scale is not completely 'stable'
-        if endpoint.within(area_polygon) and geom.within(
+        if endpoint_within and geom.within(
             scale(area_polygon, xfact=1 + snap_threshold, yfact=1 + snap_threshold)
         ):
             return True
+        return None
+
+    @staticmethod
+    def is_candidate_underlapping(
+        endpoint: Point,
+        geom: LineString,
+        area_polygon: Union[Polygon, MultiPolygon],
+        snap_threshold: float,
+    ) -> bool:
+        """
+        Determine if endpoint is candidate for Underlapping error.
+        """
+        is_simple_underlapping = TargetAreaSnapValidator.simple_underlapping_checks(
+            endpoint=endpoint,
+            geom=geom,
+            area_polygon=area_polygon,
+            snap_threshold=snap_threshold,
+        )
+
+        if is_simple_underlapping is not None:
+            return is_simple_underlapping
 
         # Split trace with area polygon
         geom_split = list(split(geom, area_polygon))
@@ -475,14 +500,14 @@ class TargetAreaSnapValidator(BaseValidator):
         ]
 
         # More than 1 shouldn't intersect one endpoint
-        if not len(endpoint_segments) == 1:
-            logging.error("Expected only one segment to be close to endpoint.")
+        if len(endpoint_segments) != 1:
+            logging.warning("Expected only one segment to be close to endpoint.")
             return False
         endpoint_segment = endpoint_segments[0]
 
         # Make sure result of split is LineString
         if not isinstance(endpoint_segment, LineString):
-            logging.error("Expected endpoint_segment to be of type LineString.")
+            logging.warning("Expected endpoint_segment to be of type LineString.")
             return False
 
         # If the LineString intersects polygon boundary -> not a candidate
@@ -663,13 +688,17 @@ class SharpCornerValidator(BaseValidator):
             # If LineString consists of two Points -> No sharp corners.
             return True
         trace_unit_vector = create_unit_vector(geom_coords[0], geom_coords[-1])
+        if any(np.isnan(trace_unit_vector)):
+            return False
         for idx, segment_start in enumerate(geom_coords):
             if idx == len(geom_coords) - 1:
                 break
             segment_end: Point = geom_coords[idx + 1]
             segment_unit_vector = create_unit_vector(segment_start, segment_end)
             # Compare the two unit vectors
-            if not compare_unit_vector_orientation(
+            if any(
+                np.isnan(segment_unit_vector)
+            ) or not compare_unit_vector_orientation(
                 trace_unit_vector, segment_unit_vector, sharp_avg_threshold
             ):
                 return False
@@ -679,7 +708,9 @@ class SharpCornerValidator(BaseValidator):
                 prev_segment_unit_vector = create_unit_vector(
                     geom_coords[idx - 1], geom_coords[idx]
                 )
-                if not compare_unit_vector_orientation(
+                if any(
+                    np.isnan(prev_segment_unit_vector)
+                ) or not compare_unit_vector_orientation(
                     segment_unit_vector,
                     prev_segment_unit_vector,
                     sharp_prev_seg_threshold,
