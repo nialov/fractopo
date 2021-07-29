@@ -61,7 +61,7 @@ def notebooks(c):
     c.run("nox --session notebooks")
 
 
-@task(pre=[requirements])
+@task(pre=[requirements, update_version])
 def build(c):
     """
     Build package with poetry.
