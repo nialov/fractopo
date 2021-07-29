@@ -15,9 +15,9 @@ from fractopo.general import (
     GEOMETRY_COLUMN,
     calc_circle_area,
     calc_circle_radius,
+    numpy_to_python_type,
     random_points_within,
     safe_buffer,
-    numpy_to_python_type,
 )
 
 
