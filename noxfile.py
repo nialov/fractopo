@@ -11,10 +11,12 @@ import nox
 PACKAGE_NAME = "fractopo"
 
 # Paths
-DOCS_APIDOC_DIR_PATH = Path("docs_src/apidoc")
+DOCS_SRC_PATH = Path("docs_src")
+DOCS_APIDOC_DIR_PATH = DOCS_SRC_PATH / "apidoc"
 DOCS_DIR_PATH = Path("docs")
-COVERAGE_SVG_PATH = Path("docs_src/imgs/coverage.svg")
+COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
 PROFILE_SCRIPT_PATH = Path("tests/_profile.py")
+README_PATH = Path("README.rst")
 
 # Path strings
 TESTS_NAME = "tests"
@@ -29,7 +31,18 @@ DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
 # Globs
 DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
 REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
+DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
+
+# Path strings
+TESTS_NAME = "tests"
+NOTEBOOKS_NAME = "notebooks"
+TASKS_NAME = "tasks.py"
+NOXFILE_NAME = "noxfile.py"
+DEV_REQUIREMENTS = "requirements.txt"
+DOCS_REQUIREMENTS = "docs_src/requirements.txt"
+DOCS_EXAMPLES = "examples"
+DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
 
 PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
 
@@ -145,6 +158,20 @@ def format_and_lint(session):
     # Format notebooks
     for notebook in ALL_NOTEBOOKS:
         session.run("black-nb", str(notebook))
+
+    # Format code blocks in documentation fileS
+    session.run(
+        "blacken-docs",
+        *filter_paths_to_existing(
+            str(README_PATH), *list(map(str, list(DOCS_RST_PATHS)))
+        ),
+    )
+
+    # Format code blocks in Python files
+    session.run(
+        "blackdoc",
+        *existing_paths,
+    )
 
     # Lint docs
     session.run(

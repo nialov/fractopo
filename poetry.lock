@@ -188,6 +188,31 @@ click = ">=7.0"
 nbformat = ">=4.4.0"
 
 [[package]]
+name = "blackdoc"
+version = "0.3.4"
+description = "run black on documentation code snippets"
+category = "main"
+optional = true
+python-versions = ">=3.6"
+
+[package.dependencies]
+black = "*"
+importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
+more-itertools = "*"
+toml = "*"
+
+[[package]]
+name = "blacken-docs"
+version = "1.10.0"
+description = "Run `black` on python code blocks in documentation files"
+category = "main"
+optional = true
+python-versions = ">=3.6.1"
+
+[package.dependencies]
+black = ">=19.3b0"
+
+[[package]]
 name = "bleach"
 version = "3.3.1"
 description = "An easy safelist-based HTML-sanitizing tool."
@@ -703,7 +728,7 @@ test = ["coverage", "pytest (>=6.0)", "pytest-cov", "pytest-mock", "requests", "
 
 [[package]]
 name = "jupyterlab"
-version = "3.1.0"
+version = "3.1.1"
 description = "JupyterLab computational environment"
 category = "dev"
 optional = false
@@ -721,7 +746,7 @@ tornado = ">=6.1.0"
 
 [package.extras]
 test = ["coverage", "pytest (>=6.0)", "pytest-cov", "pytest-console-scripts", "pytest-check-links (>=0.5)", "jupyterlab-server[test] (>=2.2,<3.0)", "requests", "requests-cache", "virtualenv", "check-manifest"]
-ui-tests = ["ipykernel (>=6.0)"]
+ui-tests = ["build"]
 
 [[package]]
 name = "jupyterlab-pygments"
@@ -820,6 +845,14 @@ description = "The fastest markdown parser in pure Python"
 category = "main"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "more-itertools"
+version = "8.8.0"
+description = "More routines for operating on iterables, beyond itertools"
+category = "main"
+optional = true
+python-versions = ">=3.5"
 
 [[package]]
 name = "mpmath"
@@ -1866,13 +1899,13 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [extras]
 coverage = ["coverage", "coverage-badge"]
 docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery", "sphinx-autodoc-typehints"]
-format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort"]
+format-lint = ["pylint", "rstcheck", "sphinx", "black", "black-nb", "isort", "blacken-docs", "blackdoc"]
 typecheck = ["mypy"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "2b3cd18c91c1cfd7e2bb0dd80f2a15d51a5f9ea925fa21d6c2a80d790acec69d"
+content-hash = "b4389b2537919de773aa890c7e5f7a9a44283d8129b3d8f10c33c434daf928a7"
 
 [metadata.files]
 alabaster = [
@@ -1949,6 +1982,14 @@ black = [
 ]
 black-nb = [
     {file = "black-nb-0.5.0.tar.gz", hash = "sha256:cfc8de63a1939bf84e047d7a716c59a99518f42c97dbf858f95d0ddd97891cb1"},
+]
+blackdoc = [
+    {file = "blackdoc-0.3.4-py3-none-any.whl", hash = "sha256:4b6567c1e31dd9f13d684325e40c9f2decf30c0b8f76eeec2c4b71f91e3cdaf2"},
+    {file = "blackdoc-0.3.4.tar.gz", hash = "sha256:8d416b541d378b431173874d0011a259efaed63580e92817f95c47e3b20d057f"},
+]
+blacken-docs = [
+    {file = "blacken_docs-1.10.0-py2.py3-none-any.whl", hash = "sha256:149197a0b17e83121fc10aca9eda1417728fdccebde930a6722f97d87ed30f4b"},
+    {file = "blacken_docs-1.10.0.tar.gz", hash = "sha256:e2121c95bf2f8a3ebb3110776d276f850f63b8e5753773ba2b4d0f415d862f23"},
 ]
 bleach = [
     {file = "bleach-3.3.1-py2.py3-none-any.whl", hash = "sha256:ae976d7174bba988c0b632def82fdc94235756edfb14e6558a9c5be555c9fb78"},
@@ -2262,8 +2303,8 @@ jupyter-server = [
     {file = "jupyter_server-1.10.1.tar.gz", hash = "sha256:fe6b589bd8d8fe08f608e90ce7da1e6bbfd020d99897453b45149a7853e9188f"},
 ]
 jupyterlab = [
-    {file = "jupyterlab-3.1.0-py3-none-any.whl", hash = "sha256:dfccab4bcdc5ef725cc1ce99ed729cc754c9f885af86cd6b611d685d53845f8b"},
-    {file = "jupyterlab-3.1.0.tar.gz", hash = "sha256:5a020e5940ef32a9e6e1a43f7c794f542869576a30c5083799c7d97df34e9cf3"},
+    {file = "jupyterlab-3.1.1-py3-none-any.whl", hash = "sha256:a181184b1000a550c38da35471dcf91ce11e96750de56430be3fc93ca01dde1e"},
+    {file = "jupyterlab-3.1.1.tar.gz", hash = "sha256:f6b04b5cfbe1fab79dbcecd58c941cbc73b0da5e1ccc5d4333a36860d37789b0"},
 ]
 jupyterlab-pygments = [
     {file = "jupyterlab_pygments-0.1.2-py2.py3-none-any.whl", hash = "sha256:abfb880fd1561987efaefcb2d2ac75145d2a5d0139b1876d5be806e32f630008"},
@@ -2399,6 +2440,10 @@ mccabe = [
 mistune = [
     {file = "mistune-0.8.4-py2.py3-none-any.whl", hash = "sha256:88a1051873018da288eee8538d476dffe1262495144b33ecb586c4ab266bb8d4"},
     {file = "mistune-0.8.4.tar.gz", hash = "sha256:59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e"},
+]
+more-itertools = [
+    {file = "more-itertools-8.8.0.tar.gz", hash = "sha256:83f0308e05477c68f56ea3a888172c78ed5d5b3c282addb67508e7ba6c8f813a"},
+    {file = "more_itertools-8.8.0-py3-none-any.whl", hash = "sha256:2cf89ec599962f2ddc4d568a05defc40e0a587fbc10d5989713638864c36be4d"},
 ]
 mpmath = [
     {file = "mpmath-1.2.1-py3-none-any.whl", hash = "sha256:604bc21bd22d2322a177c73bdb573994ef76e62edd595d17e00aff24b0667e5c"},
