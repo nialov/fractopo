@@ -1,4 +1,4 @@
-Topological and geometric trace network analysis
+Geometric and topological trace network analysis
 ================================================
 
 Description
@@ -9,10 +9,30 @@ abundance and topological parameters from two-dimensional lineament and
 fracture trace, branch and node data. The results will be given as
 graphical plots.
 
+Prerequisites
+-------------
+
+See: `Prerequisites <validation/basics.html#Prerequisites>`__
+
+It is recommended to validate the trace data first before using it as an
+input for extracting branches and nodes. Otherwise the extraction
+process might error out or result in invalid branches and nodes.
+
+Branches and nodes
+------------------
+
+Topologically a trace network of lineaments or fractures can be
+dissolved into branches and nodes. Branches represent individual
+segments of traces and each segment has a node on each end. Nodes
+represent either interactions with other traces or isolated abutments.
+See `Sanderson and Nixon,
+2015 <https://www.sciencedirect.com/science/article/abs/pii/S0191814115000152?via%3Dihub>`__
+for a more detailed explanation.
+
 Usage
 -----
 
-Usage is demonstrated in complementary Jupyter Notebooks.
+Usage is demonstrated in complementary ``Jupyter Notebooks``.
 
 -  `Network analysis <../notebooks/fractopo_network_1>`__
 
@@ -25,13 +45,7 @@ Usage is demonstrated in complementary Jupyter Notebooks.
    -  Crosscutting and abutting relationships between azimuth sets
    -  Node and branch proportions
 
--  `Trace data validation 1 <../notebooks/fractopo_validation_1>`__ and
-   `Trace data validation 2 <../notebooks/fractopo_validation_2>`__
-
-   -  Loading data for analysis with ``geopandas``
-   -  Trace validation
-   -  Visualizing found validation errors with ``geopandas`` and
-      ``matplotlib``
+Also see `gallery of example scripts <../auto_examples/index.rst>`__
 
 References
 ----------
@@ -40,14 +54,13 @@ For the definition of traces, branches and nodes along with the
 explanation of the plots and the plotted parameters, I refer you to
 multiple sources.
 
--  `Nyberg et al.,
-   2018 <https://pubs.geoscienceworld.org/gsa/geosphere/article/531129/networkgt-a-gis-tool-for-geometric-and-topological>`__
+-  `Nyberg et al., 2018 <https://doi.org/10.1130/GES01595.1>`__
 
    -  *NetworkGT Plugin introduction and guide.*
    -  `NetworkGT GitHub <https://github.com/BjornNyberg/NetworkGT>`__
 
 -  `Sanderson and Nixon,
-   2015 <https://www.sciencedirect.com/science/article/pii/S0191814115000152>`__
+   2015 <https://doi.org/10.1016/j.jsg.2015.01.005>`__
 
    -  *Trace and branch size, abundance and topological parameter
       definitions.*
