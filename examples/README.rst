@@ -5,9 +5,9 @@ All matplotlib plots can be saved with:
 
 .. code:: python
 
-   fig.savefig("savename.png", bbox_inches="tight")
-   # Or
-   plt.savefig("savename.png", bbox_inches="tight")
+    fig.savefig("savename.png", bbox_inches="tight")
+    # Or
+    plt.savefig("savename.png", bbox_inches="tight")
 
 Where ``savename`` can be replaced with name/path of where you
 want to save the figure. ``bbox_inches`` is given to make sure the whole
