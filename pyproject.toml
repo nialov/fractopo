@@ -137,9 +137,6 @@ filterwarnings =[
     "ignore:All-NaN slice encountered:RuntimeWarning",
     ]
 
-[tool.black]
-exclude = "fractopo/_version.py"
-
 [tool.isort]
 profile = "black"
 multi_line_output = 3
