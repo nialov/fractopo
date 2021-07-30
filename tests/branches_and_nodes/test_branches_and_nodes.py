@@ -265,6 +265,9 @@ def test_snap_trace_to_another(
     snap_threshold: float,
     assumed_result: LineString,
 ):
+    """
+    Test snap_trace_to_another.
+    """
     result, _ = branches_and_nodes.snap_trace_to_another(
         trace_endpoints, another, snap_threshold=snap_threshold
     )
