@@ -141,7 +141,6 @@ exclude = "fractopo/_version.py"
 profile = "black"
 multi_line_output = 3
 src_paths = ["fractopo", "tests"]
-skip = "fractopo/_version.py"
 
 [tool.pylint.master]
 fail-under = "9.5"

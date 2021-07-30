@@ -34,24 +34,14 @@ REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
 DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
-# Path strings
-TESTS_NAME = "tests"
-NOTEBOOKS_NAME = "notebooks"
-TASKS_NAME = "tasks.py"
-NOXFILE_NAME = "noxfile.py"
-DEV_REQUIREMENTS = "requirements.txt"
-DOCS_REQUIREMENTS = "docs_src/requirements.txt"
-DOCS_EXAMPLES = "examples"
-DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
-
 PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
 
 
-def filter_paths_to_existing(*iterables) -> List[str]:
+def filter_paths_to_existing(*iterables: str) -> List[str]:
     """
     Filter paths to only existing.
     """
-    return [str(path) for path in iterables if Path(path).exists()]
+    return [path for path in iterables if Path(path).exists()]
 
 
 def fill_notebook(session, notebook: Path):
@@ -108,6 +98,9 @@ def tests_pip(session):
         COVERAGE_SVG_PATH.parent.mkdir(parents=True)
     session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
 
+    # Test that entrypoint works.
+    session.run("tracevalidate", "--help")
+
 
 @nox.session(python=PYTHON_VERSIONS)
 def notebooks(session):
@@ -130,7 +123,7 @@ def notebooks(session):
         fill_notebook(session=session, notebook=notebook)
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def format_and_lint(session):
     """
     Format and lint python files, notebooks and docs_src.
@@ -159,7 +152,7 @@ def format_and_lint(session):
     for notebook in ALL_NOTEBOOKS:
         session.run("black-nb", str(notebook))
 
-    # Format code blocks in documentation fileS
+    # Format code blocks in documentation files
     session.run(
         "blacken-docs",
         *filter_paths_to_existing(
@@ -201,7 +194,7 @@ def format_and_lint(session):
         session.run("black-nb", "--check", str(notebook))
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def requirements(session):
     """
     Sync poetry requirements from pyproject.toml to requirements.txt.
@@ -271,7 +264,7 @@ def docs(session):
             rmtree(auto_examples_path)
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def update_version(session):
     """
     Update package version from git vcs.
@@ -332,7 +325,7 @@ def profile_performance(session):
     print(f"\nPerformance profile saved at {resolved_path}.")
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def typecheck(session):
     """
     Typecheck Python code.

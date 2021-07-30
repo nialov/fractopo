@@ -42,7 +42,6 @@ extensions = [
 
 # Add .md markdown files as sources.
 source_suffix = {
-    ".md": "markdown",
     ".rst": "restructuredtext",
 }
 master_doc = "index"
@@ -52,6 +51,7 @@ sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
     "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
 }
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
