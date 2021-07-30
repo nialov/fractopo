@@ -1,3 +1,6 @@
+"""
+Configuration file for Sphinx.
+"""
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -13,7 +16,6 @@
 import os
 import sys
 from importlib import import_module
-
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("."))
@@ -45,6 +47,12 @@ source_suffix = {
     ".rst": "restructuredtext",
 }
 master_doc = "index"
+
+# Sphinx-gallery config
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+}
 
 # Sphinx-gallery config
 sphinx_gallery_conf = {

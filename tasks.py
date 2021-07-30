@@ -88,20 +88,39 @@ def performance_profile(c):
     c.run("nox --session profile_performance")
 
 
-@task(pre=[format_and_lint, ci_test, build, docs])
+@task(pre=[requirements, update_version, format_and_lint, ci_test, build, docs])
 def prepush(_):
     """
     Test suite for locally verifying continous integration results upstream.
     """
 
 
+@task
+def pre_commit(c, only_run=False, only_install=False):
+    """
+    Verify that pre-commit is installed, install its hooks and run them.
+    """
+    cmd = "pre-commit --help"
+    try:
+        c.run(cmd, hide=True)
+    except Exception:
+        print(f"Could not run '{cmd}'. Make sure pre-commit is installed.")
+        raise
+
+    if not only_run:
+        c.run("pre-commit install")
+        c.run("pre-commit install --hook-type commit-msg")
+        print("Hooks installed!")
+
+    if not only_install:
+        print("Running on all files.")
+        c.run("pre-commit run --all-files")
+
+
 @task(
     pre=[
-        update_version,
-        format_and_lint,
-        docs,
+        prepush,
         notebooks,
-        build,
         typecheck,
         performance_profile,
     ]

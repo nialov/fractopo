@@ -277,7 +277,7 @@ def update_version(session):
     session.run("poetry-dynamic-versioning")
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(reuse_venv=True, python=PYTHON_VERSIONS)
 def build(session):
     """
     Build package with poetry.

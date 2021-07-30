@@ -5,9 +5,11 @@ description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
 license = "MIT"
+# Make sure hyphens/underscores are correct in urls
 homepage = "https://github.com/nialov/fractopo"
 repository = "https://github.com/nialov/fractopo"
 documentation = "https://fractopo.readthedocs.io/en/latest/"
+# For inspiration: https://pydigger.com/keywords
 keywords = [
     "data",
     "gis",
@@ -15,6 +17,7 @@ keywords = [
     "fracture",
     "topology",
 ]
+# See https://pypi.org/classifiers/
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -157,6 +160,7 @@ disable = [
     "R0913",
     "R0914",
     "W0212",
+    "W0621",
     "W0703",
     "W1203",
     ]
