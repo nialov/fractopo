@@ -21,14 +21,26 @@ Full documentation
 Installation
 ------------
 
-Currently installation is supported only for ``linux``-based operating
-systems and ``MacOS``. There's a known problem with installing any
-``gdal``-based Python package onto a Windows machine. (Could be
-circumvented at some point by using ``conda``.)
+``pip`` and ``poetry`` installation only supported for ``linux`` and ``MacOS``
+based operating systems. For ``Windows`` install using ``(ana)conda``.
 
-Omit ``--dev`` or ``[dev]`` for regular installation. Keep if you want
-to test/develop or otherwise install all development python
+For ``pip`` and ``poetry``: Omit --dev or [dev] for regular installation. Keep
+if you want to test/develop or otherwise install all development python
 dependencies.
+
+Conda
+~~~~~
+
+-  Only supported installation method for ``Windows``!
+
+.. code:: bash
+
+   # Create new environment for fractopo (recommended)
+   conda env create fractopo-env
+   conda activate fractopo-env
+   # Available on conda-forge channel
+   conda install -c conda-forge fractopo
+
 
 Pip
 ~~~
@@ -187,9 +199,6 @@ Development status
 -  Breaking changes are possible and expected.
 -  Critical issues:
 
-   -  Installation on Windows is currently not supported due to problems
-      with installation of `gdal <https://gdal.org/>`__-based packages
-      like `geopandas <https://geopandas.org/>`__.
    -  Trace validation should be refactored at some point.
 
       -  Though keeping in mind that the current implementation works
