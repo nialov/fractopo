@@ -1251,6 +1251,10 @@ def safe_buffer(
 ) -> Polygon:
     """
     Get type checked Polygon buffer.
+
+    >>> result = safe_buffer(Point(0, 0), 1)
+    >>> isinstance(result, Polygon), result.area
+    (True, 3.1365484905459384)
     """
     buffer = geom.buffer(radius, **kwargs)
     if not isinstance(buffer, Polygon):
@@ -1261,6 +1265,13 @@ def safe_buffer(
 def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
     """
     Get random points within Polygon.
+
+    >>> from pprint import pprint
+    >>> random.seed(10)
+    >>> poly = box(0, 0, 1, 1)
+    >>> result = random_points_within(poly, 2)
+    >>> pprint([point.within(poly) for point in result])
+    [True, True]
     """
     min_x, min_y, max_x, max_y = geom_bounds(poly)
     points: List[Point] = []
@@ -1300,6 +1311,9 @@ def within_bounds(
 ):
     """
     Are x and y within the bounds.
+
+    >>> within_bounds(1, 1, 0, 0, 2, 2)
+    True
     """
     return (min_x <= x <= max_x) and (min_y <= y <= max_y)
 
@@ -1309,6 +1323,9 @@ def geom_bounds(
 ) -> Tuple[float, float, float, float]:
     """
     Get LineString or Polygon bounds.
+
+    >>> geom_bounds(LineString([(-10, -10), (10, 10)]))
+    (-10.0, -10.0, 10.0, 10.0)
     """
     types = (LineString, Polygon, MultiPolygon)
     if not isinstance(geom, types):
@@ -1335,6 +1352,10 @@ def total_bounds(
 ) -> Tuple[float, float, float, float]:
     """
     Get total bounds of geodataset.
+
+    >>> geodata = gpd.GeoSeries([Point(-10, 10), Point(10, 10)])
+    >>> total_bounds(geodata)
+    (-10.0, 10.0, 10.0, 10.0)
     """
     bounds = geodata.total_bounds
     if not len(bounds) == 4:
@@ -1442,6 +1463,9 @@ def extend_bounds(
 ) -> Tuple[float, float, float, float]:
     """
     Extend bounds by addition and reduction.
+
+    >>> extend_bounds(0, 0, 10, 10, 10)
+    (-10, -10, 20, 20)
     """
     return (
         min_x - extend_amount,
@@ -1475,6 +1499,13 @@ def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
 def intersection_count_to_boundary_weight(intersection_count: int) -> int:
     """
     Get actual weight factor for boundary intersection count.
+
+    >>> intersection_count_to_boundary_weight(2)
+    0
+    >>> intersection_count_to_boundary_weight(0)
+    1
+    >>> intersection_count_to_boundary_weight(1)
+    2
     """
     if not isinstance(intersection_count, int):
         intersection_count = intersection_count.item()
@@ -1501,6 +1532,9 @@ def numpy_to_python_type(value: Any):
 def calc_circle_area(radius: float) -> float:
     """
     Calculate area of circle.
+
+    >>> calc_circle_area(1.78)
+    9.953822163633902
     """
     return np.pi * radius ** 2
 
@@ -1508,6 +1542,10 @@ def calc_circle_area(radius: float) -> float:
 def calc_circle_radius(area: float) -> float:
     """
     Calculate radius from area.
+
+    >>> calc_circle_radius(10.0)
+    1.7841241161527712
+
     """
     assert not area < 0
     radius = numpy_to_python_type(np.sqrt(area / np.pi))
@@ -1518,6 +1556,11 @@ def calc_circle_radius(area: float) -> float:
 def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
     """
     Create unit vector from point to other point.
+
+    >>> point = Point(0, 0)
+    >>> other_point = Point(1, 1)
+    >>> point_to_point_unit_vector(point, other_point)
+    array([0.70710678, 0.70710678])
     """
     x1, y1 = tuple(*point.coords)
     x2, y2 = tuple(*other_point.coords)
@@ -1538,6 +1581,14 @@ def raise_determination_error(
 ):
     """
     Raise AttributeError if attribute cannot be determined.
+
+    >>> try:
+    ...     raise_determination_error("parameters")
+    ...     assert False
+    ... except AttributeError as exc:
+    ...     print(exc)
+    Cannot determine parameters without determining branches and nodes.
+
     """
     raise AttributeError(
         f"Cannot determine {attribute} without {verb} {determine_target}."
