@@ -542,6 +542,12 @@ def match_crs(
 ]:
     """
     Match crs between two geopandas data structures.
+
+    >>> first = gpd.GeoSeries([Point(1, 1)], crs="EPSG:3067")
+    >>> second = gpd.GeoSeries([Point(1, 1)])
+    >>> m_first, m_second = match_crs(first, second)
+    >>> m_first.crs == m_second.crs
+    True
     """
     all_crs = [crs for crs in (first.crs, second.crs) if crs is not None]
     if len(all_crs) == 0:
@@ -1587,6 +1593,7 @@ def raise_determination_error(
     ...     assert False
     ... except AttributeError as exc:
     ...     print(exc)
+    ...
     Cannot determine parameters without determining branches and nodes.
 
     """
