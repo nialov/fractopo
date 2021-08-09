@@ -6,6 +6,7 @@ from pathlib import Path
 import geopandas as gpd
 import pytest
 from click.testing import CliRunner
+from typer.testing import CliRunner as TyperCliRunner
 
 from fractopo import cli
 from fractopo.tval.trace_validation import Validation
@@ -78,3 +79,33 @@ def test_tracevalidate_only_area(args, tmp_path):
 
     assert Path(outputs_cmds[1]).exists()
     assert Validation.ERROR_COLUMN[0:10] in gpd.read_file(outputs_cmds[1]).columns
+
+
+@pytest.mark.parametrize(
+    "traces_path,area_path", [(Helpers.kb7_trace_path, Helpers.kb7_area_path)]
+)
+def test_fractopo_network_cli(traces_path, area_path, tmp_path):
+    """
+    Test fractopo network cli entrypoint.
+    """
+    cli_runner = TyperCliRunner()
+    tmp_path.mkdir(exist_ok=True)
+    result = cli_runner.invoke(
+        cli.app,
+        [
+            "--traces",
+            str(traces_path),
+            "--area",
+            str(area_path),
+            "--general-output",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+
+    output_files = list(tmp_path.glob("*"))
+    assert len(output_files) > 0
+
+    assert "branches" in str(output_files)
+    assert "nodes" in str(output_files)
