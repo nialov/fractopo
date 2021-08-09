@@ -162,3 +162,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 network_profile.py
+KB11_area_outputs
