@@ -7,19 +7,19 @@ from pathlib import Path
 from typing import Optional, Tuple, Type, Union
 
 import click
-from rich.table import Table
-from rich.console import Console
-from rich.text import Text
 import fiona
 import geopandas as gpd
 import pandas as pd
-from typer import Typer
 import typer
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+from typer import Typer
 
+from fractopo.analysis.network import Network
 from fractopo.general import read_geofile
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator
-from fractopo.analysis.network import Network
 
 app = Typer()
 
@@ -184,7 +184,7 @@ def network(
     parameters_output: Optional[Path] = typer.Option(None),
 ):
     """
-    Analyze geometry and topology of trace network.
+    Analyze the geometry and topology of trace network.
     """
     network_name = name if name is not None else area.stem
     console = Console()
@@ -207,27 +207,19 @@ def network(
         if censoring_area is not None
         else None,
     )
+    (
+        general_output_path,
+        branches_output_path,
+        nodes_output_path,
+        parameters_output_path,
+    ) = default_network_output_paths(
+        network_name=network_name,
+        general_output=general_output,
+        branches_output=branches_output,
+        nodes_output=nodes_output,
+        parameters_output=parameters_output,
+    )
 
-    general_output_path = (
-        Path(f"{network_name}_outputs") if general_output is None else general_output
-    )
-    general_output_path.mkdir(exist_ok=True)
-
-    branches_output_path = (
-        general_output_path / f"{network_name}_branches.gpkg"
-        if branches_output is None
-        else branches_output
-    )
-    nodes_output_path = (
-        general_output_path / f"{network_name}_nodes.gpkg"
-        if nodes_output is None
-        else nodes_output
-    )
-    parameters_output_path = (
-        general_output_path / f"{network_name}_parameters.csv"
-        if parameters_output is None
-        else parameters_output
-    )
     console.print(
         Text.assemble(
             "Saving branches to ",
@@ -258,4 +250,43 @@ def network(
             (str(parameters_output_path), "bold blue"),
             ".",
         )
+    )
+
+
+def default_network_output_paths(
+    network_name: str,
+    general_output: Optional[Path],
+    branches_output: Optional[Path],
+    nodes_output: Optional[Path],
+    parameters_output: Optional[Path],
+):
+    """
+    Determine default network output paths.
+    """
+    general_output_path = (
+        Path(f"{network_name}_outputs") if general_output is None else general_output
+    )
+    general_output_path.mkdir(exist_ok=True)
+
+    branches_output_path = (
+        general_output_path / f"{network_name}_branches.gpkg"
+        if branches_output is None
+        else branches_output
+    )
+    nodes_output_path = (
+        general_output_path / f"{network_name}_nodes.gpkg"
+        if nodes_output is None
+        else nodes_output
+    )
+    parameters_output_path = (
+        general_output_path / f"{network_name}_parameters.csv"
+        if parameters_output is None
+        else parameters_output
+    )
+
+    return (
+        general_output_path,
+        branches_output_path,
+        nodes_output_path,
+        parameters_output_path,
     )
