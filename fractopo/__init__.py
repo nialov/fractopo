@@ -4,12 +4,19 @@ fractopo.
 Fracture Network Analysis
 """
 import logging
+import warnings
 
-from fractopo.analysis.multi_network import MultiNetwork
-from fractopo.analysis.network import Network
-from fractopo.tval.trace_validation import Validation
+warnings.filterwarnings(
+    action="ignore",
+    category=UserWarning,
+    message=r".*The Shapely GEOS version.*is incompatible with the GEOS",
+)
 
-__version__ = "0.1.2.post4.dev0+a574d5c"
+from fractopo.analysis.multi_network import MultiNetwork  # noqa: E402
+from fractopo.analysis.network import Network  # noqa: E402
+from fractopo.tval.trace_validation import Validation  # noqa: E402
+
+__version__ = "0.1.2.post6.dev0+c493db5"
 
 
 logging.info(
