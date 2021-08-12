@@ -52,7 +52,7 @@ UNARY_ERROR_SIZE_THRESHOLD = 100
 
 
 def determine_branch_identity(
-    number_of_I_nodes: int, number_of_XY_nodes: int, number_of_E_nodes: int
+    number_of_i_nodes: int, number_of_xy_nodes: int, number_of_e_nodes: int
 ) -> str:
     """
     Determine the identity of a branch.
@@ -72,20 +72,20 @@ def determine_branch_identity(
 
     """
     branch_type = Error_branch
-    if number_of_I_nodes + number_of_E_nodes + number_of_XY_nodes != 2:
+    if number_of_i_nodes + number_of_e_nodes + number_of_xy_nodes != 2:
         logging.error("Did not find 2 EXYI-nodes that intersected branch endpoints.\n")
         branch_type = Error_branch
-    elif number_of_I_nodes == 2:
+    elif number_of_i_nodes == 2:
         branch_type = II_branch
-    elif number_of_XY_nodes == 2:
+    elif number_of_xy_nodes == 2:
         branch_type = CC_branch
-    elif number_of_E_nodes == 2:
+    elif number_of_e_nodes == 2:
         branch_type = EE_branch
-    elif number_of_I_nodes == 1 and number_of_XY_nodes == 1:
+    elif number_of_i_nodes == 1 and number_of_xy_nodes == 1:
         branch_type = CI_branch
-    elif number_of_E_nodes == 1 and number_of_XY_nodes == 1:
+    elif number_of_e_nodes == 1 and number_of_xy_nodes == 1:
         branch_type = CE_branch
-    elif number_of_E_nodes == 1 and number_of_I_nodes == 1:
+    elif number_of_e_nodes == 1 and number_of_i_nodes == 1:
         branch_type = IE_branch
     else:
         logging.error("Unknown error in determine_branch_identity")
