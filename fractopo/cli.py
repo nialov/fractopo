@@ -40,6 +40,15 @@ def get_click_path_args(exists=True, **kwargs):
 def describe_results(validated: gpd.GeoDataFrame, error_column: str):
     """
     Describe validation results to stdout.
+
+    E.g.
+
+    >>> gdf = gpd.GeoDataFrame({"VALIDATION_ERRORS": [("V NODE",)]})
+    >>> describe_results(gdf, "VALIDATION_ERRORS")
+    Out of 1 traces, 1 were invalid.
+    There were 1 error types. These were:
+    V NODE
+
     """
     error_count = sum([len(val) != 0 for val in validated[error_column].values])
     error_types = {
