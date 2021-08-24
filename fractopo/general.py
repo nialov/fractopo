@@ -1045,7 +1045,20 @@ def efficient_clip(
     """
     # Transform to pygeos types
     pygeos_traces = pygeos.from_shapely(traces.geometry.values)
-    pygeos_polygons = pygeos.from_shapely(areas.geometry.values)
+
+    # Convert MultiPolygon in area_gdf to Polygons and collect to list.
+    polygons = []
+    for geom in areas.geometry.values:
+        if isinstance(geom, MultiPolygon):
+            polygons.extend(geom.geoms)
+        elif isinstance(geom, Polygon):
+            polygons.append(geom)
+        else:
+            raise TypeError(
+                f"Expected (Multi)Polygons in efficient_clip."
+                f" Got: {geom.wkt, type(geom)}."
+            )
+    pygeos_polygons = pygeos.from_shapely(polygons)
     pygeos_multipolygon = pygeos.multipolygons(pygeos_polygons)
 
     # Perform intersection
