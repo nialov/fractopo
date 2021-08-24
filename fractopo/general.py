@@ -1272,8 +1272,8 @@ def safe_buffer(
     Get type checked Polygon buffer.
 
     >>> result = safe_buffer(Point(0, 0), 1)
-    >>> isinstance(result, Polygon), result.area
-    (True, 3.1365484905459384)
+    >>> isinstance(result, Polygon), round(result.area, 3)
+    (True, 3.137)
     """
     buffer = geom.buffer(radius, **kwargs)
     if not isinstance(buffer, Polygon):
