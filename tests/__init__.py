@@ -345,6 +345,24 @@ class Helpers:
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
     kb11_traces = read_geofile(sample_trace_data)
     kb11_area = read_geofile(sample_area_data)
+    multipolygon_traces = read_geofile(
+        Path(
+            "tests/sample_data/multipolygon_traces_area/"
+            "traces_within_multipolygon_target_area.geojson"
+        )
+    )
+    multipolygon_area = read_geofile(
+        Path(
+            "tests/sample_data/multipolygon_traces_area/"
+            "multipolygon_target_area.geojson"
+        )
+    )
+    manypolygon_area = read_geofile(
+        Path(
+            "tests/sample_data/multipolygon_traces_area/"
+            "many_polygon_target_area.geojson"
+        )
+    )
     assert isinstance(kb11_traces, gpd.GeoDataFrame)
     assert isinstance(kb11_area, gpd.GeoDataFrame)
 
@@ -841,6 +859,33 @@ class Helpers:
             v_node_network_error_gdf,  # traces
             v_node_network_error_area_gdf,  # area
             "v-node-error-network",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+            False,  # circular_target_area
+        ),
+        (
+            multipolygon_traces,  # traces
+            multipolygon_area,  # area
+            "MultiPolygon_target_area",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+            False,  # circular_target_area
+        ),
+        (
+            multipolygon_traces,  # traces
+            multipolygon_area,  # area
+            "MultiPolygon_target_area",  # name
+            True,  # determine_branches_nodes
+            False,  # truncate_traces
+            0.001,  # snap_threshold
+            False,  # circular_target_area
+        ),
+        (
+            multipolygon_traces,  # traces
+            manypolygon_area,  # area
+            "MultiPolygon_target_area",  # name
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
