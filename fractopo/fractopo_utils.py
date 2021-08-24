@@ -176,7 +176,9 @@ class LineMerge:
         traces: gpd.GeoDataFrame, tolerance: float, buffer_value: float
     ) -> gpd.GeoDataFrame:
         """
-        Run multiple conditiona linemerge iterations for GeoDataFrame.
+        Run multiple conditional linemerge iterations for GeoDataFrame.
+
+        This is the main entrypoint.
 
         GeoDataFrame should contain LineStrings.
 
