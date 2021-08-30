@@ -218,6 +218,13 @@ class Network:
         :raises ValueError: If trace ``GeoDataFrame`` is empty after
             ``crop_to_target_areas``.
         """
+        if self.circular_target_area:
+            if not self.truncate_traces:
+                raise ValueError(
+                    "Traces must be trunctated to the target area"
+                    " to perform circular area trace weighting. "
+                    "\n(To fix: pass truncate_traces=True.)"
+                )
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
 
