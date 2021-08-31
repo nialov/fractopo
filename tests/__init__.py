@@ -345,6 +345,8 @@ class Helpers:
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
     kb11_traces = read_geofile(sample_trace_data)
     kb11_area = read_geofile(sample_area_data)
+    kl2_2_traces = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_traces.geojson"))
+    kl2_2_area = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_area.geojson"))
     multipolygon_traces = read_geofile(
         Path(
             "tests/sample_data/multipolygon_traces_area/"
@@ -886,6 +888,15 @@ class Helpers:
             multipolygon_traces,  # traces
             manypolygon_area,  # area
             "MultiPolygon_target_area",  # name
+            True,  # determine_branches_nodes
+            True,  # truncate_traces
+            0.001,  # snap_threshold
+            False,  # circular_target_area
+        ),
+        (
+            kl2_2_traces,  # traces
+            kl2_2_area,  # area
+            "kl_2_2",  # name
             True,  # determine_branches_nodes
             True,  # truncate_traces
             0.001,  # snap_threshold
