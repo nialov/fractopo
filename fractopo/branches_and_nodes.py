@@ -744,6 +744,8 @@ def safer_unary_union(
 
     unary_union is not completely stable with large datasets but problem can be
     alleviated by dividing analysis to parts.
+
+    TODO: Usage is deprecated as unary_union seems to give consistent results.
     """
     if traces_geosrs.empty:
         return MultiLineString()
@@ -807,6 +809,7 @@ def safer_unary_union(
         assert isinstance(full_union, BaseMultipartGeometry)
         if len(full_union.geoms) >= len(normal_full_union.geoms):
             return full_union
+
         raise ValueError(
             "Expected split union to give better results."
             " Branches and nodes should be checked for inconsistencies."
@@ -941,13 +944,24 @@ def branches_and_nodes(
     ]
 
     # Branches are determined with shapely/geopandas unary_union
-    branches_all = list(
-        safer_unary_union(
-            traces_geosrs,
-            snap_threshold=snap_threshold,
-            size_threshold=unary_size_threshold,
-        ).geoms
-    )
+    unary_union_result = traces_geosrs.unary_union
+    if isinstance(unary_union_result, MultiLineString):
+        branches_all = list(unary_union_result.geoms)
+    elif isinstance(unary_union_result, LineString):
+        branches_all = [unary_union_result]
+    else:
+        raise TypeError(
+            "Expected unary_union_result to be of type (Multi)LineString."
+            f" Got: {type(unary_union_result), unary_union_result}"
+        )
+
+    # branches_all = list(
+    #     safer_unary_union(
+    #         traces_geosrs,
+    #         snap_threshold=snap_threshold,
+    #         size_threshold=unary_size_threshold,
+    #     ).geoms
+    # )
 
     # Filter out very short branches
     branches = gpd.GeoSeries(
