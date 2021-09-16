@@ -109,3 +109,5 @@ def test_fractopo_network_cli(traces_path, area_path, tmp_path):
 
     assert "branches" in str(output_files)
     assert "nodes" in str(output_files)
+
+    assert len(list(tmp_path.glob("*.svg"))) > 0
