@@ -17,7 +17,7 @@ from rich.text import Text
 from typer import Typer
 
 from fractopo.analysis.network import Network
-from fractopo.general import read_geofile
+from fractopo.general import read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator
 
@@ -260,6 +260,22 @@ def network(
             ".",
         )
     )
+
+    # Plot ternary XYI-node proportion plot
+    fig, _, _ = network.plot_xyi()
+    save_fig(fig=fig, results_dir=general_output_path, name="xyi_ternary_plot")
+
+    # Plot ternary branch propotion plot
+    fig, _, _ = network.plot_branch()
+    save_fig(fig=fig, results_dir=general_output_path, name="branch_ternary_plot")
+
+    # Plot trace azimuth rose plot
+    _, fig, _ = network.plot_trace_azimuth()
+    save_fig(fig=fig, results_dir=general_output_path, name="trace_azimuth")
+
+    # Plot trace length distribution plot
+    _, fig, _ = network.plot_trace_lengths()
+    save_fig(fig=fig, results_dir=general_output_path, name="trace_length_distribution")
 
 
 def default_network_output_paths(
