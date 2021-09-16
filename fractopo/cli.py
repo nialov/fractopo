@@ -229,6 +229,7 @@ def network(
         parameters_output=parameters_output,
     )
 
+    # Save branches and nodes
     console.print(
         Text.assemble(
             "Saving branches to ",
@@ -241,6 +242,7 @@ def network(
     network.get_branch_gdf().to_file(branches_output_path, driver="GPKG")
     network.get_node_gdf().to_file(nodes_output_path, driver="GPKG")
 
+    # Save network parameters
     param_table = Table(
         title="Network Parameters",
     )
