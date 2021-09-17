@@ -18,6 +18,7 @@ import pandas as pd
 import pygeos
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
+from matplotlib.figure import Figure
 from shapely import prepared
 from shapely.affinity import scale
 from shapely.geometry import (
@@ -1664,3 +1665,10 @@ def multiprocess(
                     ProcessResult(identifier=identifier, error=True, result=exc)
                 )
     return collect_results
+
+
+def save_fig(fig: Figure, results_dir: Path, name: str):
+    """
+    Save figure as svg image to results dir.
+    """
+    fig.savefig(results_dir / f"{name}.svg", bbox_inches="tight")

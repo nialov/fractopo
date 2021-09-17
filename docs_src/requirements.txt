@@ -1,33 +1,55 @@
-alabaster==0.7.12; python_version >= "3.6"
-anyio==3.3.0; python_full_version >= "3.6.2" and python_version >= "3.6"
+alabaster==0.7.12; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+anyio==3.3.1; python_full_version >= "3.6.2" and python_version >= "3.6"
 appnope==0.1.2; sys_platform == "darwin" and python_version >= "3.7" and platform_system == "Darwin"
 argcomplete==1.12.3; python_version < "3.8.0" and python_version >= "3.7"
+<<<<<<< HEAD
 argon2-cffi==20.1.0; python_version >= "3.6"
+=======
+argon2-cffi==21.1.0; python_version >= "3.6"
+>>>>>>> network-cli
 atomicwrites==1.4.0; python_version >= "3.6" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.4.0"
 attrs==21.2.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 babel==2.9.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 backcall==0.2.0; python_version >= "3.7"
 backports.entry-points-selectable==1.1.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+<<<<<<< HEAD
 bleach==4.0.0; python_version >= "3.6"
 certifi==2021.5.30; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7"
 cffi==1.14.6; implementation_name == "pypy" and python_version >= "3.6"
 charset-normalizer==2.0.4; python_full_version >= "3.6.0" and python_version >= "3.6"
+=======
+bleach==4.1.0; python_version >= "3.6"
+certifi==2021.5.30; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.7"
+cffi==1.14.6; implementation_name == "pypy" and python_version >= "3.6"
+charset-normalizer==2.0.5; python_full_version >= "3.6.0" and python_version >= "3.6"
+>>>>>>> network-cli
 click-plugins==1.1.1; python_version >= "3.6"
-click==8.0.1; python_version >= "3.6"
+click==7.1.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 cligj==0.7.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version < "4" and python_version >= "3.6"
+<<<<<<< HEAD
 colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and platform_system == "Windows" and sys_platform == "win32" or platform_system == "Windows" and python_version >= "3.7" and python_full_version >= "3.5.0" and sys_platform == "win32"
 colorlog==6.4.1; python_version >= "3.6"
+=======
+colorama==0.4.4; python_version >= "3.7" and python_full_version < "3.0.0" and sys_platform == "win32" and python_version < "4.0" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6") or sys_platform == "win32" and python_version >= "3.7" and python_full_version >= "3.5.0" and python_version < "4.0" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6")
+colorlog==6.4.1; python_version >= "3.6"
+commonmark==0.9.1; python_version >= "3.6" and python_version < "4.0"
+>>>>>>> network-cli
 cycler==0.10.0; python_version >= "3.7"
-debugpy==1.4.1; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
-decorator==5.0.9; python_version >= "3.7"
+debugpy==1.4.3; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
+decorator==5.1.0; python_version >= "3.7"
 defusedxml==0.7.1; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.7"
 descartes==1.1.0
 distlib==0.3.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+<<<<<<< HEAD
 docutils==0.16; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+=======
+docutils==0.17.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+>>>>>>> network-cli
 entrypoints==0.3; python_full_version >= "3.6.1" and python_version >= "3.7"
 filelock==3.0.12; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 fiona==1.8.20; python_version >= "3.6"
 geopandas==0.9.0; python_version >= "3.6"
+<<<<<<< HEAD
 hypothesis==6.15.0; python_version >= "3.6"
 idna==3.2; python_full_version >= "3.6.2" and python_version >= "3.6"
 imagesize==1.2.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
@@ -37,11 +59,23 @@ invoke==1.6.0
 ipykernel==6.2.0; python_version >= "3.7"
 ipython-genutils==0.2.0; python_version >= "3.7"
 ipython==7.26.0; python_version >= "3.7"
+=======
+hypothesis==6.21.4; python_version >= "3.6"
+idna==3.2; python_full_version >= "3.6.2" and python_version >= "3.6"
+imagesize==1.2.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+importlib-metadata==4.8.1; python_version == "3.7" and (python_version >= "3.6" and python_full_version < "3.0.0" and python_version < "3.8" or python_full_version >= "3.5.0" and python_version >= "3.6" and python_version < "3.8")
+iniconfig==1.1.1; python_version >= "3.6"
+invoke==1.6.0
+ipykernel==6.4.1; python_version >= "3.7"
+ipython-genutils==0.2.0; python_version >= "3.7"
+ipython==7.27.0; python_version >= "3.7"
+>>>>>>> network-cli
 jedi==0.18.0; python_version >= "3.6"
-jinja2==3.0.1; python_version >= "3.7"
+jinja2==3.0.1; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7"
 joblib==1.0.1; python_version >= "3.6"
 json5==0.9.6; python_version >= "3.6"
 jsonschema==3.2.0; python_version >= "3.6"
+<<<<<<< HEAD
 jupyter-client==7.0.1; python_full_version >= "3.6.1" and python_version >= "3.7"
 jupyter-core==4.7.1; python_full_version >= "3.6.1" and python_version >= "3.7"
 jupyter-server==1.10.2; python_version >= "3.6"
@@ -51,6 +85,17 @@ jupyterlab==3.1.8; python_version >= "3.6"
 kiwisolver==1.3.1; python_version >= "3.7"
 markupsafe==2.0.1; python_version >= "3.6"
 matplotlib-inline==0.1.2; python_version >= "3.7"
+=======
+jupyter-client==7.0.2; python_full_version >= "3.6.1" and python_version >= "3.7"
+jupyter-core==4.7.1; python_full_version >= "3.6.1" and python_version >= "3.7"
+jupyter-server==1.11.0; python_version >= "3.6"
+jupyterlab-pygments==0.1.2; python_version >= "3.7"
+jupyterlab-server==2.8.1; python_version >= "3.6"
+jupyterlab==3.1.12; python_version >= "3.6"
+kiwisolver==1.3.2; python_version >= "3.7"
+markupsafe==2.0.1; python_version >= "3.6"
+matplotlib-inline==0.1.3; python_version >= "3.7"
+>>>>>>> network-cli
 matplotlib==3.4.3; python_version >= "3.7"
 mistune==0.8.4; python_version >= "3.7"
 mpmath==1.2.1
@@ -61,6 +106,7 @@ nbconvert==6.1.0; python_version >= "3.7"
 nbformat==5.1.3; python_full_version >= "3.6.1" and python_version >= "3.7"
 nbsphinx==0.8.7; python_version >= "3.6"
 nest-asyncio==1.5.1; python_full_version >= "3.6.1" and python_version >= "3.7"
+<<<<<<< HEAD
 notebook==6.4.3; python_version >= "3.6"
 nox==2021.6.12; python_version >= "3.6"
 numpy==1.21.1; python_version >= "3.7"
@@ -73,6 +119,20 @@ pickleshare==0.7.5; python_version >= "3.7"
 pillow==8.3.1; python_version >= "3.7"
 platformdirs==2.2.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 pluggy==0.13.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+=======
+notebook==6.4.4; python_version >= "3.6"
+nox==2021.6.12; python_version >= "3.6"
+numpy==1.21.1; python_version >= "3.7"
+packaging==21.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7"
+pandas==1.3.3; python_full_version >= "3.7.1"
+pandocfilters==1.5.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7"
+parso==0.8.2; python_version >= "3.7"
+pexpect==4.8.0; sys_platform != "win32" and python_version >= "3.7"
+pickleshare==0.7.5; python_version >= "3.7"
+pillow==8.3.2; python_version >= "3.7"
+platformdirs==2.3.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+pluggy==1.0.0; python_version >= "3.6"
+>>>>>>> network-cli
 powerlaw==1.5
 prometheus-client==0.11.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 prompt-toolkit==3.0.20; python_full_version >= "3.6.2" and python_version >= "3.7"
@@ -80,23 +140,32 @@ ptyprocess==0.7.0; sys_platform != "win32" and python_version >= "3.7" and os_na
 py==1.10.0; python_version >= "3.6" and python_full_version < "3.0.0" and implementation_name == "pypy" or python_full_version >= "3.4.0" and python_version >= "3.6" and implementation_name == "pypy"
 pycparser==2.20; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 pygeos==0.10.1; python_version >= "3.6"
+<<<<<<< HEAD
 pygments==2.10.0; python_version >= "3.7"
+=======
+pygments==2.10.0; python_version >= "3.7" and python_version < "4.0" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6")
+>>>>>>> network-cli
 pyinstrument==4.0.3; python_version >= "3.7"
 pyparsing==2.4.7; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7"
-pyproj==3.1.0; python_version >= "3.7"
+pyproj==3.2.0; python_version >= "3.7"
 pyrsistent==0.18.0; python_version >= "3.6"
 pytest-datadir==1.3.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 pytest-regressions==2.2.0; python_version >= "3.6"
-pytest==6.2.4; python_version >= "3.6"
+pytest==6.2.5; python_version >= "3.6"
 python-dateutil==2.8.2; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7")
 python-ternary==1.0.8
 pytz==2021.1; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6")
 pywin32==301; sys_platform == "win32" and python_version >= "3.6"
-pywinpty==1.1.3; os_name == "nt" and python_version >= "3.6"
+pywinpty==1.1.4; os_name == "nt" and python_version >= "3.6"
 pyyaml==5.4.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
+<<<<<<< HEAD
 pyzmq==22.2.1; python_full_version >= "3.6.1" and python_version >= "3.6"
+=======
+pyzmq==22.3.0; python_full_version >= "3.6.1" and python_version >= "3.6"
+>>>>>>> network-cli
 requests-unixsocket==0.2.0; python_version >= "3.6"
 requests==2.26.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
+rich==10.9.0; python_version >= "3.6" and python_version < "4.0"
 scikit-learn==0.24.2; python_version >= "3.6"
 scipy==1.6.1; python_version >= "3.7"
 seaborn==0.11.2; python_version >= "3.6"
@@ -104,10 +173,11 @@ send2trash==1.8.0; python_version >= "3.6"
 shapely==1.7.1
 six==1.16.0; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
 sniffio==1.2.0; python_full_version >= "3.6.2" and python_version >= "3.6"
-snowballstemmer==2.1.0; python_version >= "3.6"
+snowballstemmer==2.1.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 sortedcontainers==2.4.0; python_version >= "3.6"
 sphinx-autodoc-typehints==1.12.0; python_version >= "3.6"
 sphinx-gallery==0.9.0; python_version >= "3.6"
+<<<<<<< HEAD
 sphinx-rtd-theme==0.5.2
 sphinx==4.1.2; python_version >= "3.6"
 sphinxcontrib-applehelp==1.0.2; python_version >= "3.6"
@@ -117,14 +187,30 @@ sphinxcontrib-jsmath==1.0.1; python_version >= "3.6"
 sphinxcontrib-qthelp==1.0.3; python_version >= "3.6"
 sphinxcontrib-serializinghtml==1.1.5; python_version >= "3.6"
 terminado==0.11.1; python_version >= "3.6"
+=======
+sphinx-rtd-theme==1.0.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.4.0")
+sphinx==4.2.0; python_version >= "3.6"
+sphinxcontrib-applehelp==1.0.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+sphinxcontrib-devhelp==1.0.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+sphinxcontrib-htmlhelp==2.0.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+sphinxcontrib-jsmath==1.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+sphinxcontrib-qthelp==1.0.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+sphinxcontrib-serializinghtml==1.1.5; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
+terminado==0.12.1; python_version >= "3.6"
+>>>>>>> network-cli
 testpath==0.5.0; python_version >= "3.7"
 threadpoolctl==2.2.0; python_version >= "3.6"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6"
 tornado==6.1; python_full_version >= "3.6.1" and python_version >= "3.7"
-traitlets==5.0.5; python_full_version >= "3.6.1" and python_version >= "3.7"
-typing-extensions==3.10.0.0; python_version < "3.8" and python_version >= "3.6" and python_full_version >= "3.6.2"
+traitlets==5.1.0; python_full_version >= "3.6.1" and python_version >= "3.7"
+typer==0.3.2; python_version >= "3.6"
+typing-extensions==3.10.0.2; python_version >= "3.6" and python_version < "3.8" and python_full_version >= "3.6.2"
 urllib3==1.26.6; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version < "4" and python_version >= "3.6"
+<<<<<<< HEAD
 virtualenv==20.7.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+=======
+virtualenv==20.8.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+>>>>>>> network-cli
 wcwidth==0.2.5; python_full_version >= "3.6.2" and python_version >= "3.7"
 webencodings==0.5.1; python_version >= "3.7"
 websocket-client==1.2.1; python_version >= "3.6"

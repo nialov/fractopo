@@ -1,5 +1,5 @@
-fractopo
-========
+fractopo-readme
+===============
 
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder|
 
@@ -11,22 +11,20 @@ analysing lineament and fracture trace maps (fracture networks).
 
    Overview of fractopo
 
-Full documentation
-------------------
+-  Full Documentation is hosted on Read the Docs:
 
--  Documentation is hosted on Read the Docs:
-
-   -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html>`__
+   -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
 
 Installation
 ------------
 
-``pip`` and ``poetry`` installation only supported for ``linux`` and ``MacOS``
-based operating systems. For ``Windows`` install using ``(ana)conda``.
+``pip`` and ``poetry`` installation only supported for ``linux`` and
+``MacOS`` based operating systems. For ``Windows`` install using
+``(ana)conda``.
 
-For ``pip`` and ``poetry``: Omit --dev or [dev] for regular installation. Keep
-if you want to test/develop or otherwise install all development python
-dependencies.
+For ``pip`` and ``poetry``: Omit --dev or [dev] for regular
+installation. Keep if you want to test/develop or otherwise install all
+development python dependencies.
 
 Conda
 ~~~~~
@@ -40,7 +38,6 @@ Conda
    conda activate fractopo-env
    # Available on conda-forge channel
    conda install -c conda-forge fractopo
-
 
 Pip
 ~~~
@@ -77,12 +74,6 @@ For development:
    git clone https://github.com/nialov/fractopo --depth 1
    cd fractopo
    poetry install
-
-Usage
------
-
-See `Full documentation <https://tinyurl.com/yb4tj47e>`__ for usage
-guidance and examples.
 
 Input data
 ~~~~~~~~~~
