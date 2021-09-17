@@ -2,7 +2,7 @@
 Utilities for Network subsampling.
 """
 import logging
-from typing import List, Sequence
+from typing import Dict, List, Sequence, Union
 
 import numpy as np
 import pandas as pd
@@ -26,7 +26,7 @@ def create_sample(sampler: NetworkRandomSampler):
 
 def subsample_networks(
     networks: Sequence[Network],
-    min_radius: float,
+    min_radii: Union[float, Dict[str, float]],
     random_choice: RandomChoice = RandomChoice.radius,
     samples: int = 1,
 ) -> List[general.ProcessResult]:
@@ -38,7 +38,11 @@ def subsample_networks(
 
     subsamplers = [
         NetworkRandomSampler.random_network_sampler(
-            network=network, min_radius=min_radius, random_choice=random_choice
+            network=network,
+            min_radius=min_radii
+            if isinstance(min_radii, float)
+            else min_radii[network.name],
+            random_choice=random_choice,
         )
         for network in networks
     ]
