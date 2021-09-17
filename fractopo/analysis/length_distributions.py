@@ -1,12 +1,15 @@
 """
 Utilities for analyzing and plotting length distributions for line data.
 """
+from dataclasses import dataclass
 from enum import Enum, unique
+from itertools import cycle
 from textwrap import wrap
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import powerlaw
+import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -19,6 +22,18 @@ SIGMA = "sigma"
 MU = "mu"
 LAMBDA = "lambda"
 LOGLIKELIHOOD = "loglikelihood"
+
+
+@dataclass
+class LengthDistribution:
+
+    """
+    Dataclass for length distributions.
+    """
+
+    name: str
+    lengths: np.ndarray
+    area_value: float
 
 
 @unique
@@ -263,3 +278,121 @@ def describe_powerlaw_fit(
     if label is None:
         return base
     return {f"{label} {key}": value for key, value in base.items()}
+
+
+def polyfit_to_multi_scale_lengths(
+    all_ccms_concat: np.ndarray, all_length_arrs_concat: np.ndarray
+) -> Tuple[np.ndarray, float, float]:
+    """
+    Fit np.polyfit to multiscale length distributions.
+
+    Returns the fitted values, exponent and constant of fit.
+    """
+    # Find sorted order of lengths
+    length_sort_permutation = all_length_arrs_concat.argsort()
+
+    # Apply sorted order of lengths to both lenghts and ccms
+    all_length_arrs_concat_sorted_log = np.log(
+        all_length_arrs_concat[length_sort_permutation]
+    )
+    all_ccms_concat_log = np.log(all_ccms_concat[length_sort_permutation])
+
+    # Fit numpy polyfit to data
+    fit_vals = np.polyfit(all_length_arrs_concat_sorted_log, all_ccms_concat_log, 1)
+
+    if len(fit_vals) == 2:
+        m, c = fit_vals[0], fit_vals[1]
+    else:
+        raise ValueError("Expected two values from np.polyfit.")
+
+    # Calculate the fitted values of y
+    y_fit = np.exp(m * all_length_arrs_concat_sorted_log + c)
+    return y_fit, m, c
+
+
+def multi_scale_length_distribution_fit(
+    distributions: List[LengthDistribution],
+    auto_cut_off: bool,
+    using_branches: bool = False,
+) -> Tuple[Figure, Axes]:
+    """
+    Plot multi scale length distributions and their fit.
+    """
+    # Gather variations of length distribution lengths and ccm
+    truncated_length_arrays = []
+    ccm_arrays_normed = []
+    names = []
+
+    # Iterate over LengthDistributions
+    for length_distribution in distributions:
+
+        # Determine fit for distribution
+        fit = determine_fit(
+            length_distribution.lengths, cut_off=None if auto_cut_off else 1e-8
+        )
+
+        # Get the full length data along with full ccm using the original
+        # data instead of fitted (should be same with cut_off==0.0)
+        full_length_array, full_ccm_array = fit.ccdf(original_data=True)
+
+        # Get boolean array where length is over cut_off
+        are_over_cut_off = full_length_array > fit.xmin
+
+        # Cut lengths and corresponding ccm to indexes where are over cut off
+        truncated_length_array = full_length_array[are_over_cut_off]
+        ccm_array = full_ccm_array[are_over_cut_off]
+
+        # Normalize ccm with area value
+        ccm_array_normed = ccm_array / length_distribution.area_value
+
+        # Gather results
+        truncated_length_arrays.append(truncated_length_array)
+        ccm_arrays_normed.append(ccm_array_normed)
+        names.append(length_distribution.name)
+
+    # Create concatenated version of collected lengths and ccms
+    ccm_arrays_normed_concat = np.concatenate(ccm_arrays_normed)
+    truncated_length_arrays_concat = np.concatenate(truncated_length_arrays)
+
+    # Determine polyfit to multiscale distributions
+    y_fit, m, c = polyfit_to_multi_scale_lengths(
+        all_ccms_concat=ccm_arrays_normed_concat,
+        all_length_arrs_concat=truncated_length_arrays_concat,
+    )
+
+    # Start making plot
+    fig, ax = plt.subplots(figsize=(7, 7))
+    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_facecolor("oldlace")
+    ax.set_title(f"$Exponent = {m}$")
+
+    # Make color cycle
+    color_cycle = cycle(sns.color_palette("dark", 5))
+
+    # Plot length distributions
+    for name, truncated_length_array, ccm_array_normed in zip(
+        names, truncated_length_arrays, ccm_arrays_normed
+    ):
+        ax.scatter(
+            x=truncated_length_array,
+            y=ccm_array_normed,
+            s=25,
+            label=name,
+            marker="X",
+            color=next(color_cycle),
+        )
+
+    # Plot polyfit
+    ax.plot(
+        (truncated_length_arrays_concat[0], truncated_length_arrays_concat[-1]),
+        (y_fit[0], y_fit[-1]),
+        label="Polyfit",
+        linestyle="dashed",
+    )
+
+    # Add legend
+    plt.legend()
+
+    return fig, ax
