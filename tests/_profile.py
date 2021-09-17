@@ -65,7 +65,7 @@ def perf_profile(
 
         if do_subsampling:
             multi_network = MultiNetwork([network])
-            multi_network.subsample(min_radius=5.0, samples=5)
+            multi_network.subsample(min_radii=5.0, samples=5)
 
 
 if __name__ == "__main__":
