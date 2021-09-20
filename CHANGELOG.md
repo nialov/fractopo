@@ -1,69 +1,127 @@
-## Unreleased
+# Changelog
+
+## Unreleased (2021-09-20)
+
+#### New Features
+
+-   (analysis): implement multiscale fit
+
+-   implement network-cli
+
+#### Fixes
+
+-   (analysis): handle mapped radii values
+
+-   (cli): finish network-cli implement for now
+
+-   deprecate safer_unary_union
+
+-   fix truncate and circular input logic
+
+Full set of changes:
+[`v0.1.4...1aacbbd`](https://github.com/nialov/fractopo/compare/v0.1.4...1aacbbd)
+
+## v0.1.4 (2021-08-24)
+
+Full set of changes:
+[`v0.1.3...v0.1.4`](https://github.com/nialov/fractopo/compare/v0.1.3...v0.1.4)
+
+## v0.1.3 (2021-08-24)
+
+#### New Features
+
+-   add network cli entrypoint
+
+#### Fixes
+
+-   handle multipolygon geometries in efficient_clip
+
+-   ignore geos incompatibility error
+
+Full set of changes:
+[`v0.1.2...v0.1.3`](https://github.com/nialov/fractopo/compare/v0.1.2...v0.1.3)
+
+## v0.1.2 (2021-07-30)
+
+Full set of changes:
+[`v0.1.1...v0.1.2`](https://github.com/nialov/fractopo/compare/v0.1.1...v0.1.2)
+
+## v0.1.1 (2021-07-29)
+
+Full set of changes:
+[`v0.1.0...v0.1.1`](https://github.com/nialov/fractopo/compare/v0.1.0...v0.1.1)
 
 ## v0.1.0 (2021-07-29)
 
-### Fix
+#### New Features
 
-- minor fixes to mypy found issues
-- better parameter plotting
-- handle nan inputs in vector funcs
-- handle non-dict return
-- add verbose=False flag to powerlaw.Fit
-- specify is_filtered
-- add cli entrypoint tracevalidate
-- mauldon determination now only for circular
-- set random seed for all processes
-- specify circular target area and truncate
-- return description not full network
-- default value for no occurrences is 0, not np.nan
-- correct name for network
-- fix imports and update version
-- minor docs, style and typing fixes
-- same default snap threshold in Network as in validation
-- fix numerous pylint pointed errors
-- comment out general func for now
-- minor performance improvement and fixes
-- filter features with spatial index before gpd.clip
-- remove duplicate line
-- fix contour gridding and handle mauldon instability
-- determine branches and nodes for each cell
-- handle empty node case
+-   add heatmap plotting and refactor xyi plotting
 
-### Refactor
+-   implement additional random sampling functionality
 
-- formatting
-- improve typing info
-- change azimuth plotting
-- move things around
-- lint and general changes
-- fix typing issues found by mypy
-- minor edits
-- move subsampling mostly to subsampling.py
-- minor edits
-- reduce None returns and fix signatures
-- move contour grid and implement method for Network
-- refactor imports
-- add grid creation to general.py
+-   (analysis): implement multinetwork class and parallel subsampling
 
-### Feat
+-   all keys are np.nan by default in numerical network description
 
-- add heatmap plotting and refactor xyi plotting
-- implement additional random sampling functionality
-- **analysis**: implement multinetwork class and parallel subsampling
-- all keys are np.nan by default in numerical network description
-- add plot_contour to network
+-   add plot_contour to network
 
-### Perf
+#### Fixes
 
-- speed up clipping with pygeos clip implement
-- improve test performace
+-   minor fixes to mypy found issues
 
-## 0.0.5 (2021-05-28)
+-   better parameter plotting
 
-## 0.0.4 (2021-05-28)
+-   handle nan inputs in vector funcs
 
-## 0.0.3 (2021-05-16)
+-   handle non-dict return
 
-## 0.0.2 (2021-03-22)
+-   add verbose=False flag to powerlaw.Fit
 
-## v0.0.1 (2020-12-22)
+-   specify is_filtered
+
+-   add cli entrypoint tracevalidate
+
+-   mauldon determination now only for circular
+
+-   set random seed for all processes
+
+-   specify circular target area and truncate
+
+-   return description not full network
+
+-   default value for no occurrences is 0, not np.nan
+
+-   correct name for network
+
+-   fix imports and update version
+
+-   minor docs, style and typing fixes
+
+-   same default snap threshold in Network as in validation
+
+-   fix numerous pylint pointed errors
+
+-   comment out general func for now
+
+-   minor performance improvement and fixes
+
+-   filter features with spatial index before gpd.clip
+
+-   remove duplicate line
+
+-   fix contour gridding and handle mauldon instability
+
+-   determine branches and nodes for each cell
+
+-   handle empty node case
+
+#### Performance improvements
+
+-   speed up clipping with pygeos clip implement
+
+-   improve test performace
+
+Full set of changes:
+[`v0.0.1...v0.1.0`](https://github.com/nialov/fractopo/compare/v0.0.1...v0.1.0)
+
+## v0.0.1 (2020-12-17)
