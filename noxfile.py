@@ -27,6 +27,8 @@ DEV_REQUIREMENTS = "requirements.txt"
 DOCS_REQUIREMENTS = "docs_src/requirements.txt"
 DOCS_EXAMPLES = "examples"
 DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
+CITATION_CFF_NAME = "CITATION.cff"
+CHANGELOG_MD_NAME = "CHANGELOG.md"
 
 # Globs
 DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
@@ -341,3 +343,109 @@ def typecheck(session):
 
     # Format python files
     session.run("mypy", *existing_paths)
+
+
+@nox.session(reuse_venv=True)
+def validate_citation_cff(session):
+    """
+    Validate CITATION.cff.
+
+    From: https://github.com/citation-file-format/citation-file-format
+    """
+    # Path to CITATION.cff
+    citation_cff_path = Path(CITATION_CFF_NAME).absolute()
+
+    # create temporary directory and chdir there
+    tmp_dir = session.create_tmp()
+    session.chdir(tmp_dir)
+
+    # Remove existing dir
+    citation_file_format_dir = Path("citation-file-format")
+    if citation_file_format_dir.exists():
+        rmtree(citation_file_format_dir)
+
+    # clone this repository and chdir into the repo
+    session.run(
+        "git",
+        "clone",
+        "https://github.com/citation-file-format/citation-file-format.git",
+        "--depth",
+        "1",
+        external=True,
+    )
+    session.chdir(str(citation_file_format_dir))
+
+    # install the validation dependencies in user space
+    session.install("ruamel.yaml", "jsonschema")
+
+    # run the validator on your CITATION.cff
+    session.run(
+        "python3",
+        str(Path("examples/validator.py")),
+        "-s",
+        "schema.json",
+        "-d",
+        str(citation_cff_path),
+    )
+
+
+@nox.session(reuse_venv=True)
+def changelog(session):
+    """
+    Create CHANGELOG.md.
+    """
+    if session.posargs:
+        if isinstance(session.posargs, str):
+            version = session.posargs
+        elif isinstance(session.posargs, (tuple, list)):
+            version = session.posargs[0]
+        else:
+            raise TypeError(
+                f"Expected (str,tuple,list) as posargs type. Got: {type(session.posargs)}"
+                f" with contents: {session.posargs}."
+            )
+    else:
+        version = ""
+    assert isinstance(version, str)
+    # Path to changelog.md
+    changelog_path = Path(CHANGELOG_MD_NAME).absolute()
+
+    # Check if pandoc is installed
+    pandoc_installed = True
+    try:
+        session.run("pandoc", "--help", external=True)
+    except Exception:
+        pandoc_installed = False
+        print("Expected 'pandoc' to be installed. Cannot generate clean changelog.")
+
+    # Install auto-changelog from own repo
+    session.install("git+https://github.com/nialov/auto-changelog.git")
+    session.run(
+        "auto-changelog",
+        "--tag-prefix=v",
+        f"--output={CHANGELOG_MD_NAME}",
+        f"--latest-version={version}" if len(version) > 0 else "--unreleased",
+    )
+
+    # Add empty lines after each line of changelog
+    new_lines = []
+    for line in changelog_path.read_text().splitlines():
+        new_lines.append(line)
+        new_lines.append("")
+
+    changelog_path.write_text("\n".join(new_lines))
+    if pandoc_installed:
+        session.run(
+            "pandoc",
+            CHANGELOG_MD_NAME,
+            "--from",
+            "markdown",
+            "--to",
+            "markdown",
+            "--output",
+            CHANGELOG_MD_NAME,
+            external=True,
+        )
+    print(changelog_path.read_text())
+
+    assert changelog_path.exists()

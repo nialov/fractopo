@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+
+- family-names: Ovaskainen
+  given-names: Nikolas
+  orcid: "https://orcid.org/0000-0003-1562-0280"
+title: fractopo
+version: "0.0.0"
+date-released: "2020-01-01"
+keywords:
+  - python
+  - data
+contact:
+  - email: "nikolasovaskainen@gmail.com"
+url: "https://github.com/nialov/fractopo"
+repository-code: "https://github.com/nialov/fractopo"

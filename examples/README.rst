@@ -1,5 +1,5 @@
-Gallery of fractopo example scripts and plots
-=============================================
+Gallery of fractopo example scripts and/or plots
+=============================================================================
 
 All matplotlib plots can be saved with:
 

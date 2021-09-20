@@ -4,8 +4,23 @@ Invoke tasks.
 Most tasks employ nox to create a virtual session for testing.
 """
 from invoke import task
+from pathlib import Path
+from time import strftime
+from itertools import chain
+import re
+
 
 PACKAGE_NAME = "fractopo"
+CITATION_CFF_PATH = Path("CITATION.cff")
+DATE_RELEASED_STR = "date-released"
+
+VERSION_GLOBS = [
+    "*/__init__.py",
+    "CITATION.cff",
+    "pyproject.toml",
+]
+
+VERSION_PATTERN = r"(^_*version_*\s*[:=]\s\").*\""
 
 
 @task
@@ -88,7 +103,50 @@ def performance_profile(c):
     c.run("nox --session profile_performance")
 
 
-@task(pre=[requirements, update_version, format_and_lint, ci_test, build, docs])
+@task
+def citation(c):
+    """
+    Sync and validate CITATION.cff.
+    """
+    print("Updating CITATION.cff date")
+    citation_text = CITATION_CFF_PATH.read_text()
+    citation_lines = citation_text.splitlines()
+    if DATE_RELEASED_STR not in citation_text:
+        raise ValueError(
+            f"Expected to find {DATE_RELEASED_STR} str in {CITATION_CFF_PATH}."
+            f"\nCheck & validate {CITATION_CFF_PATH}."
+        )
+    date = strftime("%Y-%m-%d")
+    new_lines = [
+        line if "date-released" not in line else f'date-released: "{date}"'
+        for line in citation_lines
+    ]
+    CITATION_CFF_PATH.write_text("\n".join(new_lines))
+
+    print("Validating CITATION.cff")
+    c.run("nox --session validate_citation_cff")
+
+
+@task
+def changelog(c, latest_version=""):
+    """
+    Generate changelog.
+    """
+    c.run(f"nox --session changelog -- {latest_version}")
+
+
+@task(
+    pre=[
+        requirements,
+        update_version,
+        format_and_lint,
+        ci_test,
+        build,
+        docs,
+        citation,
+        changelog,
+    ]
+)
 def prepush(_):
     """
     Test suite for locally verifying continous integration results upstream.
@@ -114,7 +172,64 @@ def pre_commit(c, only_run=False, only_install=False):
 
     if not only_install:
         print("Running on all files.")
-        c.run("pre-commit run --all-files")
+        try:
+            c.run("pre-commit run --all-files")
+        except Exception:
+            print("pre-commit run formatted files!")
+
+
+@task(pre=[prepush], post=[pre_commit])
+def tag(c, tag="", annotation=""):
+    """
+    Make new tag and update version strings accordingly
+    """
+    if len(tag) == 0:
+        raise ValueError("Tag string must be specified with '--tag=*'.")
+    if len(annotation) == 0:
+        raise ValueError("Annotation string must be specified with '--annotation=*'.")
+
+    # Create changelog with 'tag' as latest version
+    c.run(f"nox --session changelog -- {tag}")
+
+    # Remove v at the start of tag
+    tag = tag if "v" not in tag else tag[1:]
+
+    # Iterate over all files determined from VERSION_GLOBS
+    for path in chain(*[Path(".").glob(glob) for glob in (VERSION_GLOBS)]):
+
+        # Collect new lines
+        new_lines = []
+        for line in path.read_text().splitlines():
+
+            # Substitute lines with new tag if they match pattern
+            substituted = re.sub(VERSION_PATTERN, r"\g<1>" + tag + r'"', line)
+
+            # Report to user
+            if line != substituted:
+                print(
+                    f"Replacing version string:\n{line}\nin"
+                    f" {path} with:\n{substituted}\n"
+                )
+                new_lines.append(substituted)
+            else:
+                # No match, append line anyway
+                new_lines.append(line)
+
+        # Write results to files
+        path.write_text("\n".join(new_lines))
+
+    cmds = (
+        "# Run pre-commit to check files.",
+        "pre-commit run --all-files",
+        "git add .",
+        "# Make sure only version updates are committed!",
+        "git commit -m 'docs: update version'",
+        "# Make sure tag is proper!",
+        f"git tag -a v{tag} -m '{annotation}'",
+    )
+    print("Not running git cmds. See below for suggested commands:\n---\n")
+    for cmd in cmds:
+        print(cmd)
 
 
 @task(
