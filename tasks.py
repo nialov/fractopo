@@ -3,12 +3,12 @@ Invoke tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
-from invoke import task
+import re
+from itertools import chain
 from pathlib import Path
 from time import strftime
-from itertools import chain
-import re
 
+from invoke import task
 
 PACKAGE_NAME = "fractopo"
 CITATION_CFF_PATH = Path("CITATION.cff")
