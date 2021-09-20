@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-09-20)
+## v0.2.0 (2021-09-20)
 
 #### New Features
 
@@ -19,7 +19,7 @@
 -   fix truncate and circular input logic
 
 Full set of changes:
-[`v0.1.4...1aacbbd`](https://github.com/nialov/fractopo/compare/v0.1.4...1aacbbd)
+[`v0.1.4...v0.2.0`](https://github.com/nialov/fractopo/compare/v0.1.4...v0.2.0)
 
 ## v0.1.4 (2021-08-24)
 
