@@ -894,7 +894,7 @@ class Helpers:
             False,  # circular_target_area
         ),
         (
-            kl2_2_traces,  # traces
+            kl2_2_traces.iloc[0:1500],  # traces
             kl2_2_area,  # area
             "kl_2_2",  # name
             True,  # determine_branches_nodes
@@ -1455,40 +1455,21 @@ def test_multinetwork_params():
         (
             (
                 dict(
-                    trace_gdf=Helpers.geta_1_traces,
-                    area_gdf=Helpers.geta_1_1_area,
-                    name="geta1-1",
-                    circular_target_area=True,
+                    trace_gdf=Helpers.kb11_traces,
+                    area_gdf=Helpers.kb11_area,
+                    name="kb11_1",
+                    circular_target_area=False,
                     snap_threshold=0.001,
                 ),
                 dict(
-                    trace_gdf=Helpers.geta_1_traces,
-                    area_gdf=Helpers.geta_1_1_area,
-                    name="geta1-2",
-                    circular_target_area=True,
+                    trace_gdf=Helpers.kb11_traces,
+                    area_gdf=Helpers.kb11_area,
+                    name="kb11_2",
+                    circular_target_area=False,
                     snap_threshold=0.001,
                 ),
             ),
             1,
-        ),
-        (
-            (
-                dict(
-                    trace_gdf=Helpers.geta_1_traces,
-                    area_gdf=Helpers.geta_1_1_area,
-                    name="geta1-1",
-                    circular_target_area=True,
-                    snap_threshold=0.001,
-                ),
-                dict(
-                    trace_gdf=Helpers.geta_1_traces,
-                    area_gdf=Helpers.geta_1_1_area,
-                    name="geta1-2",
-                    circular_target_area=True,
-                    snap_threshold=0.001,
-                ),
-            ),
-            2,
         ),
     ]
 
