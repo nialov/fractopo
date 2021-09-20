@@ -1,7 +1,7 @@
 fractopo-readme
 ===============
 
-|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder|
+|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
 ``fractopo`` is a Python module that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks).
@@ -213,3 +213,5 @@ Development status
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
+.. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
+   :target: https://zenodo.org/badge/latestdoi/297451015
