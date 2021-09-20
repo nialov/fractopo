@@ -48,6 +48,8 @@ seaborn = "*"
 matplotlib = "*"
 click = "*"
 descartes = "*"
+rich = "^10.7.0"
+typer = "^0.3.2"
 
 # Extras
 # Coverage
@@ -72,8 +74,6 @@ isort = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
-rich = "^10.7.0"
-typer = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 bleach = "*"
