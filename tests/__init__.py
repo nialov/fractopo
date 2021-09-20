@@ -829,6 +829,8 @@ class Helpers:
         Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg")
     )
 
+    geta_1_traces_1000_n = geta_1_traces.iloc[0:1000]
+
     test_network_params = [
         (
             geta_1_traces,  # traces
@@ -1455,21 +1457,22 @@ def test_multinetwork_params():
         (
             (
                 dict(
-                    trace_gdf=Helpers.kb11_traces,
-                    area_gdf=Helpers.kb11_area,
-                    name="kb11_1",
-                    circular_target_area=False,
+                    trace_gdf=Helpers.geta_1_traces_1000_n,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1_1",
+                    circular_target_area=True,
                     snap_threshold=0.001,
                 ),
                 dict(
-                    trace_gdf=Helpers.kb11_traces,
-                    area_gdf=Helpers.kb11_area,
-                    name="kb11_2",
-                    circular_target_area=False,
+                    trace_gdf=Helpers.geta_1_traces_1000_n,
+                    area_gdf=Helpers.geta_1_1_area,
+                    name="geta1_2",
+                    circular_target_area=True,
                     snap_threshold=0.001,
                 ),
             ),
             1,
+            5.0,
         ),
     ]
 
