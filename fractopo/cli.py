@@ -1,10 +1,12 @@
 """
 Command-line integration of fractopo with click.
 """
+import logging
 import time
 from itertools import chain
 from pathlib import Path
-from typing import Optional, Tuple, Type, Union
+from typing import Dict, Optional, Tuple, Type, Union
+from warnings import warn
 
 import click
 import fiona
@@ -19,9 +21,14 @@ from typer import Typer
 from fractopo.analysis.network import Network
 from fractopo.general import read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
-from fractopo.tval.trace_validators import TargetAreaSnapValidator
+from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
 app = Typer()
+SNAP_THRESHOLD_HELP = (
+    "Distance threshold used to estimate whether e.g. a trace abuts in another."
+)
+TRACE_FILE_HELP = "Path to lineament or fracture trace data."
+AREA_FILE_HELP = "Path to target area data that delineates trace data."
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -37,7 +44,9 @@ def get_click_path_args(exists=True, **kwargs):
     return path_arguments
 
 
-def describe_results(validated: gpd.GeoDataFrame, error_column: str):
+def describe_results(
+    validated: gpd.GeoDataFrame, error_column: str, console: Console = Console()
+):
     """
     Describe validation results to stdout.
 
@@ -54,12 +63,17 @@ def describe_results(validated: gpd.GeoDataFrame, error_column: str):
     error_types = {
         c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)
     }
-    count_string = f"Out of {validated.shape[0]} traces, {error_count} were invalid."
+    trace_count = validated.shape[0]
+    count_string = f"Out of {trace_count} traces, {error_count} were invalid."
     type_string = f"There were {len(error_types)} error types. These were:\n"
+    type_color = "yellow"
     for error_type in error_types:
         type_string += error_type + "\n"
-    print(count_string)
-    print(type_string)
+        if SharpCornerValidator.ERROR not in error_type:
+            type_color = "bold red"
+    count_color = "bold red" if error_count / trace_count > 0.05 else "yellow"
+    console.print(Text.assemble((count_string, count_color)))
+    console.print(Text.assemble((type_string, type_color)))
 
 
 def make_output_dir(trace_path: Path) -> Path:
@@ -77,6 +91,21 @@ def make_output_dir(trace_path: Path) -> Path:
     if not output_dir.exists():
         output_dir.mkdir()
     return output_dir
+
+
+def rich_table_from_parameters(parameters: Dict[str, float]) -> Table:
+    """
+    Generate ``rich`` ``Table`` from network parameters.
+    """
+    param_table = Table(
+        title="Selected Network Parameters",
+    )
+    param_table.add_column("Parameter", header_style="bold", style="bold green")
+    param_table.add_column("Value", header_style="bold", style="blue")
+
+    for key, value in parameters.items():
+        param_table.add_row(key, f"{value:.4f}")
+    return param_table
 
 
 @click.command()
@@ -97,7 +126,7 @@ def make_output_dir(trace_path: Path) -> Path:
     "only_area_validation", "--only-area-validation", is_flag=True, default=False
 )
 @click.option("allow_empty_area", "--no-empty-area", is_flag=True, default=True)
-def tracevalidate(
+def tracevalidate_click(
     trace_file: str,
     area_file: str,
     allow_fix: bool,
@@ -113,6 +142,29 @@ def tracevalidate(
     If allow_fix is True, some automatic fixing will be done to e.g. convert
     MultiLineStrings to LineStrings.
     """
+    warn(
+        """
+'tracevalidate' entrypoint is deprecated.
+Use:
+'fractopo tracevalidate'
+entrypoint instead i.e. if your command was:
+
+tracevalidate traces.gpkg area.gpkg --fix
+
+the new version will be:
+
+fractopo tracevalidate traces.gpkg area.gpkg --allow-fix
+
+Note also that --fix was changed to --allow-fix and it is by default True.
+
+Run
+
+fractopo tracevalidate --help
+
+to make sure your arguments are correct.
+""",
+        DeprecationWarning,
+    )
     trace_path = Path(trace_file)
     area_path = Path(area_file)
 
@@ -178,24 +230,174 @@ def tracevalidate(
 
 
 @app.command()
+def tracevalidate(
+    trace_file: Path = typer.Argument(
+        ...,
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        resolve_path=True,
+        help=TRACE_FILE_HELP,
+    ),
+    area_file: Path = typer.Argument(
+        ...,
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        resolve_path=True,
+        help=AREA_FILE_HELP,
+    ),
+    allow_fix: bool = typer.Option(
+        True,
+        "--allow-fix",
+        "--fix",
+        help="Allow the direct modification of trace file to fix errors.",
+    ),
+    summary: bool = typer.Option(True, help="Print summary of validation results."),
+    snap_threshold: float = typer.Option(
+        0.001,
+        help="Distance threshold used to estimate whether e.g. a trace abuts in another.",
+    ),
+    output: Optional[Path] = typer.Option(
+        None, help="Where to save validated output trace data."
+    ),
+    only_area_validation: bool = typer.Option(
+        False, help="Only validate the area boundary snapping."
+    ),
+    allow_empty_area: bool = typer.Option(
+        True, help="Allow empty areas to validation."
+    ),
+):
+    """
+    Validate trace data delineated by target area data.
+
+    If allow_fix is True, some automatic fixing will be done to e.g. convert
+    MultiLineStrings to LineStrings.
+    """
+    console = Console()
+    trace_path = Path(trace_file)
+    area_path = Path(area_file)
+
+    # Assert that read files result in GeoDataFrames
+    traces: gpd.GeoDataFrame = read_geofile(trace_path)
+    areas: gpd.GeoDataFrame = read_geofile(area_path)
+    if not all(isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)):
+        raise TypeError(
+            "Expected trace and area files to be readable as GeoDataFrames."
+        )
+
+    logging.info(f"Validating traces: {trace_path} area: {area_path}.")
+    # Get input crs
+    input_crs = traces.crs
+
+    # Validate
+    validation = Validation(
+        traces,
+        areas,
+        trace_path.stem,
+        allow_fix,
+        SNAP_THRESHOLD=snap_threshold,
+    )
+    if only_area_validation:
+        console.print(Text.assemble(("Only performing area validation.", "yellow")))
+        choose_validators: Optional[Tuple[Type[TargetAreaSnapValidator]]] = (
+            TargetAreaSnapValidator,
+        )
+    else:
+        choose_validators = None
+    console.print(
+        Text.assemble("Performing validation of ", (trace_path.name, "blue"), ".")
+    )
+    validated_trace = validation.run_validation(
+        choose_validators=choose_validators, allow_empty_area=allow_empty_area
+    )
+
+    # Set same crs as input if input had crs
+    if input_crs is not None:
+        validated_trace.crs = input_crs
+
+    # Get input driver to use as save driver
+    with fiona.open(trace_path) as open_trace_file:
+        assert open_trace_file is not None
+        save_driver = open_trace_file.driver
+
+    # Resolve output if not explicitly given
+    if output is None:
+        output_dir = make_output_dir(trace_path)
+        output_path = (
+            trace_path.parent
+            / output_dir
+            / f"{trace_path.stem}_validated{trace_path.suffix}"
+        )
+        console.print(
+            Text.assemble(
+                (
+                    f"Generated output directory at {output_dir}"
+                    f"\nwhere validated output will be saved at {output_path}.",
+                    "blue",
+                )
+            )
+        )
+    else:
+        output_path = output
+
+    # Remove file if one exists at output_path
+    if output_path.exists():
+        console.print(
+            Text.assemble(("Overwriting old file at given output path.", "yellow"))
+        )
+        output_path.unlink()
+
+    # Change validation_error column to type:  and consequently save
+    # the GeoDataFrame.
+    validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
+        output_path, driver=save_driver
+    )
+    if summary:
+        describe_results(validated_trace, validation.ERROR_COLUMN, console=console)
+
+
+@app.command()
 def network(
-    traces: Path = typer.Option("", exists=True, dir_okay=False),
-    area: Path = typer.Option("", exists=True, dir_okay=False),
-    snap_threshold: float = typer.Option(0.001),
-    determine_branches_nodes: bool = typer.Option(True),
-    name: Optional[str] = typer.Option(None),
-    circular_target_area: bool = typer.Option(False),
-    truncate_traces: bool = typer.Option(True),
-    censoring_area: Optional[Path] = typer.Option(None),
-    branches_output: Optional[Path] = typer.Option(None),
-    nodes_output: Optional[Path] = typer.Option(None),
-    general_output: Optional[Path] = typer.Option(None),
-    parameters_output: Optional[Path] = typer.Option(None),
+    trace_file: Path = typer.Argument(
+        ..., exists=True, dir_okay=False, help=TRACE_FILE_HELP
+    ),
+    area_file: Path = typer.Argument(
+        ..., exists=True, dir_okay=False, help=AREA_FILE_HELP
+    ),
+    snap_threshold: float = typer.Option(0.001, help=SNAP_THRESHOLD_HELP),
+    determine_branches_nodes: bool = typer.Option(
+        True,
+        help="Whether to determine branches and nodes as part of analysis. Recommended.",
+    ),
+    name: Optional[str] = typer.Option(
+        None, help="Name for Network. Used when saving outputs and as plot titles."
+    ),
+    circular_target_area: bool = typer.Option(
+        False, help="Is/are target area(s) circles?"
+    ),
+    truncate_traces: bool = typer.Option(
+        True, help="Whether to cut traces at target area boundary. Recommended."
+    ),
+    censoring_area: Optional[Path] = typer.Option(
+        None,
+        help="Path to area data that delineates censored areas within target areas.",
+    ),
+    branches_output: Optional[Path] = typer.Option(
+        None, help="Where to save branch data."
+    ),
+    nodes_output: Optional[Path] = typer.Option(None, help="Where to save node data."),
+    general_output: Optional[Path] = typer.Option(
+        None, help="Where to save general network analysis outputs e.g. plots."
+    ),
+    parameters_output: Optional[Path] = typer.Option(
+        None, help="Where to save numerical parameter data from analysis."
+    ),
 ):
     """
     Analyze the geometry and topology of trace network.
     """
-    network_name = name if name is not None else area.stem
+    network_name = name if name is not None else area_file.stem
     console = Console()
 
     console.print(
@@ -205,8 +407,8 @@ def network(
     )
 
     network = Network(
-        trace_gdf=read_geofile(traces),
-        area_gdf=read_geofile(area),
+        trace_gdf=read_geofile(trace_file),
+        area_gdf=read_geofile(area_file),
         snap_threshold=snap_threshold,
         determine_branches_nodes=determine_branches_nodes,
         name=network_name,
@@ -233,32 +435,25 @@ def network(
     console.print(
         Text.assemble(
             "Saving branches to ",
-            (str(branches_output_path), "bold blue"),
+            (str(branches_output_path), "bold green"),
             " and nodes to ",
-            (str(nodes_output_path), "bold blue"),
+            (str(nodes_output_path), "bold green"),
             ".",
         )
     )
     network.get_branch_gdf().to_file(branches_output_path, driver="GPKG")
     network.get_node_gdf().to_file(nodes_output_path, driver="GPKG")
 
-    # Save network parameters
-    param_table = Table(
-        title="Network Parameters",
+    console.print(rich_table_from_parameters(network.parameters))
+
+    pd.DataFrame([network.numerical_network_description()]).to_csv(
+        parameters_output_path
     )
-    param_table.add_column("Parameter", header_style="bold", style="bold green")
-    param_table.add_column("Value", header_style="bold", style="blue")
-
-    for key, value in network.parameters.items():
-        param_table.add_row(key, f"{value:.4f}")
-    console.print(param_table)
-
-    pd.DataFrame([network.parameters]).to_csv(parameters_output_path)
 
     console.print(
         Text.assemble(
-            "Saving parameter csv to ",
-            (str(parameters_output_path), "bold blue"),
+            "Saving extensive network parameter csv to ",
+            (str(parameters_output_path), "bold green"),
             ".",
         )
     )
