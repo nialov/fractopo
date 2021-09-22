@@ -3,12 +3,14 @@ Test parameters i.e. sample data, known past errors, etc.
 """
 from functools import lru_cache
 from pathlib import Path
+from traceback import print_tb
 from typing import List
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+from click.testing import Result
 from hypothesis.strategies import floats, integers, tuples
 from shapely.geometry import (
     LineString,
@@ -66,6 +68,20 @@ ERROR_COLUMN = trace_validation.Validation.ERROR_COLUMN
 SNAP_THRESHOLD = 0.001
 SNAP_THRESHOLD_ERROR_MULTIPLIER = 1.1
 AREA_EDGE_SNAP_MULTIPLIER = 5
+
+
+def click_error_print(result: Result):
+    """
+    Print click result traceback.
+    """
+    if result.exit_code == 0:
+        return
+    assert result.exc_info is not None
+    _, _, tb = result.exc_info
+    # print(err_class, err)
+    print_tb(tb)
+    print(result.output)
+    raise Exception(result.exception)
 
 
 class Helpers:
@@ -378,12 +394,12 @@ class Helpers:
         (
             Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
             Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
-            "--fix",
+            "--allow-fix",
         ),
         (
             Path("tests/sample_data/KB7/KB7_tulkinta_100.shp"),  # cut 50-100
             Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
-            "--fix",
+            "--allow-fix",
         ),
     ]
 
@@ -816,7 +832,7 @@ class Helpers:
             [
                 "tests/sample_data/KB7/KB7_tulkinta_50.shp",  # cut 0-50
                 "tests/sample_data/KB7/KB7_tulkinta_alue.shp",
-                "--fix",
+                "--allow-fix",
                 "--only-area-validation",
             ]  # args
         )
@@ -996,6 +1012,40 @@ class Helpers:
             0.01,  # snap_threshold
             np.array([True]),  # assumed_result_inter
             np.array([True]),  # assumed_result_cuts
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(0, 0), (0, 1)]),
+                    LineString([(10, 0), (10, 1)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
+                    Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True, True]),  # assumed_result_inter
+            np.array([False, False]),  # assumed_result_cuts
+        ),
+        (
+            gpd.GeoDataFrame(
+                geometry=[
+                    LineString([(-2, 0), (2, 1)]),
+                    LineString([(8, 0), (12, 0)]),
+                ]
+            ),  # line_gdf
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
+                    Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
+                ]
+            ),  # area_gdf
+            0.01,  # snap_threshold
+            np.array([True, True]),  # assumed_result_inter
+            np.array([True, True]),  # assumed_result_cuts
         ),
     ]
 
@@ -1281,8 +1331,6 @@ class ValidationHelpers:
         ),
         gpd.GeoDataFrame(geometry=should_result_in_some_error_ls_list),
         gpd.GeoDataFrame(geometry=should_result_in_multij_ls_list),
-        # TODO: Is this a validation or snapping error.
-        # gpd.read_file(Path("tests/sample_data/KB11/KB11_last_validation.geojson")),
     ]
 
     known_multilinestring_gdfs = [
