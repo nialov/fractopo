@@ -101,7 +101,7 @@ def tests_pip(session):
     session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
 
     # Test that entrypoint works.
-    session.run("tracevalidate", "--help")
+    session.run("fractopo", "--help")
 
 
 @nox.session(python=PYTHON_VERSIONS)
