@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased (2021-09-20)
+## v0.2.1 (2021-09-22)
 
 Full set of changes:
-[`v0.2.0...27f32ad`](https://github.com/nialov/fractopo/compare/v0.2.0...27f32ad)
+[`v0.2.0...v0.2.1`](https://github.com/nialov/fractopo/compare/v0.2.0...v0.2.1)
 
 ## v0.2.0 (2021-09-20)
 

@@ -116,8 +116,9 @@ Trace and target area data can be validated for further analysis with a
    validated_trace_data = validation.run_validation()
 
 Trace validation is also accessible as a command-line script,
-``tracevalidate`` which is more straightforward to use than through
-Python calls.
+``fractopo tracevalidate`` which is more straightforward to use than through
+Python calls. Note that all subcommands of ``fractopo`` are available by
+appending them after ``fractopo``.
 
 ``tracevalidate`` always requires the target area that delineates trace
 data.
@@ -126,23 +127,23 @@ data.
 
    # Get full up-to-date script help
 
-   tracevalidate --help
+   fractopo tracevalidate --help
 
    # Basic usage:
-   # --fix is recommended due to automatic fixing being very minor in effect
-   # currently
+   # --allow-fix is recommended due to automatic fixing being very minor in effect
+   # currently (default True)
+   # --summary can be given to print out summary data of validation
+   # i.e. error types and error counts (default True)
    # --output can be omitted. By default the same spatial filetype
    # as the input is used and the output is saved as e.g.
    # /path/to/validated/trace_data_validated.shp
    # i.e. a new folder is created (or used) for validated data
-   # --summary can be given to print out summary data of validation
-   # i.e. error types and error counts
 
-   tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --output /path/to/output_data.shp
+   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --output /path/to/output_data.shp
 
    # Or with automatic saving to validated/ directory
 
-   tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --summary
+   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --summary
 
 Geometric and topological trace network analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -183,6 +184,20 @@ visualizing different parameters and attributes of trace data.
 
    # Plotting is done by plot_ -prefixed methods
    network.plot_trace_lengths()
+
+Network analysis is also available as a command-line script but I recommend
+using a Python interface (e.g. ``jupyter lab``, ``ipython``) when analysing
+``Networks`` to have access to all available analysis and plotting methods. The
+command-line entrypoint is opinionated in what outputs it produces. Brief
+example of command-line entrypoint:
+
+.. code:: bash
+
+   fractopo network traces.gpkg area.gpkg --name mynetwork\
+      --circular-target-area --truncate-traces
+
+   # Use --help to see all up-to-date arguments and help
+   fractopo network --help
 
 Development status
 ------------------
