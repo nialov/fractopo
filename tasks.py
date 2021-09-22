@@ -109,7 +109,7 @@ def citation(c):
     Sync and validate CITATION.cff.
     """
     print("Updating CITATION.cff date")
-    citation_text = CITATION_CFF_PATH.read_text()
+    citation_text = CITATION_CFF_PATH.read_text("utf-8")
     citation_lines = citation_text.splitlines()
     if DATE_RELEASED_STR not in citation_text:
         raise ValueError(
@@ -121,7 +121,7 @@ def citation(c):
         line if "date-released" not in line else f'date-released: "{date}"'
         for line in citation_lines
     ]
-    CITATION_CFF_PATH.write_text("\n".join(new_lines))
+    CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding="utf-8")
 
     print("Validating CITATION.cff")
     c.run("nox --session validate_citation_cff")

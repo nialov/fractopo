@@ -91,9 +91,6 @@ class Network:
     :param node_gdf: GeoDataFrame containing node data.
         It is recommeded to let fractopo.Network determine both
         branches and nodes instead of passing them here.
-    :param unary_size_threshold: Determining branches and nodes can rarely fail
-        and return a truncated dataset. In the **very** rare case this happens
-        you can try decreasing this number.
     :param censoring_area: Geometry that delineates the area in which trace
         digitization was uncertain due to censoring caused by e.g. vegetation.
     """
@@ -145,7 +142,6 @@ class Network:
     branch_gdf: Optional[gpd.GeoDataFrame] = None
     node_gdf: Optional[gpd.GeoDataFrame] = None
     # If unary_union fails try lower and higher values
-    unary_size_threshold: int = 5000
 
     censoring_area: Union[
         Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
@@ -799,7 +795,7 @@ class Network:
                 self.area_gdf,
                 self.snap_threshold,
                 already_clipped=self.truncate_traces,
-                unary_size_threshold=self.unary_size_threshold,
+                # unary_size_threshold=self.unary_size_threshold,
             )
             if self.trace_gdf.crs is not None:
                 branches.set_crs(self.trace_gdf.crs, inplace=True)

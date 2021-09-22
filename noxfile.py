@@ -429,11 +429,11 @@ def changelog(session):
 
     # Add empty lines after each line of changelog
     new_lines = []
-    for line in changelog_path.read_text().splitlines():
+    for line in changelog_path.read_text("utf-8").splitlines():
         new_lines.append(line)
         new_lines.append("")
 
-    changelog_path.write_text("\n".join(new_lines))
+    changelog_path.write_text("\n".join(new_lines), encoding="utf-8")
     if pandoc_installed:
         session.run(
             "pandoc",
@@ -446,6 +446,6 @@ def changelog(session):
             CHANGELOG_MD_NAME,
             external=True,
         )
-    print(changelog_path.read_text())
+    print(changelog_path.read_text("utf-8"))
 
     assert changelog_path.exists()

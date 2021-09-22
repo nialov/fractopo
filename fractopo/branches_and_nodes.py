@@ -877,7 +877,7 @@ def branches_and_nodes(
     snap_threshold: float,
     allowed_loops=10,
     already_clipped: bool = False,
-    unary_size_threshold: int = 5000,
+    # unary_size_threshold: int = 5000,
 ) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """
     Determine branches and nodes of given traces.

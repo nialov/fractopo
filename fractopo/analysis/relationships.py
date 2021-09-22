@@ -244,7 +244,7 @@ def determine_intersects(
 
     """
     # TODO: No DataFrames -> Refactor to something else
-    # TODO: Refactor intersect logic (but it works now)
+    # TODO: Refactor intersect logic (but it works for now)
     intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
     if len(node_series_xy_intersects) == 0:
         # No intersections between sets

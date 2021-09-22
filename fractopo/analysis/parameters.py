@@ -607,7 +607,7 @@ def plot_parameters_plot(
             if value > 0.01:
                 value = round(value, 2)
             else:
-                value = "{0:.2e}".format(value)
+                value = f"{value:.2e}"
             if column in log_scale_columns:
                 height = height + height / 10
             else:

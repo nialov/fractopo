@@ -355,7 +355,8 @@ def multi_scale_length_distribution_fit(
     truncated_length_arrays_concat = np.concatenate(truncated_length_arrays)
 
     # Determine polyfit to multiscale distributions
-    y_fit, m, c = polyfit_to_multi_scale_lengths(
+    # Last variable is constant
+    y_fit, m, _ = polyfit_to_multi_scale_lengths(
         all_ccms_concat=ccm_arrays_normed_concat,
         all_length_arrs_concat=truncated_length_arrays_concat,
     )

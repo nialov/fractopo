@@ -216,8 +216,7 @@ def _create_azimuth_set_text(
     for idx, set_name in enumerate(set_names):
         total_length = sum(length_array[set_array == set_name])
         percent = total_length / sum_length
-        text = "Set {}, FoL = {}".format(set_name, "{:.1%}".format(percent))
-
+        text = f"Set {set_name}, FoL = {percent:.1%}"
         if idx < len(set_names) - 1:
             text = text + "\n"
         t = t + text
@@ -289,7 +288,6 @@ def plot_azimuth_plot(
         bin_width=azimuth_bins.bin_width,
         ax=ax,
     )
-    # TODO: Is length_array always required
     decorate_azimuth_ax(
         ax=ax,
         label=label,
