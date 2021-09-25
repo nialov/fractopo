@@ -275,18 +275,16 @@ def tracevalidate(
     MultiLineStrings to LineStrings.
     """
     console = Console()
-    trace_path = Path(trace_file)
-    area_path = Path(area_file)
 
     # Assert that read files result in GeoDataFrames
-    traces: gpd.GeoDataFrame = read_geofile(trace_path)
-    areas: gpd.GeoDataFrame = read_geofile(area_path)
+    traces: gpd.GeoDataFrame = read_geofile(trace_file)
+    areas: gpd.GeoDataFrame = read_geofile(area_file)
     if not all(isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)):
         raise TypeError(
             "Expected trace and area files to be readable as GeoDataFrames."
         )
 
-    logging.info(f"Validating traces: {trace_path} area: {area_path}.")
+    logging.info(f"Validating traces: {trace_file} area: {area_file}.")
     # Get input crs
     input_crs = traces.crs
 
@@ -294,7 +292,7 @@ def tracevalidate(
     validation = Validation(
         traces,
         areas,
-        trace_path.stem,
+        trace_file.stem,
         allow_fix,
         SNAP_THRESHOLD=snap_threshold,
     )
@@ -306,7 +304,7 @@ def tracevalidate(
     else:
         choose_validators = None
     console.print(
-        Text.assemble("Performing validation of ", (trace_path.name, "blue"), ".")
+        Text.assemble("Performing validation of ", (trace_file.name, "blue"), ".")
     )
     validated_trace = validation.run_validation(
         choose_validators=choose_validators, allow_empty_area=allow_empty_area
@@ -317,17 +315,17 @@ def tracevalidate(
         validated_trace.crs = input_crs
 
     # Get input driver to use as save driver
-    with fiona.open(trace_path) as open_trace_file:
+    with fiona.open(trace_file) as open_trace_file:
         assert open_trace_file is not None
         save_driver = open_trace_file.driver
 
     # Resolve output if not explicitly given
     if output is None:
-        output_dir = make_output_dir(trace_path)
+        output_dir = make_output_dir(trace_file)
         output_path = (
-            trace_path.parent
+            trace_file.parent
             / output_dir
-            / f"{trace_path.stem}_validated{trace_path.suffix}"
+            / f"{trace_file.stem}_validated{trace_file.suffix}"
         )
         console.print(
             Text.assemble(
