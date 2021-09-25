@@ -128,9 +128,11 @@ def split_to_determine_triangle_errors(
     assert isinstance(splitter_trace, LineString)
     try:
         segments = split(trace, splitter_trace)
-    except ValueError:
+    except (ValueError, TypeError):
         # split not possible, the traces overlap
         return True
+    finally:
+        logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
     if len(segments) > 2:
         if len(segments) > 3:
             return True
