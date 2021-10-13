@@ -54,7 +54,7 @@ typer = "^0.3.2"
 
 # Extras
 # Coverage
-coverage = {version = "*", optional = true}
+coverage = {version = "^5.0", optional = true}
 coverage-badge = {version = "*", optional = true}
 
 # Docs
