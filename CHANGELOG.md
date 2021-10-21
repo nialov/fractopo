@@ -9,7 +9,7 @@
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...021923b`](https://github.com/nialov/fractopo/compare/v0.2.1...021923b)
+[`v0.2.1...0fcf39d`](https://github.com/nialov/fractopo/compare/v0.2.1...0fcf39d)
 
 ## v0.2.1 (2021-09-22)
 
