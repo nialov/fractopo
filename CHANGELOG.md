@@ -1,13 +1,15 @@
 # Changelog
 
-## Unreleased (2021-09-25)
+## Unreleased (2021-10-21)
 
 #### Fixes
+
+-   (analysis): remove usage of cached_property
 
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...d39a248`](https://github.com/nialov/fractopo/compare/v0.2.1...d39a248)
+[`v0.2.1...021923b`](https://github.com/nialov/fractopo/compare/v0.2.1...021923b)
 
 ## v0.2.1 (2021-09-22)
 
