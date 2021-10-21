@@ -69,7 +69,7 @@ def install_dev(session, extras: str = ""):
     session.install("-r", DEV_REQUIREMENTS)
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, reuse_venv=True)
 def tests_pip(session):
     """
     Run test suite with pip install.
@@ -81,7 +81,7 @@ def tests_pip(session):
         or (tests_path.is_file())
         or (len(list(tests_path.iterdir())) == 0)
     ):
-        print("No tests in {TESTS_NAME} directory.")
+        print(f"No tests in {TESTS_NAME} directory.")
         return
 
     # Install dependencies dev + coverage
@@ -104,7 +104,7 @@ def tests_pip(session):
     session.run("fractopo", "--help")
 
 
-@nox.session(python=PYTHON_VERSIONS)
+@nox.session(python=PYTHON_VERSIONS, reuse_venv=True)
 def notebooks(session):
     """
     Run notebooks.
