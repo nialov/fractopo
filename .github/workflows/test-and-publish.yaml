@@ -28,6 +28,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install nox invoke
+      - name: Cache .nox
+        uses: actions/cache@v2
+        with:
+          path: .nox
+          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-ci-test
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test --python ${{ matrix.python-version }}
 
@@ -44,6 +49,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install nox invoke
+      - name: Cache .nox
+        uses: actions/cache@v2
+        with:
+          path: .nox
+          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-format-and-lint
       - name: Lint with invoke -> nox -> linters
         run: invoke format-and-lint
 
@@ -61,6 +71,11 @@ jobs:
           sudo apt install pandoc
           python -m pip install --upgrade pip
           pip install nox invoke
+      - name: Cache .nox
+        uses: actions/cache@v2
+        with:
+          path: .nox
+          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-docs
       - name: Build docs with invoke -> nox session
         run: invoke docs
 
@@ -77,6 +92,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install nox invoke
+      - name: Cache .nox
+        uses: actions/cache@v2
+        with:
+          path: .nox
+          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-citation
       - name: Build docs with invoke -> nox session
         run: invoke citation
     

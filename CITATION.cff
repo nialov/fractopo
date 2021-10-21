@@ -5,9 +5,9 @@ authors:
 - family-names: Ovaskainen
   given-names: Nikolas
   orcid: "https://orcid.org/0000-0003-1562-0280"
-title: fractopo
-version: "0.2.1.post7.dev0+021923b"
-date-released: "2021-10-21"
+title: "fractopo"
+version: "0.0.0"
+date-released: "2020-01-01"
 keywords:
   - python
   - data

@@ -9,6 +9,7 @@ import nox
 
 # Variables
 PACKAGE_NAME = "fractopo"
+UTF8 = "utf-8"
 
 # Paths
 DOCS_SRC_PATH = Path("docs_src")
@@ -77,9 +78,9 @@ def tests_pip(session):
     # Check if any tests exist
     tests_path = Path(TESTS_NAME)
     if (
-        (not tests_path.exists())
-        or (tests_path.is_file())
-        or (len(list(tests_path.iterdir())) == 0)
+        not tests_path.exists()
+        or tests_path.is_file()
+        or len(list(tests_path.iterdir())) == 0
     ):
         print(f"No tests in {TESTS_NAME} directory.")
         return
@@ -101,7 +102,7 @@ def tests_pip(session):
     session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
 
     # Test that entrypoint works.
-    session.run("fractopo", "--help")
+    session.run(PACKAGE_NAME.replace("_", "-"), "--help")
 
 
 @nox.session(python=PYTHON_VERSIONS, reuse_venv=True)
@@ -429,11 +430,11 @@ def changelog(session):
 
     # Add empty lines after each line of changelog
     new_lines = []
-    for line in changelog_path.read_text("utf-8").splitlines():
+    for line in changelog_path.read_text(UTF8).splitlines():
         new_lines.append(line)
         new_lines.append("")
 
-    changelog_path.write_text("\n".join(new_lines), encoding="utf-8")
+    changelog_path.write_text("\n".join(new_lines), encoding=UTF8)
     if pandoc_installed:
         session.run(
             "pandoc",
@@ -446,6 +447,6 @@ def changelog(session):
             CHANGELOG_MD_NAME,
             external=True,
         )
-    print(changelog_path.read_text("utf-8"))
+    print(changelog_path.read_text(UTF8))
 
     assert changelog_path.exists()

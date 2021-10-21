@@ -13,6 +13,7 @@ from invoke import task
 PACKAGE_NAME = "fractopo"
 CITATION_CFF_PATH = Path("CITATION.cff")
 DATE_RELEASED_STR = "date-released"
+UTF8 = "utf-8"
 
 VERSION_GLOBS = [
     "*/__init__.py",
@@ -109,7 +110,7 @@ def citation(c):
     Sync and validate CITATION.cff.
     """
     print("Updating CITATION.cff date")
-    citation_text = CITATION_CFF_PATH.read_text("utf-8")
+    citation_text = CITATION_CFF_PATH.read_text(UTF8)
     citation_lines = citation_text.splitlines()
     if DATE_RELEASED_STR not in citation_text:
         raise ValueError(
@@ -121,7 +122,7 @@ def citation(c):
         line if "date-released" not in line else f'date-released: "{date}"'
         for line in citation_lines
     ]
-    CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding="utf-8")
+    CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
 
     print("Validating CITATION.cff")
     c.run("nox --session validate_citation_cff")
@@ -199,7 +200,7 @@ def tag(c, tag="", annotation=""):
 
         # Collect new lines
         new_lines = []
-        for line in path.read_text().splitlines():
+        for line in path.read_text(UTF8).splitlines():
 
             # Substitute lines with new tag if they match pattern
             substituted = re.sub(VERSION_PATTERN, r"\g<1>" + tag + r'"', line)
@@ -216,7 +217,7 @@ def tag(c, tag="", annotation=""):
                 new_lines.append(line)
 
         # Write results to files
-        path.write_text("\n".join(new_lines))
+        path.write_text("\n".join(new_lines), encoding=UTF8)
 
     cmds = (
         "# Run pre-commit to check files.",
