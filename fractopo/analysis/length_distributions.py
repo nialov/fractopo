@@ -4,7 +4,7 @@ Utilities for analyzing and plotting length distributions for line data.
 import logging
 from dataclasses import dataclass
 from enum import Enum, unique
-from functools import cached_property, lru_cache
+from functools import lru_cache
 from itertools import chain, cycle
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple
@@ -90,28 +90,28 @@ class MultiLengthDistribution:
             distributions=self.distributions, cut_distributions=self.cut_distributions
         )
 
-    @cached_property
+    @property
     def truncated_length_array_all(self) -> List[np.ndarray]:
         """
         Get truncated length array by cut-off.
         """
         return self.create_normalized_distributions()[0]
 
-    @cached_property
+    @property
     def ccm_array_normed_all(self) -> List[np.ndarray]:
         """
         Get truncated ccm array by cut-off.
         """
         return self.create_normalized_distributions()[1]
 
-    @cached_property
+    @property
     def concatted_lengths(self) -> np.ndarray:
         """
         Concat lengths into single array.
         """
         return np.concatenate(self.truncated_length_array_all)
 
-    @cached_property
+    @property
     def concatted_ccm(self) -> np.ndarray:
         """
         Concat ccm into single array.
@@ -127,28 +127,28 @@ class MultiLengthDistribution:
             lengths=self.concatted_lengths, ccm=self.concatted_ccm
         )
 
-    @cached_property
+    @property
     def fitted_y_values(self) -> np.ndarray:
         """
         Get fitted y values.
         """
         return self.fit_to_multi_scale_lengths()[0]
 
-    @cached_property
+    @property
     def m_value(self) -> float:
         """
         Get fitted m value.
         """
         return self.fit_to_multi_scale_lengths()[1]
 
-    @cached_property
+    @property
     def constant(self) -> float:
         """
         Get fitted constant value.
         """
         return self.fit_to_multi_scale_lengths()[2]
 
-    @cached_property
+    @property
     def names(self) -> List[str]:
         """
         Get length distribution names.
