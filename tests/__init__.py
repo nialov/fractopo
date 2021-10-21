@@ -22,7 +22,7 @@ from shapely.geometry import (
 )
 from shapely.wkt import loads
 
-from fractopo.analysis import parameters
+from fractopo.analysis import length_distributions, parameters
 from fractopo.general import (
     CC_branch,
     CI_branch,
@@ -361,6 +361,7 @@ class Helpers:
     sample_area_data = Path("tests/sample_data/KB11_area.shp")
     kb11_traces = read_geofile(sample_trace_data)
     kb11_area = read_geofile(sample_area_data)
+
     kl2_2_traces = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_traces.geojson"))
     kl2_2_area = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_area.geojson"))
     multipolygon_traces = read_geofile(
@@ -1483,6 +1484,38 @@ class ValidationHelpers:
 
 
 @lru_cache(maxsize=None)
+def kb11_traces_lengths():
+    """
+    Get trace lengths of KB11.
+    """
+    return Helpers.kb11_traces.geometry.length
+
+
+@lru_cache(maxsize=None)
+def kb11_area_value():
+    """
+    Get area value of KB11.
+    """
+    return sum(Helpers.kb11_area.geometry.area)
+
+
+@lru_cache(maxsize=None)
+def hastholmen_traces_lengths():
+    """
+    Get trace lengths of hastholmen infinity lineaments.
+    """
+    return Helpers.hastholmen_traces.geometry.length
+
+
+@lru_cache(maxsize=None)
+def hastholmen_area_value():
+    """
+    Get area value of hastholmen.
+    """
+    return sum(Helpers.hastholmen_area.geometry.area)
+
+
+@lru_cache(maxsize=None)
 def test_populate_sample_cell_new_params():
     """
     Params for test_populate_sample_cell_new.
@@ -1541,5 +1574,38 @@ def test_ternary_heatmapping_params():
             np.array([0.2, 0.8, 0.1]),
             np.array([0.4, 0.1, 0.5]),
             15,
+        ),
+    ]
+
+
+def test_normalize_fit_to_area_params():
+    """
+    Params for test_normalize_fit_to_area.
+    """
+    return [
+        length_distributions.LengthDistribution(
+            name="kb11",
+            lengths=kb11_traces_lengths(),
+            area_value=kb11_area_value(),
+        ),
+        length_distributions.LengthDistribution(
+            name="kb11_50",
+            lengths=kb11_traces_lengths()[0:50],
+            area_value=kb11_area_value(),
+        ),
+    ]
+
+
+def test_concat_length_distributions_params():
+    """
+    Params for test_concat_length_distributions.
+    """
+    return [
+        ([kb11_traces_lengths()], [kb11_area_value()], ["kb11_full"]),
+        ([kb11_traces_lengths()[0:50]], [kb11_area_value()], ["kb11_50"]),
+        (
+            [kb11_traces_lengths(), hastholmen_traces_lengths()],
+            [kb11_area_value(), hastholmen_area_value()],
+            ["kb11_full", "hastholmen_full"],
         ),
     ]

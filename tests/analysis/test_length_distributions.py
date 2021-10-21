@@ -10,6 +10,7 @@ from hypothesis.strategies import floats
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
+import tests
 from fractopo.analysis import length_distributions
 from tests import Helpers
 
@@ -51,43 +52,44 @@ def test_all_fit_attributes_dict(lengths, _):
     "list_of_length_arrays,list_of_area_values,names",
     [
         (
-            [Helpers.kb11_traces.geometry.length, Helpers.kb11_traces.geometry.length],
+            [tests.kb11_traces_lengths(), tests.kb11_traces_lengths()],
             [
-                Helpers.kb11_area.geometry.area.sum(),
-                Helpers.kb11_area.geometry.area.sum() * 10,
+                tests.kb11_area_value(),
+                tests.kb11_area_value() * 10,
             ],
             ["kb11_1", "kb11_2"],
         ),
         (
             [
-                Helpers.kb11_traces.geometry.length,
-                Helpers.hastholmen_traces.geometry.length,
+                tests.kb11_traces_lengths(),
+                tests.hastholmen_traces_lengths(),
             ],
             [
-                Helpers.kb11_area.geometry.area.sum(),
-                Helpers.hastholmen_area.geometry.area.sum(),
+                tests.kb11_area_value(),
+                tests.hastholmen_area_value(),
             ],
             ["kb11", "hastholmen"],
         ),
     ],
 )
-@pytest.mark.parametrize("auto_cut_off", [True, False])
+@pytest.mark.parametrize("cut_distributions", [True, False])
 @pytest.mark.parametrize("using_branches", [True, False])
-def test_multi_scale_length_distribution_fit(
+def test_multilengthdistribution_plot(
     list_of_length_arrays,
     list_of_area_values,
     names,
-    auto_cut_off,
+    cut_distributions,
     using_branches,
+    num_regression,
 ):
     """
-    Test multi_scale_length_distribution_fit.
+    Test MultiLengthDistribution plot_multi_length_distributions.
     """
     assert isinstance(list_of_length_arrays, list)
     assert isinstance(list_of_area_values, list)
     assert isinstance(names, list)
     assert len(list_of_length_arrays) == len(list_of_area_values) == len(names)
-    fig, ax = length_distributions.multi_scale_length_distribution_fit(
+    multi_length_distribution = length_distributions.MultiLengthDistribution(
         distributions=[
             length_distributions.LengthDistribution(
                 name=name,
@@ -98,10 +100,65 @@ def test_multi_scale_length_distribution_fit(
                 names, list_of_length_arrays, list_of_area_values
             )
         ],
-        auto_cut_off=auto_cut_off,
         using_branches=using_branches,
+        cut_distributions=cut_distributions,
     )
 
-    fig.suptitle(f"auto,using: {auto_cut_off, using_branches}")
+    fig, ax = multi_length_distribution.plot_multi_length_distributions()
+
+    mld = multi_length_distribution
 
     assert isinstance(fig, Figure) and isinstance(ax, Axes)
+    assert isinstance(mld.truncated_length_array_all, list)
+    assert isinstance(mld.ccm_array_normed_all, list)
+    assert isinstance(mld.fitted_y_values, np.ndarray)
+    assert isinstance(mld.m_value, float)
+    assert isinstance(mld.constant, float)
+    assert isinstance(mld.concatted_lengths, np.ndarray)
+    assert isinstance(mld.concatted_ccm, np.ndarray)
+
+    num_regression.check(
+        {
+            "concatted_lengths": mld.concatted_lengths,
+            "concatted_ccm": mld.concatted_ccm,
+            "fitted_y_values": mld.fitted_y_values,
+            "m_value": np.array([mld.m_value]),
+            "constant": np.array([mld.constant]),
+        },
+        default_tolerance=dict(atol=1e-4, rtol=1e-4),
+    )
+
+
+@pytest.mark.parametrize(
+    "length_distribution", tests.test_normalize_fit_to_area_params()
+)
+def test_normalize_fit_to_area(
+    length_distribution: length_distributions.LengthDistribution,
+    num_regression,
+):
+    """
+    Test normalize_fit_to_area.
+    """
+    fit = powerlaw.Fit(length_distribution.lengths)
+
+    (
+        truncated_length_array,
+        ccm_array_normed,
+    ) = length_distributions.normalize_fit_to_area(
+        fit=fit, length_distribution=length_distribution
+    )
+
+    assert isinstance(truncated_length_array, np.ndarray)
+    assert isinstance(ccm_array_normed, np.ndarray)
+
+    assert len(truncated_length_array) == len(ccm_array_normed)
+    assert all(truncated_length_array > fit.xmin)
+    assert all(1.0 >= ccm_array_normed) and all(ccm_array_normed > 0.0)
+
+    num_regression.check(
+        {
+            "truncated_length_array": truncated_length_array,
+            "ccm_array_normed": ccm_array_normed,
+        },
+        default_tolerance=dict(atol=1e-4, rtol=1e-4),
+    )
