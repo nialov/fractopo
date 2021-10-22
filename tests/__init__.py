@@ -1609,3 +1609,21 @@ def test_concat_length_distributions_params():
             ["kb11_full", "hastholmen_full"],
         ),
     ]
+
+
+def test_fit_to_multi_scale_lengths_params():
+    """
+    Params for test_fit_to_multi_scale_lengths.
+    """
+    return [
+        [
+            length_distributions.LengthDistribution(
+                name="kb11", lengths=kb11_traces_lengths(), area_value=kb11_area_value()
+            ),
+            length_distributions.LengthDistribution(
+                name="hastholmen",
+                lengths=hastholmen_traces_lengths(),
+                area_value=hastholmen_area_value(),
+            ),
+        ]
+    ]

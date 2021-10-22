@@ -1,6 +1,8 @@
 """
 Tests for length distributions utilities.
 """
+from typing import List
+
 import numpy as np
 import powerlaw
 import pytest
@@ -162,3 +164,31 @@ def test_normalize_fit_to_area(
         },
         default_tolerance=dict(atol=1e-4, rtol=1e-4),
     )
+
+
+@pytest.mark.parametrize(
+    "distributions", tests.test_fit_to_multi_scale_lengths_params()
+)
+def test_fit_to_multi_scale_lengths_fitter_comparisons(
+    distributions: List[length_distributions.LengthDistribution],
+):
+    """
+    Test fit_to_multi_scale_lengths.
+    """
+    mld = length_distributions.MultiLengthDistribution(
+        distributions=distributions, cut_distributions=True, using_branches=False
+    )
+
+    numpy_polyfit_vals = length_distributions.fit_to_multi_scale_lengths(
+        lengths=mld.concatted_lengths,
+        ccm=mld.concatted_ccm,
+        fitter=length_distributions.numpy_polyfit,
+    )
+    linear_regression_vals = length_distributions.fit_to_multi_scale_lengths(
+        lengths=mld.concatted_lengths,
+        ccm=mld.concatted_ccm,
+        fitter=length_distributions.scikit_linear_regression,
+    )
+
+    for val in [*numpy_polyfit_vals, *linear_regression_vals]:
+        assert isinstance(val, (np.ndarray, float))
