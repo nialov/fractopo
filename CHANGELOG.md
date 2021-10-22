@@ -4,6 +4,8 @@
 
 #### New Features
 
+-   (multi_network): add multi-scale length fit
+
 -   (analysis): implement multiple fitters
 
 #### Fixes
@@ -13,7 +15,7 @@
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...592d3e2`](https://github.com/nialov/fractopo/compare/v0.2.1...592d3e2)
+[`v0.2.1...09e1812`](https://github.com/nialov/fractopo/compare/v0.2.1...09e1812)
 
 ## v0.2.1 (2021-09-22)
 

@@ -278,7 +278,10 @@ def group_gathered_subsamples(
 
     By default groups by Name column.
 
-    >>> subsamples = [{"param": 2.0, "Name": "myname"}, {"param": 2.0, "Name": "myname"}]
+    >>> subsamples = [
+    ...     {"param": 2.0, "Name": "myname"},
+    ...     {"param": 2.0, "Name": "myname"},
+    ... ]
     >>> group_gathered_subsamples(subsamples)
     {'myname': [{'param': 2.0, 'Name': 'myname'}, {'param': 2.0, 'Name': 'myname'}]}
 
