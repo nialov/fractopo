@@ -61,9 +61,6 @@ def test_determine_topology_parameters(
         node_counts,
         area,
     )
-    assert all(
-        key in topology_parameters for key in [param.value.name for param in Param]
-    )
     assert all(param >= 0 for param in topology_parameters.values())
     assert all(
         isinstance(param, (float, int)) for param in topology_parameters.values()

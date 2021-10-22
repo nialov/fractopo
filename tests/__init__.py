@@ -22,6 +22,7 @@ from shapely.geometry import (
 )
 from shapely.wkt import loads
 
+from fractopo import general
 from fractopo.analysis import length_distributions, parameters
 from fractopo.general import (
     CC_branch,
@@ -1626,4 +1627,128 @@ def test_fit_to_multi_scale_lengths_params():
                 area_value=hastholmen_area_value(),
             ),
         ]
+    ]
+
+
+def test_aggregate_chosen_params():
+    """
+    Params for test_aggregate_chosen.
+    """
+    return [
+        (
+            [
+                {
+                    general.Param.AREA.value.name: 2000.0,
+                    general.Param.CIRCLE_COUNT.value.name: 20.0,
+                    general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                    general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.2,
+                },
+                {
+                    general.Param.AREA.value.name: 4000.0,
+                    general.Param.CIRCLE_COUNT.value.name: 40.0,
+                    general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                    general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.4,
+                },
+            ],
+            float,
+            {
+                general.Param.AREA.value.name: 6000.0,
+                general.Param.CIRCLE_COUNT.value.name: 60.0,
+                general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.3333333333333333,
+            },
+        ),
+        (
+            [
+                {
+                    general.Param.AREA.value.name: 2000.0,
+                    "random-column": "Some name?",
+                },
+                {
+                    general.Param.AREA.value.name: 4000.0,
+                    "random-column": "Some other name?",
+                },
+            ],
+            (float, str),
+            {
+                general.Param.AREA.value.name: 6000.0,
+                "random-column": str(["Some name?", "Some other name?"]),
+            },
+        ),
+    ]
+
+
+def test_random_sample_of_circles_params():
+    """
+    Params for test_random_sample_of_circles.
+    """
+    return [
+        (
+            {
+                "geta7": [
+                    {
+                        general.Param.AREA.value.name: 2000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 20.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.2,
+                    },
+                    {
+                        general.Param.AREA.value.name: 4000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 40.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.4,
+                    },
+                ]
+            },
+            {"geta7": 12.5},
+            1,
+            None,
+        ),
+        (
+            {
+                "geta7": [
+                    {
+                        general.Param.AREA.value.name: 2000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 20.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.2,
+                    },
+                    {
+                        general.Param.AREA.value.name: 4000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 40.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.4,
+                    },
+                ],
+                "geta6": [
+                    {
+                        general.Param.AREA.value.name: 2000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 20.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.2,
+                    },
+                    {
+                        general.Param.AREA.value.name: 4000.0,
+                        general.Param.CIRCLE_COUNT.value.name: 40.0,
+                        general.Param.FRACTURE_INTENSITY_P21.value.name: 2.0,
+                        general.Param.CONNECTIONS_PER_BRANCH.value.name: 1.4,
+                    },
+                ],
+            },
+            {"geta7": 12.5, "geta6": 5.0},
+            2,
+            None,
+        ),
+    ]
+
+
+def test_collect_indexes_of_base_circles_params():
+    """
+    Params for test_collect_indexes_of_base_circles.
+    """
+    return [
+        ([1, 2, 3], 1, [10, 10, 20]),
+        ([1, 2, 4], 1, [10, 10, 30]),
+        ([100, 2323, 10000], 2, [10, 10, 30]),
+        ([100, 2323, 10000], 3, [10, 10, 30]),
     ]
