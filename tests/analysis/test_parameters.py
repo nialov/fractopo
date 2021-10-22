@@ -61,10 +61,12 @@ def test_determine_topology_parameters(
         node_counts,
         area,
     )
-    assert all([key in topology_parameters for key in [param.value for param in Param]])
-    assert all([param >= 0 for param in topology_parameters.values()])
     assert all(
-        [isinstance(param, (float, int)) for param in topology_parameters.values()]
+        key in topology_parameters for key in [param.value.name for param in Param]
+    )
+    assert all(param >= 0 for param in topology_parameters.values())
+    assert all(
+        isinstance(param, (float, int)) for param in topology_parameters.values()
     )
 
 
@@ -78,8 +80,8 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     figs, axes = parameters.plot_parameters_plot(
         topology_parameters_list, labels, colors
     )
-    assert all([isinstance(fig, Figure) for fig in figs])
-    assert all([isinstance(ax, Axes) for ax in axes])
+    assert all(isinstance(fig, Figure) for fig in figs)
+    assert all(isinstance(ax, Axes) for ax in axes)
     plt.close()
 
 

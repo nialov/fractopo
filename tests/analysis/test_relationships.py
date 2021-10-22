@@ -98,7 +98,7 @@ def test_determine_intersects(
     )
     assert isinstance(intersectframe, pd.DataFrame)
     expected_cols = ["node", "nodeclass", "sets", "error"]
-    assert all([col in intersectframe.columns for col in expected_cols])
+    assert all(col in intersectframe.columns for col in expected_cols)
 
 
 @pytest.mark.parametrize(
@@ -135,7 +135,7 @@ def test_determine_crosscut_abutting_relationships(
     )
     assert isinstance(relations_df, pd.DataFrame)
     expected_cols = ["name", "sets", "x", "y", "y-reverse", "error-count"]
-    assert all([col in relations_df.columns for col in expected_cols])
+    assert all(col in relations_df.columns for col in expected_cols)
 
 
 def test_plot_crosscut_abutting_relationships_plot():

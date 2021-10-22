@@ -104,7 +104,7 @@ def test_network_contour_grid(traces, areas, snap_threshold, dataframe_regressio
     )
     sampled_grid = network.contour_grid()
     fig, ax = network.plot_contour(
-        parameter=Param.FRACTURE_INTENSITY_P21.value, sampled_grid=sampled_grid
+        parameter=Param.FRACTURE_INTENSITY_P21.value.name, sampled_grid=sampled_grid
     )
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)

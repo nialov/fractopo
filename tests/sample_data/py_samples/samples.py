@@ -56,7 +56,7 @@ results_in_multijunction_list_of_ls = [
     loads(ls_wkt) for ls_wkt in results_in_multijunction_wkts
 ]
 
-assert all([isinstance(val, LineString) for val in results_in_multijunction_list_of_ls])
+assert all(isinstance(val, LineString) for val in results_in_multijunction_list_of_ls)
 
 
 results_in_false_positive_underlapping_wkts = load_from_txt(

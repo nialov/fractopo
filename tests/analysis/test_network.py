@@ -346,8 +346,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         ("Trace", "Branch"),
     ):
 
-        assert all([isinstance(val, str) for val in boundary_intersect_count])
-        assert all([isinstance(val, int) for val in boundary_intersect_count.values()])
+        assert all(isinstance(val, str) for val in boundary_intersect_count)
+        assert all(isinstance(val, int) for val in boundary_intersect_count.values())
         assert sum(boundary_intersect_count.values()) == gdf.shape[0]
         assert sum(gdf.geometry.intersects(area_gdf.geometry.iloc[0].boundary)) == sum(
             (
