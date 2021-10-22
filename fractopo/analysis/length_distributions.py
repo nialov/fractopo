@@ -7,7 +7,7 @@ from enum import Enum, unique
 from functools import lru_cache
 from itertools import chain, cycle
 from textwrap import wrap
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -16,6 +16,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from sklearn.linear_model import LinearRegression
 
 ALPHA = "alpha"
 EXPONENT = "exponent"
@@ -52,6 +53,33 @@ class Dist(Enum):
     TRUNCATED_POWERLAW = "truncated_power_law"
 
 
+def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, float]:
+    """
+    Fit numpy polyfit to data.
+    """
+    vals = np.polyfit(log_lengths, log_ccm, 1)
+    assert len(vals) == 2
+    return vals
+
+
+def scikit_linear_regression(
+    log_lengths: np.ndarray, log_ccm: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Fit using scikit LinearRegression.
+    """
+    model = LinearRegression().fit(log_lengths.reshape((-1, 1)), log_ccm)
+    coefs = model.coef_
+    intercept = model.intercept_
+
+    assert len(coefs) == 1
+    assert isinstance(intercept, float)
+    m_value = coefs[0]
+    assert isinstance(m_value, float)
+
+    return m_value, intercept
+
+
 @dataclass
 class MultiLengthDistribution:
 
@@ -62,6 +90,7 @@ class MultiLengthDistribution:
     distributions: List[LengthDistribution]
     cut_distributions: bool
     using_branches: bool
+    fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]] = numpy_polyfit
 
     def __hash__(self) -> int:
         """
@@ -124,7 +153,7 @@ class MultiLengthDistribution:
         Fit np.polyfit to multi-scale lengths.
         """
         return fit_to_multi_scale_lengths(
-            lengths=self.concatted_lengths, ccm=self.concatted_ccm
+            lengths=self.concatted_lengths, ccm=self.concatted_ccm, fitter=self.fitter
         )
 
     @property
@@ -434,6 +463,7 @@ def calculate_fitted_values(
 def fit_to_multi_scale_lengths(
     ccm: np.ndarray,
     lengths: np.ndarray,
+    fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]] = numpy_polyfit,
 ) -> Tuple[np.ndarray, float, float]:
     """
     Fit np.polyfit to multiscale length distributions.
@@ -445,11 +475,15 @@ def fit_to_multi_scale_lengths(
     )
 
     # Fit numpy polyfit to data
-    fit_vals = np.polyfit(log_lengths_sorted, log_ccm_sorted, 1)
+    fit_vals = fitter(log_lengths_sorted, log_ccm_sorted)
 
     assert len(fit_vals) == 2
 
     m_value, constant = fit_vals
+    logging.info(
+        "Fitted with fitter.",
+        extra=dict(fitter=fitter, m_value=m_value, constant=constant),
+    )
 
     # Calculate the fitted values of y
     y_fit = calculate_fitted_values(
@@ -457,6 +491,7 @@ def fit_to_multi_scale_lengths(
         m_value=m_value,
         constant=constant,
     )
+
     return y_fit, m_value, constant
 
 
