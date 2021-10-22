@@ -440,21 +440,21 @@ def determine_topology_parameters(
 
     # Collect parameters that do not require topology determination into a dict
     params_without_topology = {
-        Param.FRACTURE_INTENSITY_B21.value: fracture_intensity,
-        Param.FRACTURE_INTENSITY_P21.value: fracture_intensity,
-        Param.TRACE_MEAN_LENGTH.value: characteristic_length_traces,
-        Param.DIMENSIONLESS_INTENSITY_P22.value: dimensionless_intensity_traces,
-        Param.AREA.value: area,
+        Param.FRACTURE_INTENSITY_B21.value.name: fracture_intensity,
+        Param.FRACTURE_INTENSITY_P21.value.name: fracture_intensity,
+        Param.TRACE_MEAN_LENGTH.value.name: characteristic_length_traces,
+        Param.DIMENSIONLESS_INTENSITY_P22.value.name: dimensionless_intensity_traces,
+        Param.AREA.value.name: area,
     }
 
     if not branches_defined:
         nan_dict = {
-            param.value: np.nan
+            param.value.name: np.nan
             for param in Param
             if param.value not in params_without_topology
         }
         all_params_without_topo = {**params_without_topology, **nan_dict}
-        assert all(param.value in all_params_without_topo for param in Param)
+        assert all(param.value.name in all_params_without_topo for param in Param)
 
         return all_params_without_topo
 
@@ -513,25 +513,25 @@ def determine_topology_parameters(
     connection_frequency = (node_counts[Y_node] + node_counts[X_node]) / area
 
     params_with_topology = {
-        Param.NUMBER_OF_TRACES.value: number_of_traces,
-        Param.BRANCH_MEAN_LENGTH.value: characteristic_length_branches,
-        Param.AREAL_FREQUENCY_B20.value: aerial_frequency_branches,
-        Param.AREAL_FREQUENCY_P20.value: aerial_frequency_traces,
-        Param.DIMENSIONLESS_INTENSITY_B22.value: dimensionless_intensity_branches,
-        Param.CONNECTIONS_PER_TRACE.value: connections_per_trace,
-        Param.CONNECTIONS_PER_BRANCH.value: connections_per_branch,
-        Param.FRACTURE_INTENSITY_MAULDON.value: fracture_intensity_mauldon,
-        Param.FRACTURE_DENSITY_MAULDON.value: fracture_density_mauldon,
-        Param.TRACE_MEAN_LENGTH_MAULDON.value: trace_mean_length_mauldon,
-        Param.CONNECTION_FREQUENCY.value: connection_frequency,
-        Param.NUMBER_OF_BRANCHES.value: number_of_branches,
+        Param.NUMBER_OF_TRACES.value.name: number_of_traces,
+        Param.BRANCH_MEAN_LENGTH.value.name: characteristic_length_branches,
+        Param.AREAL_FREQUENCY_B20.value.name: aerial_frequency_branches,
+        Param.AREAL_FREQUENCY_P20.value.name: aerial_frequency_traces,
+        Param.DIMENSIONLESS_INTENSITY_B22.value.name: dimensionless_intensity_branches,
+        Param.CONNECTIONS_PER_TRACE.value.name: connections_per_trace,
+        Param.CONNECTIONS_PER_BRANCH.value.name: connections_per_branch,
+        Param.FRACTURE_INTENSITY_MAULDON.value.name: fracture_intensity_mauldon,
+        Param.FRACTURE_DENSITY_MAULDON.value.name: fracture_density_mauldon,
+        Param.TRACE_MEAN_LENGTH_MAULDON.value.name: trace_mean_length_mauldon,
+        Param.CONNECTION_FREQUENCY.value.name: connection_frequency,
+        Param.NUMBER_OF_BRANCHES.value.name: number_of_branches,
     }
 
     all_parameters = {**params_without_topology, **params_with_topology}
     assert len(all_parameters) == sum(
         [len(params_without_topology), len(params_with_topology)]
     )
-    assert all(param.value in all_parameters for param in Param)
+    assert all(param.value.name in all_parameters for param in Param)
 
     return all_parameters
 
@@ -544,11 +544,10 @@ def plot_parameters_plot(
     """
     Plot topological parameters.
     """
-    log_scale_columns = Param.log_scale_columns()
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
 
     columns_to_plot = [
-        param.value for param in Param if param.value in topology_parameters_list[0]
+        param for param in Param if param.value.name in topology_parameters_list[0]
     ]
     figs, axes = [], []
 
@@ -567,7 +566,7 @@ def plot_parameters_plot(
         # Trying to have sensible widths for bars:
         topology_concat.plot.bar(
             x="label",
-            y=column,
+            y=column.value.name,
             color=colors,
             zorder=5,
             alpha=0.9,
@@ -577,7 +576,7 @@ def plot_parameters_plot(
         # PLOT STYLING
         ax.set_xlabel("")
         ax.set_ylabel(
-            column + " " + f"({Param.get_unit_for_column(column)})",
+            column.value.name + " " + f"({column.value.unit})",
             fontsize="xx-large",
             fontfamily="DejaVu Sans",
             style="italic",
@@ -585,7 +584,7 @@ def plot_parameters_plot(
         ax.set_title(
             x=0.5,
             y=1.09,
-            label=column,
+            label=column.value.name,
             fontsize="xx-large",
             bbox=prop,
             transform=ax.transAxes,
@@ -593,7 +592,7 @@ def plot_parameters_plot(
         )
         legend = ax.legend()
         legend.remove()
-        if column in log_scale_columns:
+        if column.value.plot_as_log:
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
         locs, xtick_labels = plt.xticks()
@@ -602,13 +601,13 @@ def plot_parameters_plot(
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS
         rects = ax.patches
-        for value, rect in zip(topology_concat[column].values, rects):
+        for value, rect in zip(topology_concat[column.value.name].values, rects):
             height = rect.get_height()
             if value > 0.01:
                 value = round(value, 2)
             else:
                 value = f"{value:.2e}"
-            if column in log_scale_columns:
+            if column.value.plot_as_log:
                 height = height + height / 10
             else:
                 max_height = max([r.get_height() for r in rects])

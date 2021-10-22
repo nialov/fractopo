@@ -700,7 +700,7 @@ class Network:
         branch_boundary_intersect_count = self.branch_boundary_intersect_count
         radius = {
             RADIUS: (
-                calc_circle_radius(parameters[Param.AREA.value])
+                calc_circle_radius(parameters[Param.AREA.value.name])
                 if self.circular_target_area
                 else np.nan
             )
@@ -710,7 +710,7 @@ class Network:
         )
         censoring_and_relative = {
             CENSORING: censoring_value,
-            RELATIVE_CENSORING: censoring_value / parameters[Param.AREA.value],
+            RELATIVE_CENSORING: censoring_value / parameters[Param.AREA.value.name],
         }
         description = {
             **trace_boundary_intersect_count,

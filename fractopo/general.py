@@ -108,6 +108,20 @@ class Col(Enum):
     LENGTH_NON_WEIGHTED = "length non-weighted"
 
 
+@dataclass
+class ParamInfo:
+
+    """
+    Parameter with name and metadata.
+    """
+
+    name: str
+    plot_as_log: bool
+    unit: str
+    # TODO: Currently not used.
+    needs_topology: bool
+
+
 @unique
 class Param(Enum):
 
@@ -115,72 +129,96 @@ class Param(Enum):
     Column names for geometric and topological parameters.
     """
 
-    NUMBER_OF_TRACES = "Number of Traces"
-    NUMBER_OF_BRANCHES = "Number of Branches"
-    TRACE_MEAN_LENGTH = "Trace Mean Length"
-    BRANCH_MEAN_LENGTH = "Branch Mean Length"
-    CONNECTIONS_PER_BRANCH = "Connections per Branch"
-    AREAL_FREQUENCY_B20 = "Areal Frequency B20"
-    FRACTURE_INTENSITY_B21 = "Fracture Intensity B21"
-    DIMENSIONLESS_INTENSITY_B22 = "Dimensionless Intensity B22"
-    CONNECTIONS_PER_TRACE = "Connections per Trace"
-    AREAL_FREQUENCY_P20 = "Areal Frequency P20"
-    FRACTURE_INTENSITY_P21 = "Fracture Intensity P21"
-    DIMENSIONLESS_INTENSITY_P22 = "Dimensionless Intensity P22"
-    TRACE_MEAN_LENGTH_MAULDON = "Trace Mean Length (Mauldon)"
-    FRACTURE_INTENSITY_MAULDON = "Fracture Intensity (Mauldon)"
-    FRACTURE_DENSITY_MAULDON = "Fracture Density (Mauldon)"
-    CONNECTION_FREQUENCY = "Connection Frequency"
-    AREA = "Area"
+    AREA = ParamInfo("Area", False, r"$m^2$", False)
+    AREAL_FREQUENCY_B20 = ParamInfo(
+        "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True
+    )
+    AREAL_FREQUENCY_P20 = ParamInfo(
+        "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True
+    )
+    BRANCH_MEAN_LENGTH = ParamInfo("Branch Mean Length", True, "m", True)
+    CONNECTIONS_PER_BRANCH = ParamInfo(
+        "Connections per Branch", False, r"$\frac{1}{n}$", True
+    )
+    CONNECTIONS_PER_TRACE = ParamInfo(
+        "Connections per Trace", False, r"$\frac{1}{n}$", True
+    )
+    CONNECTION_FREQUENCY = ParamInfo(
+        "Connection Frequency", False, r"$\frac{1}{m^2}$", True
+    )
+    DIMENSIONLESS_INTENSITY_B22 = ParamInfo(
+        "Dimensionless Intensity B22", False, "-", True
+    )
+    DIMENSIONLESS_INTENSITY_P22 = ParamInfo(
+        "Dimensionless Intensity P22", False, "-", False
+    )
+    FRACTURE_DENSITY_MAULDON = ParamInfo(
+        "Fracture Density (Mauldon)", True, r"$\frac{1}{m^2}$", True
+    )
+    FRACTURE_INTENSITY_B21 = ParamInfo(
+        "Fracture Intensity B21", True, r"$\frac{m}{m^2}$", False
+    )
+    FRACTURE_INTENSITY_MAULDON = ParamInfo(
+        "Fracture Intensity (Mauldon)", True, r"$\frac{m}{m^2}$", True
+    )
+    FRACTURE_INTENSITY_P21 = ParamInfo(
+        "Fracture Intensity P21", True, r"$\frac{m}{m^2}$", False
+    )
+    NUMBER_OF_BRANCHES = ParamInfo("Number of Branches", False, "-", True)
+    NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True)
+    TRACE_MEAN_LENGTH = ParamInfo("Trace Mean Length", True, "m", False)
+    TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
+        "Trace Mean Length (Mauldon)", True, "m", True
+    )
 
-    @classmethod
-    def log_scale_columns(cls) -> List[str]:
-        """
-        Return collection of column names that can/should be plotted in log.
-        """
-        return [
-            param.value
-            for param in (
-                cls.TRACE_MEAN_LENGTH,
-                cls.BRANCH_MEAN_LENGTH,
-                cls.AREAL_FREQUENCY_B20,
-                cls.FRACTURE_INTENSITY_B21,
-                cls.FRACTURE_INTENSITY_P21,
-                cls.AREAL_FREQUENCY_P20,
-                cls.TRACE_MEAN_LENGTH_MAULDON,
-                cls.FRACTURE_INTENSITY_MAULDON,
-                cls.FRACTURE_DENSITY_MAULDON,
-            )
-        ]
+    # @classmethod
+    # def log_scale_columns(cls) -> List[str]:
+    #     """
+    #     Return collection of column names that can/should be plotted in log.
+    #     """
+    #     return [
+    #         param.value
+    #         for param in (
+    #             # cls.TRACE_MEAN_LENGTH,
+    #             # cls.BRANCH_MEAN_LENGTH,
+    #             # cls.AREAL_FREQUENCY_B20,
+    #             # cls.FRACTURE_INTENSITY_B21,
+    #             # cls.FRACTURE_INTENSITY_P21,
+    #             # cls.AREAL_FREQUENCY_P20,
+    #             # cls.TRACE_MEAN_LENGTH_MAULDON,
+    #             # cls.FRACTURE_INTENSITY_MAULDON,
+    #             # cls.FRACTURE_DENSITY_MAULDON,
+    #         )
+    #     ]
 
-    @classmethod
-    def get_unit_for_column(cls, column: str) -> str:
-        """
-        Return unit for parameter name.
+    # @classmethod
+    # def get_unit_for_column(cls, column: str) -> str:
+    #     """
+    #     Return unit for parameter name.
 
-        Assumes that metric system is used in coordinate system.
-        """
-        units_for_columns = {
-            cls.NUMBER_OF_TRACES.value: "-",
-            cls.NUMBER_OF_BRANCHES.value: "-",
-            cls.TRACE_MEAN_LENGTH.value: "m",
-            cls.BRANCH_MEAN_LENGTH.value: "m",
-            cls.CONNECTIONS_PER_BRANCH.value: r"$\frac{1}{n}$",
-            cls.CONNECTIONS_PER_TRACE.value: r"$\frac{1}{n}$",
-            cls.AREAL_FREQUENCY_B20.value: r"$\frac{1}{m^2}$",
-            cls.DIMENSIONLESS_INTENSITY_P22.value: "-",
-            cls.AREAL_FREQUENCY_P20.value: r"$\frac{1}{m^2}$",
-            cls.FRACTURE_INTENSITY_B21.value: r"$\frac{m}{m^2}$",
-            cls.FRACTURE_INTENSITY_P21.value: r"$\frac{m}{m^2}$",
-            cls.DIMENSIONLESS_INTENSITY_B22.value: "-",
-            cls.TRACE_MEAN_LENGTH_MAULDON.value: "m",
-            cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
-            cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
-            cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
-            cls.AREA.value: r"$m^2$",
-        }
-        assert len(units_for_columns) == len(list(cls))
-        return units_for_columns[column]
+    #     Assumes that metric system is used in coordinate system.
+    #     """
+    #     units_for_columns = {
+    #         cls.AREA.value: r"$m^2$",
+    #         cls.AREAL_FREQUENCY_B20.value: r"$\frac{1}{m^2}$",
+    #         cls.AREAL_FREQUENCY_P20.value: r"$\frac{1}{m^2}$",
+    #         cls.BRANCH_MEAN_LENGTH.value: "m",
+    #         cls.CONNECTIONS_PER_BRANCH.value: r"$\frac{1}{n}$",
+    #         cls.CONNECTIONS_PER_TRACE.value: r"$\frac{1}{n}$",
+    #         cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
+    #         cls.DIMENSIONLESS_INTENSITY_B22.value: "-",
+    #         cls.DIMENSIONLESS_INTENSITY_P22.value: "-",
+    #         cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
+    #         cls.FRACTURE_INTENSITY_B21.value: r"$\frac{m}{m^2}$",
+    #         cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
+    #         cls.FRACTURE_INTENSITY_P21.value: r"$\frac{m}{m^2}$",
+    #         cls.NUMBER_OF_BRANCHES.value: "-",
+    #         cls.NUMBER_OF_TRACES.value: "-",
+    #         cls.TRACE_MEAN_LENGTH.value: "m",
+    #         cls.TRACE_MEAN_LENGTH_MAULDON.value: "m",
+    #     }
+    #     assert len(units_for_columns) == len(list(cls))
+    #     return units_for_columns[column]
 
 
 def determine_set(

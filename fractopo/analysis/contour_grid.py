@@ -237,7 +237,8 @@ def sample_grid(
             grid.geometry.values,
         )
     )
-    for key in [param.value for param in Param]:
+    for key in [param.value.name for param in Param]:
+        assert isinstance(key, str)
         params[key] = [cell_param[key] for cell_param in params_for_cells]
     for key, value in params.items():
         grid[key] = value
