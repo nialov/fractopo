@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
-from typing import Any, Callable, List, Sequence, Set, Tuple, Union, overload
+from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overload
 
 import geopandas as gpd
 import numpy as np
@@ -79,6 +79,8 @@ SetRangeTuple = Tuple[Tuple[float, float], ...]
 BoundsTuple = Tuple[float, float, float, float]
 PointTuple = Tuple[float, float]
 Number = Union[float, int]
+ParameterValuesType = Dict[str, Union[float, int, str]]
+ParameterListType = List[ParameterValuesType]
 
 
 @dataclass
@@ -108,6 +110,38 @@ class Col(Enum):
     LENGTH_NON_WEIGHTED = "length non-weighted"
 
 
+def sum_aggregation(values, **_) -> Number:
+    """
+    Aggregate by calculating sum.
+    """
+    return np.array(values).sum()
+
+
+def mean_aggregation(values, weights) -> Number:
+    """
+    Aggregate by calculating mean.
+    """
+    return np.average(values, weights=weights)
+
+
+def fallback_aggregation(values) -> str:
+    """
+    Fallback aggregation where values are simply joined into a string.
+    """
+    return str(values)
+
+
+@unique
+class Aggregator(Enum):
+
+    """
+    Define how to aggregate during subsample aggragation.
+    """
+
+    SUM = sum_aggregation
+    MEAN = mean_aggregation
+
+
 @dataclass
 class ParamInfo:
 
@@ -120,6 +154,7 @@ class ParamInfo:
     unit: str
     # TODO: Currently not used.
     needs_topology: bool
+    aggregator: Aggregator
 
 
 @unique
@@ -129,96 +164,60 @@ class Param(Enum):
     Column names for geometric and topological parameters.
     """
 
-    AREA = ParamInfo("Area", False, r"$m^2$", False)
+    AREA = ParamInfo("Area", False, r"$m^2$", False, Aggregator.SUM)
     AREAL_FREQUENCY_B20 = ParamInfo(
-        "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True
+        "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
     )
     AREAL_FREQUENCY_P20 = ParamInfo(
-        "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True
+        "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
     )
-    BRANCH_MEAN_LENGTH = ParamInfo("Branch Mean Length", True, "m", True)
+    BRANCH_MEAN_LENGTH = ParamInfo(
+        "Branch Mean Length", True, "m", True, Aggregator.MEAN
+    )
     CONNECTIONS_PER_BRANCH = ParamInfo(
-        "Connections per Branch", False, r"$\frac{1}{n}$", True
+        "Connections per Branch", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
     )
     CONNECTIONS_PER_TRACE = ParamInfo(
-        "Connections per Trace", False, r"$\frac{1}{n}$", True
+        "Connections per Trace", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
     )
     CONNECTION_FREQUENCY = ParamInfo(
-        "Connection Frequency", False, r"$\frac{1}{m^2}$", True
+        "Connection Frequency", False, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
     )
     DIMENSIONLESS_INTENSITY_B22 = ParamInfo(
-        "Dimensionless Intensity B22", False, "-", True
+        "Dimensionless Intensity B22", False, "-", True, Aggregator.MEAN
     )
     DIMENSIONLESS_INTENSITY_P22 = ParamInfo(
-        "Dimensionless Intensity P22", False, "-", False
+        "Dimensionless Intensity P22", False, "-", False, Aggregator.MEAN
     )
     FRACTURE_DENSITY_MAULDON = ParamInfo(
-        "Fracture Density (Mauldon)", True, r"$\frac{1}{m^2}$", True
+        "Fracture Density (Mauldon)", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
     )
     FRACTURE_INTENSITY_B21 = ParamInfo(
-        "Fracture Intensity B21", True, r"$\frac{m}{m^2}$", False
+        "Fracture Intensity B21", True, r"$\frac{m}{m^2}$", False, Aggregator.MEAN
     )
     FRACTURE_INTENSITY_MAULDON = ParamInfo(
-        "Fracture Intensity (Mauldon)", True, r"$\frac{m}{m^2}$", True
+        "Fracture Intensity (Mauldon)", True, r"$\frac{m}{m^2}$", True, Aggregator.MEAN
     )
     FRACTURE_INTENSITY_P21 = ParamInfo(
-        "Fracture Intensity P21", True, r"$\frac{m}{m^2}$", False
+        "Fracture Intensity P21", True, r"$\frac{m}{m^2}$", False, Aggregator.MEAN
     )
-    NUMBER_OF_BRANCHES = ParamInfo("Number of Branches", False, "-", True)
-    NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True)
-    TRACE_MEAN_LENGTH = ParamInfo("Trace Mean Length", True, "m", False)
+    NUMBER_OF_BRANCHES = ParamInfo(
+        "Number of Branches", False, "-", True, Aggregator.SUM
+    )
+    NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True, Aggregator.SUM)
+    TRACE_MEAN_LENGTH = ParamInfo(
+        "Trace Mean Length", True, "m", False, Aggregator.MEAN
+    )
     TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
-        "Trace Mean Length (Mauldon)", True, "m", True
+        "Trace Mean Length (Mauldon)", True, "m", True, Aggregator.MEAN
     )
-
-    # @classmethod
-    # def log_scale_columns(cls) -> List[str]:
-    #     """
-    #     Return collection of column names that can/should be plotted in log.
-    #     """
-    #     return [
-    #         param.value
-    #         for param in (
-    #             # cls.TRACE_MEAN_LENGTH,
-    #             # cls.BRANCH_MEAN_LENGTH,
-    #             # cls.AREAL_FREQUENCY_B20,
-    #             # cls.FRACTURE_INTENSITY_B21,
-    #             # cls.FRACTURE_INTENSITY_P21,
-    #             # cls.AREAL_FREQUENCY_P20,
-    #             # cls.TRACE_MEAN_LENGTH_MAULDON,
-    #             # cls.FRACTURE_INTENSITY_MAULDON,
-    #             # cls.FRACTURE_DENSITY_MAULDON,
-    #         )
-    #     ]
-
-    # @classmethod
-    # def get_unit_for_column(cls, column: str) -> str:
-    #     """
-    #     Return unit for parameter name.
-
-    #     Assumes that metric system is used in coordinate system.
-    #     """
-    #     units_for_columns = {
-    #         cls.AREA.value: r"$m^2$",
-    #         cls.AREAL_FREQUENCY_B20.value: r"$\frac{1}{m^2}$",
-    #         cls.AREAL_FREQUENCY_P20.value: r"$\frac{1}{m^2}$",
-    #         cls.BRANCH_MEAN_LENGTH.value: "m",
-    #         cls.CONNECTIONS_PER_BRANCH.value: r"$\frac{1}{n}$",
-    #         cls.CONNECTIONS_PER_TRACE.value: r"$\frac{1}{n}$",
-    #         cls.CONNECTION_FREQUENCY.value: r"$\frac{1}{m^2}$",
-    #         cls.DIMENSIONLESS_INTENSITY_B22.value: "-",
-    #         cls.DIMENSIONLESS_INTENSITY_P22.value: "-",
-    #         cls.FRACTURE_DENSITY_MAULDON.value: r"$\frac{1}{m^2}$",
-    #         cls.FRACTURE_INTENSITY_B21.value: r"$\frac{m}{m^2}$",
-    #         cls.FRACTURE_INTENSITY_MAULDON.value: r"$\frac{m}{m^2}$",
-    #         cls.FRACTURE_INTENSITY_P21.value: r"$\frac{m}{m^2}$",
-    #         cls.NUMBER_OF_BRANCHES.value: "-",
-    #         cls.NUMBER_OF_TRACES.value: "-",
-    #         cls.TRACE_MEAN_LENGTH.value: "m",
-    #         cls.TRACE_MEAN_LENGTH_MAULDON.value: "m",
-    #     }
-    #     assert len(units_for_columns) == len(list(cls))
-    #     return units_for_columns[column]
+    CIRCLE_COUNT = ParamInfo(
+        "Circle Count",
+        plot_as_log=False,
+        unit="-",
+        needs_topology=False,
+        aggregator=Aggregator.SUM,
+    )
 
 
 def determine_set(

@@ -535,7 +535,9 @@ def determine_topology_parameters(
     assert len(all_parameters) == sum(
         [len(params_without_topology), len(params_with_topology)]
     )
-    assert all(param.value.name in all_parameters for param in Param)
+    assert all(
+        param in {param.value.name for param in Param} for param in all_parameters
+    )
 
     return all_parameters
 

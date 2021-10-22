@@ -239,7 +239,10 @@ def sample_grid(
     )
     for key in [param.value.name for param in Param]:
         assert isinstance(key, str)
-        params[key] = [cell_param[key] for cell_param in params_for_cells]
+        try:
+            params[key] = [cell_param[key] for cell_param in params_for_cells]
+        except KeyError:
+            continue
     for key, value in params.items():
         grid[key] = value
     return grid
