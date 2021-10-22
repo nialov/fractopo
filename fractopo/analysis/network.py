@@ -266,6 +266,48 @@ class Network:
         # Nodes
         self.node_gdf = self.node_gdf.copy() if self.node_gdf is not None else None
 
+    def __hash__(self) -> int:
+        """
+        Implement Network hashing.
+        """
+
+        def convert_gdf(
+            gdf: Union[gpd.GeoDataFrame, gpd.GeoSeries, None, Polygon, MultiPolygon]
+        ) -> Optional[str]:
+            """
+            Convert GeoDataFrame or geometry to (json) str.
+            """
+            if gdf is None:
+                return None
+            if isinstance(gdf, (gpd.GeoSeries, gpd.GeoDataFrame)):
+                return gdf.geometry.to_json()
+            else:
+                return gdf.wkt
+
+        traces_geojson = convert_gdf(self.trace_gdf)
+        area_geojson = convert_gdf(self.area_gdf)
+
+        hash_args = (
+            traces_geojson,
+            area_geojson,
+            self.name,
+            self.determine_branches_nodes,
+            self.snap_threshold,
+            self.truncate_traces,
+            self.circular_target_area,
+            self.azimuth_set_names,
+            self.azimuth_set_ranges,
+            self.trace_length_set_names,
+            self.trace_length_set_ranges,
+            self.branch_length_set_names,
+            self.branch_length_set_ranges,
+            convert_gdf(self.branch_gdf),
+            convert_gdf(self.node_gdf),
+            convert_gdf(self.censoring_area),
+        )
+
+        return hash(hash_args)
+
     def get_area_gdf(self) -> gpd.GeoDataFrame:
         """
         Get area_gdf if it is given.

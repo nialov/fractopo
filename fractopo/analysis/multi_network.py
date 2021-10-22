@@ -3,9 +3,10 @@ MultiNetwork implementation for handling multiple network analysis.
 """
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Dict, List, Sequence, Union
 
-from fractopo.analysis import subsampling
+from fractopo.analysis import length_distributions, subsampling
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import RandomChoice
 from fractopo.general import ProcessResult
@@ -19,6 +20,12 @@ class MultiNetwork:
     """
 
     networks: Sequence[Network]
+
+    def __hash__(self) -> int:
+        """
+        Implement hashing for MultiNetwork.
+        """
+        return hash(tuple([*self.networks]))
 
     def subsample(
         self,
@@ -44,3 +51,43 @@ class MultiNetwork:
             random_choice=random_choice,
             samples=samples,
         )
+
+    @lru_cache(maxsize=None)
+    def multi_length_distributions(
+        self, using_branches: bool = False, cut_distributions: bool = True
+    ) -> length_distributions.MultiLengthDistribution:
+        """
+        Get MultiLengthDistribution of all networks.
+        """
+        distributions = [
+            length_distributions.LengthDistribution(
+                name=network.name,
+                lengths=(
+                    network.trace_length_array
+                    if not using_branches
+                    else network.branch_length_array
+                ),
+                area_value=network.total_area,
+            )
+            for network in self.networks
+        ]
+
+        multi_distribution = length_distributions.MultiLengthDistribution(
+            distributions=distributions,
+            using_branches=using_branches,
+            cut_distributions=cut_distributions,
+        )
+        return multi_distribution
+
+    def plot_multi_length_distribution(
+        self, using_branches: bool, cut_distributions: bool
+    ):
+        """
+        Plot multi-length distribution fit.
+        """
+        multi_distribution = self.multi_length_distributions(
+            using_branches=using_branches, cut_distributions=cut_distributions
+        )
+        fig, ax = multi_distribution.plot_multi_length_distributions()
+
+        return fig, ax
