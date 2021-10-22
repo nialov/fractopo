@@ -73,10 +73,14 @@ def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, in
     Decorate xyi plot.
     """
     xcount, ycount, icount = _get_xyi_counts(node_counts)
-    text = f"""n: {xcount+ycount+icount}
-X-nodes: {xcount}
-Y-nodes: {ycount}
-I-nodes: {icount}"""
+    text = "\n".join(
+        (
+            f"n: {xcount+ycount+icount}",
+            f"X-nodes: {xcount}",
+            f"Y-nodes: {ycount}",
+            f"I-nodes: {icount}",
+        )
+    )
     initialize_ternary_points(ax, tax)
     tern_plot_the_fing_lines(tax)
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
