@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased (2021-10-21)
+## Unreleased (2021-10-22)
+
+#### New Features
+
+-   (analysis): implement multiple fitters
 
 #### Fixes
 
@@ -9,7 +13,7 @@
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...0fcf39d`](https://github.com/nialov/fractopo/compare/v0.2.1...0fcf39d)
+[`v0.2.1...592d3e2`](https://github.com/nialov/fractopo/compare/v0.2.1...592d3e2)
 
 ## v0.2.1 (2021-09-22)
 
