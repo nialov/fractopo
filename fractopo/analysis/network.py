@@ -229,7 +229,6 @@ class Network:
                 crop_to_target_areas(
                     self.trace_gdf,
                     self.get_area_gdf(),
-                    snap_threshold=self.snap_threshold,
                     keep_column_data=True,
                 )
             )

@@ -82,6 +82,8 @@ Number = Union[float, int]
 ParameterValuesType = Dict[str, Union[float, int, str]]
 ParameterListType = List[ParameterValuesType]
 
+MINIMUM_LINE_LENGTH = 1e-18
+
 
 @dataclass
 class ProcessResult:
@@ -1112,7 +1114,6 @@ def efficient_clip(
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
-    snap_threshold: float,
     is_filtered: bool = False,
     keep_column_data: bool = False,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
@@ -1178,6 +1179,18 @@ def crop_to_target_areas(
     assert hasattr(clipped_traces, "geometry")
     assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
 
+    # Debug logging for traces smaller than MINIMUM_LINE_LENGTH
+    sum_smaller_than_minimum = sum(clipped_traces.geometry.length < MINIMUM_LINE_LENGTH)
+    if sum_smaller_than_minimum > 0:
+        # Log if found
+        logging.info(
+            "Traces smaller than MINIMUM_LINE_LENGTH found after crop.",
+            extra=dict(
+                MINIMUM_LINE_LENGTH=MINIMUM_LINE_LENGTH,
+                found_amount=sum_smaller_than_minimum,
+            ),
+        )
+
     # Clipping might result in Point geometries
     # Filter to only LineStrings and MultiLineStrings
     clipped_traces = clipped_traces.loc[
@@ -1197,9 +1210,23 @@ def crop_to_target_areas(
     )
 
     # Remove small traces that might cause topology errors
+    # Filtering out traces smaller in length than
+    # fractopo.general.MINIMUM_LINE_LENGTH
     clipped_and_dissolved_traces = clipped_and_dissolved_traces.loc[
-        clipped_and_dissolved_traces.geometry.length > snap_threshold * 2.01
+        clipped_and_dissolved_traces.geometry.length > MINIMUM_LINE_LENGTH
     ]
+    logging.info(
+        "Filtered out small traces with MINIMUM_LINE_LENGTH.",
+        extra=dict(
+            MINIMUM_LINE_LENGTH=MINIMUM_LINE_LENGTH,
+            new_minimum=clipped_and_dissolved_traces.geometry.length.min(),
+            maximum=clipped_and_dissolved_traces.geometry.length.max(),
+        ),
+    )
+
+    # clipped_and_dissolved_traces = clipped_and_dissolved_traces.loc[
+    #     clipped_and_dissolved_traces.geometry.length > snap_threshold * 2.01
+    # ]
 
     # Reset index
     clipped_and_dissolved_traces.reset_index(inplace=True, drop=True)

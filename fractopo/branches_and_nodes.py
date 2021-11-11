@@ -934,7 +934,6 @@ def branches_and_nodes(
         traces_geosrs = crop_to_target_areas(
             traces_geosrs,
             areas_geosrs,
-            snap_threshold=snap_threshold,
             keep_column_data=False,
         ).geometry
 

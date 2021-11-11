@@ -18,6 +18,8 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from sklearn.linear_model import LinearRegression
 
+from fractopo import general
+
 ALPHA = "alpha"
 EXPONENT = "exponent"
 CUT_OFF = "cut-off"
@@ -38,6 +40,33 @@ class LengthDistribution:
     name: str
     lengths: np.ndarray
     area_value: float
+    using_branches: bool
+
+    def __post_init__(self):
+        """
+        Filter lengths lower than general.MINIMUM_LINE_LENGTH.
+
+        Also log the creation parameters.
+        """
+        # Filter lengths lower than general.MINIMUM_LINE_LENGTH.
+        filtered_lengths = self.lengths[self.lengths > general.MINIMUM_LINE_LENGTH]
+
+        # Calculate proportion for logging purposes
+        filtered_proportion = (len(self.lengths) - len(filtered_lengths)) / len(
+            self.lengths
+        )
+        logging.info(
+            "Created LengthDistribution instance.",
+            extra=dict(
+                name=self.name,
+                min_length=self.lengths.min(),
+                max_length=self.lengths.max(),
+                area_value=self.area_value,
+                using_branches=self.using_branches,
+                filtered_proportion=filtered_proportion,
+            ),
+        )
+        self.lengths = filtered_lengths
 
 
 @unique
@@ -640,11 +669,11 @@ def create_normalized_distributions(
     ccm_array_normed_all = []
 
     for length_distribution in distributions:
-        no_cut_off_value = 1e-18
-        assert no_cut_off_value < length_distribution.lengths.min()
+        # no_cut_off_value = 1e-18
+        assert general.MINIMUM_LINE_LENGTH < length_distribution.lengths.min()
         fit = determine_fit(
             length_array=length_distribution.lengths,
-            cut_off=None if cut_distributions else no_cut_off_value,
+            cut_off=None if cut_distributions else general.MINIMUM_LINE_LENGTH,
         )
 
         truncated_length_array, ccm_array_normed = normalize_fit_to_area(
@@ -664,6 +693,8 @@ def create_normalized_distributions(
                 .to_dict(),
             ),
         )
+        assert all(isinstance(length, float) for length in truncated_length_array)
+        assert all(isinstance(value, (int, float)) for value in ccm_array_normed)
         truncated_length_array_all.append(truncated_length_array)
         ccm_array_normed_all.append(ccm_array_normed)
 

@@ -125,8 +125,7 @@ def test_nice_traces():
 
 
 @pytest.mark.parametrize("keep_column_data", [True, False])
-@pytest.mark.parametrize("snap_threshold", [0.001, 0.01])
-def test_crop_to_target_area(keep_column_data: bool, snap_threshold: float):
+def test_crop_to_target_area(keep_column_data: bool):
     """
     Test crop to target area.
     """
@@ -139,14 +138,12 @@ def test_crop_to_target_area(keep_column_data: bool, snap_threshold: float):
     valid_result = general.crop_to_target_areas(
         valid_geoseries,
         valid_areas_geoseries,
-        snap_threshold=snap_threshold,
         keep_column_data=keep_column_data,
     )
     try:
         _ = general.crop_to_target_areas(
             invalid_geoseries,
             invalid_areas_geoseries,
-            snap_threshold=snap_threshold,
             keep_column_data=keep_column_data,
         )
         assert False

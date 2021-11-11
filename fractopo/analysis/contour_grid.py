@@ -162,7 +162,6 @@ def populate_sample_cell(
         sample_traces = crop_to_target_areas(
             traces=trace_candidates,
             areas=gpd.GeoSeries([sample_circle]),
-            snap_threshold=snap_threshold,
             is_filtered=True,
             keep_column_data=False,
         )
@@ -172,6 +171,7 @@ def populate_sample_cell(
         # if any(nodes.intersects(sample_circle)):
         # TODO: Is node clipping stable?
         sample_nodes = gpd.clip(node_candidates, sample_circle)
+        assert sample_nodes is not None
         assert all(isinstance(val, Point) for val in sample_nodes.geometry.values)
     else:
         sample_nodes = nodes.iloc[0:0]

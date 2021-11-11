@@ -80,10 +80,7 @@ def test_bounding_polygon(geoseries):
 
 
 @pytest.mark.parametrize("keep_column_data", [True, False])
-@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
-def test_crop_to_target_areas(
-    keep_column_data: bool, snap_threshold: float, file_regression
-):
+def test_crop_to_target_areas(keep_column_data: bool, file_regression):
     """
     Test cropping traces to target area with known right example data results.
 
@@ -98,7 +95,6 @@ def test_crop_to_target_areas(
     cropped_traces = general.crop_to_target_areas(
         traces=trace_data,
         areas=area_data,
-        snap_threshold=snap_threshold,
         keep_column_data=keep_column_data,
     )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
