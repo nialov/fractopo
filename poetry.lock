@@ -1024,6 +1024,23 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "nialog"
+version = "0.0.1"
+description = "JSON logging setup for Python."
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+python-json-logger = ">=2.0.2,<3.0.0"
+
+[package.extras]
+format-lint = ["black-nb", "black", "blackdoc", "blacken-docs", "isort", "pylint", "rstcheck", "sphinx"]
+coverage = ["coverage (>=5.0,<6.0)", "coverage-badge"]
+typecheck = ["mypy"]
+docs = ["nbsphinx", "sphinx-autodoc-typehints", "sphinx-gallery", "sphinx-rtd-theme", "sphinx"]
+
+[[package]]
 name = "notebook"
 version = "6.4.5"
 description = "A web-based notebook environment for interactive computing"
@@ -1388,6 +1405,14 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-json-logger"
+version = "2.0.2"
+description = "A python library adding a json log formatter"
+category = "main"
+optional = false
+python-versions = ">=3.5"
 
 [[package]]
 name = "python-ternary"
@@ -1957,7 +1982,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "ce987bba66ab7cc1574f1dd4fe0d46400d865370c208418e21fa00fc7be65302"
+content-hash = "c2c7c99a7fac8cb2d770b4eb0fe1ebcd78f80fc6ab0b566188865a6cf719d9b3"
 
 [metadata.files]
 alabaster = [
@@ -2536,6 +2561,10 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.1-py3-none-any.whl", hash = "sha256:76d6e972265063fe92a90b9cc4fb82616e07d586b346ed9d2c89a4187acea39c"},
     {file = "nest_asyncio-1.5.1.tar.gz", hash = "sha256:afc5a1c515210a23c461932765691ad39e8eba6551c055ac8d5546e69250d0aa"},
 ]
+nialog = [
+    {file = "nialog-0.0.1-py3-none-any.whl", hash = "sha256:65eef03bb8583057eaaf901dac3864984d00281a0b90e1cc01845f725b748107"},
+    {file = "nialog-0.0.1.tar.gz", hash = "sha256:b9f96e8db79c61d46fbe5bf0ae324731d1283f9a968807fc381a74bb339bff75"},
+]
 notebook = [
     {file = "notebook-6.4.5-py3-none-any.whl", hash = "sha256:f7b4362698fed34f44038de0517b2e5136c1e7c379797198c1736121d3d597bd"},
     {file = "notebook-6.4.5.tar.gz", hash = "sha256:872e20da9ae518bbcac3e4e0092d5bd35454e847dedb8cb9739e9f3b68406be0"},
@@ -2807,6 +2836,10 @@ pytest-regressions = [
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+python-json-logger = [
+    {file = "python-json-logger-2.0.2.tar.gz", hash = "sha256:202a4f29901a4b8002a6d1b958407eeb2dd1d83c18b18b816f5b64476dde9096"},
+    {file = "python_json_logger-2.0.2-py3-none-any.whl", hash = "sha256:99310d148f054e858cd5f4258794ed6777e7ad2c3fd7e1c1b527f1cba4d08420"},
 ]
 python-ternary = [
     {file = "python-ternary-1.0.8.tar.gz", hash = "sha256:41e7313db74ab2e24280797ed8073eccad4006429dfd87f6e66e7feba2aa64cd"},

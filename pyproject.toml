@@ -75,6 +75,7 @@ isort = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
+nialog = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 hypothesis = "*"
