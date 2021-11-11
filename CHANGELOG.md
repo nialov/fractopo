@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-10-22)
+## Unreleased (2021-11-11)
 
 #### New Features
 
@@ -15,7 +15,7 @@
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...09e1812`](https://github.com/nialov/fractopo/compare/v0.2.1...09e1812)
+[`v0.2.1...a59ca16`](https://github.com/nialov/fractopo/compare/v0.2.1...a59ca16)
 
 ## v0.2.1 (2021-09-22)
 
