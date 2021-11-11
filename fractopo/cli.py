@@ -3,6 +3,7 @@ Command-line integration of fractopo with click.
 """
 import logging
 import time
+from enum import Enum, unique
 from itertools import chain
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Type, Union
@@ -13,6 +14,7 @@ import fiona
 import geopandas as gpd
 import pandas as pd
 import typer
+from nialog.logger import setup_module_logging
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
@@ -29,6 +31,20 @@ SNAP_THRESHOLD_HELP = (
 )
 TRACE_FILE_HELP = "Path to lineament or fracture trace data."
 AREA_FILE_HELP = "Path to target area data that delineates trace data."
+
+
+@unique
+class LoggingLevel(Enum):
+
+    """
+    Enums for logging levels.
+    """
+
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -227,6 +243,19 @@ to make sure your arguments are correct.
     )
     if summary:
         describe_results(validated_trace, validation.ERROR_COLUMN)
+
+
+@app.callback()
+def fractopo_callback(
+    logging_level: LoggingLevel = typer.Option(LoggingLevel.WARNING.value),
+    json_indent: int = typer.Option(1),
+):
+    """
+    Use fractopo command-line utilities.
+    """
+    setup_module_logging(
+        logging_level_int=getattr(logging, logging_level.value), json_indent=json_indent
+    )
 
 
 @app.command()
