@@ -4,7 +4,7 @@ Utilities for Network subsampling.
 import logging
 import random
 from itertools import compress, groupby
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 from numpy.random import seed
@@ -115,7 +115,7 @@ def choose_sample_from_group(
     Choose single sample from group DataFrame.
     """
     # Make continous index from 0
-    indexes = [idx for idx in range(len(group))]
+    indexes = list(range(len(group)))
 
     assert len(indexes) > 0
     # Choose from indexes
@@ -233,12 +233,13 @@ def aggregate_chosen(
     aggregated_values = dict()
     for column in columns:
         aggregator = default_aggregator
-        assert isinstance(aggregator, Callable)
+        assert callable(aggregator)
         column_values = [params[column] for params in chosen]
         for param in general.Param:
             if column == param.value.name:
                 aggregator = param.value.aggregator
-                assert isinstance(aggregator, Callable)
+                # assert isinstance(aggregator, Callable)
+                assert callable(aggregator)
                 break
         try:
             aggregated = aggregator(values=column_values, weights=area_values)

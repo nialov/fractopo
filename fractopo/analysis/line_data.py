@@ -133,6 +133,8 @@ class LineData:
     def length_array(self) -> np.ndarray:
         """
         Array of trace or branch lengths.
+
+        Note: lengths can be 0.0 due to boundary weighting.
         """
         column_array = _column_array_property(column=Col.LENGTH, gdf=self.line_gdf)
         if column_array is None:

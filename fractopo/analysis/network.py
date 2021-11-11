@@ -280,8 +280,7 @@ class Network:
                 return None
             if isinstance(gdf, (gpd.GeoSeries, gpd.GeoDataFrame)):
                 return gdf.geometry.to_json()
-            else:
-                return gdf.wkt
+            return gdf.wkt
 
         traces_geojson = convert_gdf(self.trace_gdf)
         area_geojson = convert_gdf(self.area_gdf)

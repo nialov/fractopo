@@ -2,9 +2,7 @@
 MultiNetwork implementation for handling multiple network analysis.
 """
 
-from dataclasses import dataclass
-from functools import lru_cache
-from typing import Dict, List, Sequence, Union
+from typing import Dict, List, NamedTuple, Tuple, Union
 
 from fractopo.analysis import length_distributions, subsampling
 from fractopo.analysis.network import Network
@@ -12,20 +10,20 @@ from fractopo.analysis.random_sampling import RandomChoice
 from fractopo.general import ProcessResult
 
 
-@dataclass
-class MultiNetwork:
+# @dataclass
+class MultiNetwork(NamedTuple):
 
     """
     Multiple Network analysis.
     """
 
-    networks: Sequence[Network]
+    networks: Tuple[Network]
 
     def __hash__(self) -> int:
         """
         Implement hashing for MultiNetwork.
         """
-        return hash(tuple([*self.networks]))
+        return hash(tuple(self.networks))
 
     def subsample(
         self,
@@ -52,7 +50,6 @@ class MultiNetwork:
             samples=samples,
         )
 
-    @lru_cache(maxsize=None)
     def multi_length_distributions(
         self, using_branches: bool = False, cut_distributions: bool = True
     ) -> length_distributions.MultiLengthDistribution:
@@ -68,6 +65,7 @@ class MultiNetwork:
                     else network.branch_length_array
                 ),
                 area_value=network.total_area,
+                using_branches=using_branches,
             )
             for network in self.networks
         ]

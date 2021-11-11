@@ -5,7 +5,6 @@ import logging
 from contextlib import redirect_stdout
 from dataclasses import dataclass
 from enum import Enum, unique
-from functools import lru_cache
 from io import StringIO
 from itertools import chain, cycle
 from textwrap import wrap
@@ -123,6 +122,11 @@ class MultiLengthDistribution:
     using_branches: bool
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]] = numpy_polyfit
 
+    _fit_to_multi_scale_lengths: Optional[Tuple[np.ndarray, float, float]] = None
+    _create_normalized_distributions: Optional[
+        Tuple[List[np.ndarray], List[np.ndarray]]
+    ] = None
+
     def __hash__(self) -> int:
         """
         Implement hashing for MultiLengthDistribution.
@@ -136,19 +140,30 @@ class MultiLengthDistribution:
                 self.cut_distributions,
                 self.using_branches,
                 all_area_values_str,
+                self.fitter.__name__,
             )
         )
 
-    @lru_cache(maxsize=None)
     def create_normalized_distributions(
         self,
     ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
         """
         Create normalized ccm of distributions.
         """
-        return create_normalized_distributions(
-            distributions=self.distributions, cut_distributions=self.cut_distributions
-        )
+        if self._create_normalized_distributions is None:
+
+            (
+                truncated_length_array_all,
+                ccm_array_normed_all,
+            ) = create_normalized_distributions(
+                distributions=self.distributions,
+                cut_distributions=self.cut_distributions,
+            )
+            self._create_normalized_distributions = (
+                truncated_length_array_all,
+                ccm_array_normed_all,
+            )
+        return self._create_normalized_distributions
 
     @property
     def truncated_length_array_all(self) -> List[np.ndarray]:
@@ -169,7 +184,9 @@ class MultiLengthDistribution:
         """
         Concat lengths into single array.
         """
-        return np.concatenate(self.truncated_length_array_all)
+        concatted = np.concatenate(self.truncated_length_array_all)
+        assert all(isinstance(value, float) for value in concatted)
+        return concatted
 
     @property
     def concatted_ccm(self) -> np.ndarray:
@@ -178,14 +195,19 @@ class MultiLengthDistribution:
         """
         return np.concatenate(self.ccm_array_normed_all)
 
-    @lru_cache(maxsize=None)
     def fit_to_multi_scale_lengths(self) -> Tuple[np.ndarray, float, float]:
         """
         Fit np.polyfit to multi-scale lengths.
         """
-        return fit_to_multi_scale_lengths(
-            lengths=self.concatted_lengths, ccm=self.concatted_ccm, fitter=self.fitter
-        )
+        if self._fit_to_multi_scale_lengths is None:
+
+            y_fit, m_value, constant = fit_to_multi_scale_lengths(
+                lengths=self.concatted_lengths,
+                ccm=self.concatted_ccm,
+                fitter=self.fitter,
+            )
+            self._fit_to_multi_scale_lengths = y_fit, m_value, constant
+        return self._fit_to_multi_scale_lengths
 
     @property
     def fitted_y_values(self) -> np.ndarray:
