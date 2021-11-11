@@ -10,12 +10,14 @@
 
 #### Fixes
 
+-   (general): use static minimum line length
+
 -   (analysis): remove usage of cached_property
 
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...a59ca16`](https://github.com/nialov/fractopo/compare/v0.2.1...a59ca16)
+[`v0.2.1...7bde596`](https://github.com/nialov/fractopo/compare/v0.2.1...7bde596)
 
 ## v0.2.1 (2021-09-22)
 
