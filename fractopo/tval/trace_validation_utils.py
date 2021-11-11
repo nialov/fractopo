@@ -130,9 +130,18 @@ def split_to_determine_triangle_errors(
         segments = split(trace, splitter_trace)
     except (ValueError, TypeError):
         # split not possible, the traces overlap
+        # logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
+        # logging.error(
+        #     "Failed to split %s with %s." % trace.wkt, splitter_trace.wkt, exc_info=True
+        # )
+        logging.error(
+            "Failed to split trace with splitter_trace.",
+            extra=dict(trace=trace.wkt, splitter_trace=splitter_trace.wkt),
+            exc_info=True,
+        )
         return True
-    finally:
-        logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
+    # finally:
+    #     logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
     if len(segments) > 2:
         if len(segments) > 3:
             return True
