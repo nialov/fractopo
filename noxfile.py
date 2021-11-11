@@ -430,7 +430,7 @@ def changelog(session):
 
     # Add empty lines after each line of changelog
     new_lines = []
-    for line in changelog_path.read_text(UTF8).splitlines():
+    for line in changelog_path.read_text(encoding=UTF8).splitlines():
         new_lines.append(line)
         new_lines.append("")
 
@@ -447,6 +447,6 @@ def changelog(session):
             CHANGELOG_MD_NAME,
             external=True,
         )
-    print(changelog_path.read_text(UTF8))
+    print(changelog_path.read_text(encoding=UTF8))
 
     assert changelog_path.exists()

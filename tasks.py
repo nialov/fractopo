@@ -110,7 +110,7 @@ def citation(c):
     Sync and validate CITATION.cff.
     """
     print("Updating CITATION.cff date")
-    citation_text = CITATION_CFF_PATH.read_text(UTF8)
+    citation_text = CITATION_CFF_PATH.read_text(encoding=UTF8)
     citation_lines = citation_text.splitlines()
     if DATE_RELEASED_STR not in citation_text:
         raise ValueError(
