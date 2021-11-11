@@ -97,6 +97,7 @@ def test_multilengthdistribution_plot(
                 name=name,
                 lengths=lengths,
                 area_value=area_value,
+                using_branches=using_branches,
             )
             for name, lengths, area_value in zip(
                 names, list_of_length_arrays, list_of_area_values
@@ -141,7 +142,8 @@ def test_normalize_fit_to_area(
     """
     Test normalize_fit_to_area.
     """
-    fit = powerlaw.Fit(length_distribution.lengths)
+    # fit = powerlaw.Fit(length_distribution.lengths)
+    fit = length_distributions.powerlaw_fit(length_distribution.lengths)
 
     (
         truncated_length_array,

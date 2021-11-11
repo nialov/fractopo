@@ -125,6 +125,13 @@ class Helpers:
     )
     hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
 
+    geta_lidar_inf_valid_traces = read_geofile(
+        Path("tests/sample_data/geta_lidar_lineaments_infinity_traces.geojson")
+    )
+    geta_lidar_inf_valid_area = read_geofile(
+        Path("tests/sample_data/geta_lidar_lineaments_inf_circular_area.geojson")
+    )
+
     @staticmethod
     def random_data_column(iterable):
         """
@@ -1588,11 +1595,13 @@ def test_normalize_fit_to_area_params():
             name="kb11",
             lengths=kb11_traces_lengths(),
             area_value=kb11_area_value(),
+            using_branches=False,
         ),
         length_distributions.LengthDistribution(
             name="kb11_50",
             lengths=kb11_traces_lengths()[0:50],
             area_value=kb11_area_value(),
+            using_branches=False,
         ),
     ]
 
@@ -1619,12 +1628,16 @@ def test_fit_to_multi_scale_lengths_params():
     return [
         [
             length_distributions.LengthDistribution(
-                name="kb11", lengths=kb11_traces_lengths(), area_value=kb11_area_value()
+                name="kb11",
+                lengths=kb11_traces_lengths(),
+                area_value=kb11_area_value(),
+                using_branches=False,
             ),
             length_distributions.LengthDistribution(
                 name="hastholmen",
                 lengths=hastholmen_traces_lengths(),
                 area_value=hastholmen_area_value(),
+                using_branches=False,
             ),
         ]
     ]
@@ -1751,4 +1764,54 @@ def test_collect_indexes_of_base_circles_params():
         ([1, 2, 4], 1, [10, 10, 30]),
         ([100, 2323, 10000], 2, [10, 10, 30]),
         ([100, 2323, 10000], 3, [10, 10, 30]),
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_multinetwork_plot_multi_length_distribution_slow_params():
+    """
+    Params for test_multinetwork_plot_multi_length_distribution_slow.
+    """
+    return [
+        [
+            dict(
+                trace_gdf=Helpers.geta_1_traces,
+                area_gdf=Helpers.geta_1_1_area,
+                name="geta_1_1",
+                circular_target_area=True,
+                snap_threshold=0.001,
+            ),
+            dict(
+                trace_gdf=Helpers.geta_lidar_inf_valid_traces,
+                area_gdf=Helpers.geta_lidar_inf_valid_area,
+                name="geta_lidar_inf",
+                circular_target_area=True,
+                snap_threshold=0.001,
+            ),
+        ],
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_multinetwork_plot_multi_length_distribution_fast_params():
+    """
+    Params for test_multinetwork_plot_multi_length_distribution_fast.
+    """
+    return [
+        [
+            dict(
+                trace_gdf=Helpers.kb11_traces,
+                area_gdf=Helpers.kb11_area,
+                name="kb11",
+                circular_target_area=False,
+                snap_threshold=0.001,
+            ),
+            dict(
+                trace_gdf=Helpers.kb7_traces,
+                area_gdf=Helpers.kb7_area,
+                name="kb7",
+                circular_target_area=False,
+                snap_threshold=0.001,
+            ),
+        ],
     ]
