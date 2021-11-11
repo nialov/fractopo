@@ -2,9 +2,11 @@
 Utilities for analyzing and plotting length distributions for line data.
 """
 import logging
+from contextlib import redirect_stdout
 from dataclasses import dataclass
 from enum import Enum, unique
 from functools import lru_cache
+from io import StringIO
 from itertools import chain, cycle
 from textwrap import wrap
 from typing import Callable, Dict, List, Optional, Tuple
@@ -235,9 +237,9 @@ def determine_fit(
     Determine powerlaw (along other) length distribution fits for given data.
     """
     fit = (
-        powerlaw.Fit(length_array, xmin=cut_off, verbose=False)
+        powerlaw_fit(length_array, xmin=cut_off, verbose=False)
         if cut_off is not None
-        else powerlaw.Fit(length_array, verbose=False)
+        else powerlaw_fit(length_array, verbose=False)
     )
     return fit
 
@@ -749,3 +751,22 @@ def plot_multi_distributions_and_fit(
     plt.legend()
 
     return fig, ax
+
+
+def powerlaw_fit(values: np.ndarray, *args, **kwargs) -> powerlaw.Fit:
+    """
+    Wrap powerlaw.Fit to silence its output on stdout.
+    """
+    tmp_io = StringIO()
+    with redirect_stdout(tmp_io):
+        fit = powerlaw.Fit(values, *args, **kwargs)
+    logging.info(
+        "Conducted powerlaw.Fit.",
+        extra=dict(
+            values_len=len(values),
+            values_min=values.min(),
+            values_max=values.max(),
+            powerlaw_stdout=tmp_io.getvalue(),
+        ),
+    )
+    return fit
