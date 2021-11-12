@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.2.1.post30.dev0+e1cd24e"
+version = "0.2.1.post35.dev0+b24245f"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -51,6 +51,8 @@ click = "*"
 descartes = "*"
 rich = "^10.7.0"
 typer = "^0.3.2"
+# Logging
+nialog = "^0.0.2"
 
 # Extras
 # Coverage
@@ -75,7 +77,6 @@ isort = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
-nialog = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 hypothesis = "*"

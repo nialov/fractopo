@@ -1025,7 +1025,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "nialog"
-version = "0.0.1"
+version = "0.0.2"
 description = "JSON logging setup for Python."
 category = "main"
 optional = false
@@ -1982,7 +1982,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "c2c7c99a7fac8cb2d770b4eb0fe1ebcd78f80fc6ab0b566188865a6cf719d9b3"
+content-hash = "f5767d1721e71140cd0a96d7b80bf9890a791e73101b98b98279e357094c07ef"
 
 [metadata.files]
 alabaster = [
@@ -2562,8 +2562,8 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.1.tar.gz", hash = "sha256:afc5a1c515210a23c461932765691ad39e8eba6551c055ac8d5546e69250d0aa"},
 ]
 nialog = [
-    {file = "nialog-0.0.1-py3-none-any.whl", hash = "sha256:65eef03bb8583057eaaf901dac3864984d00281a0b90e1cc01845f725b748107"},
-    {file = "nialog-0.0.1.tar.gz", hash = "sha256:b9f96e8db79c61d46fbe5bf0ae324731d1283f9a968807fc381a74bb339bff75"},
+    {file = "nialog-0.0.2-py3-none-any.whl", hash = "sha256:ef9b71fe7d129912fa8a33236b8a7e51a3bb7ce6e05aa27f2793977b944e0d6b"},
+    {file = "nialog-0.0.2.tar.gz", hash = "sha256:4b9e12bcc6b02aa2e894e516b5ef55b32efaa7dd4bd10b35900dace00caaf9c1"},
 ]
 notebook = [
     {file = "notebook-6.4.5-py3-none-any.whl", hash = "sha256:f7b4362698fed34f44038de0517b2e5136c1e7c379797198c1736121d3d597bd"},
