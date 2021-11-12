@@ -38,6 +38,7 @@ DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
 PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
+VENV_PARAMS = dict(venv_params=["--copies"])
 
 
 def filter_paths_to_existing(*iterables: str) -> List[str]:
@@ -70,7 +71,7 @@ def install_dev(session, extras: str = ""):
     session.install("-r", DEV_REQUIREMENTS)
 
 
-@nox.session(python=PYTHON_VERSIONS, reuse_venv=True)
+@nox.session(python=PYTHON_VERSIONS, reuse_venv=True, **VENV_PARAMS)
 def tests_pip(session):
     """
     Run test suite with pip install.
@@ -105,7 +106,7 @@ def tests_pip(session):
     session.run(PACKAGE_NAME.replace("_", "-"), "--help")
 
 
-@nox.session(python=PYTHON_VERSIONS, reuse_venv=True)
+@nox.session(python=PYTHON_VERSIONS, **VENV_PARAMS)
 def notebooks(session):
     """
     Run notebooks.
@@ -126,7 +127,7 @@ def notebooks(session):
         fill_notebook(session=session, notebook=notebook)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def format_and_lint(session):
     """
     Format and lint python files, notebooks and docs_src.
@@ -197,7 +198,7 @@ def format_and_lint(session):
         session.run("black-nb", "--check", str(notebook))
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def requirements(session):
     """
     Sync poetry requirements from pyproject.toml to requirements.txt.
@@ -221,7 +222,7 @@ def requirements(session):
     )
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def docs(session):
     """
     Make documentation.
@@ -267,7 +268,7 @@ def docs(session):
             rmtree(auto_examples_path)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def update_version(session):
     """
     Update package version from git vcs.
@@ -280,7 +281,7 @@ def update_version(session):
     session.run("poetry-dynamic-versioning")
 
 
-@nox.session(reuse_venv=True, python=PYTHON_VERSIONS)
+@nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
 def build(session):
     """
     Build package with poetry.
@@ -295,7 +296,7 @@ def build(session):
     session.run("poetry", "build")
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def profile_performance(session):
     """
     Profile fractopo runtime performance.
@@ -328,7 +329,7 @@ def profile_performance(session):
     print(f"\nPerformance profile saved at {resolved_path}.")
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def typecheck(session):
     """
     Typecheck Python code.
@@ -346,7 +347,7 @@ def typecheck(session):
     session.run("mypy", *existing_paths)
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def validate_citation_cff(session):
     """
     Validate CITATION.cff.
@@ -390,7 +391,7 @@ def validate_citation_cff(session):
     )
 
 
-@nox.session(reuse_venv=True)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def changelog(session):
     """
     Create CHANGELOG.md.
