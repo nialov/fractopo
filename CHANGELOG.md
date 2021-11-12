@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-11-11)
+## Unreleased (2021-11-12)
 
 #### New Features
 
@@ -9,6 +9,12 @@
 -   (analysis): implement multiple fitters
 
 #### Fixes
+
+-   (cli): finalize nialog implement
+
+-   change name to non-conflicting key
+
+-   (cli): setup logging with nialog
 
 -   (tval): fix trace validation slowdown logging
 
@@ -19,7 +25,7 @@
 -   (tval): catch TypeError from shapely split
 
 Full set of changes:
-[`v0.2.1...e1cd24e`](https://github.com/nialov/fractopo/compare/v0.2.1...e1cd24e)
+[`v0.2.1...1d15ff6`](https://github.com/nialov/fractopo/compare/v0.2.1...1d15ff6)
 
 ## v0.2.1 (2021-09-22)
 
