@@ -12,6 +12,8 @@ from fractopo import cli
 from fractopo.tval.trace_validation import Validation
 from tests import Helpers, click_error_print
 
+typer_cli_runner = TyperCliRunner()
+
 
 @pytest.mark.parametrize(
     "trace_path, area_path, auto_fix", Helpers.test_tracevalidate_params
@@ -128,9 +130,8 @@ def test_fractopo_network_cli(traces_path, area_path, tmp_path):
     """
     Test fractopo network cli entrypoint.
     """
-    cli_runner = TyperCliRunner()
     tmp_path.mkdir(exist_ok=True)
-    result = cli_runner.invoke(
+    result = typer_cli_runner.invoke(
         cli.app,
         [
             "network",
@@ -150,3 +151,40 @@ def test_fractopo_network_cli(traces_path, area_path, tmp_path):
     assert "nodes" in str(output_files)
 
     assert len(list(tmp_path.glob("*.svg"))) > 0
+
+
+@pytest.mark.parametrize(
+    "logging_level_str", ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+)
+def test_fractopo_callback(logging_level_str: str):
+    """
+    Test .
+    """
+    result = typer_cli_runner.invoke(
+        cli.app,
+        [
+            "--logging-level",
+            logging_level_str,
+            "info",
+        ],
+    )
+    click_error_print(result=result)
+
+
+@pytest.mark.parametrize(
+    "logging_level_str", ["jibberish", "", "hello?", "ERRORR", "C-C-CRITICAL"]
+)
+def test_fractopo_callback_error(logging_level_str: str):
+    """
+    Test .
+    """
+    with pytest.raises(Exception):
+        result = typer_cli_runner.invoke(
+            cli.app,
+            [
+                "--logging-level",
+                logging_level_str,
+                "info",
+            ],
+        )
+        click_error_print(result=result)
