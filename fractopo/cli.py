@@ -2,8 +2,8 @@
 Command-line integration of fractopo with click.
 """
 import logging
+import sys
 import time
-from enum import Enum, unique
 from itertools import chain
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Type, Union
@@ -13,38 +13,28 @@ import click
 import fiona
 import geopandas as gpd
 import pandas as pd
+import pygeos
 import typer
-from nialog.logger import setup_module_logging
+from nialog import LoggingLevel, setup_module_logging
 from rich.console import Console
+from rich.pretty import pprint
 from rich.table import Table
 from rich.text import Text
 from typer import Typer
 
+from fractopo import __version__
 from fractopo.analysis.network import Network
 from fractopo.general import read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
 app = Typer()
+console = Console()
 SNAP_THRESHOLD_HELP = (
     "Distance threshold used to estimate whether e.g. a trace abuts in another."
 )
 TRACE_FILE_HELP = "Path to lineament or fracture trace data."
 AREA_FILE_HELP = "Path to target area data that delineates trace data."
-
-
-@unique
-class LoggingLevel(Enum):
-
-    """
-    Enums for logging levels.
-    """
-
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -539,3 +529,18 @@ def default_network_output_paths(
         nodes_output_path,
         parameters_output_path,
     )
+
+
+@app.command()
+def info():
+    """
+    Print out information about fractopo installation and python environment.
+    """
+    information = dict(
+        fractopo_version=__version__,
+        geopandas_version=gpd.__version__,
+        pygeos_version=pygeos.__version__,
+        package_location=str(Path(__file__).absolute()),
+        python_location=str(Path(sys.executable).absolute()),
+    )
+    pprint(information)
