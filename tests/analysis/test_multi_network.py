@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 
 import tests
 from fractopo import MultiNetwork, Network
-from fractopo.analysis import subsampling
+from fractopo.analysis import length_distributions, subsampling
 
 
 @pytest.mark.parametrize(
@@ -44,7 +44,7 @@ def test_multinetwork_subsample(network_params, samples: int, min_radii: float):
     assert len(gathered) > 0
 
 
-def multinetwork_plot_multi_length_distribution_slow(
+def multinetwork_plot_multi_length_distribution(
     network_params, using_branches, cut_distributions
 ):
     """
@@ -70,6 +70,7 @@ def multinetwork_plot_multi_length_distribution_slow(
 
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
+    return mld, fig, ax
 
 
 @pytest.mark.parametrize(
@@ -78,11 +79,14 @@ def multinetwork_plot_multi_length_distribution_slow(
 )
 def test_multinetwork_plot_multi_length_distribution_slow(network_params):
     """
-    Test MultiNetwork.plot_multi_length_distribution.
+    Test MultiNetwork.plot_multi_length_distribution with slow data.
     """
-    multinetwork_plot_multi_length_distribution_slow(
+    mld, fig, ax = multinetwork_plot_multi_length_distribution(
         network_params=network_params, using_branches=False, cut_distributions=True
     )
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
+    assert isinstance(mld, length_distributions.MultiLengthDistribution)
 
 
 @pytest.mark.parametrize("cut_distributions", [True, False])
@@ -95,9 +99,9 @@ def test_multinetwork_plot_multi_length_distribution_fast(
     network_params, using_branches, cut_distributions
 ):
     """
-    Test MultiNetwork.plot_multi_length_distribution.
+    Test MultiNetwork.plot_multi_length_distribution with fast data.
     """
-    multinetwork_plot_multi_length_distribution_slow(
+    multinetwork_plot_multi_length_distribution(
         network_params=network_params,
         using_branches=using_branches,
         cut_distributions=cut_distributions,
