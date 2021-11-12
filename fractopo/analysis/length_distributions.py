@@ -59,7 +59,7 @@ class LengthDistribution:
         logging.info(
             "Created LengthDistribution instance.",
             extra=dict(
-                name=self.name,
+                LengthDistribution_name=self.name,
                 min_length=self.lengths.min(),
                 max_length=self.lengths.max(),
                 area_value=self.area_value,
