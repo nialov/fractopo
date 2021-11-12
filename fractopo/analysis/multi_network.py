@@ -17,7 +17,7 @@ class MultiNetwork(NamedTuple):
     Multiple Network analysis.
     """
 
-    networks: Tuple[Network]
+    networks: Tuple[Network, ...]
 
     def __hash__(self) -> int:
         """
@@ -78,10 +78,15 @@ class MultiNetwork(NamedTuple):
         return multi_distribution
 
     def plot_multi_length_distribution(
-        self, using_branches: bool, cut_distributions: bool
+        self,
+        using_branches: bool,
+        cut_distributions: bool,
     ):
         """
         Plot multi-length distribution fit.
+
+        Use ``multi_length_distributions()`` to get most parameters used in
+        fitting the multi-scale distribution.
         """
         multi_distribution = self.multi_length_distributions(
             using_branches=using_branches, cut_distributions=cut_distributions

@@ -748,6 +748,9 @@ def plot_multi_distributions_and_fit(
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
 
+    # all_y_values = list(chain(*ccm_array_normed_all))
+    # min_y, max_y = min(all_y_values), max(all_y_values)
+    # y_range = max_y - min_y
     # Plot length distributions
     for name, truncated_length_array, ccm_array_normed in zip(
         names, truncated_length_array_all, ccm_array_normed_all
@@ -760,6 +763,13 @@ def plot_multi_distributions_and_fit(
             marker="X",
             color=next(color_cycle),
         )
+        # Plot cut-offs
+        # cut_off_line_x = truncated_length_array[0]
+        # cut_off_line_ys = [
+        #     ccm_array_normed[0] - (y_range / 20) ** 2,
+        #     ccm_array_normed[0] + (y_range / 20) ** 2,
+        # ]
+        # ax.plot([cut_off_line_x, cut_off_line_x], cut_off_line_ys)
 
     # Plot polyfit
     ax.plot(
