@@ -277,6 +277,11 @@ def network_extensive_testing(
             raise ValueError("Expected 3 max returns.")
         assert isinstance(fig, Figure)
         assert isinstance(ax, (Axes, PolarAxes))
+        # if plot == "plot_trace_lengths" or plot == "plot_branch_lengths":
+        #     import IPython
+
+        #     IPython.embed()
+        #     raise Exception("Error after ipython.")
         plt.close()
 
 
