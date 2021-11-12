@@ -2,7 +2,7 @@
 Utilities for analyzing and plotting length distributions for line data.
 """
 import logging
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from enum import Enum, unique
 from io import StringIO
@@ -271,6 +271,7 @@ def plot_length_data_on_ax(
     length_array: np.ndarray,
     ccm_array: np.ndarray,
     label: str,
+    truncated: bool = True,
 ):
     """
     Plot length data on given ax.
@@ -280,11 +281,23 @@ def plot_length_data_on_ax(
     ax.scatter(
         x=length_array,
         y=ccm_array,
-        s=50,
-        label=label,
+        s=25,
+        label=label if truncated else None,
+        alpha=1.0 if truncated else 0.02,
+        color="black" if truncated else "brown",
+        marker="x",
     )
-    ax.set_xscale("log")
-    ax.set_yscale("log")
+    # # ax.scatter(
+    # #     x=length_array,
+    # #     y=ccm_array,
+    # #     s=1,
+    # #     label=label,
+    # #     color="black" if truncated_values else "brown",
+    # #     alpha=1.0 if truncated_values else 0.02,
+    # #     marker="x",
+    # # )
+    # ax.set_xscale("log")
+    # ax.set_yscale("log")
 
 
 def plot_fit_on_ax(
@@ -351,8 +364,18 @@ def plot_distribution_fits(
     fig, ax = plt.subplots(figsize=(7, 7))
     # Get the x, y data from fit
     truncated_length_array, ccm_array = fit.ccdf()
+    full_length_array, full_ccm_array = fit.ccdf(original_data=True)
+
+    # Normalize full_ccm_array to the truncated ccm_array
+    full_ccm_array = full_ccm_array / (
+        full_ccm_array[len(full_ccm_array) - len(ccm_array)] / ccm_array.max()
+    )
+
     # Plot length scatter plot
     plot_length_data_on_ax(ax, truncated_length_array, ccm_array, label)
+    plot_length_data_on_ax(
+        ax, full_length_array, full_ccm_array, label, truncated=False
+    )
     # Plot the actual fits (powerlaw, exp...)
     for fit_distribution in (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW):
         plot_fit_on_ax(ax, fit, fit_distribution)
@@ -363,6 +386,29 @@ def plot_distribution_fits(
         length_array=truncated_length_array,
         ccm_array=ccm_array,
     )
+    rounded_exponent = round(calculate_exponent(fit.alpha), 3)
+
+    # Set title with exponent
+    ax.set_title(f"Power-law Exponent = ${rounded_exponent}$")
+
+    plot_axvline = cut_off is None or cut_off != 0.0
+    if plot_axvline:
+        # Indicate cut-off if cut-off is not given as 0.0
+        ax.axvline(
+            truncated_length_array.min(),
+            linestyle="dotted",
+            color="black",
+            alpha=0.8,
+            label="Cut-Off",
+        )
+        ax.text(
+            truncated_length_array.min(),
+            ccm_array.min(),
+            f"{round(truncated_length_array.min(), 2)} m",
+            rotation=90,
+            horizontalalignment="right",
+            fontsize="small",
+        )
     return fit, fig, ax
 
 
@@ -416,6 +462,8 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         # lh._sizes = [750]
         lh.set_linewidth(3)
     ax.grid(zorder=-10, color="black", alpha=0.5)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
 
 
 def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
@@ -448,9 +496,9 @@ def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
         Dist.EXPONENTIAL.value + " " + LAMBDA: fit.exponential.Lambda,
         Dist.TRUNCATED_POWERLAW.value + " " + LAMBDA: fit.truncated_power_law.Lambda,
         Dist.TRUNCATED_POWERLAW.value + " " + ALPHA: fit.truncated_power_law.alpha,
-        Dist.TRUNCATED_POWERLAW.value
-        + " "
-        + EXPONENT: -(fit.truncated_power_law.alpha - 1),
+        Dist.TRUNCATED_POWERLAW.value + " "
+        # + EXPONENT: -(fit.truncated_power_law.alpha - 1),
+        + EXPONENT: calculate_exponent(fit.truncated_power_law.alpha),
         # Fit statistics
         Dist.LOGNORMAL.value + " " + LOGLIKELIHOOD: fit.lognormal.loglikelihood,
         Dist.EXPONENTIAL.value + " " + LOGLIKELIHOOD: fit.exponential.loglikelihood,
@@ -458,6 +506,13 @@ def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
         + " "
         + LOGLIKELIHOOD: fit.truncated_power_law.loglikelihood,
     }
+
+
+def calculate_exponent(alpha: float):
+    """
+    Calculate exponent from powerlaw.alpha.
+    """
+    return -(alpha - 1)
 
 
 def describe_powerlaw_fit(
@@ -473,7 +528,7 @@ def describe_powerlaw_fit(
         Dist.LOGNORMAL.value + " " + KOLM_DIST: fit.lognormal.D,
         Dist.TRUNCATED_POWERLAW.value + " " + KOLM_DIST: fit.truncated_power_law.D,
         Dist.POWERLAW.value + " " + ALPHA: fit.alpha,
-        Dist.POWERLAW.value + " " + EXPONENT: -(fit.alpha - 1),
+        Dist.POWERLAW.value + " " + EXPONENT: calculate_exponent(fit.alpha),
         Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
         Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
         **all_fit_attributes_dict(fit),
@@ -740,8 +795,6 @@ def plot_multi_distributions_and_fit(
     # Start making plot
     fig, ax = plt.subplots(figsize=(7, 7))
     setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
     ax.set_facecolor("oldlace")
     ax.set_title(f"$Exponent = {m_value}$")
 
@@ -789,16 +842,19 @@ def powerlaw_fit(values: np.ndarray, *args, **kwargs) -> powerlaw.Fit:
     """
     Wrap powerlaw.Fit to silence its output on stdout.
     """
-    tmp_io = StringIO()
-    with redirect_stdout(tmp_io):
-        fit = powerlaw.Fit(values, *args, **kwargs)
+    tmp_io_stdout = StringIO()
+    tmp_io_stderr = StringIO()
+    with redirect_stdout(tmp_io_stdout):
+        with redirect_stderr(tmp_io_stderr):
+            fit = powerlaw.Fit(values, *args, **kwargs)
     logging.info(
         "Conducted powerlaw.Fit.",
         extra=dict(
             values_len=len(values),
             values_min=values.min(),
             values_max=values.max(),
-            powerlaw_stdout=tmp_io.getvalue(),
+            powerlaw_stdout=tmp_io_stdout.getvalue(),
+            powerlaw_stderr=tmp_io_stderr.getvalue(),
         ),
     )
     return fit
