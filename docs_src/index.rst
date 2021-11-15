@@ -8,8 +8,6 @@
    Homepage <https://github.com/nialov/fractopo>
    Bug & Issue Reporting <https://github.com/nialov/fractopo/issues>
 
------
-
 Full Documentation
 ==================
 
