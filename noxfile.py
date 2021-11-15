@@ -451,3 +451,13 @@ def changelog(session):
     print(changelog_path.read_text(encoding=UTF8))
 
     assert changelog_path.exists()
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.parametrize("extras", ["", "[logging]"])
+def logging_extra_test(session, extras):
+    """
+    Test that logging optional dependency works.
+    """
+    session.install(f".{extras}")
+    session.run("fractopo", "tracevalidate", success_codes=[2])
