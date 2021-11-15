@@ -3,7 +3,7 @@
 ## Unreleased (2021-11-15)
 
 Full set of changes:
-[`v0.2.2...803f933`](https://github.com/nialov/fractopo/compare/v0.2.2...803f933)
+[`v0.2.2...e5a3990`](https://github.com/nialov/fractopo/compare/v0.2.2...e5a3990)
 
 ## v0.2.2 (2021-11-12)
 
