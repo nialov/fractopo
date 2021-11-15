@@ -52,7 +52,7 @@ descartes = "*"
 rich = "^10.7.0"
 typer = "^0.3.2"
 # Logging
-nialog = "^0.0.2"
+nialog = {version = "^0.0.2", optional = true}
 
 # Extras
 # Coverage
@@ -89,6 +89,7 @@ pytest = "*"
 pytest-regressions = "*"
 
 [tool.poetry.extras]
+logging = ["nialog"]
 coverage = ["coverage", "coverage-badge"]
 docs = [
     "sphinx",

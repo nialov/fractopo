@@ -4,6 +4,7 @@ Command-line integration of fractopo with click.
 import logging
 import sys
 import time
+from enum import Enum, unique
 from itertools import chain
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Type, Union
@@ -15,7 +16,6 @@ import geopandas as gpd
 import pandas as pd
 import pygeos
 import typer
-from nialog import LoggingLevel, setup_module_logging
 from rich.console import Console
 from rich.pretty import pprint
 from rich.table import Table
@@ -35,6 +35,20 @@ SNAP_THRESHOLD_HELP = (
 )
 TRACE_FILE_HELP = "Path to lineament or fracture trace data."
 AREA_FILE_HELP = "Path to target area data that delineates trace data."
+
+
+@unique
+class LoggingLevel(Enum):
+
+    """
+    Enums for logging levels.
+    """
+
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
 
 
 def get_click_path_args(exists=True, **kwargs):
@@ -243,9 +257,29 @@ def fractopo_callback(
     """
     Use fractopo command-line utilities.
     """
-    setup_module_logging(
-        logging_level_int=getattr(logging, logging_level.value), json_indent=json_indent
-    )
+    logging_level_int = int(getattr(logging, logging_level.value))
+    try:
+        import nialog
+
+        nialog.setup_module_logging(
+            logging_level_int=logging_level_int,
+            json_indent=json_indent,
+        )
+    except ImportError:
+        logging.warning(
+            "\n".join(
+                [
+                    "Cannot setup json-logging of code without 'nialog' dependency.",
+                    "Note: Not available on conda.",
+                    "If installing with pip, add the optional dependency specification:",
+                    "pip install fractopo[logging]",
+                    "or alternatively (recommended with conda installation):",
+                    "pip install nialog",
+                ]
+            )
+        )
+        logging.info("Setting up logging with basicConfig.")
+        logging.basicConfig(level=logging_level_int)
 
 
 @app.command()
