@@ -218,6 +218,7 @@ Development status
          hands of the digitizer.
       -  Issue mostly avoided when using a ``snap_threshold`` of 0.001
 
+-----
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
