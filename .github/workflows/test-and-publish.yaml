@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .nox
-          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('python-version.') }}-ci-test
+          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('python-version.txt') }}-ci-test
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test --python ${{ matrix.python-version }}
 
