@@ -24,6 +24,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Resolve absolute python version
+        run: |
+          python --version > python-version.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -32,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .nox
-          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-ci-test
+          key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('python-version.') }}-ci-test
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test --python ${{ matrix.python-version }}
 
@@ -99,7 +102,6 @@ jobs:
           key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-citation
       - name: Build docs with invoke -> nox session
         run: invoke citation
-    
 
   build-and-publish:
     runs-on: ubuntu-latest
