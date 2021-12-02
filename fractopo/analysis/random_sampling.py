@@ -258,7 +258,7 @@ class NetworkRandomSampler:
             )
         return NetworkRandomSampler(
             trace_gdf=network.trace_gdf,
-            area_gdf=network.get_area_gdf(),
+            area_gdf=network.area_gdf,
             min_radius=min_radius,
             snap_threshold=network.snap_threshold,
             random_choice=random_choice,
