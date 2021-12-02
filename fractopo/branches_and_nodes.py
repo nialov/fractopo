@@ -991,10 +991,11 @@ def branches_and_nodes(
 
     # Collect to GeoDataFrames
     node_gdf = gpd.GeoDataFrame(
-        {GEOMETRY_COLUMN: nodes_geosrs, CLASS_COLUMN: node_identities}
+        {GEOMETRY_COLUMN: nodes_geosrs, CLASS_COLUMN: node_identities}, crs=traces.crs
     )
     branch_gdf = gpd.GeoDataFrame(
-        {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities}
+        {GEOMETRY_COLUMN: branches, CONNECTION_COLUMN: branch_identities},
+        crs=traces.crs,
     )
     return branch_gdf, node_gdf
 
