@@ -1013,7 +1013,6 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     The geoseries geometries will always be completely enveloped by the
     polygon. The geometries will not intersect the polygon boundary.
 
-
     >>> geom = LineString([(1, 0), (1, 1), (-1, -1)])
     >>> geoseries = gpd.GeoSeries([geom])
     >>> poly = bounding_polygon(geoseries)
@@ -1026,6 +1025,7 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     """
     total_bounds_geoseries = total_bounds(geoseries)
     bounding_poly: Polygon = scale(box(*total_bounds_geoseries), xfact=2, yfact=2)
+    assert isinstance(bounding_poly, Polygon)
     if any(
         geom.intersects(bounding_poly.boundary) for geom in geoseries.geometry.values
     ):
