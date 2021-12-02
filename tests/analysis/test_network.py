@@ -178,9 +178,9 @@ def test_network(
 
     data_regression.check(network_attributes)
 
-    if determine_branches_nodes and network.get_branch_gdf().shape[0] < 500:
+    if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
 
-        sorted_branch_gdf = network.get_branch_gdf().sort_index()
+        sorted_branch_gdf = network.branch_gdf.sort_index()
         assert isinstance(sorted_branch_gdf, gpd.GeoDataFrame)
         # Do not check massive branch counts
         file_regression.check(sorted_branch_gdf.to_json(indent=1))
