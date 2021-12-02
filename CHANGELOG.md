@@ -1,9 +1,15 @@
 # Changelog
 
-## Unreleased (2021-11-15)
+## Unreleased (2021-12-02)
+
+#### Fixes
+
+-   (random_sampling): get\_ methods are deprecated
+
+-   (branches_and_nodes): set crs for outputs
 
 Full set of changes:
-[`v0.2.2...e5a3990`](https://github.com/nialov/fractopo/compare/v0.2.2...e5a3990)
+[`v0.2.2...9c386cd`](https://github.com/nialov/fractopo/compare/v0.2.2...9c386cd)
 
 ## v0.2.2 (2021-11-12)
 
