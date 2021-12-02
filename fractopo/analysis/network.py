@@ -1,8 +1,10 @@
 """
 Analyse and plot trace map data with Network.
 """
+import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from functools import wraps
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -58,6 +60,20 @@ from fractopo.general import (
 )
 
 
+def requires_topology(func: Callable):
+    """
+    Wrap methods that require determined topology.
+    """
+
+    @wraps(func)
+    def wrapper(network, *args, **kwargs):
+        if not network.topology_determined:
+            raise_determination_error(func.__name__)
+        return func(network, *args, **kwargs)
+
+    return wrapper
+
+
 @dataclass
 class Network:
 
@@ -98,7 +114,7 @@ class Network:
     # Base data
     # =========
     trace_gdf: gpd.GeoDataFrame
-    area_gdf: Optional[gpd.GeoDataFrame] = None
+    area_gdf: gpd.GeoDataFrame
 
     # Name the network for e.g. plot titles
     name: str = "Network"
@@ -139,13 +155,10 @@ class Network:
 
     # Branches and nodes
     # ==================
-    branch_gdf: Optional[gpd.GeoDataFrame] = None
-    node_gdf: Optional[gpd.GeoDataFrame] = None
-    # If unary_union fails try lower and higher values
+    branch_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame()
+    node_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame()
 
-    censoring_area: Union[
-        Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
-    ] = None
+    censoring_area: gpd.GeoDataFrame = gpd.GeoDataFrame()
 
     # Private caching attributes
     # ==========================
@@ -178,31 +191,31 @@ class Network:
         as_gen = ((start, end) for start, end in zip(starts, ends))
         return tuple(as_gen)
 
-    def __setattr__(self, name: str, value: Any):
-        """
-        Override default __setattr__ to force DataFrame copying.
+    # def __setattr__(self, name: str, value: Any):
+    #     """
+    #     Override default __setattr__ to force DataFrame copying.
 
-        Normally DataFrames are passed as references instead of passing
-        reference allowing side-effects. Also resets LineData for branch
-        data when setting it.
+    #     Normally DataFrames are passed as references instead of passing
+    #     reference allowing side-effects. Also resets LineData for branch
+    #     data when setting it.
 
-        :param name: Name of the attribute.
-        :param value: Value of the attribute.
-        """
-        if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
-            self.__dict__[name] = value.copy()
-            if name == "branch_gdf" and self.branch_gdf is not None:
+    #     :param name: Name of the attribute.
+    #     :param value: Value of the attribute.
+    #     """
+    #     if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
+    #         self.__dict__[name] = value.copy()
+    #         if name == "branch_gdf" and not self.branch_gdf.empty:
 
-                self.branch_data = LineData(
-                    line_gdf=self.get_branch_gdf().copy(),
-                    azimuth_set_ranges=self.azimuth_set_ranges,
-                    azimuth_set_names=self.azimuth_set_names,
-                    length_set_ranges=self.branch_length_set_ranges,
-                    length_set_names=self.branch_length_set_names,
-                    area_boundary_intersects=self.branch_intersects_target_area_boundary,
-                )
-        else:
-            self.__dict__[name] = value
+    #             self.branch_data = LineData(
+    #                 line_gdf=self.branch_gdf.copy(),
+    #                 azimuth_set_ranges=self.azimuth_set_ranges,
+    #                 azimuth_set_names=self.azimuth_set_names,
+    #                 length_set_ranges=self.branch_length_set_ranges,
+    #                 length_set_names=self.branch_length_set_names,
+    #                 area_boundary_intersects=self.branch_intersects_target_area_boundary,
+    #             )
+    #     else:
+    #         self.__dict__[name] = value
 
     def __post_init__(self):
         """
@@ -214,6 +227,14 @@ class Network:
         :raises ValueError: If trace ``GeoDataFrame`` is empty after
             ``crop_to_target_areas``.
         """
+        self.topology_determined = False
+        if self.area_gdf.empty or self.area_gdf.geometry.iloc[0].is_empty:
+            raise ValueError(
+                "Passed area_gdf or geometry at index 0 is empty.\n"
+                "Either pass a non-empty area_gdf or alternatively use\n"
+                "fractopo.general.bounding_polygon to create an enveloping\n"
+                "non-intersecting Polygon around your trace_gdf."
+            )
         if self.circular_target_area:
             if not self.truncate_traces:
                 raise ValueError(
@@ -221,14 +242,21 @@ class Network:
                     " to perform circular area trace weighting. "
                     "\n(To fix: pass truncate_traces=True.)"
                 )
+        # Copy geodataframes instead of using pointers
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
+        # Area
+        self.area_gdf = self.area_gdf.copy()
+        # Branches
+        self.branch_gdf = self.branch_gdf.copy()
+        # Branches
+        self.node_gdf = self.node_gdf.copy()
 
         if self.truncate_traces:
             self.trace_gdf = gpd.GeoDataFrame(
                 crop_to_target_areas(
                     self.trace_gdf,
-                    self.get_area_gdf(),
+                    self.area_gdf,
                     keep_column_data=True,
                 )
             )
@@ -244,26 +272,14 @@ class Network:
             length_set_names=self.trace_length_set_names,
             area_boundary_intersects=self.trace_intersects_target_area_boundary,
         )
-        # Area
-        self.area_gdf = self.area_gdf.copy() if self.area_gdf is not None else None
-        # Branches
-        self.branch_gdf = (
-            self.branch_gdf.copy() if self.branch_gdf is not None else None
-        )
-        if self.branch_gdf is not None:
-            self.branch_data = LineData(
-                line_gdf=self.branch_gdf,
-                azimuth_set_ranges=self.azimuth_set_ranges,
-                azimuth_set_names=self.azimuth_set_names,
-                length_set_ranges=self.branch_length_set_ranges,
-                length_set_names=self.branch_length_set_names,
-                area_boundary_intersects=self.branch_intersects_target_area_boundary,
-            )
+
         if self.determine_branches_nodes:
             self.assign_branches_nodes()
+        elif not self.branch_gdf.empty and not self.node_gdf.empty:
+            self.assign_branches_nodes(branches=self.branch_gdf, nodes=self.node_gdf)
+            self.topology_determined = True
 
-        # Nodes
-        self.node_gdf = self.node_gdf.copy() if self.node_gdf is not None else None
+        logging.info("Created and initialized Network instance.", extra=self.__dict__)
 
     def __hash__(self) -> int:
         """
@@ -306,39 +322,11 @@ class Network:
 
         return hash(hash_args)
 
-    def get_area_gdf(self) -> gpd.GeoDataFrame:
-        """
-        Get area_gdf if it is given.
-
-        :return: Target area ``GeoDataFrame``.
-        """
-        if self.area_gdf is None:
-            raise_determination_error("area", verb="initilization", determine_target="")
-        return self.area_gdf
-
-    def get_branch_gdf(self) -> gpd.GeoDataFrame:
-        """
-        Get branch_gdf if it is determined.
-
-        :return: Branches ``GeoDataFrame``.
-        """
-        if self.branch_gdf is None:
-            raise_determination_error("branches")
-        return self.branch_gdf
-
-    def get_node_gdf(self) -> gpd.GeoDataFrame:
-        """
-        Get node_gdf if it is determined.
-
-        :return: Nodes GeoDataFrame.
-        """
-        if self.node_gdf is None:
-            raise_determination_error("nodes")
-        return self.node_gdf
-
     def reset_length_data(self):
         """
         Reset LineData attributes.
+
+        TODO: Deprecated?
         """
         self.trace_data = LineData(
             line_gdf=self.trace_gdf,
@@ -348,7 +336,7 @@ class Network:
             length_set_names=self.trace_length_set_names,
             area_boundary_intersects=self.trace_intersects_target_area_boundary,
         )
-        if self.branch_gdf is not None:
+        if not self.branch_gdf.empty:
             self.branch_data = LineData(
                 line_gdf=self.branch_gdf,
                 azimuth_set_ranges=self.azimuth_set_ranges,
@@ -359,15 +347,13 @@ class Network:
             )
             self._azimuth_set_relationships = None
 
-    def _is_branch_gdf_defined(self) -> bool:
-        """
-        Is branch_gdf defined.
+    # def _is_branch_gdf_defined(self) -> bool:
+    #     """
+    #     Is branch_gdf defined.
 
-        TODO: Make more intelligent.
-        """
-        if self.branch_gdf is None:
-            return False
-        return True
+    #     TODO: Make more intelligent.
+    #     """
+    #     return not self.branch_gdf.empty
 
     @property
     def trace_series(self) -> gpd.GeoSeries:
@@ -377,21 +363,19 @@ class Network:
         return self.trace_data.line_gdf.geometry
 
     @property
+    @requires_topology
     def node_series(self) -> gpd.GeoSeries:
         """
         Get node geometries as GeoSeries.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("node_series")
-        return self.get_node_gdf().geometry
+        return self.node_gdf.geometry
 
     @property
+    @requires_topology
     def branch_series(self) -> gpd.GeoSeries:
         """
         Get branch geometries as GeoSeries.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_series")
         return self.branch_data.line_gdf.geometry
 
     @property
@@ -402,12 +386,11 @@ class Network:
         return self.trace_data.azimuth_array
 
     @property
+    @requires_topology
     def branch_azimuth_array(self) -> np.ndarray:
         """
         Get branch azimuths as array.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_azimuth_array")
         return self.branch_data.azimuth_array
 
     @property
@@ -425,21 +408,19 @@ class Network:
         return self.trace_data.length_array_non_weighted
 
     @property
+    @requires_topology
     def branch_length_array(self) -> np.ndarray:
         """
         Get branch lengths as array.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_length_array")
         return self.branch_data.length_array
 
     @property
+    @requires_topology
     def branch_length_array_non_weighted(self) -> np.ndarray:
         """
         Get non-boundary-weighted branch lengths as array.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_length_array_non_weighted")
         return self.branch_data.length_array_non_weighted
 
     @property
@@ -450,12 +431,11 @@ class Network:
         return self.trace_data.azimuth_set_array
 
     @property
+    @requires_topology
     def branch_azimuth_set_array(self) -> np.ndarray:
         """
         Get azimuth set for each branch.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_azimuth_set_array")
         return self.branch_data.azimuth_set_array
 
     @property
@@ -466,22 +446,20 @@ class Network:
         return self.trace_data.length_set_array
 
     @property
+    @requires_topology
     def branch_length_set_array(self) -> np.ndarray:
         """
         Get length set for each branch.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_length_set_array")
         return self.branch_data.length_set_array
 
     @property
+    @requires_topology
     def node_types(self) -> np.ndarray:
         """
         Get node type of each node.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("node_types")
-        node_class_series = self.get_node_gdf()[CLASS_COLUMN]
+        node_class_series = self.node_gdf[CLASS_COLUMN]
         assert isinstance(node_class_series, pd.Series)
         return node_class_series.to_numpy()
 
@@ -491,27 +469,27 @@ class Network:
         Get node counts.
         """
         return determine_node_type_counts(
-            self.node_types, branches_defined=self._is_branch_gdf_defined()
+            self.node_types, branches_defined=self.topology_determined
         )
 
     @property
+    @requires_topology
     def branch_types(self) -> np.ndarray:
         """
         Get branch type of each branch.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_types")
-        branch_connection_series = self.get_branch_gdf()[CONNECTION_COLUMN]
+        branch_connection_series = self.branch_gdf[CONNECTION_COLUMN]
         assert isinstance(branch_connection_series, pd.Series)
         return branch_connection_series.to_numpy()
 
     @property
+    @requires_topology
     def branch_counts(self) -> Dict[str, Number]:
         """
         Get branch counts.
         """
         return determine_branch_type_counts(
-            self.branch_types, branches_defined=self._is_branch_gdf_defined()
+            self.branch_types, branches_defined=self.topology_determined
         )
 
     @property
@@ -519,7 +497,7 @@ class Network:
         """
         Get total area.
         """
-        area_sum = numpy_to_python_type(self.get_area_gdf().geometry.area.sum())
+        area_sum = numpy_to_python_type(self.area_gdf.geometry.area.sum())
         assert isinstance(area_sum, float)
         assert area_sum >= 0.0
         return area_sum
@@ -536,18 +514,17 @@ class Network:
                 trace_length_array=self.trace_length_array_non_weighted,
                 node_counts=self.node_counts,  # type: ignore
                 area=self.total_area,
-                branches_defined=self._is_branch_gdf_defined(),
+                branches_defined=self.topology_determined,
                 correct_mauldon=self.circular_target_area,
             )
         return self._parameters
 
     @property
+    @requires_topology
     def anisotropy(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Determine anisotropy of connectivity.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("anisotropy")
         if self._anisotropy is None:
             self._anisotropy = determine_anisotropy_sum(
                 azimuth_array=self.branch_azimuth_array,
@@ -557,12 +534,11 @@ class Network:
         return self._anisotropy
 
     @property
+    @requires_topology
     def azimuth_set_relationships(self) -> pd.DataFrame:
         """
         Determine azimuth set relationships.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("azimuth_set_relationships")
         if self._azimuth_set_relationships is None:
             self._azimuth_set_relationships = determine_crosscut_abutting_relationships(
                 trace_series=self.trace_series,
@@ -576,12 +552,11 @@ class Network:
         return self._azimuth_set_relationships
 
     @property
+    @requires_topology
     def length_set_relationships(self) -> pd.DataFrame:
         """
         Determine length set relationships.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("length_set_relationships")
         if self._trace_length_set_relationships is None:
             self._trace_length_set_relationships = (
                 determine_crosscut_abutting_relationships(
@@ -644,9 +619,11 @@ class Network:
         Get all target areas from area_gdf.
         """
         target_areas = []
-        for target_area in self.get_area_gdf().geometry.values:
+        for target_area in self.area_gdf.geometry.values:
             if not isinstance(target_area, (Polygon, MultiPolygon)):
                 raise TypeError("Expected (Multi)Polygon geometries in area_gdf.")
+            if target_area.is_empty:
+                raise ValueError("Expected non-empty geometries for target areas.")
             target_areas.append(target_area)
         return target_areas
 
@@ -673,7 +650,7 @@ class Network:
                     cuts_through_lines,
                 ) = determine_boundary_intersecting_lines(
                     line_gdf=self.trace_gdf,
-                    area_gdf=self.get_area_gdf(),
+                    area_gdf=self.area_gdf,
                     snap_threshold=self.snap_threshold,
                 )
                 self._trace_intersects_target_area_boundary = bool_arrays_sum(
@@ -686,12 +663,11 @@ class Network:
         return self._trace_intersects_target_area_boundary
 
     @property
+    @requires_topology
     def branch_intersects_target_area_boundary(self) -> np.ndarray:
         """
         Get array of E-component count.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("branch_intersects_target_area_boundary")
         if self._branch_intersects_target_area_boundary is None:
             if self.circular_target_area:
                 intersecting_lines = branches_intersect_boundary(self.branch_types)
@@ -745,9 +721,7 @@ class Network:
                 else np.nan
             )
         }
-        censoring_value = (
-            self.estimate_censoring() if self.censoring_area is not None else np.nan
-        )
+        censoring_value = self.estimate_censoring()
         censoring_and_relative = {
             CENSORING: censoring_value,
             RELATIVE_CENSORING: censoring_value / parameters[Param.AREA.value.name],
@@ -780,7 +754,7 @@ class Network:
         """
         Get representative point(s) of target area(s).
         """
-        point_list = self.get_area_gdf().representative_point().to_list()
+        point_list = self.area_gdf.representative_point().to_list()
         assert isinstance(point_list, list)
         assert all(isinstance(point, Point) for point in point_list)
         return point_list
@@ -805,6 +779,7 @@ class Network:
         """
         return self.trace_data.cut_off_proportion_of_data(fit=fit)
 
+    @requires_topology
     def branch_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
     ) -> powerlaw.Fit:
@@ -817,6 +792,7 @@ class Network:
             else self.branch_data.determine_manual_fit(cut_off=cut_off)
         )
 
+    @requires_topology
     def branch_lengths_cut_off_proportion(
         self, fit: Optional[powerlaw.Fit] = None
     ) -> float:
@@ -825,11 +801,15 @@ class Network:
         """
         return self.branch_data.cut_off_proportion_of_data(fit=fit)
 
-    def assign_branches_nodes(self):
+    def assign_branches_nodes(
+        self,
+        branches: Optional[gpd.GeoDataFrame] = None,
+        nodes: Optional[gpd.GeoDataFrame] = None,
+    ):
         """
         Determine and assign branches and nodes as attributes.
         """
-        if self.area_gdf is not None:
+        if branches is None or nodes is None:
             branches, nodes = branches_and_nodes(
                 self.trace_gdf,
                 self.area_gdf,
@@ -837,23 +817,23 @@ class Network:
                 already_clipped=self.truncate_traces,
                 # unary_size_threshold=self.unary_size_threshold,
             )
-            if self.trace_gdf.crs is not None:
-                branches.set_crs(self.trace_gdf.crs, inplace=True)
-                nodes.set_crs(self.trace_gdf.crs, inplace=True)
-            self.branch_gdf = branches
-            self.node_gdf = nodes
-            self.branch_data = LineData(
-                line_gdf=self.branch_gdf,
-                azimuth_set_ranges=self.azimuth_set_ranges,
-                azimuth_set_names=self.azimuth_set_names,
-                length_set_ranges=self.branch_length_set_ranges,
-                length_set_names=self.branch_length_set_names,
-                area_boundary_intersects=self.branch_intersects_target_area_boundary,
-            )
         else:
-            raise AttributeError(
-                "Expected area_geoseries to be defined to assign branches and nodes."
-            )
+            branches = branches.copy()
+            nodes = nodes.copy()
+        # if self.trace_gdf.crs is not None:
+        #     branches.set_crs(self.trace_gdf.crs, inplace=True)
+        #     nodes.set_crs(self.trace_gdf.crs, inplace=True)
+        self.branch_gdf = branches
+        self.node_gdf = nodes
+        self.topology_determined = True
+        self.branch_data = LineData(
+            line_gdf=self.branch_gdf,
+            azimuth_set_ranges=self.azimuth_set_ranges,
+            azimuth_set_names=self.azimuth_set_names,
+            length_set_ranges=self.branch_length_set_ranges,
+            length_set_names=self.branch_length_set_names,
+            area_boundary_intersects=self.branch_intersects_target_area_boundary,
+        )
 
     def plot_trace_lengths(
         self, label: Optional[str] = None, fit: Optional[powerlaw.Fit] = None
@@ -864,6 +844,7 @@ class Network:
         label = self.name if label is None else label
         return self.trace_data.plot_lengths(label=label, fit=fit)
 
+    @requires_topology
     def plot_branch_lengths(
         self, label: Optional[str] = None, fit: Optional[powerlaw.Fit] = None
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
@@ -889,6 +870,7 @@ class Network:
             label=label, append_azimuth_set_text=append_azimuth_set_text
         )
 
+    @requires_topology
     def plot_branch_azimuth(
         self, label: Optional[str] = None, append_azimuth_set_text: bool = False
     ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
@@ -901,6 +883,7 @@ class Network:
             label=label, append_azimuth_set_text=append_azimuth_set_text
         )
 
+    @requires_topology
     def plot_xyi(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
@@ -922,6 +905,7 @@ class Network:
             raise ValueError(f"Expected no nan in node_counts: {self.node_counts}")
         return plot_xyi_plot(node_counts_list=[node_counts_ints], labels=[label])
 
+    @requires_topology
     def plot_branch(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
@@ -947,8 +931,6 @@ class Network:
         """
         Plot geometric and topological parameters.
         """
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("parameters")
         if label is None:
             label = self.name
         if color is None:
@@ -961,6 +943,7 @@ class Network:
         )
         return figs[0], axes[0]
 
+    @requires_topology
     def plot_anisotropy(
         self, label: Optional[str] = None, color: Optional[str] = None
     ) -> Optional[Tuple[Figure, Axes]]:
@@ -969,8 +952,6 @@ class Network:
         """
         if label is None:
             label = self.name
-        if not self._is_branch_gdf_defined():
-            raise_determination_error("anisotropy")
         if color is None:
             color = "black"
         anisotropy_sum = self.anisotropy[0]
@@ -983,6 +964,7 @@ class Network:
         )
         return fig, ax
 
+    @requires_topology
     def plot_azimuth_crosscut_abutting_relationships(
         self,
     ) -> Tuple[List[Figure], List[np.ndarray]]:
@@ -995,6 +977,7 @@ class Network:
             set_names=self.azimuth_set_names,
         )
 
+    @requires_topology
     def plot_trace_length_crosscut_abutting_relationships(
         self,
     ) -> Tuple[List[Figure], List[np.ndarray]]:
@@ -1017,6 +1000,7 @@ class Network:
             label = self.name
         return self.trace_data.plot_azimuth_set_count(label=label)
 
+    @requires_topology
     def plot_branch_azimuth_set_count(
         self, label: Optional[str] = None
     ) -> Tuple[Figure, Axes]:
@@ -1065,7 +1049,7 @@ class Network:
         """
         if cell_width is None:
             # Use trace bounds to calculate a width
-            min_x, min_y, max_x, max_y = total_bounds(self.get_branch_gdf())
+            min_x, min_y, max_x, max_y = total_bounds(self.branch_gdf)
             x_diff = max_x - min_x
             y_diff = max_y - min_y
             if x_diff < y_diff:
@@ -1077,8 +1061,8 @@ class Network:
 
         sampled_grid = run_grid_sampling(
             traces=self.trace_gdf,
-            branches=self.get_branch_gdf(),
-            nodes=self.get_node_gdf(),
+            branches=self.branch_gdf,
+            nodes=self.node_gdf,
             cell_width=cell_width,
             snap_threshold=self.snap_threshold,
             precursor_grid=precursor_grid,
@@ -1112,44 +1096,36 @@ class Network:
 
     def estimate_censoring(
         self,
-        censoring_area: Union[
-            Polygon, MultiPolygon, gpd.GeoSeries, gpd.GeoDataFrame, None
-        ] = None,
-    ):
+    ) -> float:
         """
-        Estimate the amount of censoring caused by e.g. vegetation.
+        Estimate the amount of censoring as area float value.
 
-        Requires that ``Network`` is initialized with ``censoring_gdf`` or that
-        its passed here. If passed here the passed area is always used
-        overriding the one given at ``Network`` initilization.
+        Censoring is caused by e.g. vegetation.
+
+        Returns np.nan if no ``censoring_area`` is passed by the user into
+        ``Network`` creation or if the passed GeoDataFrame is empty.
         """
         # Either censoring_area is passed directly or its passed in Network
         # creation. Otherwise raise ValueError.
-        if censoring_area is None:
-            if self.censoring_area is None:
-                raise ValueError(
-                    "Expected censoring_area as an argument or initialized"
-                    f" as Network (name:{self.name}) attribute."
-                )
-            censoring_area = self.censoring_area
-
-        # Gather into GeoSeries or GeoDataFrame, if not already.
-        if not isinstance(censoring_area, (gpd.GeoSeries, gpd.GeoDataFrame)):
-            polygons: List[Polygon] = []
-            if isinstance(censoring_area, Polygon):
-                polygons = [censoring_area]
-            elif isinstance(censoring_area, MultiPolygon):
-                polygons = list(censoring_area.geoms)
-            censoring_geodata = gpd.GeoSeries(polygons, crs=self.trace_gdf.crs)
-        else:
-            censoring_geodata = censoring_area
+        if self.censoring_area is None:
+            raise ValueError(
+                "Expected censoring_area as an argument or initialized"
+                f" as Network (name:{self.name}) attribute."
+            )
+        if not isinstance(self.censoring_area, gpd.GeoDataFrame):
+            raise TypeError(
+                "Expected censoring_area to be of type gpd.GeoDataFrame."
+                f" Got type={type(self.censoring_area)}"
+            )
+        if self.censoring_area.empty:
+            return np.nan
 
         # Determine bounds of Network.area_gdf
-        network_area_bounds = total_bounds(self.get_area_gdf())
+        network_area_bounds = total_bounds(self.area_gdf)
 
         # Use spatial index to filter censoring polygons that are not near the
         # network
-        sindex = pygeos_spatial_index(censoring_geodata)
+        sindex = pygeos_spatial_index(self.censoring_area)
         index_intersection = spatial_index_intersection(
             spatial_index=sindex, coordinates=network_area_bounds
         )
@@ -1158,11 +1134,11 @@ class Network:
         )
         if len(candidate_idxs) == 0:
             return 0.0
-        candidates = censoring_geodata.iloc[candidate_idxs]
+        candidates = self.censoring_area.iloc[candidate_idxs]
 
         # Clip the censoring areas with the network area and calculate the area
         # sum of leftover area.
-        clipped = gpd.clip(candidates, self.get_area_gdf())
+        clipped = gpd.clip(candidates, self.area_gdf)
         if not isinstance(clipped, (gpd.GeoDataFrame, gpd.GeoSeries)):
             vals = type(clipped), clipped
             raise TypeError(

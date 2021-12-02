@@ -467,7 +467,7 @@ def network(
         truncate_traces=truncate_traces,
         censoring_area=read_geofile(censoring_area)
         if censoring_area is not None
-        else None,
+        else gpd.GeoDataFrame(),
     )
     (
         general_output_path,
@@ -492,8 +492,8 @@ def network(
             ".",
         )
     )
-    network.get_branch_gdf().to_file(branches_output_path, driver="GPKG")
-    network.get_node_gdf().to_file(nodes_output_path, driver="GPKG")
+    network.branch_gdf.to_file(branches_output_path, driver="GPKG")
+    network.node_gdf.to_file(nodes_output_path, driver="GPKG")
 
     console.print(rich_table_from_parameters(network.parameters))
 
