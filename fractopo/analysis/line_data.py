@@ -45,7 +45,7 @@ class LineData:
 
     The line_gdf reference is passed and LineData will modify the input
     line_gdf instead of copying the input frame. This means line_gdf columns
-    are accesible in the passed input reference upstream.
+    are accessible in the passed input reference upstream.
     """
 
     line_gdf: gpd.GeoDataFrame

@@ -50,6 +50,7 @@ class LengthDistribution:
         Also log the creation parameters.
         """
         # Filter lengths lower than general.MINIMUM_LINE_LENGTH.
+        # Lengths lower than the value can cause runtime issues.
         filtered_lengths = self.lengths[self.lengths > general.MINIMUM_LINE_LENGTH]
 
         # Calculate proportion for logging purposes
