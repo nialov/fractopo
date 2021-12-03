@@ -486,7 +486,7 @@ class TargetAreaSnapValidator(BaseValidator):
             return is_simple_underlapping
 
         # Split trace with area polygon
-        geom_split = list(split(geom, area_polygon))
+        geom_split = list(split(geom, area_polygon).geoms)
 
         # If not splittable, not a candidate
         if len(geom_split) == 1:

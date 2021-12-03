@@ -142,8 +142,8 @@ def split_to_determine_triangle_errors(
         return True
     # finally:
     #     logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
-    if len(segments) > 2:
-        if len(segments) > 3:
+    if len(segments.geoms) > 2:
+        if len(segments.geoms) > 3:
             return True
         middle = determine_middle_in_triangle(
             list(segments.geoms),
@@ -225,7 +225,7 @@ def is_underlapping(
     """
     Determine if a geom is underlapping.
     """
-    split_results = list(split(geom, trace))
+    split_results = list(split(geom, trace).geoms)
     if len(split_results) == 1:
         # Do not intersect
         return True

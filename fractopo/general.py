@@ -1321,7 +1321,7 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
     """
     Resolve split between two LineStrings to only LineString results.
     """
-    split_current = list(split(geom, splitter))
+    split_current = list(split(geom, splitter).geoms)
     linestrings = [
         geom
         for geom in split_current

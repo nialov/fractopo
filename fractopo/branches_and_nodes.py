@@ -847,7 +847,7 @@ def part_unary_union(
             )
 
         # Collect
-        part_unions.append(part_union)
+        part_unions.append(part_union.geoms)
     assert len(part_unions) == div
     return part_unions
 
