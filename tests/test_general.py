@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import pytest
 from hypothesis import given
-from hypothesis.strategies._internal.core import booleans, floats
+from hypothesis.strategies import booleans, floats
 from shapely.geometry import Polygon
 
 from fractopo import general
