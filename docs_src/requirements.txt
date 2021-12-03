@@ -103,7 +103,7 @@ scikit-learn==1.0.1; python_version >= "3.7"
 scipy==1.6.1; python_version >= "3.7"
 seaborn==0.11.2; python_version >= "3.6"
 send2trash==1.8.0; python_version >= "3.6"
-shapely==1.7.1
+shapely==1.8.0; python_version >= "3.6"
 six==1.16.0; python_full_version >= "3.7.1" and python_version >= "3.6" and (python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.7") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6") and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
 sniffio==1.2.0; python_full_version >= "3.6.2" and python_version >= "3.6"
 snowballstemmer==2.1.0; python_version >= "3.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.7"
