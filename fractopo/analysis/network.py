@@ -279,7 +279,12 @@ class Network:
             self.assign_branches_nodes(branches=self.branch_gdf, nodes=self.node_gdf)
             self.topology_determined = True
 
-        logging.info("Created and initialized Network instance.", extra=self.__dict__)
+        logging.info(
+            "Created and initialized Network instance.",
+            # Network has .name attribute which will overwrite logging
+            # attribute!!!
+            extra={f"network_{key}": value for key, value in self.__dict__.items()},
+        )
 
     def __hash__(self) -> int:
         """

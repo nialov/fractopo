@@ -1,6 +1,7 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
+import logging
 from itertools import compress
 from textwrap import wrap
 from typing import Dict, List, Optional, Tuple
@@ -654,6 +655,24 @@ def plot_set_count(
     Plot set counts.
     """
     fig, ax = plt.subplots(figsize=(7, 7))
+
+    logging_info = dict(set_counts=set_counts, label=label)
+
+    # Handle case with 0 values for all keys in set_counts dict.
+    if all(value == 0 for value in set_counts.values()):
+        logging.warning(
+            "set_counts with only 0 values passed into plot_set_count.",
+            extra=logging_info,
+        )
+        return fig, ax
+
+    # Report creation.
+    logging.info(
+        "Creating pie plot for set counts.",
+        extra=logging_info,
+    )
+
+    # Create the plot
     _, label_texts, _ = ax.pie(
         x=[set_counts[key] for key in set_counts],
         labels=list(set_counts),
@@ -663,6 +682,8 @@ def plot_set_count(
         textprops=dict(weight="bold"),
         wedgeprops=dict(linewidth=2, edgecolor="black"),
     )
+
+    # Set title
     ax.set_title(label)
     for label_text in label_texts:
         label_text.set_fontsize("large")
