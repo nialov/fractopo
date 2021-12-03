@@ -75,10 +75,10 @@ jobs:
             nox-\
             ${{ hashFiles('noxfile.py') }}-\
             ${{ hashFiles('poetry.lock') }}-\
-            ${{ invokecmd }}-\
+            ${{ matrix.invokecmd }}-\
             "
-      - name: Run command ${{ invokecmd }} from matrix
-        run: invoke ${{ invokecmd }}
+      - name: Run command ${{ matrix.invokecmd }} from matrix
+        run: invoke ${{ matrix.invokecmd }}
 
   build-and-publish:
     runs-on: ubuntu-latest
