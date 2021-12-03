@@ -143,7 +143,7 @@ def test_normalize_fit_to_area(
     Test normalize_fit_to_area.
     """
     # fit = powerlaw.Fit(length_distribution.lengths)
-    fit = length_distributions.powerlaw_fit(length_distribution.lengths)
+    fit = length_distributions.SilentFit(length_distribution.lengths)
 
     (
         truncated_length_array,
