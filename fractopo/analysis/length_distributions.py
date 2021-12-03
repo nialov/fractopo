@@ -2,10 +2,8 @@
 Utilities for analyzing and plotting length distributions for line data.
 """
 import logging
-from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from enum import Enum, unique
-from io import StringIO
 from itertools import chain, cycle
 from textwrap import wrap
 from typing import Callable, Dict, List, Optional, Tuple
@@ -82,6 +80,66 @@ class Dist(Enum):
     LOGNORMAL = "lognormal"
     EXPONENTIAL = "exponential"
     TRUNCATED_POWERLAW = "truncated_power_law"
+
+
+class SilentFit(powerlaw.Fit):
+
+    """
+    Wrap powerlaw.Fit for the singular purpose of silencing output.
+
+    Silences output both to stdout and stderr.
+    """
+
+    def __init__(
+        self,
+        data,
+        discrete=False,
+        xmin=None,
+        xmax=None,
+        verbose=True,
+        fit_method="Likelihood",
+        estimate_discrete=True,
+        discrete_approximation="round",
+        sigma_threshold=None,
+        parameter_range=None,
+        fit_optimizer=None,
+        xmin_distance="D",
+        xmin_distribution="power_law",
+        **kwargs,
+    ):
+        """
+        Override Fit.__init__ to silence output.
+        """
+        with general.silent_output("__init__"):
+            super().__init__(
+                data,
+                discrete=discrete,
+                xmin=xmin,
+                xmax=xmax,
+                verbose=verbose,
+                fit_method=fit_method,
+                estimate_discrete=estimate_discrete,
+                discrete_approximation=discrete_approximation,
+                sigma_threshold=sigma_threshold,
+                parameter_range=parameter_range,
+                fit_optimizer=fit_optimizer,
+                xmin_distance=xmin_distance,
+                xmin_distribution=xmin_distribution,
+                **kwargs,
+            )
+
+    def __getattribute__(self, name):
+        """
+        Get attribute with silent output.
+
+        Also wraps all callables (~instance methods) with silent_output. The
+        stdout and stderr is reported with logging.info so it is not lost.
+        """
+        with general.silent_output("__getattribute__"):
+            attribute = super().__getattribute__(name)
+        if callable(attribute):
+            return general.wrap_silence(attribute)
+        return attribute
 
 
 def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, float]:
@@ -260,9 +318,9 @@ def determine_fit(
     Determine powerlaw (along other) length distribution fits for given data.
     """
     fit = (
-        powerlaw_fit(length_array, xmin=cut_off, verbose=False)
+        SilentFit(length_array, xmin=cut_off, verbose=False)
         if cut_off is not None
-        else powerlaw_fit(length_array, verbose=False)
+        else SilentFit(length_array, verbose=False)
     )
     return fit
 
@@ -837,25 +895,3 @@ def plot_multi_distributions_and_fit(
     plt.legend()
 
     return fig, ax
-
-
-def powerlaw_fit(values: np.ndarray, *args, **kwargs) -> powerlaw.Fit:
-    """
-    Wrap powerlaw.Fit to silence its output on stdout.
-    """
-    tmp_io_stdout = StringIO()
-    tmp_io_stderr = StringIO()
-    with redirect_stdout(tmp_io_stdout):
-        with redirect_stderr(tmp_io_stderr):
-            fit = powerlaw.Fit(values, *args, **kwargs)
-    logging.info(
-        "Conducted powerlaw.Fit.",
-        extra=dict(
-            values_len=len(values),
-            values_min=values.min(),
-            values_max=values.max(),
-            powerlaw_stdout=tmp_io_stdout.getvalue(),
-            powerlaw_stderr=tmp_io_stderr.getvalue(),
-        ),
-    )
-    return fit

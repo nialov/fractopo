@@ -6,8 +6,11 @@ import math
 import random
 from bisect import bisect
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from enum import Enum, unique
+from functools import wraps
+from io import StringIO
 from itertools import accumulate, chain, zip_longest
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overload
@@ -1736,3 +1739,39 @@ def save_fig(fig: Figure, results_dir: Path, name: str):
     Save figure as svg image to results dir.
     """
     fig.savefig(results_dir / f"{name}.svg", bbox_inches="tight")
+
+
+@contextmanager
+def silent_output(name: str):
+    """
+    General method to silence output from general func.
+    """
+    tmp_io_stdout = StringIO()
+    tmp_io_stderr = StringIO()
+    try:
+        with redirect_stdout(tmp_io_stdout):
+            with redirect_stderr(tmp_io_stderr):
+                yield
+    finally:
+        logging.info(
+            "powerlaw execution stdout and stderr.",
+            extra=dict(
+                func_name=name,
+                stdout=tmp_io_stdout.getvalue(),
+                stderr=tmp_io_stderr.getvalue(),
+            ),
+        )
+
+
+def wrap_silence(func):
+    """
+    Wrap function to capture and silence its output.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with silent_output(func.__name__):
+            results = func(*args, **kwargs)
+        return results
+
+    return wrapper
