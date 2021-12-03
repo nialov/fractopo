@@ -439,15 +439,15 @@ test = ["pytest (>=3)", "pytest-cov", "boto3 (>=1.2.4)", "mock"]
 
 [[package]]
 name = "geopandas"
-version = "0.9.0"
+version = "0.10.2"
 description = "Geographic pandas extensions"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 fiona = ">=1.8"
-pandas = ">=0.24.0"
+pandas = ">=0.25.0"
 pyproj = ">=2.2.0"
 shapely = ">=1.6"
 
@@ -1985,7 +1985,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "bce2f9ab2f1fe34318ea3eefc195a28cfcb5ba6e0a48f70825f4e9e55f8cc907"
+content-hash = "17cd84efd86a78e5fc6ba57d299c4a35871176ef6fbcf5a6d4337859ff702764"
 
 [metadata.files]
 alabaster = [
@@ -2270,8 +2270,8 @@ fiona = [
     {file = "Fiona-1.8.20.tar.gz", hash = "sha256:a70502d2857b82f749c09cb0dea3726787747933a2a1599b5ab787d74e3c143b"},
 ]
 geopandas = [
-    {file = "geopandas-0.9.0-py2.py3-none-any.whl", hash = "sha256:79f6e557ba0dba76eec44f8351b1c6b42a17c38f5f08fef347e98fe4dae563c7"},
-    {file = "geopandas-0.9.0.tar.gz", hash = "sha256:63972ab4dc44c4029f340600dcb83264eb8132dd22b104da0b654bef7f42630a"},
+    {file = "geopandas-0.10.2-py2.py3-none-any.whl", hash = "sha256:1722853464441b603d9be3d35baf8bde43831424a891e82a8545eb8997b65d6c"},
+    {file = "geopandas-0.10.2.tar.gz", hash = "sha256:efbf47e70732e25c3727222019c92b39b2e0a66ebe4fe379fbe1aa43a2a871db"},
 ]
 hypothesis = [
     {file = "hypothesis-6.24.3-py3-none-any.whl", hash = "sha256:8dee9d2220b4ad34e5553a90258120f1daff9bdf7379e3afe13cb523d22da76e"},
