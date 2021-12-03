@@ -1,6 +1,7 @@
 """
 Command-line integration of fractopo with click.
 """
+import json
 import logging
 import sys
 import time
@@ -17,7 +18,6 @@ import pandas as pd
 import pygeos
 import typer
 from rich.console import Console
-from rich.pretty import pprint
 from rich.table import Table
 from rich.text import Text
 from typer import Typer
@@ -29,7 +29,8 @@ from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
 app = Typer()
-console = Console()
+# Use minimum console width of 80
+CONSOLE = Console(width=min([80, Console().width]))
 SNAP_THRESHOLD_HELP = (
     "Distance threshold used to estimate whether e.g. a trace abuts in another."
 )
@@ -279,7 +280,7 @@ def fractopo_callback(
             )
         )
         logging.info("Setting up logging with basicConfig.")
-        logging.basicConfig(level=logging_level_int)
+        logging.basicConfig(level=logging_level_int, force=True)
 
 
 @app.command()
@@ -481,7 +482,6 @@ def network(
         nodes_output=nodes_output,
         parameters_output=parameters_output,
     )
-
     # Save branches and nodes
     console.print(
         Text.assemble(
@@ -503,9 +503,8 @@ def network(
 
     console.print(
         Text.assemble(
-            "Saving extensive network parameter csv to ",
+            "Saving extensive network parameter csv to path:\n",
             (str(parameters_output_path), "bold green"),
-            ".",
         )
     )
 
@@ -574,7 +573,7 @@ def info():
         fractopo_version=__version__,
         geopandas_version=gpd.__version__,
         pygeos_version=pygeos.__version__,
-        package_location=str(Path(__file__).absolute()),
+        package_location=str(Path(__file__).parent.absolute()),
         python_location=str(Path(sys.executable).absolute()),
     )
-    pprint(information)
+    CONSOLE.print_json(json.dumps(information))
