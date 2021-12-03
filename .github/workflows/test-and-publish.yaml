@@ -24,10 +24,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Resolve absolute python version
+      - name: Resolve absolute python version ()
         run: |
-          python --version > python-version.txt
-          cat python-version.txt
+          python --version
+          echo ${{ env.pythonLocation }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -36,21 +36,24 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .nox
-          key: "
-            ${{ runner.os }}-
-            ${{ matrix.python-version }}-
-            nox-
-            ${{ hashFiles('noxfile.py') }}-
-            ${{ hashFiles('poetry.lock') }}-
-            ${{ hashFiles('python-version.txt') }}-
-            ci-test
+          key: "\
+            ${{ runner.os }}-\
+            ${{ matrix.python-version }}-\
+            ${{ env.pythonLocation }}-\
+            nox-\
+            ${{ hashFiles('noxfile.py') }}-\
+            ${{ hashFiles('poetry.lock') }}-\
+            ci-test\
             "
       - name: Test with invoke -> nox -> pytest
         run: invoke ci-test --python ${{ matrix.python-version }}
 
-  format-lint:
+  invoke:
     runs-on: ubuntu-latest
-    name: Format and lint 🐍 code
+    name: Run auxiliary invoke tasks to lint and make docs & citation.
+    strategy:
+      matrix:
+        invokecmd: [format-and-lint, docs, citation]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 🐍 3.8
@@ -65,52 +68,17 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .nox
-          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-format-and-lint
-      - name: Lint with invoke -> nox -> linters
-        run: invoke format-and-lint
-
-  docs:
-    runs-on: ubuntu-latest
-    name: Build documentation
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 🐍
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies including pandoc 🐼
-        run: |
-          sudo apt install pandoc
-          python -m pip install --upgrade pip
-          pip install nox invoke
-      - name: Cache .nox
-        uses: actions/cache@v2
-        with:
-          path: .nox
-          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-docs
-      - name: Build docs with invoke -> nox session
-        run: invoke docs
-
-  citation:
-    runs-on: ubuntu-latest
-    name: Build citation and validate it
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 🐍
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install nox invoke
-      - name: Cache .nox
-        uses: actions/cache@v2
-        with:
-          path: .nox
-          key: ${{ runner.os }}-nox-${{ hashFiles('noxfile.py') }}-${{ hashFiles('poetry.lock') }}-citation
-      - name: Build docs with invoke -> nox session
-        run: invoke citation
+          key: "\
+            ${{ runner.os }}-\
+            ${{ matrix.python-version }}-\
+            ${{ env.pythonLocation }}-\
+            nox-\
+            ${{ hashFiles('noxfile.py') }}-\
+            ${{ hashFiles('poetry.lock') }}-\
+            ${{ invokecmd }}-\
+            "
+      - name: Run command ${{ invokecmd }} from matrix
+        run: invoke ${{ invokecmd }}
 
   build-and-publish:
     runs-on: ubuntu-latest
@@ -126,8 +94,9 @@ jobs:
         with:
           python-version: 3.8
       - name: Install invoke and nox
-        run: >-
-          python -m pip install invoke nox
+        run: |
+          python -m pip install --upgrade pip
+          pip install nox invoke
       - name: Build binary wheel and a source tarball
         run: >-
           invoke build
