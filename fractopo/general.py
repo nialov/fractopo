@@ -1173,6 +1173,8 @@ def crop_to_target_areas(
         candidate_traces = traces
 
     if keep_column_data:
+        assert all(area_geom.is_valid for area_geom in areas.geometry.values)
+        assert all(not area_geom.is_empty for area_geom in areas.geometry.values)
         # geopandas.clip keeps the column data
         clipped_traces = gpd.clip(candidate_traces, areas)
     else:
