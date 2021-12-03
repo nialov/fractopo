@@ -247,11 +247,3 @@ def make(_):
     """
     print("---------------")
     print("make successful.")
-
-
-@task
-def profile_network_runtime(c):
-    """
-    Profile Network analysis with pyinstrument.
-    """
-    c.run("nox --session profile_network_analysis")
