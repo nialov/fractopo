@@ -53,10 +53,10 @@ class LineData:
     azimuth_set_ranges: SetRangeTuple
     azimuth_set_names: Tuple[str, ...]
 
-    length_set_ranges: Optional[SetRangeTuple]
-    length_set_names: Optional[Tuple[str, ...]]
+    length_set_ranges: SetRangeTuple = ()
+    length_set_names: Tuple[str, ...] = ()
 
-    area_boundary_intersects: Optional[np.ndarray]
+    area_boundary_intersects: np.ndarray = np.array([])
 
     _automatic_fit: Optional[powerlaw.Fit] = None
 
@@ -140,7 +140,7 @@ class LineData:
         if column_array is None:
             new_column_array = (
                 self.line_gdf.geometry.length.to_numpy() * self.length_boundary_weights
-                if self.area_boundary_intersects is not None
+                if len(self.area_boundary_intersects) > 0
                 else 1.0
             )
             self.line_gdf[Col.LENGTH.value] = new_column_array
@@ -155,8 +155,8 @@ class LineData:
         """
         Array of trace or branch length set ids.
         """
-        if self.length_set_names is None or self.length_set_ranges is None:
-            logging.error("Expected length_set_names and _ranges to be defined.")
+        if len(self.length_set_names) == 0 or len(self.length_set_ranges) == 0:
+            logging.error("Expected length_set_names and _ranges to be non-empty.")
             raise_determination_error(
                 "length_set_array",
                 determine_target="length set attributes",
@@ -210,7 +210,7 @@ class LineData:
         """
         Get counts of line intersects with boundary.
         """
-        assert self.area_boundary_intersects is not None
+        assert len(self.area_boundary_intersects) > 0
         keys, counts = np.unique(self.area_boundary_intersects, return_counts=True)
         keys = list(map(str, keys))
         counts = list(map(numpy_to_python_type, counts))
