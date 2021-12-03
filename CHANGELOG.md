@@ -11,7 +11,7 @@
 -   (branches_and_nodes): set crs for outputs
 
 Full set of changes:
-[`v0.2.2...23dce02`](https://github.com/nialov/fractopo/compare/v0.2.2...23dce02)
+[`v0.2.2...b95f034`](https://github.com/nialov/fractopo/compare/v0.2.2...b95f034)
 
 ## v0.2.2 (2021-11-12)
 
