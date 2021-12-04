@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-12-04)
+## v0.2.3 (2021-12-04)
 
 #### Fixes
 
@@ -15,7 +15,7 @@
 -   (branches_and_nodes): set crs for outputs
 
 Full set of changes:
-[`v0.2.2...12c39b3`](https://github.com/nialov/fractopo/compare/v0.2.2...12c39b3)
+[`v0.2.2...v0.2.3`](https://github.com/nialov/fractopo/compare/v0.2.2...v0.2.3)
 
 ## v0.2.2 (2021-11-12)
 
