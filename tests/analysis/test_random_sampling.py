@@ -60,11 +60,21 @@ def test_network_random_sampler_manual():
 
 
 @pytest.mark.parametrize(
+    "determine_branches_nodes",
+    [True, False],
+)
+@pytest.mark.parametrize(
     "trace_gdf,area_gdf,min_radius,snap_threshold,samples,random_choice",
     Helpers.test_network_random_sampler_params,
 )
 def test_network_random_sampler(
-    trace_gdf, area_gdf, min_radius, snap_threshold, samples, random_choice
+    trace_gdf,
+    area_gdf,
+    min_radius,
+    snap_threshold,
+    samples,
+    random_choice,
+    determine_branches_nodes,
 ):
     """
     Test NetworkRandomSampler sampling.
@@ -89,7 +99,9 @@ def test_network_random_sampler(
         assert random_target_circle.area < sampler.target_circle.area
 
     for _ in range(samples):
-        random_sample = sampler.random_network_sample()
+        random_sample = sampler.random_network_sample(
+            determine_branches_nodes=determine_branches_nodes
+        )
         network, target_centroid, radius = (
             random_sample.network_maybe,
             random_sample.target_centroid,
@@ -99,7 +111,7 @@ def test_network_random_sampler(
         if not network.trace_gdf.shape[0] <= trace_gdf.shape[0]:
             assert np.isclose(radius, sampler.max_radius)
         assert target_centroid.within(sampler.target_circle)
-        if len(network.branch_types) > 200:
+        if determine_branches_nodes and len(network.branch_types) > 200:
             assert (
                 sum(network.branch_types == Error_branch) / len(network.branch_types)
                 < 0.01
