@@ -485,7 +485,9 @@ class Network:
         """
         branch_connection_series = self.branch_gdf[CONNECTION_COLUMN]
         assert isinstance(branch_connection_series, pd.Series)
-        return branch_connection_series.to_numpy()
+        as_array = branch_connection_series.to_numpy()
+        assert isinstance(as_array, np.ndarray)
+        return as_array
 
     @property
     @requires_topology

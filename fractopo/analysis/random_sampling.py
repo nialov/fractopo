@@ -226,9 +226,15 @@ class NetworkRandomSampler:
                 circular_target_area=True,
                 truncate_traces=True,
             )
-        except ValueError as err:
+        except ValueError:
             logging.error(
-                f"Exception occurred during creation of random_network_sample:\n{err}"
+                "Error occurred during creation of random_network_sample.",
+                exc_info=True,
+                extra=dict(
+                    sampler_name=self.name,
+                    target_centroid=target_centroid,
+                    radius=radius,
+                ),
             )
             network_maybe = None
 
