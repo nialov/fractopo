@@ -202,7 +202,7 @@ class NetworkRandomSampler:
 
         return random_target_circle, random_target_centroid, radius
 
-    def random_network_sample(self) -> RandomSample:
+    def random_network_sample(self, determine_branches_nodes=True) -> RandomSample:
         """
         Get random Network sample with a random target area.
 
@@ -221,7 +221,7 @@ class NetworkRandomSampler:
                 trace_gdf=self.trace_gdf,
                 area_gdf=area_gdf,
                 name=self.name,
-                determine_branches_nodes=True,
+                determine_branches_nodes=determine_branches_nodes,
                 snap_threshold=self.snap_threshold,
                 circular_target_area=True,
                 truncate_traces=True,
