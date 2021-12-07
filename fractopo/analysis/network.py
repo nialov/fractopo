@@ -146,12 +146,12 @@ class Network:
     # ===========
 
     # Trace length
-    trace_length_set_names: Optional[Tuple[str, ...]] = None
-    trace_length_set_ranges: Optional[SetRangeTuple] = None
+    trace_length_set_names: Tuple[str, ...] = ()
+    trace_length_set_ranges: SetRangeTuple = ()
 
     # Branch length
-    branch_length_set_names: Optional[Tuple[str, ...]] = None
-    branch_length_set_ranges: Optional[SetRangeTuple] = None
+    branch_length_set_names: Tuple[str, ...] = ()
+    branch_length_set_ranges: SetRangeTuple = ()
 
     # Branches and nodes
     # ==================

@@ -1740,6 +1740,8 @@ def save_fig(fig: Figure, results_dir: Path, name: str):
     """
     Save figure as svg image to results dir.
     """
+    assert results_dir.exists() and results_dir.is_dir()
+    assert len(name) > 0
     fig.savefig(results_dir / f"{name}.svg", bbox_inches="tight")
 
 
@@ -1748,15 +1750,20 @@ def silent_output(name: str):
     """
     General method to silence output from general func.
     """
+    # Create memory files for stdout and stderr
     tmp_io_stdout = StringIO()
     tmp_io_stderr = StringIO()
+
+    # Use double context managers and yield within both
     try:
         with redirect_stdout(tmp_io_stdout):
             with redirect_stderr(tmp_io_stderr):
                 yield
+
+    # Report stdout and stderr to logging.info
     finally:
         logging.info(
-            "powerlaw execution stdout and stderr.",
+            "silent_output output stdout and stderr.",
             extra=dict(
                 func_name=name,
                 stdout=tmp_io_stdout.getvalue(),
@@ -1768,6 +1775,8 @@ def silent_output(name: str):
 def wrap_silence(func):
     """
     Wrap function to capture and silence its output.
+
+    Used primarily to silence output from ``powerlaw`` functions and methods.
     """
 
     @wraps(func)

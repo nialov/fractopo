@@ -30,6 +30,9 @@ def _column_array_property(
     column: Col,
     gdf: gpd.GeoDataFrame,
 ) -> Optional[np.ndarray]:
+    """
+    Return column values from GeoDataFrame if it exists in the GeoDataFrame.
+    """
     if column.value in gdf:
         values = gdf[column.value]
         assert isinstance(values, pd.Series)
