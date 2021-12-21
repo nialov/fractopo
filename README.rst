@@ -15,6 +15,11 @@ analysing lineament and fracture trace maps (fracture networks).
 
    -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
 
+.. toctree::
+   :caption: Contents
+
+   *
+
 Installation
 ------------
 
@@ -75,6 +80,18 @@ For development:
    cd fractopo
    poetry install
 
+Usage
+-----
+
+``fractopo`` has two main use cases:
+
+1.  Validation of lineament & fracture trace data
+2.  Analysis of lineament & fracture trace data
+
+Validation is done to make sure the data is valid for the analysis and is
+crucial as analysis cannot take into account different kinds of geometrical and
+topological inconsistencies between the traces.
+
 Input data
 ~~~~~~~~~~
 
@@ -129,21 +146,15 @@ data.
 
    fractopo tracevalidate --help
 
-   # Basic usage:
-   # --allow-fix is recommended due to automatic fixing being very minor in effect
-   # currently (default True)
-   # --summary can be given to print out summary data of validation
-   # i.e. error types and error counts (default True)
-   # --output can be omitted. By default the same spatial filetype
-   # as the input is used and the output is saved as e.g.
-   # /path/to/validated/trace_data_validated.shp
-   # i.e. a new folder is created (or used) for validated data
+   # Basic usage example:
 
-   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --output /path/to/output_data.shp
+   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
+      --output /path/to/validated_trace_data.shp
 
    # Or with automatic saving to validated/ directory
 
-   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp --fix --summary
+   fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
+      --summary
 
 Geometric and topological trace network analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,16 +196,16 @@ visualizing different parameters and attributes of trace data.
    # Plotting is done by plot_ -prefixed methods
    network.plot_trace_lengths()
 
-Network analysis is also available as a command-line script but I recommend
-using a Python interface (e.g. ``jupyter lab``, ``ipython``) when analysing
-``Networks`` to have access to all available analysis and plotting methods. The
-command-line entrypoint is opinionated in what outputs it produces. Brief
-example of command-line entrypoint:
+Network analysis is also available as a command-line script but using the
+Python interface (e.g. ``jupyter lab``, ``ipython``) is recommended when
+analysing ``Networks`` to have access to all available analysis and plotting
+methods. The command-line entrypoint is **opinionated** in what outputs it
+produces. Brief example of command-line entrypoint:
 
 .. code:: bash
 
-   fractopo network traces.gpkg area.gpkg --name mynetwork\
-      --circular-target-area --truncate-traces
+   fractopo network /path/to/trace_data.shp /path/to/area_data.shp\
+      --name mynetwork
 
    # Use --help to see all up-to-date arguments and help
    fractopo network --help
@@ -202,21 +213,7 @@ example of command-line entrypoint:
 Development status
 ------------------
 
--  Breaking changes are possible and expected.
--  Critical issues:
-
-   -  Trace validation should be refactored at some point.
-
-      -  Though keeping in mind that the current implementation works
-         well.
-
-   -  ``snap_traces`` in branch and node determination is not perfect.
-      Some edge cases cause artifacts which only sometimes are
-      recognized as error branches. However these cases are very rare.
-
-      -  Reinforces that some amount of responsibility is always in the
-         hands of the digitizer.
-      -  Issue mostly avoided when using a ``snap_threshold`` of 0.001
+-  **Breaking changes are possible and expected.**
 
 -----
 

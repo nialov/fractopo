@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased (2021-12-07)
+## Unreleased (2021-12-21)
+
+#### New Features
+
+-   (random_sampling): allow not determining topo
 
 Full set of changes:
-[`v0.2.3...ecf8b49`](https://github.com/nialov/fractopo/compare/v0.2.3...ecf8b49)
+[`v0.2.3...25af0df`](https://github.com/nialov/fractopo/compare/v0.2.3...25af0df)
 
 ## v0.2.3 (2021-12-04)
 
