@@ -65,6 +65,7 @@ sphinx-rtd-theme = {version = "*", optional = true}
 nbsphinx = {version = "*", optional = true}
 sphinx-gallery = {version = "*", optional = true}
 sphinx-autodoc-typehints = {version = "*", optional = true}
+sphinx-autobuild = {version = "*", optional = true}
 
 # Linting and formatting
 pylint = {version = "*", optional = true}

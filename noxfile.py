@@ -222,8 +222,7 @@ def requirements(session):
     )
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
-def docs(session):
+def _docs(session, auto_build: bool):
     """
     Make documentation.
 
@@ -254,11 +253,12 @@ def docs(session):
     try:
         # Create docs in ./docs folder
         session.run(
-            "sphinx-build",
+            "sphinx-build" if not auto_build else "sphinx-autobuild",
             "./docs_src",
             "./docs",
             "-b",
             "html",
+            "--open-browser" if auto_build else "",
         )
 
     finally:
@@ -266,6 +266,24 @@ def docs(session):
         auto_examples_path = Path(DOCS_AUTO_EXAMPLES)
         if auto_examples_path.exists():
             rmtree(auto_examples_path)
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def docs(session):
+    """
+    Make documentation.
+
+    Installation mimics readthedocs install.
+    """
+    _docs(session=session, auto_build=False)
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def auto_docs(session):
+    """
+    Make documentation and start sphinx-autobuild service.
+    """
+    _docs(session=session, auto_build=True)
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
@@ -461,3 +479,12 @@ def logging_extra_test(session, extras):
     """
     session.install(f".{extras}")
     session.run("fractopo", "tracevalidate", success_codes=[2])
+
+
+@nox.session(reuse_venv=True, **VENV_PARAMS)
+def codespell(session):
+    """
+    Check spelling in code.
+    """
+    session.install("codespell")
+    session.run("codespell", PACKAGE_NAME, DOCS_EXAMPLES)

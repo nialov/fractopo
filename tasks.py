@@ -60,12 +60,15 @@ def ci_test(c, python=""):
 
 
 @task(pre=[requirements, update_version])
-def docs(c):
+def docs(c, auto_build=False):
     """
     Make documentation to docs using nox.
     """
     print("Making documentation.")
-    c.run("nox --session docs")
+    docs_session = "docs" if not auto_build else "auto_docs"
+    if auto_build:
+        print("Starting sphinx-autobuild service to watch for src changes.")
+    c.run(f"nox --session {docs_session}")
 
 
 @task(pre=[requirements])
@@ -136,6 +139,14 @@ def changelog(c, latest_version=""):
     c.run(f"nox --session changelog -- {latest_version}")
 
 
+@task
+def codespell(c):
+    """
+    Check code spelling.
+    """
+    c.run("nox --session codespell")
+
+
 @task(
     pre=[
         requirements,
@@ -146,6 +157,7 @@ def changelog(c, latest_version=""):
         docs,
         citation,
         changelog,
+        codespell,
     ]
 )
 def prepush(_):
