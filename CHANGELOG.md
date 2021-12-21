@@ -6,8 +6,12 @@
 
 -   (random_sampling): allow not determining topo
 
+#### Fixes
+
+-   (noxfile): setup sphinx-autobuild session
+
 Full set of changes:
-[`v0.2.3...25af0df`](https://github.com/nialov/fractopo/compare/v0.2.3...25af0df)
+[`v0.2.3...af2512b`](https://github.com/nialov/fractopo/compare/v0.2.3...af2512b)
 
 ## v0.2.3 (2021-12-04)
 
