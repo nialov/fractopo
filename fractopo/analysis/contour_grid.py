@@ -212,7 +212,7 @@ def sample_grid(
     params = dict()  # type: Dict[str, list]
     # Iterate over sample cells
     # Uses a buffer 1.5 times the size of the sample_cell side length
-    # Make sure index doesnt cause issues TODO
+    # Make sure index does not cause issues TODO
     traces_reset, nodes_reset = traces.reset_index(drop=True), nodes.reset_index(
         drop=True
     )

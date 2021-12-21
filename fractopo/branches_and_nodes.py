@@ -218,7 +218,7 @@ def angle_to_point(
             return 0.0
         logging.error(unit_vector_1, unit_vector_2, unit_vector_sum_len)
         raise ValueError(
-            "Could not detemine point relationships. Vectors printed above."
+            "Could not determine point relationships. Vectors printed above."
         )
     degrees = numpy_to_python_type(np.rad2deg(rad_angle))
     assert 360.0 >= degrees >= 0.0
@@ -283,7 +283,7 @@ def insert_point_to_linestring(
     if not insert:
         t_coords.pop(idx)
     t_coords.insert(idx, tuple(*point.coords))
-    # Closest points might not actually be the points which inbetween the
+    # Closest points might not actually be the points which in between the
     # point is added. Have to use project and interpolate (?)
     # print(t_coords)
     new_trace = LineString(t_coords)
@@ -836,7 +836,7 @@ def part_unary_union(
         # Do unary_union to part
         part_union = part.unary_union
 
-        # Do naive check for if unary_union is succesful
+        # Do naive check for if unary_union is successful
         if (
             not isinstance(part_union, MultiLineString)
             or len(part_union.geoms) < part.shape[0]

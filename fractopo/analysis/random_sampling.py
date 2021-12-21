@@ -27,7 +27,7 @@ class RandomChoice(Enum):
     """
     Choose between random area or radius.
 
-    The choise is relevant because area is polynomially correlated with radius.
+    The choice is relevant because area is polynomially correlated with radius.
     """
 
     area = "area"
@@ -85,7 +85,7 @@ class NetworkRandomSampler:
 
             raise TypeError(
                 "Expected random_choice to be"
-                f" convertable to RandomChoice enum: {random_choice}."
+                f" convertible to RandomChoice enum: {random_choice}."
             )
         return random_choice
 

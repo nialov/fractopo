@@ -140,12 +140,12 @@ def determine_crosscut_abutting_relationships(
                     y_reverse_count = value
                 else:
                     raise ValueError(
-                        f"item[0][1] doesnt equal {(first_set, second_set)}"
+                        f"item[0][1] does not equal {(first_set, second_set)}"
                         f" nor {(second_set, first_set)}\nitem[0][1]: {item[0][1]}"
                     )
             else:
                 raise ValueError(
-                    f'item[0][0] doesnt match "X" or "Y"\nitem[0][0]: {item[0][0]}'
+                    f'item[0][0] does not match "X" or "Y"\nitem[0][0]: {item[0][0]}'
                 )
 
         addition = {

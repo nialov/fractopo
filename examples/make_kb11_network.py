@@ -5,7 +5,7 @@ Module for creating a ``fractopo.Network``
 The module loads a fracture dataset, named KB11, from ``fractopo`` GitHub
 repository and creates a ``fractopo.Network`` object of it. Along
 with the traces the target area in which the traces have been determined
-in is required (it is similary loaded from ``fractopo`` GitHub page).
+in is required (it is similarly loaded from ``fractopo`` GitHub page).
 """
 # %%
 # Initialize ``fractopo.Network``

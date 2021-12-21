@@ -512,7 +512,7 @@ def network(
     fig, _, _ = network.plot_xyi()
     save_fig(fig=fig, results_dir=general_output_path, name="xyi_ternary_plot")
 
-    # Plot ternary branch propotion plot
+    # Plot ternary branch proportion plot
     fig, _, _ = network.plot_branch()
     save_fig(fig=fig, results_dir=general_output_path, name="branch_ternary_plot")
 

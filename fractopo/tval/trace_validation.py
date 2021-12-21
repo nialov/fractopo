@@ -325,14 +325,14 @@ class Validation:
             if allow_fix:
                 # Try to fix it
                 try:
-                    # fixed is None if fix is not succesful but no error
+                    # fixed is None if fix is not successful but no error
                     # is raised
                     fixed = validator.fix_method(geom=geom, **kwargs)
                 except NotImplementedError:
                     # No fix implemented for validator
                     fixed = None
                 if fixed is not None:
-                    # Fix succesful
+                    # Fix successful
                     current_errors.remove(validator.ERROR)
                     # geom is passed to later validators
                     geom = fixed

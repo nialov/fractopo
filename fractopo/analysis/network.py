@@ -81,7 +81,7 @@ class Network:
     Trace network.
 
     Consists of at its simplest of validated traces. All other datasets are
-    optional but most analyses are locked behind the addition of atleast the
+    optional but most analyses are locked behind the addition of at least the
     target area dataset.
 
     :param trace_gdf: ``GeoDataFrame`` containing trace data
@@ -102,10 +102,10 @@ class Network:
     :param branch_length_set_names: Names of each branch length set.
     :param branch_length_set_ranges: Ranges of each branch length set.
     :param branch_gdf: ``GeoDataFrame`` containing branch data.
-        It is recommeded to let ``fractopo.Network`` determine both
+        It is recommended to let ``fractopo.Network`` determine both
         branches and nodes instead of passing them here.
     :param node_gdf: GeoDataFrame containing node data.
-        It is recommeded to let fractopo.Network determine both
+        It is recommended to let fractopo.Network determine both
         branches and nodes instead of passing them here.
     :param censoring_area: Geometry that delineates the area in which trace
         digitization was uncertain due to censoring caused by e.g. vegetation.
@@ -238,7 +238,7 @@ class Network:
         if self.circular_target_area:
             if not self.truncate_traces:
                 raise ValueError(
-                    "Traces must be trunctated to the target area"
+                    "Traces must be truncated to the target area"
                     " to perform circular area trace weighting. "
                     "\n(To fix: pass truncate_traces=True.)"
                 )
@@ -351,14 +351,6 @@ class Network:
                 area_boundary_intersects=self.branch_intersects_target_area_boundary,
             )
             self._azimuth_set_relationships = None
-
-    # def _is_branch_gdf_defined(self) -> bool:
-    #     """
-    #     Is branch_gdf defined.
-
-    #     TODO: Make more intelligent.
-    #     """
-    #     return not self.branch_gdf.empty
 
     @property
     def trace_series(self) -> gpd.GeoSeries:

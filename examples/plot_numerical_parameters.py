@@ -43,7 +43,7 @@ kb7_network = Network(
 # Geometric and topological Network parameters
 # --------------------------------------------
 #
-# All parameters are accesible through an attribute
+# All parameters are accessible through an attribute
 
 kb11_parameters = kb11_network.parameters
 kb7_parameters = kb7_network.parameters

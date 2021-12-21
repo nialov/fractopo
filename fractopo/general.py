@@ -516,7 +516,7 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     Define sets based on the length of the traces or branches.
     """
     if length < 0:
-        raise ValueError("length value wasnt positive.\n Value: {length}")
+        raise ValueError("Length value was not positive.\n Value: {length}")
 
     # Set_num is -1 when length is in no length set range
     set_label = -1
@@ -687,7 +687,7 @@ def determine_general_nodes(
         traces.index.values[0] == 0 and traces.index.values[-1] == traces.shape[0] - 1
     ):
         raise ValueError(
-            "Expected traces to have a continous index from 0...len(traces) - 1"
+            "Expected traces to have a continuous index from 0...len(traces) - 1"
         )
 
     intersect_nodes: List[Tuple[Point, ...]] = []
@@ -1285,7 +1285,7 @@ def dissolve_multi_part_traces(
     for (_, row), as_linestrings in zip(mls_traces.iterrows(), as_linestrings_list):
         # as_linestrings = mls_to_ls([row.geometry])
         if len(as_linestrings) == 0:
-            raise ValueError("Expected atleast one geom from mls_to_ls.")
+            raise ValueError("Expected at least one geom from mls_to_ls.")
 
         for new_geom in as_linestrings:
             # Do not modify mls_traces inplace

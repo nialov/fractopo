@@ -26,7 +26,7 @@ azimuth_bins, fix, ax = kb11_network.plot_trace_azimuth()
 azimuth_bins, fix, ax = kb11_network.plot_branch_azimuth()
 
 # %%
-# Numerical data is accesible with methods and class properties
+# Numerical data is accessible with methods and class properties
 # -------------------------------------------------------------
 
 pprint((kb11_network.branch_azimuth_set_counts, kb11_network.trace_azimuth_set_counts))

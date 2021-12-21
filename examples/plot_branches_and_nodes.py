@@ -41,7 +41,7 @@ area = gpd.GeoDataFrame({"geometry": [Polygon([(-2, -2), (2, -2), (2, 2), (-2, 2
 # Plot the traces and target area with their branches and nodes
 # -------------------------------------------------------------
 #
-# After we've manyally created some traces and delineated their target area
+# After we've manually created some traces and delineated their target area
 # with the ``area`` ``Polygon`` we can determine branches and nodes
 # of the traces network.
 #

@@ -39,7 +39,7 @@ plt.tight_layout()
 plt.show()
 
 # %%
-# The relationships are also accesible in numerical form as a ``pandas``
+# The relationships are also accessible in numerical form as a ``pandas``
 # DataFrame.
 
 pprint(kb11_network.azimuth_set_relationships)

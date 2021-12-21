@@ -114,7 +114,7 @@ def choose_sample_from_group(
     """
     Choose single sample from group DataFrame.
     """
-    # Make continous index from 0
+    # Make continuous index from 0
     indexes = list(range(len(group)))
 
     assert len(indexes) > 0
