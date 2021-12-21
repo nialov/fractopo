@@ -256,9 +256,11 @@ def _docs(session, auto_build: bool):
             "sphinx-build" if not auto_build else "sphinx-autobuild",
             "./docs_src",
             "./docs",
-            "-b",
-            "html",
-            "--open-browser" if auto_build else "",
+            *(
+                ["--open-browser", "--ignore=**/auto_examples/**", "--watch=README.rst"]
+                if auto_build
+                else []
+            ),
         )
 
     finally:
