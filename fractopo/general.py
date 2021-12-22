@@ -1675,9 +1675,9 @@ def raise_determination_error(
     ...     raise_determination_error("parameters")
     ...     assert False
     ... except AttributeError as exc:
-    ...     print(exc)
+    ...     print(f"{str(exc)[0:20]}...")
     ...
-    Cannot determine parameters without determining branches and nodes.
+    Cannot determine par...
 
     """
     raise AttributeError(
