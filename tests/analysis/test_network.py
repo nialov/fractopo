@@ -344,8 +344,10 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
     # test both traces and branches for right boundary_intersect_counts
     for boundary_intersect_count, gdf, name in zip(
         (
-            network_circular.trace_boundary_intersect_count,
-            network_circular.branch_boundary_intersect_count,
+            # network_circular.trace_boundary_intersect_count,
+            # network_circular.branch_boundary_intersect_count,
+            network_circular.trace_data.boundary_intersect_count_desc(label="Trace"),
+            network_circular.branch_data.boundary_intersect_count_desc(label="Branch"),
         ),
         (network_circular.trace_gdf, network_circular.branch_gdf),
         ("Trace", "Branch"),
