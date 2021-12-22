@@ -36,7 +36,9 @@ def test_describe_powerlaw_fit(lengths, label):
     Test describe_powerlaw_fit.
     """
     fit = length_distributions.determine_fit(lengths)
-    result = length_distributions.describe_powerlaw_fit(fit, label)
+    result = length_distributions.describe_powerlaw_fit(
+        fit=fit, label=label, length_array=lengths
+    )
     assert isinstance(result, dict)
 
 
