@@ -16,6 +16,7 @@ from pandas.testing import assert_frame_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
+from fractopo.analysis import length_distributions
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
 from fractopo.general import SetRangeTuple
@@ -157,6 +158,19 @@ def test_network(
         assert isinstance(key, str)
         if not isinstance(item, (int, float, str)):
             assert isinstance(item.item(), (int, float))
+
+    cut_off = 1.0
+    num_description_explicit_cut_offs = network.numerical_network_description(
+        trace_lengths_cut_off=cut_off, branch_lengths_cut_off=cut_off
+    )
+    for label in ("branch", "trace"):
+        key = label + (
+            " "
+            + length_distributions.Dist.POWERLAW.value
+            + " "
+            + length_distributions.CUT_OFF
+        )
+        assert num_description_explicit_cut_offs[key] == 1.0
 
     assert isinstance(network.target_areas, list)
     assert all(
