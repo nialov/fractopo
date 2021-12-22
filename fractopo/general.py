@@ -1665,8 +1665,8 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
 
 def raise_determination_error(
     attribute: str,
-    determine_target: str = "branches and nodes",
     verb: str = "determining",
+    determine_target: str = "topology (=branches and nodes)",
 ):
     """
     Raise AttributeError if attribute cannot be determined.

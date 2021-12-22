@@ -191,32 +191,6 @@ class Network:
         as_gen = ((start, end) for start, end in zip(starts, ends))
         return tuple(as_gen)
 
-    # def __setattr__(self, name: str, value: Any):
-    #     """
-    #     Override default __setattr__ to force DataFrame copying.
-
-    #     Normally DataFrames are passed as references instead of passing
-    #     reference allowing side-effects. Also resets LineData for branch
-    #     data when setting it.
-
-    #     :param name: Name of the attribute.
-    #     :param value: Value of the attribute.
-    #     """
-    #     if isinstance(value, (gpd.GeoSeries, gpd.GeoDataFrame)):
-    #         self.__dict__[name] = value.copy()
-    #         if name == "branch_gdf" and not self.branch_gdf.empty:
-
-    #             self.branch_data = LineData(
-    #                 line_gdf=self.branch_gdf.copy(),
-    #                 azimuth_set_ranges=self.azimuth_set_ranges,
-    #                 azimuth_set_names=self.azimuth_set_names,
-    #                 length_set_ranges=self.branch_length_set_ranges,
-    #                 length_set_names=self.branch_length_set_names,
-    #                 area_boundary_intersects=self.branch_intersects_target_area_boundary,
-    #             )
-    #     else:
-    #         self.__dict__[name] = value
-
     def __post_init__(self):
         """
         Copy GeoDataFrames instead of changing inputs.
