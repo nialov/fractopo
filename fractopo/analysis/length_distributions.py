@@ -574,8 +574,19 @@ def calculate_exponent(alpha: float):
     return -(alpha - 1)
 
 
+def cut_off_proportion_of_data(fit: powerlaw.Fit, length_array: np.ndarray) -> float:
+    """
+    Get the proportion of data cut off by `powerlaw` cut off.
+
+    If no fit is passed the cut off is the one used in `automatic_fit`.
+    """
+    arr_less_than = length_array < fit.xmin
+    assert isinstance(arr_less_than, np.ndarray)
+    return sum(arr_less_than) / len(length_array) if len(length_array) > 0 else 0.0
+
+
 def describe_powerlaw_fit(
-    fit: powerlaw.Fit, label: Optional[str] = None
+    fit: powerlaw.Fit, length_array: np.ndarray, label: Optional[str] = None
 ) -> Dict[str, float]:
     """
     Compose dict of fit powerlaw attributes and comparisons between fits.
@@ -591,6 +602,9 @@ def describe_powerlaw_fit(
         Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
         Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
         **all_fit_attributes_dict(fit),
+        "lengths cut off proportion": cut_off_proportion_of_data(
+            fit=fit, length_array=length_array
+        ),
     }
     if label is None:
         return base

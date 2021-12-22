@@ -231,25 +231,32 @@ class LineData:
         """
         return length_distributions.determine_fit(self.length_array, cut_off=cut_off)
 
-    def cut_off_proportion_of_data(self, fit: Optional[powerlaw.Fit] = None) -> float:
-        """
-        Get the proportion of data cut off by `powerlaw` cut off.
+    # def cut_off_proportion_of_data(self, fit: Optional[powerlaw.Fit] = None) -> float:
+    #     """
+    #     Get the proportion of data cut off by `powerlaw` cut off.
 
-        If no fit is passed the cut off is the one used in `automatic_fit`.
-        """
-        fit = self.automatic_fit if fit is None else fit
-        return (
-            sum(self.length_array < fit.xmin) / len(self.length_array)
-            if len(self.length_array) > 0
-            else 0.0
-        )
+    #     If no fit is passed the cut off is the one used in `automatic_fit`.
+    #     """
+    #     fit = self.automatic_fit if fit is None else fit
+    #     return (
+    #         sum(self.length_array < fit.xmin) / len(self.length_array)
+    #         if len(self.length_array) > 0
+    #         else 0.0
+    #     )
 
-    def describe_fit(self, label: Optional[str] = None):
+    def describe_fit(
+        self, label: Optional[str] = None, cut_off: Optional[float] = None
+    ):
         """
         Return short description of automatic powerlaw fit.
         """
+        fit = (
+            self.automatic_fit
+            if cut_off is None
+            else self.determine_manual_fit(cut_off=cut_off)
+        )
         return length_distributions.describe_powerlaw_fit(
-            self.automatic_fit, label=label
+            fit, label=label, length_array=self.length_array
         )
 
     def plot_lengths(

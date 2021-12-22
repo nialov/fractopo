@@ -605,7 +605,6 @@ class Network:
         """
         return self.trace_data.describe_fit(label="trace")
 
-    @property
     def branch_lengths_powerlaw_fit_description(self) -> Dict[str, float]:
         """
         Short numerical description dict of branch length powerlaw fit.
@@ -704,7 +703,11 @@ class Network:
             branch_key_counts[f"Branch Boundary {key} Intersect Count"] = item
         return branch_key_counts
 
-    def numerical_network_description(self) -> Dict[str, Union[Number, str]]:
+    def numerical_network_description(
+        self,
+        trace_lengths_cut_off: Optional[float] = None,
+        branch_lengths_cut_off: Optional[float] = None,
+    ) -> Dict[str, Union[Number, str]]:
         """
         Collect numerical network attributes and return them as a dictionary.
         """
@@ -732,20 +735,16 @@ class Network:
             **node_counts,
             **parameters,
             **radius,
-            **self.branch_lengths_powerlaw_fit_description,
-            **self.trace_lengths_powerlaw_fit_description,
+            **self.trace_data.describe_fit(
+                label="trace", cut_off=trace_lengths_cut_off
+            ),
+            **self.branch_data.describe_fit(
+                label="branch", cut_off=branch_lengths_cut_off
+            ),
             NAME: self.name,
             REPRESENTATIVE_POINT: MultiPoint(self.representative_points()).centroid.wkt,
             **censoring_and_relative,
         }
-
-        func_descriptors = [
-            "trace_lengths_cut_off_proportion",
-            "branch_lengths_cut_off_proportion",
-        ]
-
-        for descriptor in func_descriptors:
-            description[descriptor.replace("_", " ")] = getattr(self, descriptor)()
 
         return description
 
@@ -770,14 +769,6 @@ class Network:
             else self.trace_data.determine_manual_fit(cut_off=cut_off)
         )
 
-    def trace_lengths_cut_off_proportion(
-        self, fit: Optional[powerlaw.Fit] = None
-    ) -> float:
-        """
-        Get proportion of trace data cut off by cut off.
-        """
-        return self.trace_data.cut_off_proportion_of_data(fit=fit)
-
     @requires_topology
     def branch_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
@@ -790,15 +781,6 @@ class Network:
             if cut_off is None
             else self.branch_data.determine_manual_fit(cut_off=cut_off)
         )
-
-    @requires_topology
-    def branch_lengths_cut_off_proportion(
-        self, fit: Optional[powerlaw.Fit] = None
-    ) -> float:
-        """
-        Get proportion of branch data cut off by cut off.
-        """
-        return self.branch_data.cut_off_proportion_of_data(fit=fit)
 
     def assign_branches_nodes(
         self,
