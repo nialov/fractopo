@@ -152,9 +152,9 @@ def format_and_lint(session):
         *existing_paths,
     )
 
-    # Format notebooks
+    # Format notebooks with black (must be installed with black[jupyter])
     for notebook in ALL_NOTEBOOKS:
-        session.run("black-nb", str(notebook))
+        session.run("black", str(notebook))
 
     # Format code blocks in documentation files
     session.run(
@@ -181,6 +181,11 @@ def format_and_lint(session):
 
     # Lint Python files with black (all should be formatted.)
     session.run("black", "--check", *existing_paths)
+
+    for notebook in ALL_NOTEBOOKS:
+        # Lint notebooks with black (all should be formatted.)
+        session.run("black", "--check", str(notebook))
+
     session.run(
         "isort",
         "--check-only",
@@ -192,10 +197,6 @@ def format_and_lint(session):
         "pylint",
         *existing_paths,
     )
-
-    for notebook in ALL_NOTEBOOKS:
-        # Lint notebooks with black-nb (all should be formatted.)
-        session.run("black-nb", "--check", str(notebook))
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
