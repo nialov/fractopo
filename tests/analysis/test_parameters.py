@@ -10,7 +10,6 @@ from matplotlib.figure import Figure
 
 import tests
 from fractopo.analysis import parameters
-from fractopo.general import Param
 from tests import Helpers
 
 
