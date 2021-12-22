@@ -299,3 +299,14 @@ class LineData:
         Plot length set counts.
         """
         return parameters.plot_set_count(self.length_set_counts, label=label)
+
+    def boundary_intersect_count_desc(self, label: str) -> Dict[str, int]:
+        """
+        Get counts of line intersects with boundary.
+        """
+        key_counts = self.boundary_intersect_count
+        intersect_key_counts = dict()
+        for key, item in key_counts.items():
+            # trace_key_counts[f"Trace Boundary {key} Intersect Count"] = item
+            intersect_key_counts[f"{label} Boundary {key} Intersect Count"] = item
+        return intersect_key_counts
