@@ -15,11 +15,6 @@ analysing lineament and fracture trace maps (fracture networks).
 
    -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
 
-.. toctree::
-   :caption: Contents
-
-   *
-
 Installation
 ------------
 
