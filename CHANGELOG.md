@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-12-22)
+## Unreleased (2022-01-03)
 
 #### New Features
 
@@ -11,7 +11,7 @@
 -   (noxfile): setup sphinx-autobuild session
 
 Full set of changes:
-[`v0.2.3...7fa7989`](https://github.com/nialov/fractopo/compare/v0.2.3...7fa7989)
+[`v0.2.3...97e2658`](https://github.com/nialov/fractopo/compare/v0.2.3...97e2658)
 
 ## v0.2.3 (2021-12-04)
 
