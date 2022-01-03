@@ -164,3 +164,4 @@ cython_debug/
 network_profile.py
 KB11_area_outputs
 docs_src/auto_examples/
+.doit.db

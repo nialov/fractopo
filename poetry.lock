@@ -267,6 +267,14 @@ click = ">=4.0"
 test = ["pytest-cov"]
 
 [[package]]
+name = "cloudpickle"
+version = "2.0.0"
+description = "Extended pickling support for Python objects"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
@@ -379,6 +387,23 @@ description = "Docutils -- Python Documentation Utilities"
 category = "main"
 optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
+name = "doit"
+version = "0.34.0"
+description = "doit - Automation Tool"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+cloudpickle = "*"
+macfsevents = {version = "*", markers = "sys_platform == \"darwin\""}
+pyinotify = {version = "*", markers = "sys_platform == \"linux\""}
+
+[package.extras]
+plugins = ["setuptools"]
+toml = ["toml (>=0.10.1)"]
 
 [[package]]
 name = "entrypoints"
@@ -835,6 +860,14 @@ python-versions = "*"
 [package.dependencies]
 six = "*"
 tornado = {version = "*", markers = "python_version > \"2.7\""}
+
+[[package]]
+name = "macfsevents"
+version = "0.8.1"
+description = "Thread-based interface to file system observation primitives."
+category = "dev"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "markupsafe"
@@ -1328,6 +1361,14 @@ description = "Pygments is a syntax highlighting package written in Python."
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "pyinotify"
+version = "0.9.6"
+description = "Linux filesystem events monitoring"
+category = "dev"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "pyinstrument"
@@ -2035,7 +2076,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "f00dc9360f7f191ff71bb680989d7a12ef350169cfa28830cc7b1ed4af88c0c1"
+content-hash = "a8529f21a4153b7e185f7a182a8b9353bfdea52ac7bfaf1d2e7115792ea99b84"
 
 [metadata.files]
 alabaster = [
@@ -2189,6 +2230,10 @@ cligj = [
     {file = "cligj-0.7.2-py3-none-any.whl", hash = "sha256:c1ca117dbce1fe20a5809dc96f01e1c2840f6dcc939b3ddbb1111bf330ba82df"},
     {file = "cligj-0.7.2.tar.gz", hash = "sha256:a4bc13d623356b373c2c27c53dbd9c68cae5d526270bfa71f6c6fa69669c6b27"},
 ]
+cloudpickle = [
+    {file = "cloudpickle-2.0.0-py3-none-any.whl", hash = "sha256:6b2df9741d06f43839a3275c4e6632f7df6487a1f181f5f46a052d3c917c3d11"},
+    {file = "cloudpickle-2.0.0.tar.gz", hash = "sha256:5cd02f3b417a783ba84a4ec3e290ff7929009fe51f6405423cfccfadd43ba4a4"},
+]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
@@ -2306,6 +2351,10 @@ distlib = [
 docutils = [
     {file = "docutils-0.17.1-py2.py3-none-any.whl", hash = "sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61"},
     {file = "docutils-0.17.1.tar.gz", hash = "sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125"},
+]
+doit = [
+    {file = "doit-0.34.0-py3-none-any.whl", hash = "sha256:7b913896a9ade2ac8e8c4f34373866be425c12ae443accf04ed0be630cb8aa13"},
+    {file = "doit-0.34.0.tar.gz", hash = "sha256:8ef1de105cbca939c73e836dff86c812c9228e11ed8702f6955b7a086caac02d"},
 ]
 entrypoints = [
     {file = "entrypoints-0.3-py2.py3-none-any.whl", hash = "sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19"},
@@ -2510,6 +2559,9 @@ lazy-object-proxy = [
 ]
 livereload = [
     {file = "livereload-2.6.3.tar.gz", hash = "sha256:776f2f865e59fde56490a56bcc6773b6917366bce0c267c60ee8aaf1a0959869"},
+]
+macfsevents = [
+    {file = "MacFSEvents-0.8.1.tar.gz", hash = "sha256:1324b66b356051de662ba87d84f73ada062acd42b047ed1246e60a449f833e10"},
 ]
 markupsafe = [
     {file = "MarkupSafe-2.0.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:f9081981fe268bd86831e5c75f7de206ef275defcb82bc70740ae6dc507aee51"},
@@ -2850,6 +2902,9 @@ pygeos = [
 pygments = [
     {file = "Pygments-2.11.1-py3-none-any.whl", hash = "sha256:9135c1af61eec0f650cd1ea1ed8ce298e54d56bcd8cc2ef46edd7702c171337c"},
     {file = "Pygments-2.11.1.tar.gz", hash = "sha256:59b895e326f0fb0d733fd28c6839bd18ad0687ba20efc26d4277fd1d30b971f4"},
+]
+pyinotify = [
+    {file = "pyinotify-0.9.6.tar.gz", hash = "sha256:9c998a5d7606ca835065cdabc013ae6c66eb9ea76a00a1e3bc6e0cfe2b4f71f4"},
 ]
 pyinstrument = [
     {file = "pyinstrument-4.1.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fd0b92d9dfe97222e65ecec811e2923776f096f8df8a53ece24db18683755131"},
