@@ -6,7 +6,7 @@ authors:
   given-names: Nikolas
   orcid: "https://orcid.org/0000-0003-1562-0280"
 title: "fractopo"
-version: "0.2.3.post41.dev0+afa64cd"
+version: "0.2.3.post50.dev0+c95042d"
 date-released: "2022-01-07"
 keywords:
   - python
