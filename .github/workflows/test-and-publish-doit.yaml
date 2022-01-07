@@ -45,10 +45,10 @@ jobs:
             nox-\
             ${{ hashFiles('noxfile.py') }}-\
             ${{ hashFiles('poetry.lock') }}-\
-            ci-test\
+            ci_test\
             "
       - name: Test with doit -> nox -> pytest
-        run: doit ci-test:${{ matrix.python-version }}
+        run: doit ci_test:${{ matrix.python-version }}
 
   doit:
     runs-on: ubuntu-latest
