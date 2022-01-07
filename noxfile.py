@@ -38,6 +38,7 @@ DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
 ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
 
 PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
+DEFAULT_PYTHON_VERSION = "3.8"
 VENV_PARAMS = dict(venv_params=["--copies"])
 
 
@@ -48,9 +49,9 @@ def filter_paths_to_existing(*iterables: str) -> List[str]:
     return [path for path in iterables if Path(path).exists()]
 
 
-def fill_notebook(session, notebook: Path):
+def execute_notebook(session, notebook: Path):
     """
-    Execute and fill notebook outputs.
+    Execute notebook.
     """
     session.run(
         "jupyter",
@@ -59,6 +60,11 @@ def fill_notebook(session, notebook: Path):
         "notebook",
         "--inplace",
         "--execute",
+        str(notebook),
+    )
+    # Strip output
+    session.run(
+        "nbstripout",
         str(notebook),
     )
 
@@ -95,39 +101,61 @@ def tests_pip(session):
     # Fails with test coverage under 70
     session.run("coverage", "report", "--fail-under", "70")
 
-    # Make coverage-badge image
-    if COVERAGE_SVG_PATH.exists():
-        COVERAGE_SVG_PATH.unlink()
-    elif not COVERAGE_SVG_PATH.parent.exists():
-        COVERAGE_SVG_PATH.parent.mkdir(parents=True)
-    session.run("coverage-badge", "-o", str(COVERAGE_SVG_PATH))
+    assert session.python in PYTHON_VERSIONS
+    if session.python == DEFAULT_PYTHON_VERSION:
+        # Make coverage-badge image
+        if COVERAGE_SVG_PATH.exists():
+            COVERAGE_SVG_PATH.unlink()
+        elif not COVERAGE_SVG_PATH.parent.exists():
+            COVERAGE_SVG_PATH.parent.mkdir(parents=True)
+        session.run("coverage-badge", "-f", "-o", str(COVERAGE_SVG_PATH))
 
     # Test that entrypoint works.
     session.run(PACKAGE_NAME.replace("_", "-"), "--help")
 
 
-@nox.session(python=PYTHON_VERSIONS, **VENV_PARAMS)
-def notebooks(session):
+def resolve_session_posargs(session):
     """
-    Run notebooks.
+    Resolve session.posargs.
+    """
+    # Default
+    value = ""
+    if session.posargs:
+        if isinstance(session.posargs, str):
+            value = session.posargs
+        elif isinstance(session.posargs, (tuple, list)):
+            value = session.posargs[0]
+        else:
+            raise TypeError(
+                f"Expected (str,tuple,list) as posargs type. Got: {type(session.posargs)}"
+                f" with contents: {session.posargs}."
+            )
+    return value
 
-    Notebooks are usually run in remote so use pip install.
-    Note that notebooks shouldn't have side effects i.e. disk file writing.
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, **VENV_PARAMS, reuse_venv=True)
+def notebook(session):
     """
-    # Check if any notebooks exist.
-    if len(ALL_NOTEBOOKS) == 0:
-        print("No notebooks found.")
-        return
+    Run notebook.
+
+    Notebooks are usually run in remote so use pip install. Note that notebooks
+    shouldn't have side effects i.e. disk file writing.
+    """
+    notebook = resolve_session_posargs(session=session)
+    if len(notebook) == 0:
+        raise ValueError("Expected a notebook to be passed in posargs.")
+
+    notebook_path = Path(notebook)
+    if not notebook_path.exists():
+        raise ValueError("Expected an existing notebook to be passed in posargs.")
 
     # Install dev dependencies
     install_dev(session=session)
 
-    # Test notebook(s)
-    for notebook in ALL_NOTEBOOKS:
-        fill_notebook(session=session, notebook=notebook)
+    execute_notebook(session=session, notebook=notebook_path)
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def format_and_lint(session):
     """
     Format and lint python files, notebooks and docs_src.
@@ -242,9 +270,9 @@ def _docs(session, auto_build: bool):
     if DOCS_DIR_PATH.exists():
         rmtree(DOCS_DIR_PATH)
 
-    # Execute and fill cells in docs notebooks
-    for notebook in DOCS_NOTEBOOKS:
-        fill_notebook(session=session, notebook=notebook)
+    # # Execute and fill cells in docs notebooks
+    # for notebook in DOCS_NOTEBOOKS:
+    #     execute_notebook(session=session, notebook=notebook, strip=False)
 
     # Create apidocs
     session.run(
@@ -430,6 +458,7 @@ def changelog(session):
     else:
         version = ""
     assert isinstance(version, str)
+
     # Path to changelog.md
     changelog_path = Path(CHANGELOG_MD_NAME).absolute()
 
