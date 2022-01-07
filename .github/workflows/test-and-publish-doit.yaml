@@ -1,4 +1,4 @@
-name: test-and-publish
+name: test-and-publish-doit
 
 on:
   # run on all pushes to any branch
