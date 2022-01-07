@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nox doit
+          pip install nox doit toml
       - name: Cache .nox and .doit.db
         uses: actions/cache@v2
         with:
@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nox doit
+          pip install nox doit toml
       - name: Install pandoc
         run: sudo apt install pandoc
       - name: Cache .nox and .doit.db
@@ -86,7 +86,7 @@ jobs:
             "
       - name: Run commands
         run: |
-          doit format_and_lint docs citation build -n 4
+          doit docs citation build -n 4
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
