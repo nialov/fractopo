@@ -2087,7 +2087,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "5f8353139447ee34b3cb2f7cd681a1aa61d84709079496bf6f01ce3af0567333"
+content-hash = "90414c3c1b801b27c0c9ff615083333d73078567cea00dd9e829f835e3bd366d"
 
 [metadata.files]
 alabaster = [

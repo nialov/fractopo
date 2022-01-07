@@ -89,6 +89,7 @@ pytest = "*"
 pytest-regressions = "*"
 doit = "^0.34.0"
 nbstripout = "^0.5.0"
+toml = "^0.10.2"
 
 [tool.poetry.extras]
 logging = ["nialog"]
