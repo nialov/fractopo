@@ -41,6 +41,7 @@ NAME = "name"
 PARAMS = "params"
 PACKAGE_INIT_PATH = Path(PACKAGE_NAME) / "__init__.py"
 CHANGELOG_PATH = Path("CHANGELOG.md")
+DODO_PATH = Path("dodo.py")
 
 PYTHON_SRC_FILES = [
     path for path in Path(PACKAGE_NAME).rglob("*.py") if "__init__" not in path.name
@@ -98,7 +99,7 @@ def task_requirements():
     """
     command = "nox --session requirements"
     return {
-        FILE_DEP: [POETRY_LOCK_PATH, PYPROJECT_PATH, NOXFILE_PATH],
+        FILE_DEP: [POETRY_LOCK_PATH, PYPROJECT_PATH, NOXFILE_PATH, DODO_PATH],
         ACTIONS: [command],
         TARGETS: [DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH],
     }
@@ -127,6 +128,7 @@ def task_pre_commit():
             PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             PRE_COMMIT_CONFIG_PATH,
+            DODO_PATH,
         ],
     }
 
@@ -144,6 +146,7 @@ def task_format_and_lint():
             *DOCS_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
+            DODO_PATH,
         ],
         ACTIONS: [command],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
@@ -164,7 +167,13 @@ def task_update_version():
     """
     command = "nox --session update_version"
     return {
-        FILE_DEP: [*PYTHON_SRC_FILES, PYPROJECT_PATH, POETRY_LOCK_PATH, NOXFILE_PATH],
+        FILE_DEP: [
+            *PYTHON_SRC_FILES,
+            PYPROJECT_PATH,
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
         TASK_DEP: [resolve_task_name(task_format_and_lint)],
         ACTIONS: [command],
     }
@@ -197,6 +206,7 @@ def task_ci_test():
                 *PYTHON_TEST_FILES,
                 DEV_REQUIREMENTS_PATH,
                 PYPROJECT_PATH,
+                DODO_PATH,
             ],
             TASK_DEP: [resolve_task_name(task_format_and_lint)],
             ACTIONS: [command],
@@ -236,6 +246,7 @@ def task_docs():
             *DOCS_FILES,
             DOCS_REQUIREMENTS_PATH,
             NOXFILE_PATH,
+            DODO_PATH,
         ],
         TASK_DEP: [
             resolve_task_name(task_format_and_lint),
@@ -270,19 +281,18 @@ def task_notebooks():
     """
     Execute and fill notebooks.
     """
-    for notebook_path in NOTEBOOKS:
-        command = f"nox --session notebook -- {notebook_path}"
-        yield {
-            NAME: f"execute notebook {notebook_path.name}",
-            FILE_DEP: [
-                *PYTHON_SRC_FILES,
-                notebook_path,
-                DEV_REQUIREMENTS_PATH,
-                NOXFILE_PATH,
-            ],
-            TASK_DEP: [resolve_task_name(task_format_and_lint)],
-            ACTIONS: [command],
-        }
+    command = "nox --session notebooks"
+    return {
+        FILE_DEP: [
+            *PYTHON_SRC_FILES,
+            *NOTEBOOKS,
+            DEV_REQUIREMENTS_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
+        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        ACTIONS: [command],
+    }
 
 
 # @task(pre=[requirements, update_version])
@@ -301,7 +311,13 @@ def task_build():
     command = "nox --session build"
     return {
         ACTIONS: [command],
-        FILE_DEP: [*PYTHON_SRC_FILES, PYPROJECT_PATH, POETRY_LOCK_PATH, NOXFILE_PATH],
+        FILE_DEP: [
+            *PYTHON_SRC_FILES,
+            PYPROJECT_PATH,
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
         TASK_DEP: [resolve_task_name(task_format_and_lint)],
     }
 
@@ -318,6 +334,7 @@ def task_typecheck():
             *PYTHON_SRC_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
+            DODO_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_format_and_lint)],
     }
@@ -345,6 +362,7 @@ def task_performance_profile():
             *PYTHON_TEST_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
+            DODO_PATH,
         ],
     }
 
@@ -379,7 +397,13 @@ def task_citation():
     command = "nox --session validate_citation_cff"
     return {
         ACTIONS: [command],
-        FILE_DEP: [*PYTHON_SRC_FILES, PYPROJECT_PATH, POETRY_LOCK_PATH, NOXFILE_PATH],
+        FILE_DEP: [
+            *PYTHON_SRC_FILES,
+            PYPROJECT_PATH,
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
         TARGETS: [CITATION_CFF_PATH],
     }
 
@@ -415,7 +439,13 @@ def task_changelog():
     command = "nox --session changelog"
     return {
         ACTIONS: [command],
-        FILE_DEP: [*PYTHON_SRC_FILES, PYPROJECT_PATH, POETRY_LOCK_PATH, NOXFILE_PATH],
+        FILE_DEP: [
+            *PYTHON_SRC_FILES,
+            PYPROJECT_PATH,
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
         TARGETS: [CHANGELOG_PATH],
     }
 
@@ -435,7 +465,13 @@ def task_codespell():
     command = "nox --session codespell"
     return {
         ACTIONS: [command],
-        FILE_DEP: [*PYTHON_ALL_FILES, PYPROJECT_PATH, POETRY_LOCK_PATH, NOXFILE_PATH],
+        FILE_DEP: [
+            *PYTHON_ALL_FILES,
+            PYPROJECT_PATH,
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
         TASK_DEP: [resolve_task_name(task_format_and_lint)],
     }
 

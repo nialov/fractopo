@@ -134,25 +134,18 @@ def resolve_session_posargs(session):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, **VENV_PARAMS, reuse_venv=True)
-def notebook(session):
+def notebooks(session):
     """
-    Run notebook.
+    Run notebooks.
 
     Notebooks are usually run in remote so use pip install. Note that notebooks
     shouldn't have side effects i.e. disk file writing.
     """
-    notebook = resolve_session_posargs(session=session)
-    if len(notebook) == 0:
-        raise ValueError("Expected a notebook to be passed in posargs.")
-
-    notebook_path = Path(notebook)
-    if not notebook_path.exists():
-        raise ValueError("Expected an existing notebook to be passed in posargs.")
-
     # Install dev dependencies
     install_dev(session=session)
 
-    execute_notebook(session=session, notebook=notebook_path)
+    for notebook_path in ALL_NOTEBOOKS:
+        execute_notebook(session=session, notebook=notebook_path)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
