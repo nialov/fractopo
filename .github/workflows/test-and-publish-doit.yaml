@@ -11,7 +11,7 @@ on:
     - cron: "41 7 * * 5"
 
 jobs:
-  pytest-coverage:
+  pytest-coverage-doit:
     name: Test and check coverage of 🐍 code
     strategy:
       matrix:
@@ -31,11 +31,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nox invoke
-      - name: Cache .nox
+          pip install nox doit
+      - name: Cache .nox and .doit.db
         uses: actions/cache@v2
         with:
-          path: .nox
+          path: |
+            .nox
+            .doit.db
           key: "\
             ${{ runner.os }}-\
             ${{ matrix.python-version }}-\
@@ -45,15 +47,16 @@ jobs:
             ${{ hashFiles('poetry.lock') }}-\
             ci-test\
             "
-      - name: Test with invoke -> nox -> pytest
-        run: invoke ci-test --python ${{ matrix.python-version }}
+      - name: Test with doit -> nox -> pytest
+        run: doit ci-test:${{ matrix.python-version }}
 
-  invoke:
+  doit:
     runs-on: ubuntu-latest
-    name: Run auxiliary invoke tasks to lint and make docs & citation.
-    strategy:
-      matrix:
-        invokecmd: [format-and-lint, docs, citation]
+    name: Run auxiliary doit tasks to lint and make docs & citation.
+    needs: [pytest-coverage-doit]
+    # strategy:
+    #   matrix:
+    #     invokecmd: [format-and-lint, docs, citation]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 🐍 3.8
@@ -63,46 +66,27 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install nox invoke
-      - name: Install pandoc if creating docs
-        if: matrix.invokecmd == 'docs'
+          pip install nox doit
+      - name: Install pandoc
         run: sudo apt install pandoc
-      - name: Cache .nox
+      - name: Cache .nox and .doit.db
         uses: actions/cache@v2
         with:
-          path: .nox
+          # We can cache .doit.db and it will be significant as
+          # most doit util tasks are run here in the same github actions job
+          path: |
+            .nox
+            .doit.db
           key: "\
             ${{ runner.os }}-\
-            ${{ matrix.python-version }}-\
             ${{ env.pythonLocation }}-\
             nox-\
             ${{ hashFiles('noxfile.py') }}-\
             ${{ hashFiles('poetry.lock') }}-\
-            ${{ matrix.invokecmd }}-\
             "
-      - name: Run command ${{ matrix.invokecmd }} from matrix
-        run: invoke ${{ matrix.invokecmd }}
-
-  build-and-publish:
-    runs-on: ubuntu-latest
-    # Requires that unit tests pass but doesn't require lints
-    needs: [pytest-coverage]
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
-    # Pushes to PyPI on tagged commit pushes of master branch
-    # Additionally tests building with setuptools on all branches
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install invoke and nox
+      - name: Run commands
         run: |
-          python -m pip install --upgrade pip
-          pip install nox invoke
-      - name: Build binary wheel and a source tarball
-        run: >-
-          invoke build
+          doit format_and_lint docs citation build -n 4
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
@@ -111,9 +95,37 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_PASSWORD }}
 
+  # build-and-publish:
+  #   runs-on: ubuntu-latest
+  #   # Requires that unit tests pass but doesn't require lints
+  #   needs: [pytest-coverage-doit]
+  #   name: Build and publish Python 🐍 distributions 📦 to PyPI
+  #   # Pushes to PyPI on tagged commit pushes of master branch
+  #   # Additionally tests building with setuptools on all branches
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - name: Set up Python 3.8
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.8
+  #     - name: Install invoke and nox
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install nox invoke
+  #     - name: Build binary wheel and a source tarball
+  #       run: >-
+  #         invoke build
+  #     - name: Publish distribution 📦 to PyPI on tagged commit pushes
+  #       # Publish to PyPI on tagged commit pushes on master
+  #       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+  #       uses: pypa/gh-action-pypi-publish@master
+  #       with:
+  #         user: __token__
+  #         password: ${{ secrets.PYPI_PASSWORD }}
+
   release:
     runs-on: ubuntu-latest
-    needs: [pytest-coverage, invoke]
+    needs: [pytest-coverage-doit, doit]
     name: Release on GitHub
     steps:
       - uses: actions/checkout@v2
