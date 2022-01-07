@@ -219,6 +219,7 @@ def task_docs():
         ],
         TASK_DEP: [
             resolve_task_name(task_format),
+            resolve_task_name(task_lint),
             resolve_task_name(task_update_version),
         ],
         TARGETS: ["docs"],
