@@ -89,7 +89,7 @@ jobs:
         # but as some tasks are dependant on others it is
         # (probably) more efficient to run all here
         run: |
-          doit format lint docs citation build -n 4
+          doit -n 4 format lint docs citation build
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
