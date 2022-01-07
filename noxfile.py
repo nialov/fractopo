@@ -524,18 +524,7 @@ def changelog(session):
     """
     Create CHANGELOG.md.
     """
-    if session.posargs:
-        if isinstance(session.posargs, str):
-            version = session.posargs
-        elif isinstance(session.posargs, (tuple, list)):
-            version = session.posargs[0]
-        else:
-            raise TypeError(
-                f"Expected (str,tuple,list) as posargs type. Got: {type(session.posargs)}"
-                f" with contents: {session.posargs}."
-            )
-    else:
-        version = ""
+    version = resolve_session_posargs(session=session)
     assert isinstance(version, str)
 
     # Path to changelog.md
