@@ -16,7 +16,7 @@ from fractopo.analysis.multi_network import MultiNetwork  # noqa: E402
 from fractopo.analysis.network import Network  # noqa: E402
 from fractopo.tval.trace_validation import Validation  # noqa: E402
 
-__version__ = "0.2.3.post30.dev0+99bd0aa"
+__version__ = "0.2.3.post31.dev0+0f36234"
 
 
 logging.info(
