@@ -25,10 +25,10 @@ UTF8 = "utf-8"
 TESTS_NAME = "tests"
 DOCS_EXAMPLES = "examples"
 
-VERSION_GLOBS = [
-    "*/__init__.py",
-    "CITATION.cff",
-    "pyproject.toml",
+VERSION_PATHS = [
+    f"{PACKAGE_NAME}/__init__.py",
+    CITATION_CFF_PATH,
+    PYPROJECT_PATH,
 ]
 
 VERSION_PATTERN = r"(^_*version_*\s*[:=]\s\").*\""
@@ -314,6 +314,7 @@ def task_citation():
         line if "date-released" not in line else f'date-released: "{date}"'
         for line in citation_lines
     ]
+    new_lines.append("\n")
     CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
 
     command = "nox --session validate_citation_cff"
@@ -370,7 +371,7 @@ def parse_tag(tag: str) -> str:
     return tag if "v" not in tag else tag[1:]
 
 
-def tag(tag: str):
+def use_tag(tag: str):
     """
     Setup new tag in
     """
@@ -400,11 +401,13 @@ def tag(tag: str):
                 # No match, append line anyway
                 new_lines.append(line)
 
+        new_lines.append("\n")
         # Write results to file
         path.write_text("\n".join(new_lines), encoding=UTF8)
 
-    # Iterate over all files determined from VERSION_GLOBS
-    for path in chain(*[Path(".").glob(glob) for glob in (VERSION_GLOBS)]):
+    # Iterate over all files determined from VERSION_PATHS
+    for path_name in VERSION_PATHS:
+        path = Path(path_name)
         replace_version_string(path=path, tag=tag)
 
     cmds = (
@@ -427,9 +430,10 @@ def task_tag(tag: str):
     """
     Make new tag and update version strings accordingly
     """
+    assert isinstance(tag, str)
     # Create changelog with 'tag' as latest version
-    create_changelog = "nox --session changelog -- %(tag)"
+    create_changelog = "nox --session changelog -- %(tag)s"
     return {
         # NAME: "create changelog for tag and update version strings",
-        ACTIONS: [create_changelog, tag],
+        ACTIONS: [create_changelog, use_tag],
     }
