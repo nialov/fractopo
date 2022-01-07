@@ -66,7 +66,8 @@ DEFAULT_PYTHON_VERSION = "3.8"
 DOIT_CONFIG = {
     "default_tasks": [
         "requirements",
-        "format_and_lint",
+        "format",
+        "lint",
         "update_version",
         "ci_test",
         "docs",
@@ -133,13 +134,12 @@ def task_pre_commit():
     }
 
 
-def task_format_and_lint():
+def task_format():
     """
-    Format and lint everything.
+    Format everything.
     """
-    command = "nox --session format_and_lint"
+    command = "nox --session format"
     return {
-        # If depending on notebooks, it will always run!
         FILE_DEP: [
             *PYTHON_ALL_FILES,
             *NOTEBOOKS,
@@ -150,6 +150,25 @@ def task_format_and_lint():
         ],
         ACTIONS: [command],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
+    }
+
+
+def task_lint():
+    """
+    Lint everything.
+    """
+    command = "nox --session lint"
+    return {
+        FILE_DEP: [
+            *PYTHON_ALL_FILES,
+            *NOTEBOOKS,
+            *DOCS_FILES,
+            DEV_REQUIREMENTS_PATH,
+            NOXFILE_PATH,
+            DODO_PATH,
+        ],
+        ACTIONS: [command],
+        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_format)],
     }
 
 
@@ -174,7 +193,7 @@ def task_update_version():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        TASK_DEP: [resolve_task_name(task_format)],
         ACTIONS: [command],
     }
 
@@ -208,7 +227,7 @@ def task_ci_test():
                 PYPROJECT_PATH,
                 DODO_PATH,
             ],
-            TASK_DEP: [resolve_task_name(task_format_and_lint)],
+            TASK_DEP: [resolve_task_name(task_format)],
             ACTIONS: [command],
             **(
                 {TARGETS: [COVERAGE_SVG_PATH]}
@@ -249,7 +268,7 @@ def task_docs():
             DODO_PATH,
         ],
         TASK_DEP: [
-            resolve_task_name(task_format_and_lint),
+            resolve_task_name(task_format),
             resolve_task_name(task_update_version),
             resolve_task_name(task_ci_test),
         ],
@@ -290,7 +309,7 @@ def task_notebooks():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        TASK_DEP: [resolve_task_name(task_format)],
         ACTIONS: [command],
     }
 
@@ -318,7 +337,7 @@ def task_build():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        TASK_DEP: [resolve_task_name(task_format)],
     }
 
 
@@ -336,7 +355,7 @@ def task_typecheck():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        TASK_DEP: [resolve_task_name(task_format)],
     }
 
 
@@ -472,7 +491,7 @@ def task_codespell():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format_and_lint)],
+        TASK_DEP: [resolve_task_name(task_format)],
     }
 
 

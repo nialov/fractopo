@@ -24,6 +24,7 @@ TESTS_NAME = "tests"
 NOTEBOOKS_NAME = "notebooks"
 TASKS_NAME = "tasks.py"
 NOXFILE_NAME = "noxfile.py"
+DODO_NAME = "dodo.py"
 DEV_REQUIREMENTS = "requirements.txt"
 DOCS_REQUIREMENTS = "docs_src/requirements.txt"
 DOCS_EXAMPLES = "examples"
@@ -146,6 +147,91 @@ def notebooks(session):
 
     for notebook_path in ALL_NOTEBOOKS:
         execute_notebook(session=session, notebook=notebook_path)
+
+
+def setup_format_and_lint(session):
+    existing_paths = filter_paths_to_existing(
+        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME, DODO_NAME, DOCS_EXAMPLES
+    )
+
+    if len(existing_paths) == 0:
+        print("Nothing to format.")
+
+    # Install formatting and lint dependencies
+    install_dev(session=session, extras="[format-lint]")
+    return existing_paths
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def format(session):
+    """
+    Format python files, notebooks and docs_src.
+    """
+    existing_paths = setup_format_and_lint(session=session)
+
+    # Format python files
+    session.run("black", *existing_paths)
+
+    # Format python file imports
+    session.run(
+        "isort",
+        *existing_paths,
+    )
+
+    # Format notebooks with black (must be installed with black[jupyter])
+    for notebook in ALL_NOTEBOOKS:
+        session.run("black", str(notebook))
+
+    # Format code blocks in documentation files
+    session.run(
+        "blacken-docs",
+        *filter_paths_to_existing(
+            str(README_PATH), *list(map(str, list(DOCS_RST_PATHS)))
+        ),
+    )
+
+    # Format code blocks in Python files
+    session.run(
+        "blackdoc",
+        *existing_paths,
+    )
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def lint(session):
+    """
+    Lint python files, notebooks and docs_src.
+    """
+    existing_paths = setup_format_and_lint(session=session)
+
+    # Lint docs
+    session.run(
+        "rstcheck",
+        "-r",
+        "docs_src",
+        "--ignore-directives",
+        "automodule",
+    )
+
+    # Lint Python files with black (all should be formatted.)
+    session.run("black", "--check", *existing_paths)
+
+    for notebook in ALL_NOTEBOOKS:
+        # Lint notebooks with black (all should be formatted.)
+        session.run("black", "--check", str(notebook))
+
+    # Lint imports
+    session.run(
+        "isort",
+        "--check-only",
+        *existing_paths,
+    )
+
+    # Lint with pylint
+    session.run(
+        "pylint",
+        *existing_paths,
+    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
