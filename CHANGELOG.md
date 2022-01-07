@@ -11,7 +11,7 @@
 -   (noxfile): setup sphinx-autobuild session
 
 Full set of changes:
-[`v0.2.3...c95042d`](https://github.com/nialov/fractopo/compare/v0.2.3...c95042d)
+[`v0.2.3...c47e7b0`](https://github.com/nialov/fractopo/compare/v0.2.3...c47e7b0)
 
 ## v0.2.3 (2021-12-04)
 
