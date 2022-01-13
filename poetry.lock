@@ -2079,7 +2079,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [extras]
 coverage = ["coverage", "coverage-badge"]
-docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery", "sphinx-autodoc-typehints"]
+docs = ["sphinx", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery", "sphinx-autodoc-typehints", "sphinx-autobuild"]
 format-lint = ["pylint", "rstcheck", "sphinx", "black", "isort", "blacken-docs", "blackdoc"]
 logging = ["nialog"]
 typecheck = ["mypy"]
@@ -2087,7 +2087,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.1"
-content-hash = "90414c3c1b801b27c0c9ff615083333d73078567cea00dd9e829f835e3bd366d"
+content-hash = "35fb1614fe8e53d2306201a3f53131d3f590bd5e8bf637b9ccbc2eea81975b43"
 
 [metadata.files]
 alabaster = [
