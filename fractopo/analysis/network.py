@@ -80,9 +80,8 @@ class Network:
     """
     Trace network.
 
-    Consists of at its simplest of validated traces. All other datasets are
-    optional but most analyses are locked behind the addition of at least the
-    target area dataset.
+    Consists of at its simplest of validated traces and a target area that
+    delineates the traces.
 
     :param trace_gdf: ``GeoDataFrame`` containing trace data
         i.e. ``shapely.geometry.LineString's``.

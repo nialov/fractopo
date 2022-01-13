@@ -44,7 +44,7 @@ def _column_array_property(
 class LineData:
 
     """
-    Wrapper around the given line_gdf (trace or branch data).
+    Wrapper around the given GeoDataFrame with trace or branch data.
 
     The line_gdf reference is passed and LineData will modify the input
     line_gdf instead of copying the input frame. This means line_gdf columns
