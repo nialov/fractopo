@@ -365,7 +365,13 @@ def _docs(session, auto_build: bool):
             "./docs_src",
             "./docs",
             *(
-                ["--open-browser", "--ignore=**/auto_examples/**", "--watch=README.rst"]
+                [
+                    "--open-browser",
+                    "--ignore=**/auto_examples/**",
+                    "--watch=README.rst",
+                    "--watch=fractopo/",
+                    "--watch=examples/",
+                ]
                 if auto_build
                 else []
             ),
