@@ -4,12 +4,12 @@
 
 Contains minor fixes and a feature update to `NetworkRandomSampler`.
 
-#### New Features
+### New Features
 
 -   (random_sampling): Allow not determining topology
     when performing random sampling using `NetworkRandomSampler`.
 
-#### Fixes
+### Fixes
 
 -   (tval): Handle `TypeError` from `shapely.ops.split` in
     `split_to_determine_triangle_errors` by checking for the intersection

@@ -556,7 +556,8 @@ def changelog(session):
     # Add empty lines after each line of changelog
     new_lines = []
     for line in changelog_path.read_text(encoding=UTF8).splitlines():
-        new_lines.append(line)
+        # Also remove quadruple hashes
+        new_lines.append(line.replace("####", "###"))
         new_lines.append("")
 
     changelog_path.write_text("\n".join(new_lines), encoding=UTF8)
