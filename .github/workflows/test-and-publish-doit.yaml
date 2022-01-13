@@ -93,7 +93,9 @@ jobs:
           doit -n 4 -v 0 format lint docs citation build
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        if: >
+          github.event_name == 'push' 
+          && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
@@ -115,11 +117,13 @@ jobs:
         run: cat RELEASE_CHANGELOG.md
 
       - name: Publish release on GitHub
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        if: >
+          github.event_name == 'push' 
+          && startsWith(github.ref, 'refs/tags')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            RELEASE_CHANGELOG.md
+            CHANGELOG.md
           body_path: RELEASE_CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
