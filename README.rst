@@ -205,10 +205,87 @@ produces. Brief example of command-line entrypoint:
    # Use --help to see all up-to-date arguments and help
    fractopo network --help
 
-Development status
-------------------
+Development
+-----------
 
 -  **Breaking changes are possible and expected.**
+
+Development dependencies for ``fractopo`` include:
+
+-  ``poetry``
+
+   .. code:: bash
+
+      # Use poetry run to execute poetry installed cli tools such as invoke,
+      # nox and pytest.
+      poetry run <cmd>
+
+   -  Used to handle Python package dependencies.
+
+-  ``invoke``
+
+   -  Will be replaced by ``doit``
+
+   .. code:: bash
+
+      # To list invoke tasks (replaces Makefile)
+      # Tasks are defined in tasks.py
+      poetry run invoke --list
+
+-  ``nox``
+
+   .. code:: bash
+
+      # To list available nox sessions
+      # Sessions are defined in noxfile.py
+      poetry run nox --list
+
+   -  ``nox`` is a replacement for ``tox``. Both are made to create
+      reproducible Python environments for testing, making docs locally, etc.
+
+-  ``copier``
+
+   .. code:: bash
+
+      # To pull copier update from github/nialov/nialov-py-template
+      poetry run copier update
+
+   -  ``copier`` is a project templater. Many Python projects follow a similar
+      framework for testing, creating documentations and overall placement of
+      files and configuration. ``copier`` allows creating a template project
+      (e.g. https://github.com/nialov/nialov-py-template) which can be firstly
+      cloned as the framework for your own package and secondly to pull updates
+      from the template to your already started project.
+
+-  ``pytest``
+
+   .. code:: bash
+
+      # To run tests implemented in ./tests directory and as doctests
+      # within project itself:
+      poetry run pytest
+
+   -  ``pytest`` is a Python test runner.
+
+-  ``coverage``
+
+   .. code:: bash
+
+      # To check coverage of tests
+      # (Implemented as nox session!)
+      poetry run nox --session test_pip
+
+   -  ``pytest`` is a Python test runner.
+
+-  ``sphinx``
+
+   .. code:: bash
+
+      # To create documentation
+      # (Implemented as nox session!)
+      poetry run nox --session docs
+
+Big thanks to all maintainers of the above packages!
 
 -----
 

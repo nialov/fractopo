@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.2.3.post28.dev0+97e2658"
+version = "0.2.4"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -87,6 +87,9 @@ nox = "*"
 pyinstrument = "*"
 pytest = "*"
 pytest-regressions = "*"
+doit = "^0.34.0"
+nbstripout = "^0.5.0"
+toml = "^0.10.2"
 
 [tool.poetry.extras]
 logging = ["nialog"]
@@ -187,3 +190,4 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+

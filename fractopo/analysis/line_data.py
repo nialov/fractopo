@@ -3,7 +3,7 @@ Trace and branch data analysis with LineData class abstraction.
 """
 import logging
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -44,14 +44,14 @@ def _column_array_property(
 class LineData:
 
     """
-    Wrapper around the given line_gdf (trace or branch data).
+    Wrapper around the given GeoDataFrame with trace or branch data.
 
     The line_gdf reference is passed and LineData will modify the input
     line_gdf instead of copying the input frame. This means line_gdf columns
     are accessible in the passed input reference upstream.
     """
 
-    line_gdf: gpd.GeoDataFrame
+    _line_gdf: gpd.GeoDataFrame
 
     azimuth_set_ranges: SetRangeTuple
     azimuth_set_names: Tuple[str, ...]
@@ -63,20 +63,28 @@ class LineData:
 
     _automatic_fit: Optional[powerlaw.Fit] = None
 
+    def __getattr__(self, __name: str) -> Any:
+        """
+        Overwrite __getattr__ to warn about accessing _line_gdf.
+        """
+        if __name == "_line_gdf":
+            logging.error(
+                "Output line_gdf might not have all column attributes defined.\n"
+                "Use LineData attributes instead of getting the GeoDataFrame."
+            )
+        return getattr(self, __name)
+
     @property
     def azimuth_array(self):
         """
         Array of trace or branch azimuths.
         """
-        column_array = _column_array_property(column=Col.AZIMUTH, gdf=self.line_gdf)
+        column_array = _column_array_property(column=Col.AZIMUTH, gdf=self._line_gdf)
         if column_array is None:
             column_array = np.array(
-                [
-                    determine_azimuth(line, halved=True)
-                    for line in self.line_gdf.geometry
-                ]
+                [determine_azimuth(line, halved=True) for line in self.geometry]
             )
-            self.line_gdf[Col.AZIMUTH.value] = column_array
+            self._line_gdf[Col.AZIMUTH.value] = column_array
         return column_array
 
     @property
@@ -84,7 +92,9 @@ class LineData:
         """
         Array of trace or branch azimuth set ids.
         """
-        column_array = _column_array_property(column=Col.AZIMUTH_SET, gdf=self.line_gdf)
+        column_array = _column_array_property(
+            column=Col.AZIMUTH_SET, gdf=self._line_gdf
+        )
         if column_array is None:
             column_array = np.array(
                 [
@@ -97,7 +107,7 @@ class LineData:
                     for azimuth in self.azimuth_array
                 ]
             )
-            self.line_gdf[Col.AZIMUTH_SET.value] = column_array
+            self._line_gdf[Col.AZIMUTH_SET.value] = column_array
         return column_array
 
     @property
@@ -106,7 +116,7 @@ class LineData:
         Array of weights for lines based on intersection count with boundary.
         """
         column_array = _column_array_property(
-            column=Col.LENGTH_WEIGHTS, gdf=self.line_gdf
+            column=Col.LENGTH_WEIGHTS, gdf=self._line_gdf
         )
         if column_array is None:
             assert self.area_boundary_intersects.dtype in ("int64", "float64")
@@ -116,7 +126,7 @@ class LineData:
                     for inter_count in self.area_boundary_intersects
                 ]
             )
-            self.line_gdf[Col.LENGTH_WEIGHTS.value] = column_array
+            self._line_gdf[Col.LENGTH_WEIGHTS.value] = column_array
         return column_array
 
     @property
@@ -125,11 +135,11 @@ class LineData:
         Array of trace or branch lengths not weighted by boundary conditions.
         """
         column_array = _column_array_property(
-            column=Col.LENGTH_NON_WEIGHTED, gdf=self.line_gdf
+            column=Col.LENGTH_NON_WEIGHTED, gdf=self._line_gdf
         )
         if column_array is None:
-            column_array = self.line_gdf.geometry.length.to_numpy()
-            self.line_gdf[Col.LENGTH_NON_WEIGHTED.value] = column_array
+            column_array = self.geometry.length.to_numpy()
+            self._line_gdf[Col.LENGTH_NON_WEIGHTED.value] = column_array
         return column_array
 
     @property
@@ -139,14 +149,14 @@ class LineData:
 
         Note: lengths can be 0.0 due to boundary weighting.
         """
-        column_array = _column_array_property(column=Col.LENGTH, gdf=self.line_gdf)
+        column_array = _column_array_property(column=Col.LENGTH, gdf=self._line_gdf)
         if column_array is None:
             new_column_array = (
-                self.line_gdf.geometry.length.to_numpy() * self.length_boundary_weights
+                self.geometry.length.to_numpy() * self.length_boundary_weights
                 if len(self.area_boundary_intersects) > 0
                 else 1.0
             )
-            self.line_gdf[Col.LENGTH.value] = new_column_array
+            self._line_gdf[Col.LENGTH.value] = new_column_array
 
         else:
             new_column_array = column_array
@@ -165,7 +175,7 @@ class LineData:
                 determine_target="length set attributes",
                 verb="initializing",
             )
-        column_array = _column_array_property(column=Col.LENGTH_SET, gdf=self.line_gdf)
+        column_array = _column_array_property(column=Col.LENGTH_SET, gdf=self._line_gdf)
         if column_array is None:
             column_array = np.array(
                 [
@@ -178,7 +188,7 @@ class LineData:
                     for length in self.length_array
                 ]
             )
-            self.line_gdf[Col.LENGTH_SET.value] = column_array
+            self._line_gdf[Col.LENGTH_SET.value] = column_array
         return column_array
 
     @property
@@ -224,6 +234,13 @@ class LineData:
         assert len(key_counts) == 3
         assert all(np.isin(BOUNDARY_INTERSECT_KEYS, list(key_counts)))
         return key_counts
+
+    @property
+    def geometry(self) -> gpd.GeoSeries:
+        """
+        Get line geometries.
+        """
+        return self._line_gdf.geometry
 
     def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
         """

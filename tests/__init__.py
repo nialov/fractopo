@@ -370,6 +370,12 @@ class Helpers:
     kb11_traces = read_geofile(sample_trace_data)
     kb11_area = read_geofile(sample_area_data)
 
+    kb10_unfit_traces = read_geofile(
+        Path("tests/sample_data/kb10_validation_error/kb10_unfit_traces.geojson")
+    )
+    kb10_unfit_area = read_geofile(
+        Path("tests/sample_data/kb10_validation_error/kb10_unfit_area.geojson")
+    )
     kl2_2_traces = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_traces.geojson"))
     kl2_2_area = read_geofile(Path("tests/sample_data/kl2_2/kl2_2_area.geojson"))
     multipolygon_traces = read_geofile(
@@ -1396,6 +1402,7 @@ class ValidationHelpers:
 
     known_non_stacked_gdfs = [
         gpd.GeoDataFrame(geometry=results_in_false_positive_stacked_traces_list),
+        Helpers.kb10_unfit_traces,
     ]
 
     known_non_overlapping_gdfs = [

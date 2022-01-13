@@ -2,7 +2,7 @@
 Contains main entrypoint class for validating trace data, Validation.
 
 Create Validation objects from traces and their target areas to validate
-the traces for further analysis (branch and node determination).
+the traces for further analysis (``fractopo.analysis.network.Network``).
 """
 import logging
 from dataclasses import dataclass
@@ -23,10 +23,6 @@ from fractopo.tval.trace_validators import (
     VALIDATION_REQUIRES_NODES,
     MultiJunctionValidator,
     ValidatorClass,
-)
-
-logging.basicConfig(
-    level=logging.WARNING, format="%(process)d-%(levelname)s-%(message)s"
 )
 
 

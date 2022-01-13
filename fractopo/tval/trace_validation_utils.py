@@ -129,19 +129,44 @@ def split_to_determine_triangle_errors(
     try:
         segments = split(trace, splitter_trace)
     except (ValueError, TypeError):
-        # split not possible, the traces overlap
-        # logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
-        # logging.error(
-        #     "Failed to split %s with %s." % trace.wkt, splitter_trace.wkt, exc_info=True
-        # )
+        trace_intersection = trace.intersection(splitter_trace)
         logging.error(
             "Failed to split trace with splitter_trace.",
-            extra=dict(trace=trace.wkt, splitter_trace=splitter_trace.wkt),
+            extra=dict(
+                trace=trace.wkt,
+                splitter_trace=splitter_trace.wkt,
+                trace_intersection_wkt=(
+                    trace_intersection.wkt
+                    if hasattr(trace_intersection, "wkt")
+                    else "No wkt attribute."
+                ),
+            ),
             exc_info=True,
         )
+
+        if isinstance(trace_intersection, Point):
+            # Splitting can fail in a few different ways e.g. with
+            # TypeError: object of type 'LineString' has no len()
+            # shapely/**/collection.py\", line 64, in geos_geometrycollection_from_py
+            # In this case a simple solution if there's just a single point
+            # intersection between traces == No triangle error
+            # NOTE: not an exhaustive test
+
+            # Check that case follows expectation... (no overlap)
+            assert not trace.overlaps(splitter_trace)
+            logging.info(
+                "Failed to split but intersection was a single point.",
+                extra=dict(
+                    trace_intersection_wkt=trace_intersection.wkt,
+                    trace=trace.wkt,
+                    splitter_trace=splitter_trace.wkt,
+                    traces_overlap=trace.overlaps(splitter_trace),
+                ),
+            )
+            return False
+
+        # split not possible, the traces overlap
         return True
-    # finally:
-    #     logging.error(f"Failed to split {trace.wkt} with {splitter_trace.wkt}.")
     if len(segments.geoms) > 2:
         if len(segments.geoms) > 3:
             return True

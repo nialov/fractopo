@@ -218,13 +218,13 @@ def network_extensive_testing(
     Test Network attributes extensively.
     """
     # Test resetting
-    copy_trace_gdf = network.trace_data.line_gdf.copy()
-    copy_branch_gdf = network.branch_data.line_gdf.copy()
+    copy_trace_gdf = network.trace_data._line_gdf.copy()
+    copy_branch_gdf = network.branch_data._line_gdf.copy()
 
     # Test resetting
     network.reset_length_data()
-    assert_frame_equal(copy_trace_gdf, network.trace_data.line_gdf)
-    assert_frame_equal(copy_branch_gdf, network.branch_data.line_gdf)
+    assert_frame_equal(copy_trace_gdf, network.trace_data._line_gdf)
+    assert_frame_equal(copy_branch_gdf, network.branch_data._line_gdf)
 
     assert isinstance(network.anisotropy, tuple)
     assert isinstance(network.anisotropy[0], np.ndarray)

@@ -80,9 +80,8 @@ class Network:
     """
     Trace network.
 
-    Consists of at its simplest of validated traces. All other datasets are
-    optional but most analyses are locked behind the addition of at least the
-    target area dataset.
+    Consists of at its simplest of validated traces and a target area that
+    delineates the traces.
 
     :param trace_gdf: ``GeoDataFrame`` containing trace data
         i.e. ``shapely.geometry.LineString's``.
@@ -239,7 +238,7 @@ class Network:
                 raise ValueError("Empty trace GeoDataFrame after crop_to_target_areas.")
 
         self.trace_data = LineData(
-            line_gdf=self.trace_gdf,
+            _line_gdf=self.trace_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
             azimuth_set_names=self.azimuth_set_names,
             length_set_ranges=self.trace_length_set_ranges,
@@ -308,7 +307,7 @@ class Network:
         TODO: Deprecated?
         """
         self.trace_data = LineData(
-            line_gdf=self.trace_gdf,
+            _line_gdf=self.trace_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
             azimuth_set_names=self.azimuth_set_names,
             length_set_ranges=self.trace_length_set_ranges,
@@ -317,7 +316,7 @@ class Network:
         )
         if not self.branch_gdf.empty:
             self.branch_data = LineData(
-                line_gdf=self.branch_gdf,
+                _line_gdf=self.branch_gdf,
                 azimuth_set_ranges=self.azimuth_set_ranges,
                 azimuth_set_names=self.azimuth_set_names,
                 length_set_ranges=self.branch_length_set_ranges,
@@ -331,7 +330,7 @@ class Network:
         """
         Get trace geometries as GeoSeries.
         """
-        return self.trace_data.line_gdf.geometry
+        return self.trace_data.geometry
 
     @property
     @requires_topology
@@ -347,7 +346,7 @@ class Network:
         """
         Get branch geometries as GeoSeries.
         """
-        return self.branch_data.line_gdf.geometry
+        return self.branch_data.geometry
 
     @property
     def trace_azimuth_array(self) -> np.ndarray:
@@ -786,7 +785,7 @@ class Network:
         self.node_gdf = nodes
         self.topology_determined = True
         self.branch_data = LineData(
-            line_gdf=self.branch_gdf,
+            _line_gdf=self.branch_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
             azimuth_set_names=self.azimuth_set_names,
             length_set_ranges=self.branch_length_set_ranges,
