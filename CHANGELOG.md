@@ -8,10 +8,14 @@
 
 #### Fixes
 
+-   (tval): handle TypeError from split
+
+-   (line_data): refrain from using line_gdf
+
 -   (noxfile): setup sphinx-autobuild session
 
 Full set of changes:
-[`v0.2.3...c8b0836`](https://github.com/nialov/fractopo/compare/v0.2.3...c8b0836)
+[`v0.2.3...835c7c6`](https://github.com/nialov/fractopo/compare/v0.2.3...835c7c6)
 
 ## v0.2.3 (2021-12-04)
 
