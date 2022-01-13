@@ -1,21 +1,29 @@
 # Changelog
 
-## Unreleased (2022-01-13)
+## v0.2.4 (2022-01-13)
+
+Contains minor fixes and a feature update to `NetworkRandomSampler`.
 
 #### New Features
 
--   (random_sampling): allow not determining topo
+-   (random_sampling): Allow not determining topology
+    when performing random sampling using `NetworkRandomSampler`.
 
 #### Fixes
 
--   (tval): handle TypeError from split
+-   (tval): Handle `TypeError` from `shapely.ops.split` in
+    `split_to_determine_triangle_errors` by checking for the intersection
+    between traces.
 
--   (line_data): refrain from using line_gdf
+-   (line_data): Refrain from using line_gdf in operations
+    as it might not contain up-to-date columns. Use `line_data`
+    attributes instead.
 
--   (noxfile): setup sphinx-autobuild session
+-   (noxfile): Setup sphinx-autobuild session for automatic
+    creation of documentations as source files change.
 
 Full set of changes:
-[`v0.2.3...e028a74`](https://github.com/nialov/fractopo/compare/v0.2.3...e028a74)
+[`v0.2.3...v0.2.4`](https://github.com/nialov/fractopo/compare/v0.2.3...v0.2.4)
 
 ## v0.2.3 (2021-12-04)
 
