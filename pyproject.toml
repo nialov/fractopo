@@ -99,7 +99,8 @@ docs = [
     "sphinx-rtd-theme",
     "nbsphinx",
     "sphinx-gallery",
-    "sphinx-autodoc-typehints"
+    "sphinx-autodoc-typehints",
+    "sphinx-autobuild"
 ]
 format-lint = [
     "pylint",
