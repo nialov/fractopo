@@ -4,80 +4,72 @@ doit tasks.
 Most tasks employ nox to create a virtual session for testing.
 """
 import re
-from itertools import chain
 from pathlib import Path
 from time import strftime
 
 from doit import task_params
 
+# Strings
 PACKAGE_NAME = "fractopo"
-CITATION_CFF_PATH = Path("CITATION.cff")
-DEV_REQUIREMENTS_PATH = Path("requirements.txt")
-DOCS_REQUIREMENTS_PATH = Path("docs_src/requirements.txt")
-PYPROJECT_PATH = Path("pyproject.toml")
-PRE_COMMIT_CONFIG_PATH = Path(".pre-commit-config.yaml")
-DOCS_SRC_PATH = Path("docs_src")
-COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
-POETRY_LOCK_PATH = Path("poetry.lock")
-NOXFILE_PATH = Path("noxfile.py")
 DATE_RELEASED_STR = "date-released"
 UTF8 = "utf-8"
-TESTS_NAME = "tests"
-DOCS_EXAMPLES = "examples"
-
-VERSION_PATHS = [
-    f"{PACKAGE_NAME}/__init__.py",
-    CITATION_CFF_PATH,
-    PYPROJECT_PATH,
-]
-
 VERSION_PATTERN = r"(^_*version_*\s*[:=]\s\").*\""
-
 ACTIONS = "actions"
 FILE_DEP = "file_dep"
 TASK_DEP = "task_dep"
 TARGETS = "targets"
 NAME = "name"
 PARAMS = "params"
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
+DEFAULT_PYTHON_VERSION = "3.8"
+
+# Paths
+
+## Docs
+DOCS_SRC_PATH = Path("docs_src")
+DOCS_PATH = Path("docs")
+DOCS_EXAMPLES_PATH = Path("examples")
+DOCS_REQUIREMENTS_PATH = Path("docs_src/requirements.txt")
+NOTEBOOKS_PATH = DOCS_SRC_PATH / "notebooks"
+COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
+README_PATH = Path("README.rst")
+DOCS_FILES = [*list(DOCS_SRC_PATH.rglob("*.rst")), README_PATH]
+
+## Build
+DEV_REQUIREMENTS_PATH = Path("requirements.txt")
+PYPROJECT_PATH = Path("pyproject.toml")
+PRE_COMMIT_CONFIG_PATH = Path(".pre-commit-config.yaml")
+POETRY_LOCK_PATH = Path("poetry.lock")
+NOXFILE_PATH = Path("noxfile.py")
 PACKAGE_INIT_PATH = Path(PACKAGE_NAME) / "__init__.py"
-CHANGELOG_PATH = Path("CHANGELOG.md")
 DODO_PATH = Path("dodo.py")
+
+## Tests
+TESTS_PATH = Path("tests")
+
+## Misc
+CITATION_CFF_PATH = Path("CITATION.cff")
+VERSION_PATHS = [
+    f"{PACKAGE_NAME}/__init__.py",
+    CITATION_CFF_PATH,
+    PYPROJECT_PATH,
+]
+CHANGELOG_PATH = Path("CHANGELOG.md")
+
 
 PYTHON_SRC_FILES = [
     path for path in Path(PACKAGE_NAME).rglob("*.py") if "__init__" not in path.name
 ]
-PYTHON_TEST_FILES = list(Path(TESTS_NAME).rglob("*.py"))
+PYTHON_TEST_FILES = list(TESTS_PATH.rglob("*.py"))
 
 PYTHON_UTIL_FILES = [
-    *list(Path(DOCS_EXAMPLES).rglob("*.py")),
+    *list(DOCS_EXAMPLES_PATH.rglob("*.py")),
     *list(Path(".").glob("*.py")),
 ]
 PYTHON_ALL_FILES = [*PYTHON_SRC_FILES, *PYTHON_TEST_FILES, *PYTHON_UTIL_FILES]
 NOTEBOOKS = [
-    *list(Path("notebooks").rglob("*.ipynb")),
-    *list(Path("docs_src").rglob("*.ipynb")),
+    *list(NOTEBOOKS_PATH.rglob("*.ipynb")),
 ]
-DOCS_FILES = list(Path("docs_src").rglob("*.rst"))
-
-PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
-DEFAULT_PYTHON_VERSION = "3.8"
-
-# Define default tasks
-DOIT_CONFIG = {
-    "default_tasks": [
-        "requirements",
-        "format",
-        "lint",
-        "update_version",
-        "ci_test",
-        "docs",
-        "notebooks",
-        "build",
-        "citation",
-        "changelog",
-        "codespell",
-    ]
-}
 
 
 def resolve_task_name(func) -> str:
@@ -222,7 +214,7 @@ def task_docs():
             resolve_task_name(task_lint),
             resolve_task_name(task_update_version),
         ],
-        TARGETS: ["docs"],
+        TARGETS: [DOCS_PATH],
     }
 
 
@@ -282,7 +274,7 @@ def task_typecheck():
 
 def task_performance_profile():
     """
-    Profile [[ package ]] performance with ``pyinstrument``.
+    Profile fractopo performance with ``pyinstrument``.
     """
     command = "nox --session profile_performance"
     # command = "nox --session build"
@@ -424,7 +416,6 @@ def use_tag(tag: str):
         print(cmd)
 
 
-# def tag(c, tag="", annotation=""):
 @task_params([{NAME: "tag", "default": "", "type": str, "long": "tag"}])
 def task_tag(tag: str):
     """
@@ -437,3 +428,21 @@ def task_tag(tag: str):
         # NAME: "create changelog for tag and update version strings",
         ACTIONS: [create_changelog, use_tag],
     }
+
+
+# Define default tasks
+DOIT_CONFIG = {
+    "default_tasks": [
+        resolve_task_name(task_requirements),
+        resolve_task_name(task_format),
+        resolve_task_name(task_lint),
+        resolve_task_name(task_update_version),
+        resolve_task_name(task_ci_test),
+        resolve_task_name(task_docs),
+        resolve_task_name(task_notebooks),
+        resolve_task_name(task_build),
+        resolve_task_name(task_citation),
+        resolve_task_name(task_changelog),
+        resolve_task_name(task_codespell),
+    ]
+}

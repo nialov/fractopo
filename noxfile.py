@@ -7,47 +7,43 @@ from typing import List
 
 import nox
 
-# Variables
+CHANGELOG_PATH = Path("CHANGELOG.md")
+CITATION_CFF_PATH = Path("CITATION.cff")
+DOCS_SRC_PATH = Path("docs_src")
+COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
+DEFAULT_PYTHON_VERSION = "3.8"
+DEV_REQUIREMENTS_PATH = Path("requirements.txt")
+DOCS_EXAMPLES_PATH = Path("examples")
+README_PATH = Path("README.rst")
+DOCS_FILES = [*list(DOCS_SRC_PATH.rglob("*.rst")), README_PATH]
+DOCS_PATH = Path("docs")
+DOCS_REQUIREMENTS_PATH = Path("docs_src/requirements.txt")
+DOCS_SRC_PATH = Path("docs_src")
+DODO_PATH = Path("dodo.py")
+NOTEBOOKS_PATH = DOCS_SRC_PATH / "notebooks"
+NOTEBOOKS = [
+    *list(NOTEBOOKS_PATH.rglob("*.ipynb")),
+]
+NOXFILE_PATH = Path("noxfile.py")
 PACKAGE_NAME = "fractopo"
+PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
+TESTS_PATH = Path("tests")
 UTF8 = "utf-8"
 
-# Paths
-DOCS_SRC_PATH = Path("docs_src")
 DOCS_APIDOC_DIR_PATH = DOCS_SRC_PATH / "apidoc"
-DOCS_DIR_PATH = Path("docs")
-COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
 PROFILE_SCRIPT_PATH = Path("tests/_profile.py")
-README_PATH = Path("README.rst")
+TASKS_PATH = Path("tasks.py")
+DOCS_AUTO_EXAMPLES_PATH = Path("docs_src/auto_examples")
 
-# Path strings
-TESTS_NAME = "tests"
-NOTEBOOKS_NAME = "notebooks"
-TASKS_NAME = "tasks.py"
-NOXFILE_NAME = "noxfile.py"
-DODO_NAME = "dodo.py"
-DEV_REQUIREMENTS = "requirements.txt"
-DOCS_REQUIREMENTS = "docs_src/requirements.txt"
-DOCS_EXAMPLES = "examples"
-DOCS_AUTO_EXAMPLES = "docs_src/auto_examples"
-CITATION_CFF_NAME = "CITATION.cff"
-CHANGELOG_MD_NAME = "CHANGELOG.md"
 
-# Globs
-DOCS_NOTEBOOKS = Path("docs_src/notebooks").glob("*.ipynb")
-REGULAR_NOTEBOOKS = Path(NOTEBOOKS_NAME).glob("*.ipynb")
-DOCS_RST_PATHS = DOCS_SRC_PATH.rglob("*.rst")
-ALL_NOTEBOOKS = list(DOCS_NOTEBOOKS) + list(REGULAR_NOTEBOOKS)
-
-PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
-DEFAULT_PYTHON_VERSION = "3.8"
 VENV_PARAMS = dict(venv_params=["--copies"])
 
 
-def filter_paths_to_existing(*iterables: str) -> List[str]:
+def filter_paths_to_existing(*iterables: Path) -> List[Path]:
     """
     Filter paths to only existing.
     """
-    return [path for path in iterables if Path(path).exists()]
+    return [path for path in iterables if path.exists()]
 
 
 def execute_notebook(session, notebook: Path):
@@ -68,6 +64,11 @@ def execute_notebook(session, notebook: Path):
         "nbstripout",
         str(notebook),
     )
+    # Strip output
+    session.run(
+        "nbstripout",
+        str(notebook),
+    )
 
 
 def install_dev(session, extras: str = ""):
@@ -75,7 +76,7 @@ def install_dev(session, extras: str = ""):
     Install all package and dev dependencies.
     """
     session.install(f".{extras}")
-    session.install("-r", DEV_REQUIREMENTS)
+    session.install("-r", str(DEV_REQUIREMENTS_PATH))
 
 
 @nox.session(python=PYTHON_VERSIONS, reuse_venv=True, **VENV_PARAMS)
@@ -84,13 +85,12 @@ def tests_pip(session):
     Run test suite with pip install.
     """
     # Check if any tests exist
-    tests_path = Path(TESTS_NAME)
     if (
-        not tests_path.exists()
-        or tests_path.is_file()
-        or len(list(tests_path.iterdir())) == 0
+        not TESTS_PATH.exists()
+        or TESTS_PATH.is_file()
+        or len(list(TESTS_PATH.iterdir())) == 0
     ):
-        print(f"No tests in {TESTS_NAME} directory.")
+        print(f"No tests in {TESTS_PATH} directory.")
         return
 
     # Install dependencies dev + coverage
@@ -142,16 +142,27 @@ def notebooks(session):
     Notebooks are usually run in remote so use pip install. Note that notebooks
     shouldn't have side effects i.e. disk file writing.
     """
+    # Check if any notebooks exist.
+    if len(NOTEBOOKS) == 0:
+        print("No notebooks found.")
+        return
+
     # Install dev dependencies
     install_dev(session=session)
 
-    for notebook_path in ALL_NOTEBOOKS:
+    # Test notebook(s)
+    for notebook_path in NOTEBOOKS:
         execute_notebook(session=session, notebook=notebook_path)
 
 
-def setup_format_and_lint(session):
+def setup_format_and_lint(session) -> List[str]:
     existing_paths = filter_paths_to_existing(
-        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME, DODO_NAME, DOCS_EXAMPLES
+        Path(PACKAGE_NAME),
+        TESTS_PATH,
+        TASKS_PATH,
+        NOXFILE_PATH,
+        DODO_PATH,
+        DOCS_EXAMPLES_PATH,
     )
 
     if len(existing_paths) == 0:
@@ -159,10 +170,10 @@ def setup_format_and_lint(session):
 
     # Install formatting and lint dependencies
     install_dev(session=session, extras="[format-lint]")
-    return existing_paths
+    return [str(path) for path in existing_paths]
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+@nox.session(reuse_venv=True, **VENV_PARAMS)
 def format(session):
     """
     Format python files, notebooks and docs_src.
@@ -179,16 +190,11 @@ def format(session):
     )
 
     # Format notebooks with black (must be installed with black[jupyter])
-    for notebook in ALL_NOTEBOOKS:
+    for notebook in NOTEBOOKS:
         session.run("black", str(notebook))
 
     # Format code blocks in documentation files
-    session.run(
-        "blacken-docs",
-        *filter_paths_to_existing(
-            str(README_PATH), *list(map(str, list(DOCS_RST_PATHS)))
-        ),
-    )
+    session.run("blacken-docs", *[str(path) for path in DOCS_FILES], str(README_PATH))
 
     # Format code blocks in Python files
     session.run(
@@ -216,7 +222,7 @@ def lint(session):
     # Lint Python files with black (all should be formatted.)
     session.run("black", "--check", *existing_paths)
 
-    for notebook in ALL_NOTEBOOKS:
+    for notebook in NOTEBOOKS:
         # Lint notebooks with black (all should be formatted.)
         session.run("black", "--check", str(notebook))
 
@@ -239,9 +245,7 @@ def format_and_lint(session):
     """
     Format and lint python files, notebooks and docs_src.
     """
-    existing_paths = filter_paths_to_existing(
-        PACKAGE_NAME, TESTS_NAME, TASKS_NAME, NOXFILE_NAME, DOCS_EXAMPLES
-    )
+    existing_paths = setup_format_and_lint(session=session)
 
     if len(existing_paths) == 0:
         print("Nothing to format or lint.")
@@ -260,15 +264,14 @@ def format_and_lint(session):
     )
 
     # Format notebooks with black (must be installed with black[jupyter])
-    for notebook in ALL_NOTEBOOKS:
+    for notebook in NOTEBOOKS:
         session.run("black", str(notebook))
 
     # Format code blocks in documentation files
     session.run(
         "blacken-docs",
-        *filter_paths_to_existing(
-            str(README_PATH), *list(map(str, list(DOCS_RST_PATHS)))
-        ),
+        README_PATH,
+        *[str(path) for path in DOCS_FILES],
     )
 
     # Format code blocks in Python files
@@ -289,7 +292,7 @@ def format_and_lint(session):
     # Lint Python files with black (all should be formatted.)
     session.run("black", "--check", *existing_paths)
 
-    for notebook in ALL_NOTEBOOKS:
+    for notebook in NOTEBOOKS:
         # Lint notebooks with black (all should be formatted.)
         session.run("black", "--check", str(notebook))
 
@@ -315,7 +318,14 @@ def requirements(session):
     session.install("poetry")
 
     # Sync dev requirements
-    session.run("poetry", "export", "--without-hashes", "--dev", "-o", DEV_REQUIREMENTS)
+    session.run(
+        "poetry",
+        "export",
+        "--without-hashes",
+        "--dev",
+        "-o",
+        str(DEV_REQUIREMENTS_PATH),
+    )
 
     # Sync docs requirements
     session.run(
@@ -326,7 +336,7 @@ def requirements(session):
         "-E",
         "docs",
         "-o",
-        DOCS_REQUIREMENTS,
+        str(DOCS_REQUIREMENTS_PATH),
     )
 
 
@@ -339,19 +349,15 @@ def _docs(session, auto_build: bool):
     # Install from docs_src/requirements.txt that has been synced with docs
     # requirements
     session.install(".")
-    session.install("-r", DOCS_REQUIREMENTS)
+    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
 
     # Remove old apidocs
     if DOCS_APIDOC_DIR_PATH.exists():
         rmtree(DOCS_APIDOC_DIR_PATH)
 
     # Remove all old docs
-    if DOCS_DIR_PATH.exists():
-        rmtree(DOCS_DIR_PATH)
-
-    # # Execute and fill cells in docs notebooks
-    # for notebook in DOCS_NOTEBOOKS:
-    #     execute_notebook(session=session, notebook=notebook, strip=False)
+    if DOCS_PATH.exists():
+        rmtree(DOCS_PATH)
 
     # Create apidocs
     session.run(
@@ -362,12 +368,12 @@ def _docs(session, auto_build: bool):
         # Create docs in ./docs folder
         session.run(
             "sphinx-build" if not auto_build else "sphinx-autobuild",
-            "./docs_src",
-            "./docs",
+            str(DOCS_SRC_PATH),
+            str(DOCS_PATH),
             *(
                 [
                     "--open-browser",
-                    "--ignore=**/auto_examples/**",
+                    f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
                     "--watch=README.rst",
                     "--watch=fractopo/",
                     "--watch=examples/",
@@ -379,12 +385,11 @@ def _docs(session, auto_build: bool):
 
     finally:
         # Clean up sphinx-gallery folder in ./docs_src/auto_examples
-        auto_examples_path = Path(DOCS_AUTO_EXAMPLES)
-        if auto_examples_path.exists():
-            rmtree(auto_examples_path)
+        if DOCS_AUTO_EXAMPLES_PATH.exists():
+            rmtree(DOCS_AUTO_EXAMPLES_PATH)
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def docs(session):
     """
     Make documentation.
@@ -394,7 +399,7 @@ def docs(session):
     _docs(session=session, auto_build=False)
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def auto_docs(session):
     """
     Make documentation and start sphinx-autobuild service.
@@ -402,7 +407,7 @@ def auto_docs(session):
     _docs(session=session, auto_build=True)
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def update_version(session):
     """
     Update package version from git vcs.
@@ -468,20 +473,14 @@ def typecheck(session):
     """
     Typecheck Python code.
     """
-    existing_paths = filter_paths_to_existing(PACKAGE_NAME)
-
-    if len(existing_paths) == 0:
-        print("Nothing to typecheck.")
-        return
-
     # Install package and typecheck dependencies
     install_dev(session=session, extras="[typecheck]")
 
     # Format python files
-    session.run("mypy", *existing_paths)
+    session.run("mypy", PACKAGE_NAME)
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def validate_citation_cff(session):
     """
     Validate CITATION.cff.
@@ -489,7 +488,7 @@ def validate_citation_cff(session):
     From: https://github.com/citation-file-format/citation-file-format
     """
     # Path to CITATION.cff
-    citation_cff_path = Path(CITATION_CFF_NAME).absolute()
+    citation_cff_path = CITATION_CFF_PATH.absolute()
 
     # create temporary directory and chdir there
     tmp_dir = session.create_tmp()
@@ -525,7 +524,7 @@ def validate_citation_cff(session):
     )
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def changelog(session):
     """
     Create CHANGELOG.md.
@@ -534,7 +533,7 @@ def changelog(session):
     assert isinstance(version, str)
 
     # Path to changelog.md
-    changelog_path = Path(CHANGELOG_MD_NAME).absolute()
+    changelog_path = CHANGELOG_PATH.absolute()
 
     # Check if pandoc is installed
     pandoc_installed = True
@@ -549,7 +548,7 @@ def changelog(session):
     session.run(
         "auto-changelog",
         "--tag-prefix=v",
-        f"--output={CHANGELOG_MD_NAME}",
+        f"--output={str(CHANGELOG_PATH)}",
         f"--latest-version={version}" if len(version) > 0 else "--unreleased",
     )
 
@@ -564,13 +563,13 @@ def changelog(session):
     if pandoc_installed:
         session.run(
             "pandoc",
-            CHANGELOG_MD_NAME,
+            str(CHANGELOG_PATH),
             "--from",
             "markdown",
             "--to",
             "markdown",
             "--output",
-            CHANGELOG_MD_NAME,
+            str(CHANGELOG_PATH),
             external=True,
         )
     print(changelog_path.read_text(encoding=UTF8))
@@ -588,10 +587,10 @@ def logging_extra_test(session, extras):
     session.run("fractopo", "tracevalidate", success_codes=[2])
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def codespell(session):
     """
     Check spelling in code.
     """
     session.install("codespell")
-    session.run("codespell", PACKAGE_NAME, DOCS_EXAMPLES)
+    session.run("codespell", PACKAGE_NAME, str(DOCS_EXAMPLES_PATH))

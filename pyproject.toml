@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.2.4"
+version = "0.2.4.post5.dev0+0681cee"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -79,16 +79,16 @@ isort = {version = "*", optional = true}
 mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
+doit = "^0.34.0"
 hypothesis = "*"
-invoke = "*"
-ipython = "*"
+ipython = "^7.0"
 jupyterlab = "*"
+nbstripout = "^0.5.0"
 nox = "*"
+pre-commit = "*"
 pyinstrument = "*"
 pytest = "*"
-pytest-regressions = "*"
-doit = "^0.34.0"
-nbstripout = "^0.5.0"
+pytest-regressions = "==2.2.0"
 toml = "^0.10.2"
 
 [tool.poetry.extras]
