@@ -244,7 +244,9 @@ def remove_identical_sindex(
     """
     Remove stacked nodes by using a search buffer the size of snap_threshold.
     """
-    geosrs = geosrs.reset_index(inplace=False, drop=True)
+    geosrs_reset = geosrs.reset_index(inplace=False, drop=True)
+    assert isinstance(geosrs_reset, gpd.GeoSeries)
+    geosrs = geosrs_reset
     spatial_index = geosrs.sindex
     identical_idxs = []
     point: Point
@@ -270,4 +272,6 @@ def remove_identical_sindex(
             assert len(index_to_list) > 0
             assert all(isinstance(i, int) for i in index_to_list)
             identical_idxs.extend(index_to_list)
-    return geosrs.drop(identical_idxs)
+    geosrs_dropped = geosrs.drop(identical_idxs)
+    assert isinstance(geosrs_dropped, gpd.GeoSeries)
+    return geosrs_dropped

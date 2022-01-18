@@ -189,7 +189,11 @@ def test_with_known_snapping_error_data():
     """
     Test snap_traces with known snapping error data.
     """
-    linestrings = samples.results_in_non_simple_from_branches_and_nodes_linestring_list
+    linestrings_loaded = (
+        samples.results_in_non_simple_from_branches_and_nodes_linestring_list
+    )
+    linestrings = [ls for ls in linestrings_loaded if isinstance(ls, LineString)]
+    assert len(linestrings_loaded) == len(linestrings)
     result, any_changed_applied = branches_and_nodes.snap_traces(
         linestrings, Helpers.snap_threshold
     )
@@ -202,10 +206,6 @@ def test_with_known_snapping_error_data():
         if count > 10:
             raise RecursionError()
 
-    # while any_changed_applied:
-    #     result, any_changed_applied = branches_and_nodes.snap_traces(
-    #         gpd.GeoSeries(linestrings), Helpers.snap_threshold
-    #     )
     for ls in result:
         assert ls.is_simple
         assert isinstance(ls, LineString)
@@ -228,28 +228,6 @@ def test_with_known_mls_error():
     for node in nodes.geometry:
         assert isinstance(node, Point)
         assert not node.is_empty
-
-
-# def test_with_known_snapping_error_data_alt():
-#     linestrings = samples.results_in_non_simple_from_branches_and_nodes_linestring_list
-#     result, any_changed_applied = branches_and_nodes.snap_traces_alternative(
-#         gpd.GeoSeries(linestrings), Helpers.snap_threshold
-#     )
-#     count = 0
-#     while any_changed_applied:
-#         result, any_changed_applied = branches_and_nodes.snap_traces_alternative(
-#             result, Helpers.snap_threshold
-#         )
-#         count += 1
-#         if count > 10:
-#             raise RecursionError()
-
-#     # while any_changed_applied:
-#     #     result, any_changed_applied = branches_and_nodes.snap_traces(
-#     #         gpd.GeoSeries(linestrings), Helpers.snap_threshold
-#     #     )
-#     for ls in result:
-#         assert ls.is_simple
 
 
 @pytest.mark.parametrize(

@@ -64,7 +64,7 @@ def perf_profile(
             network.contour_grid(cell_width=2.0)
 
         if do_subsampling:
-            multi_network = MultiNetwork([network])
+            multi_network = MultiNetwork((network,))
             multi_network.subsample(min_radii=5.0, samples=5)
 
 

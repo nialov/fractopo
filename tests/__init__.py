@@ -1130,8 +1130,8 @@ class Helpers:
 
     sample_traces_path = Path("tests/sample_data/branches_and_nodes/traces.gpkg")
     sample_areas_path = Path("tests/sample_data/branches_and_nodes/areas.gpkg")
-    sample_traces = gpd.read_file(sample_traces_path)
-    sample_areas = gpd.read_file(sample_areas_path)
+    sample_traces = read_geofile(sample_traces_path)
+    sample_areas = read_geofile(sample_areas_path)
 
     test_branches_and_nodes_regression_params = [
         (
@@ -1146,7 +1146,7 @@ class Helpers:
     troubling_traces_path = Path(
         "tests/sample_data/branches_and_nodes/traces_troubling.gpkg"
     )
-    troubling_traces = gpd.read_file(troubling_traces_path)
+    troubling_traces = read_geofile(troubling_traces_path)
 
     troubling_upper = troubling_traces.geometry.values[1]
     troubling_middle = troubling_traces.geometry.values[0]

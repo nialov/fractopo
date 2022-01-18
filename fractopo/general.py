@@ -837,7 +837,7 @@ def flatten_tuples(
 
     """
     accumulated_idxs = list(
-        accumulate([len(val_tuple) for idx, val_tuple in enumerate(list_of_tuples)])
+        accumulate([len(val_tuple) for _, val_tuple in enumerate(list_of_tuples)])
     )
     flattened_tuples = list(chain(*list_of_tuples))
     flattened_idx_reference = [
