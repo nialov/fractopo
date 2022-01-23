@@ -1450,7 +1450,7 @@ class ValidationHelpers:
             areas = [
                 gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns
             ]
-        except ValueError:
+        except (ValueError, AttributeError):
             areas = [
                 gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (1, 1), (1, 0)])])
                 for _ in knowns
