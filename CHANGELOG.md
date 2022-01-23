@@ -1,33 +1,30 @@
 # Changelog
 
-## v0.2.4 (2022-01-13)
+## Unreleased (2022-01-23)
 
-Contains minor fixes and a feature update to `NetworkRandomSampler`.
+Full set of changes:
+[`v0.2.4...c9f00b0`](https://github.com/nialov/fractopo/compare/v0.2.4...c9f00b0)
+
+## v0.2.4 (2022-01-13)
 
 ### New Features
 
--   (random_sampling): Allow not determining topology
-    when performing random sampling using `NetworkRandomSampler`.
+-   (random_sampling): allow not determining topo
 
 ### Fixes
 
--   (tval): Handle `TypeError` from `shapely.ops.split` in
-    `split_to_determine_triangle_errors` by checking for the intersection
-    between traces.
+-   (tval): handle TypeError from split
 
--   (line_data): Refrain from using line_gdf in operations
-    as it might not contain up-to-date columns. Use `line_data`
-    attributes instead.
+-   (line_data): refrain from using line_gdf
 
--   (noxfile): Setup sphinx-autobuild session for automatic
-    creation of documentations as source files change.
+-   (noxfile): setup sphinx-autobuild session
 
 Full set of changes:
 [`v0.2.3...v0.2.4`](https://github.com/nialov/fractopo/compare/v0.2.3...v0.2.4)
 
 ## v0.2.3 (2021-12-04)
 
-#### Fixes
+### Fixes
 
 -   (parameters): fix pie plot function
 
@@ -44,13 +41,13 @@ Full set of changes:
 
 ## v0.2.2 (2021-11-12)
 
-#### New Features
+### New Features
 
 -   (multi_network): add multi-scale length fit
 
 -   (analysis): implement multiple fitters
 
-#### Fixes
+### Fixes
 
 -   (cli): finalize nialog implement
 
@@ -71,7 +68,7 @@ Full set of changes:
 
 ## v0.2.1 (2021-09-22)
 
-#### Fixes
+### Fixes
 
 -   (cli): fix fractopo network entrypoint
 
@@ -80,13 +77,13 @@ Full set of changes:
 
 ## v0.2.0 (2021-09-20)
 
-#### New Features
+### New Features
 
 -   (analysis): implement multiscale fit
 
 -   implement network-cli
 
-#### Fixes
+### Fixes
 
 -   (analysis): handle mapped radii values
 
@@ -106,11 +103,11 @@ Full set of changes:
 
 ## v0.1.3 (2021-08-24)
 
-#### New Features
+### New Features
 
 -   add network cli entrypoint
 
-#### Fixes
+### Fixes
 
 -   handle multipolygon geometries in efficient_clip
 
@@ -131,7 +128,7 @@ Full set of changes:
 
 ## v0.1.0 (2021-07-29)
 
-#### New Features
+### New Features
 
 -   add heatmap plotting and refactor xyi plotting
 
@@ -143,7 +140,7 @@ Full set of changes:
 
 -   add plot_contour to network
 
-#### Fixes
+### Fixes
 
 -   minor fixes to mypy found issues
 
@@ -193,7 +190,7 @@ Full set of changes:
 
 -   handle empty node case
 
-#### Performance improvements
+### Performance improvements
 
 -   speed up clipping with pygeos clip implement
 
