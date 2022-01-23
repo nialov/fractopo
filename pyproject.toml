@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.2.4.post10.dev0+c9f00b0"
+version = "0.2.4.post12.dev0+2d647b2"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -48,8 +48,8 @@ scikit-learn = "*"
 seaborn = "*"
 matplotlib = "*"
 click = "*"
-rich = "^10.7.0"
-typer = "^0.3.2"
+rich = "^11.0.0"
+typer = "^0.4.0"
 # Logging
 nialog = {version = "^0.0.2", optional = true}
 
