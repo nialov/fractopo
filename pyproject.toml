@@ -48,7 +48,6 @@ scikit-learn = "*"
 seaborn = "*"
 matplotlib = "*"
 click = "*"
-descartes = "*"
 rich = "^10.7.0"
 typer = "^0.3.2"
 # Logging
