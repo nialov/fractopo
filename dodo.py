@@ -85,7 +85,7 @@ def task_requirements():
     """
     command = "nox --session requirements"
     return {
-        FILE_DEP: [POETRY_LOCK_PATH, PYPROJECT_PATH, NOXFILE_PATH, DODO_PATH],
+        FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
         ACTIONS: [command],
         TARGETS: [DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH],
     }
@@ -182,7 +182,6 @@ def task_ci_test():
                 *PYTHON_SRC_FILES,
                 *PYTHON_TEST_FILES,
                 DEV_REQUIREMENTS_PATH,
-                PYPROJECT_PATH,
                 DODO_PATH,
             ],
             TASK_DEP: [resolve_task_name(task_format)],
@@ -314,7 +313,6 @@ def task_citation():
         ACTIONS: [command],
         FILE_DEP: [
             *PYTHON_SRC_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,
@@ -332,7 +330,6 @@ def task_changelog():
         ACTIONS: [command],
         FILE_DEP: [
             *PYTHON_SRC_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,
@@ -350,7 +347,6 @@ def task_codespell():
         ACTIONS: [command],
         FILE_DEP: [
             *PYTHON_ALL_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,
