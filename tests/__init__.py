@@ -364,9 +364,10 @@ class Helpers:
     area_1 = Polygon([(0, 0), (1, 1), (1, 0)])
     area_frame = gpd.GeoDataFrame({"geometry": [area_1]})
 
-    sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
-    sample_branch_data = Path("tests/sample_data/KB11_branches.shp")
-    sample_area_data = Path("tests/sample_data/KB11_area.shp")
+    # sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
+    sample_trace_data = Path("tests/sample_data/KB11/KB11_traces.geojson")
+    # sample_area_data = Path("tests/sample_data/KB11_area.shp")
+    sample_area_data = Path("tests/sample_data/KB11/KB11_area.geojson")
     kb11_traces = read_geofile(sample_trace_data)
     kb11_area = read_geofile(sample_area_data)
 
@@ -1283,6 +1284,7 @@ class Helpers:
             kb11_traces,  # traces
             kb11_area,  # areas
             0.001,  # snap_threshold
+            "kb11_traces",
         ),
     ]
 

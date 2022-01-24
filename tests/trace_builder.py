@@ -1,7 +1,5 @@
 """
-Utility for trace validation.
-
-TODO: Deprecated.
+Test cases for trace validation.
 """
 from pathlib import Path
 from typing import List

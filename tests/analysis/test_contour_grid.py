@@ -87,12 +87,17 @@ def test_sample_grid(snap_threshold: float):
 
 
 @pytest.mark.parametrize(
-    "traces,areas,snap_threshold", Helpers.test_network_contour_grid_params
+    "traces,areas,snap_threshold,name", Helpers.test_network_contour_grid_params
 )
-def test_network_contour_grid(traces, areas, snap_threshold, dataframe_regression):
+def test_network_contour_grid(
+    traces, areas, snap_threshold, name, dataframe_regression
+):
     """
     Test contour_grid with network determined b and n.
     """
+    assert isinstance(name, str)
+    assert isinstance(traces, gpd.GeoDataFrame)
+    assert isinstance(areas, gpd.GeoDataFrame)
     traces = traces.iloc[0:150]
     network = Network(
         trace_gdf=traces,
@@ -101,6 +106,7 @@ def test_network_contour_grid(traces, areas, snap_threshold, dataframe_regressio
         snap_threshold=snap_threshold,
         truncate_traces=True,
         circular_target_area=False,
+        name=name,
     )
     sampled_grid = network.contour_grid()
     fig, ax = network.plot_contour(
