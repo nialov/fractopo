@@ -1,8 +1,11 @@
 # Changelog
 
-## v0.2.5 (2022-01-23)
+## Unreleased (2022-01-25)
 
-Small update to clean up and update dependencies in pyproject.toml.
+Full set of changes:
+[`v0.2.5...65e16c6`](https://github.com/nialov/fractopo/compare/v0.2.5...65e16c6)
+
+## v0.2.5 (2022-01-23)
 
 Full set of changes:
 [`v0.2.4...v0.2.5`](https://github.com/nialov/fractopo/compare/v0.2.4...v0.2.5)
