@@ -69,6 +69,11 @@ def execute_notebook(session, notebook: Path):
         "nbstripout",
         str(notebook),
     )
+    # Strip output
+    session.run(
+        "nbstripout",
+        str(notebook),
+    )
 
 
 def install_dev(session, extras: str = ""):
@@ -375,7 +380,7 @@ def _docs(session, auto_build: bool):
                     "--open-browser",
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
                     "--watch=README.rst",
-                    "--watch=fractopo/",
+                    f"--watch={PACKAGE_NAME}/",
                     "--watch=examples/",
                 ]
                 if auto_build

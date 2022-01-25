@@ -103,7 +103,6 @@ def task_pre_commit():
         ],
         FILE_DEP: [
             *PYTHON_ALL_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             PRE_COMMIT_CONFIG_PATH,
             DODO_PATH,
@@ -157,7 +156,6 @@ def task_update_version():
     return {
         FILE_DEP: [
             *PYTHON_SRC_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,
@@ -244,7 +242,6 @@ def task_build():
         ACTIONS: [command],
         FILE_DEP: [
             *PYTHON_SRC_FILES,
-            PYPROJECT_PATH,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,

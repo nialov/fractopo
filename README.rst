@@ -214,25 +214,39 @@ Development dependencies for ``fractopo`` include:
 
 -  ``poetry``
 
+   -  Used to handle Python package dependencies.
+
    .. code:: bash
 
       # Use poetry run to execute poetry installed cli tools such as invoke,
       # nox and pytest.
       poetry run <cmd>
 
-   -  Used to handle Python package dependencies.
 
--  ``invoke``
+-  ``doit``
 
-   -  Will be replaced by ``doit``
+   -  A general task executor that is a replacement for a ``Makefile``
+   -  Understands task dependencies and can run tasks in parallel
+      even while running them in the order determined from dependencies
+      between tasks. E.g. requirements.txt is a requirement for running
+      tests and therefore the task creating requirements.txt will always
+      run before the test task.
 
    .. code:: bash
 
-      # To list invoke tasks (replaces Makefile)
-      # Tasks are defined in tasks.py
-      poetry run invoke --list
+      # Tasks are defined in dodo.py
+      # To list doit tasks from command line
+      poetry run doit list
+      # To run all tasks in parallel (recommended before pushing and/or
+      # committing)
+      # 8 is the number of cpu cores, change as wanted
+      # -v 0 sets verbosity to very low. (Errors will always still be printed.)
+      poetry run doit -n 8 -v 0
 
 -  ``nox``
+
+   -  ``nox`` is a replacement for ``tox``. Both are made to create
+      reproducible Python environments for testing, making docs locally, etc.
 
    .. code:: bash
 
@@ -240,15 +254,7 @@ Development dependencies for ``fractopo`` include:
       # Sessions are defined in noxfile.py
       poetry run nox --list
 
-   -  ``nox`` is a replacement for ``tox``. Both are made to create
-      reproducible Python environments for testing, making docs locally, etc.
-
 -  ``copier``
-
-   .. code:: bash
-
-      # To pull copier update from github/nialov/nialov-py-template
-      poetry run copier update
 
    -  ``copier`` is a project templater. Many Python projects follow a similar
       framework for testing, creating documentations and overall placement of
@@ -257,7 +263,20 @@ Development dependencies for ``fractopo`` include:
       cloned as the framework for your own package and secondly to pull updates
       from the template to your already started project.
 
+   .. code:: bash
+
+      # To pull copier update from github/nialov/nialov-py-template
+      poetry run copier update
+
+
 -  ``pytest``
+
+   -  ``pytest`` is a Python test runner. It is used to run defined tests to
+      check that the package executes as expected. The defined tests in
+      ``./tests`` contain many regression tests (done with
+      ``pytest-regressions``) that make it almost impossible
+      to add features to ``fractopo`` that changes the results of functions
+      and methods.
 
    .. code:: bash
 
@@ -265,7 +284,6 @@ Development dependencies for ``fractopo`` include:
       # within project itself:
       poetry run pytest
 
-   -  ``pytest`` is a Python test runner.
 
 -  ``coverage``
 
@@ -275,9 +293,9 @@ Development dependencies for ``fractopo`` include:
       # (Implemented as nox session!)
       poetry run nox --session test_pip
 
-   -  ``pytest`` is a Python test runner.
-
 -  ``sphinx``
+
+   -  Creates documentation from files in ``./docs_src``.
 
    .. code:: bash
 
@@ -287,7 +305,13 @@ Development dependencies for ``fractopo`` include:
 
 Big thanks to all maintainers of the above packages!
 
+License
+~~~~~~~
+
+Copyright © 2020, Nikolas Ovaskainen.
+
 -----
+
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest

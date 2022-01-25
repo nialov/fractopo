@@ -1,5 +1,5 @@
 {
-  description = "fractopo development environment";
+  description = "nix declared development environment";
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-21.11";
