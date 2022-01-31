@@ -13,6 +13,7 @@
         mkShell rec {
           buildInputs = [
             poetry
+            python37
             python38
             python39
             pre-commit
