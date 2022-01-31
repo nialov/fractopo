@@ -130,7 +130,7 @@ def split_to_determine_triangle_errors(
         segments = split(trace, splitter_trace)
     except (ValueError, TypeError):
         trace_intersection = trace.intersection(splitter_trace)
-        logging.error(
+        logging.info(
             "Failed to split trace with splitter_trace.",
             extra=dict(
                 trace=trace.wkt,
