@@ -50,6 +50,7 @@ from fractopo.tval.trace_validators import (
 )
 from tests import trace_builder
 from tests.sample_data.py_samples.samples import (
+    results_in_false_pos_stacked_traces_list,
     results_in_false_positive_stacked_traces_list,
     results_in_false_positive_underlapping_ls,
     results_in_multijunction_why_ls_list,
@@ -1404,6 +1405,7 @@ class ValidationHelpers:
 
     known_non_stacked_gdfs = [
         gpd.GeoDataFrame(geometry=results_in_false_positive_stacked_traces_list),
+        gpd.GeoDataFrame(geometry=results_in_false_pos_stacked_traces_list),
         Helpers.kb10_unfit_traces,
     ]
 

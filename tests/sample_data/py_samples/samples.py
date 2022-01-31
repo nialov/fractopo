@@ -86,12 +86,19 @@ results_in_false_positive_stacked_traces_wkts = load_from_txt(
 results_in_false_positive_stacked_traces_list = [
     list(loads(mls).geoms)[0] for mls in results_in_false_positive_stacked_traces_wkts
 ]
+# Error is caused by split causing a TypeError
+# Looks like it occurs where there is an exact point for both
+# linestrings at the intersection point (Y-node).
+results_in_false_pos_stacked_traces = load_from_txt(
+    "results_in_false_pos_stacked_traces"
+)
+
+results_in_false_pos_stacked_traces_list = [
+    loads(ls) for ls in results_in_false_pos_stacked_traces
+]
 
 assert all(
-    [
-        isinstance(val, LineString)
-        for val in results_in_false_positive_stacked_traces_list
-    ]
+    isinstance(val, LineString) for val in results_in_false_positive_stacked_traces_list
 )
 
 
