@@ -166,3 +166,4 @@ KB11_area_outputs
 docs_src/auto_examples/
 .doit.db
 .direnv
+.envrc
