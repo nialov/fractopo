@@ -22,10 +22,11 @@
             cacert
             stdenv
             pastel
+            zlib
           ];
 
           # Required for building C extensions
-          LD_LIBRARY_PATH = "${stdenv.cc.cc.lib}/lib";
+          LD_LIBRARY_PATH = "${stdenv.cc.cc.lib}/lib:${zlib}/lib";
           # Certificates for secure connections for e.g. pip downloads
           GIT_SSL_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
           SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
