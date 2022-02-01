@@ -4,13 +4,12 @@ MultiNetwork implementation for handling multiple network analysis.
 
 from typing import Dict, List, NamedTuple, Tuple, Union
 
-from fractopo.analysis import length_distributions, subsampling
+from fractopo.analysis import length_distributions, parameters, subsampling
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import RandomChoice
 from fractopo.general import ProcessResult
 
 
-# @dataclass
 class MultiNetwork(NamedTuple):
 
     """
@@ -94,3 +93,31 @@ class MultiNetwork(NamedTuple):
         fig, ax = multi_distribution.plot_multi_length_distributions()
 
         return fig, ax
+
+    def plot_xyi(
+        self,
+    ):
+        """
+        Plot multi-network ternary XYI plot.
+        """
+        node_counts_list = [network.node_counts for network in self.networks]
+        labels = [network.name for network in self.networks]
+        return parameters.plot_ternary_plot(
+            counts_list=node_counts_list,
+            labels=labels,
+            is_nodes=True,
+        )
+
+    def plot_branch(
+        self,
+    ):
+        """
+        Plot multi-network ternary branch type plot.
+        """
+        branch_counts_list = [network.branch_counts for network in self.networks]
+        labels = [network.name for network in self.networks]
+        return parameters.plot_ternary_plot(
+            counts_list=branch_counts_list,
+            labels=labels,
+            is_nodes=False,
+        )
