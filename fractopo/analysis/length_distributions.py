@@ -419,8 +419,10 @@ def plot_distribution_fits(
     if fit is None:
         # Determine powerlaw, exponential, lognormal fits
         fit = determine_fit(length_array, cut_off)
+
     # Create figure, ax
     fig, ax = plt.subplots(figsize=(7, 7))
+
     # Get the x, y data from fit
     truncated_length_array, ccm_array = fit.ccdf()
     full_length_array, full_ccm_array = fit.ccdf(original_data=True)
@@ -435,9 +437,11 @@ def plot_distribution_fits(
     plot_length_data_on_ax(
         ax, full_length_array, full_ccm_array, label, truncated=False
     )
+
     # Plot the actual fits (powerlaw, exp...)
     for fit_distribution in (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW):
         plot_fit_on_ax(ax, fit, fit_distribution)
+
     # Setup of ax appearance and axlims
     setup_ax_for_ld(ax, using_branches=False)
     _setup_length_plot_axlims(
@@ -489,7 +493,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
         fontsize="xx-large",
         fontfamily="DejaVu Sans",
         style="italic",
-        labelpad=16,
+        labelpad=14,
     )
     # Individual powerlaw fits are not normalized to area because they aren't
     # multiscale
@@ -510,12 +514,14 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     lgnd = plt.legend(
         handles,
         labels,
-        loc="upper center",
-        bbox_to_anchor=(1.37, 1.02),
+        loc="upper right",
+        # bbox_to_anchor=(1.37, 1.02),
         ncol=2,
         columnspacing=0.3,
-        shadow=True,
-        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "large"},
+        # shadow=True,
+        # prop={"family": "DejaVu Sans", "weight": "heavy", "size": "large"},
+        framealpha=0.8,
+        facecolor="white",
     )
     for lh in lgnd.legendHandles:
         # lh._sizes = [750]

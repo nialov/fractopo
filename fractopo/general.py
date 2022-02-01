@@ -1762,14 +1762,18 @@ def silent_output(name: str):
 
     # Report stdout and stderr to logging.info
     finally:
-        logging.info(
-            "silent_output output stdout and stderr.",
-            extra=dict(
-                func_name=name,
-                stdout=tmp_io_stdout.getvalue(),
-                stderr=tmp_io_stderr.getvalue(),
-            ),
-        )
+        tmp_io_stdout_value = tmp_io_stdout.getvalue()
+        tmp_io_stderr_value = tmp_io_stderr.getvalue()
+        # Do not log without output
+        if len(tmp_io_stdout_value) + len(tmp_io_stderr_value) > 5:
+            logging.info(
+                "silent_output output stdout and stderr.",
+                extra=dict(
+                    func_name=name,
+                    stdout=tmp_io_stdout_value,
+                    stderr=tmp_io_stderr_value,
+                ),
+            )
 
 
 def wrap_silence(func):
