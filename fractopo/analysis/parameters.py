@@ -69,11 +69,30 @@ def determine_branch_type_counts(
     }
 
 
-def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, int]):
+def ternary_text(text: str, ax: Axes):
+    """
+    Add ternary text about counts.
+    """
+    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
+    ax.text(
+        0.85,
+        1.05,
+        text,
+        transform=ax.transAxes,
+        fontsize="medium",
+        weight="roman",
+        verticalalignment="top",
+        bbox=prop,
+        fontfamily="DejaVu Sans",
+        ha="center",
+    )
+
+
+def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, counts: Dict[str, int]):
     """
     Decorate xyi plot.
     """
-    xcount, ycount, icount = _get_xyi_counts(node_counts)
+    xcount, ycount, icount = _get_xyi_counts(counts)
     text = "\n".join(
         (
             f"n: {xcount+ycount+icount}",
@@ -84,6 +103,22 @@ def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, node_counts: Dict[str, in
     )
     initialize_ternary_points(ax, tax)
     tern_plot_the_fing_lines(tax)
+    ternary_text(ax=ax, text=text)
+
+
+def decorate_count_ax(
+    ax: Axes, tax: TernaryAxesSubplot, label_counts: Dict[str, int], is_nodes: bool
+):
+    """
+    Decorate ternary count plot.
+    """
+    text = "\n".join([f"{label}={value}" for label, value in label_counts.items()])
+    if is_nodes:
+        initialize_ternary_points(ax=ax, tax=tax)
+        tern_plot_the_fing_lines(tax)
+    else:
+        initialize_ternary_branches_points(ax=ax, tax=tax)
+        tern_plot_branch_lines(tax=tax)
     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     ax.text(
         0.85,
@@ -106,43 +141,81 @@ def branches_intersect_boundary(branch_types: np.ndarray) -> np.ndarray:
     return ~np.isin(branch_types, (CC_branch, CI_branch, II_branch))
 
 
-def plot_xyi_plot(
-    node_counts_list: List[Dict[str, int]],
+def plot_ternary_plot(
+    counts_list: List[Dict[str, int]],
     labels: List[str],
+    is_nodes: bool,
     colors: Optional[List[Optional[str]]] = None,
 ) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
     """
-    Plot ternary XYI-plot.
+    Plot ternary plot.
 
-    By default accepts a list of node_types -arrays but a list with
-    a single node_types -array is accepted i.e. a single XYI-value is easily
-    plotted.
+    Same function is used to plot both XYI and branch type ternary plots.
     """
+    # Check if plotting xyi or branches
+    # Set plotter and decorator functions accordingly
+    if is_nodes:
+        plotter = plot_xyi_plot_ax
+        decorator = decorate_xyi_ax
+    else:
+        plotter = plot_branch_plot_ax
+        decorator = decorate_branch_ax
+
+    # Check if only one label is given
     one_label = len(labels) == 1
+
+    # Check if colors are given and if they are, check that there are enough
+    # for all ternary points
     if colors is None:
-        colors = [None for _ in node_counts_list]
-    elif len(colors) != len(node_counts_list):
+        colors = [None for _ in counts_list]
+    elif len(colors) != len(counts_list):
         raise ValueError(
             f"Expected colors (len={len(colors)}) to be of"
-            f" same size as node_counts_list (len={len(node_counts_list)})."
+            f" same size as node_counts_list (len={len(counts_list)})."
         )
+
+    # Scale in the plots is 100
     scale = 100
+
+    # Initialize ternary plot
     fig, ax = plt.subplots(figsize=(6.5, 5.1))
     fig, tax = ternary.figure(ax=ax, scale=scale)
-    if len(node_counts_list) == 1:
-        plot_xyi_plot_ax(
-            node_counts=node_counts_list[0], label=labels[0], tax=tax, color=colors[0]
-        )
-        decorate_xyi_ax(ax, tax, node_counts=node_counts_list[0])
+
+    # If only one set of counts is give, we are only plotting a single ternary
+    # point
+    if len(counts_list) == 1:
+
+        # Call plotter with single point
+        plotter(counts=counts_list[0], label=labels[0], tax=tax, color=colors[0])
+
+        # Decorate plot
+        decorator(ax, tax, counts=counts_list[0])
     else:
+
+        # Gather points from tuples of counts
         points = [
-            node_counts_to_point(node_count, scale=100)
-            for node_count in node_counts_list
+            counts_to_point(counts=count, scale=100, is_nodes=is_nodes)
+            for count in counts_list
         ]
+
+        if one_label:
+
+            counts_sum = sum([sum(count.values()) for count in counts_list])
+            label_counts = {"n": counts_sum}
+        else:
+            label_counts = {
+                label: sum(count.values()) for label, count in zip(labels, counts_list)
+            }
+        decorate_count_ax(ax=ax, tax=tax, label_counts=label_counts, is_nodes=is_nodes)
+
+        # Create boolean list of if point is not None
         points_is_not_none = [point is not None for point in points]
+
+        # Remove None-points
         points = list(compress(points, points_is_not_none))
 
         if one_label:
+            # Only one label for all points is given
             tax.scatter(
                 points,
                 label=labels[0],
@@ -150,13 +223,25 @@ def plot_xyi_plot(
                 **ternary_point_kwargs(),
             )
         else:
+            # Multiple labels are given
             labels = list(compress(labels, points_is_not_none))
             colors = list(compress(colors, points_is_not_none))
             assert len(points) == len(labels)
             assert len(points) == len(colors)
             for point, label, color in zip(points, labels, colors):
+                # Plot individually while giving unique label for each
                 tax.scatter([point], label=label, color=color, **ternary_point_kwargs())
+    tax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.15),
+        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
+        edgecolor="black",
+        ncol=2,
+        columnspacing=0.7,
+        shadow=True,
+    )
 
+    # Return Figure, Axes and TernaryAxesSubplot
     return fig, ax, tax
 
 
@@ -196,41 +281,32 @@ def ternary_heatmapping(
     return fig, tax
 
 
-def node_counts_to_point(
-    node_counts: Dict[str, int], scale: int = 100
+def counts_to_point(
+    counts: Dict[str, int], is_nodes: bool, scale: int = 100
 ) -> Optional[Tuple[float, float, float]]:
     """
     Create ternary point from node_counts.
 
-    The order is important (x, i, y).
+    The order is important:
+
+      -  For nodes: X, I, Y.
+      -  For branches: CC, II, CI.
     """
-    xcount, ycount, icount = _get_xyi_counts(node_counts)
-    sumcount = xcount + ycount + icount
+    if is_nodes:
+        # xcount, ycount, icount = _get_xyi_counts(node_counts)
+        point_counts = _get_xyi_counts(counts)
+    else:
+        # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
+        point_counts = _get_branch_class_counts(counts)
+
+    sumcount = sum(point_counts)
     if sumcount == 0 or np.isclose(sumcount, 0.0):
         return None
-    xp = scale * xcount / sumcount
-    yp = scale * ycount / sumcount
-    ip = scale * icount / sumcount
-    point = (xp, ip, yp)
-    return point
-
-
-def branch_counts_to_point(branch_counts: Dict[str, int]):
-    """
-    Create ternary point from branch_counts.
-
-    The order is important (cc, ii, ci)
-    """
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
-    sumcount = cc_count + ci_count + ii_count
-    if sumcount == 0:
-        return None
-    ccp = 100 * cc_count / sumcount
-    cip = 100 * ci_count / sumcount
-    iip = 100 * ii_count / sumcount
-
-    point = [(ccp, iip, cip)]
-    return point
+    # NOTE: Order is switched to get right order in output.
+    first = scale * point_counts[0] / sumcount
+    second = scale * point_counts[2] / sumcount
+    third = scale * point_counts[1] / sumcount
+    return (first, second, third)
 
 
 def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
@@ -254,7 +330,7 @@ def _get_branch_class_counts(branch_counts: Dict[str, int]) -> Tuple[int, int, i
 
 
 def plot_xyi_plot_ax(
-    node_counts: Dict[str, int],
+    counts: Dict[str, int],
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
@@ -265,7 +341,7 @@ def plot_xyi_plot_ax(
     if color is None:
         color = "black"
     # xcount, ycount, icount = _get_xyi_counts(node_counts)
-    point = node_counts_to_point(node_counts, scale=100)
+    point = counts_to_point(counts, scale=100, is_nodes=True)
     if point is not None:
         # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
         tax.scatter(
@@ -279,60 +355,6 @@ def plot_xyi_plot_ax(
         ncol=2,
         columnspacing=0.7,
         shadow=True,
-    )
-
-
-def plot_branch_plot(
-    branch_counts_list: List[Dict[str, int]],
-    labels: List[str],
-    colors: Optional[List[Optional[str]]] = None,
-) -> Tuple[Figure, Axes, TernaryAxesSubplot]:
-    """
-    Plot a branch classification ternary plot to a new ternary figure.
-
-    Single point in each figure.
-    """
-    if colors is None:
-        colors = [None for _ in branch_counts_list]
-    scale = 100
-    fig, ax = plt.subplots(figsize=(6.5, 5.1))
-    fig, tax = ternary.figure(ax=ax, scale=scale)
-    plot_branch_plot_ax(
-        branch_counts=branch_counts_list[0], label=labels[0], tax=tax, color=colors[0]
-    )
-    decorate_branch_ax(ax=ax, tax=tax, branch_counts=branch_counts_list[0])
-    if len(branch_counts_list) > 1:
-        for branch_counts, label, _ in zip(
-            branch_counts_list[1:], labels[1:], colors[1:]
-        ):
-            point = branch_counts_to_point(branch_counts)
-            if point is None:
-                continue
-            tax.scatter(point, **ternary_point_kwargs(marker="o"), label=label)
-            # plot_ternary_point(point=point, marker="o", label=label, tax=tax)
-
-    return fig, ax, tax
-
-
-def plot_ternary_point(
-    points: List[Tuple[float, float, float]],
-    marker: str,
-    label: str,
-    tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
-    color: Optional[str] = "black",
-    s: float = 25,
-):
-    """
-    Plot point to a ternary figure.
-    """
-    tax.scatter(
-        points,
-        marker=marker,
-        label=label,
-        alpha=1,
-        zorder=4,
-        s=s,
-        color=color,
     )
 
 
@@ -354,7 +376,7 @@ def ternary_point_kwargs(
 
 
 def plot_branch_plot_ax(
-    branch_counts: Dict[str, int],
+    counts: Dict[str, int],
     label: str,
     tax: ternary.ternary_axes_subplot.TernaryAxesSubplot,
     color: Optional[str] = None,
@@ -365,11 +387,19 @@ def plot_branch_plot_ax(
     if color is None:
         color = "black"
     # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
-    point = branch_counts_to_point(branch_counts)
+    point = counts_to_point(counts, is_nodes=False)
     if point is not None:
-        tax.scatter(
-            points=point, **ternary_point_kwargs(marker="o"), label=label, color=color
-        )
+        try:
+            tax.scatter(
+                points=[point],
+                **ternary_point_kwargs(marker="o"),
+                label=label,
+                color=color,
+            )
+        except Exception:
+            import IPython
+
+            IPython.embed()
         # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
     tax.legend(
         loc="upper center",
@@ -386,47 +416,50 @@ def decorate_branch_ax(
     ax: Axes,
     tax: TernaryAxesSubplot,
     # label: str,
-    branch_counts: Dict[str, int],
+    counts: Dict[str, int],
 ):
     """
     Decorate ternary branch plot.
     """
-    cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
-    text = (
-        f"n: {cc_count+ci_count+ii_count}\n"
-        f"CC-branches: {cc_count}\n"
-        f"CI-branches: {ci_count}\n"
-        f"II-branches: {ii_count}\n"
+    cc_count, ci_count, ii_count = _get_branch_class_counts(counts)
+    text = "\n".join(
+        (
+            f"n: {cc_count+ci_count+ii_count}",
+            f"CC-branches: {cc_count}",
+            f"CI-branches: {ci_count}",
+            f"II-branches: {ii_count}",
+        )
     )
-    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
-    ax.text(
-        0.86,
-        1.05,
-        text,
-        transform=ax.transAxes,
-        fontsize="medium",
-        weight="roman",
-        verticalalignment="top",
-        bbox=prop,
-        fontfamily="DejaVu Sans",
-        ha="center",
-    )
+    # prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
+    # ax.text(
+    #     0.86,
+    #     1.05,
+    #     text,
+    #     transform=ax.transAxes,
+    #     fontsize="medium",
+    #     weight="roman",
+    #     verticalalignment="top",
+    #     bbox=prop,
+    #     fontfamily="DejaVu Sans",
+    #     ha="center",
+    # )
     initialize_ternary_branches_points(ax, tax)
     tern_plot_branch_lines(tax)
-    tax.legend(
-        loc="upper center",
-        bbox_to_anchor=(0.1, 1.05),
-        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
-        edgecolor="black",
-        ncol=2,
-        columnspacing=0.7,
-        shadow=True,
-    )
+    ternary_text(ax=ax, text=text)
+    # tax.legend(
+    #     loc="upper center",
+    #     bbox_to_anchor=(0.1, 1.05),
+    #     prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
+    #     edgecolor="black",
+    #     ncol=2,
+    #     columnspacing=0.7,
+    #     shadow=True,
+    # )
 
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    node_counts: Dict[str, Number],
+    node_counts: Dict[str, int],
     area: float,
     branches_defined: bool = True,
     correct_mauldon: bool = True,
@@ -463,8 +496,6 @@ def determine_topology_parameters(
 
         return all_params_without_topo
 
-    if any(np.isnan(list(node_counts.values()))):
-        raise ValueError(f"Expected no nan in node_counts: {node_counts}")
     assert isinstance(trace_length_array, np.ndarray)
     assert isinstance(node_counts, dict)
     assert isinstance(area, float)
@@ -690,46 +721,25 @@ def plot_set_count(
     return fig, ax
 
 
-def initialize_ternary_points(ax, tax):
+def initialize_ternary_points(ax: Axes, tax: TernaryAxesSubplot):
     """
     Initialize ternary points figure ax and tax.
     """
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    ax.set_frame_on(False)
-    tax.boundary(linewidth=1.5)
-    tax.gridlines(linewidth=0.1, multiple=20, color="grey", alpha=0.6)
-    tax.ticks(
-        axis="lbr",
-        linewidth=1,
-        multiple=20,
-        offset=0.035,
-        tick_formats="%d%%",
-        fontsize="small",
-    )
-    tax.clear_matplotlib_ticks()
-    tax.get_axes().axis("off")
-    fontsize = 25
-    fdict = {
-        "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
-        "color": "white",
-        "family": "DejaVu Sans",
-        "size": fontsize,
-        "weight": "bold",
-    }
+    fdict = initialize_ternary_ax(ax=ax, tax=tax)
     ax.text(-0.1, -0.03, "Y", transform=ax.transAxes, fontdict=fdict)
     ax.text(1.03, -0.03, "X", transform=ax.transAxes, fontdict=fdict)
     ax.text(0.5, 1.07, "I", transform=ax.transAxes, fontdict=fdict, ha="center")
 
 
-def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
+def tern_plot_the_fing_lines(tax: TernaryAxesSubplot, cs_locs=(1.3, 1.5, 1.7, 1.9)):
     """
     Plot *connections per branch* parameter to XYI-plot.
 
-    :param tax: Ternary axis to plot to
-    :type tax: ternary.TernaryAxesSubplot
-    :param cs_locs: Pre-determined locations for lines
-    :type cs_locs: tuple
+    If not using the pre-determined locations the texts will not be correctly
+    placed as they use absolute positions and labels.
+
+    :param tax: Ternary axis to plot to.
+    :param cs_locs: Pre-determined locations for the lines.
     """
 
     def tern_find_last_x(c, x_start=0):
@@ -756,11 +766,11 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
         tax.line(
             point1,
             point2,
-            alpha=0.4,
+            alpha=0.6,
             color="k",
             zorder=-5,
             linestyle="dashed",
-            linewidth=0.5,
+            linewidth=0.75,
         )
         ax = plt.gca()
         rot = 6.5
@@ -778,15 +788,26 @@ def tern_plot_the_fing_lines(tax, cs_locs=(1.3, 1.5, 1.7, 1.9)):
         ax.text(x=76, y=17, s=r"$C_B = 1.9$", fontsize=10, rotation=rot2, ha="center")
 
 
-def initialize_ternary_branches_points(ax, tax):
+def initialize_ternary_ax(ax: Axes, tax: TernaryAxesSubplot) -> dict:
     """
-    Initialize ternary branches plot ax and tax.
+    Decorate ternary ax for both XYI and branch types.
+
+    Returns a font dict for use in plotting text.
     """
+    # Remove normal matplotlib axes
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+
+    # Remove frame
     ax.set_frame_on(False)
+
+    # Set ternary boundary
     tax.boundary(linewidth=1.5)
-    tax.gridlines(linewidth=0.9, multiple=20, color="black", alpha=0.6)
+
+    # Add gridlines in the tax
+    tax.gridlines(linewidth=0.15, multiple=20, color="black", alpha=0.6, zorder=-100)
+
+    # Add ticks
     tax.ticks(
         axis="lbr",
         linewidth=0.9,
@@ -796,8 +817,14 @@ def initialize_ternary_branches_points(ax, tax):
         fontsize="small",
         alpha=0.6,
     )
+
+    # Clear the default matplotlib ticks
     tax.clear_matplotlib_ticks()
+
+    # Another check to remove matplotlib axes
     tax.get_axes().axis("off")
+
+    # Create font dict for use in plotting text
     fontsize = 20
     fdict = {
         "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
@@ -806,6 +833,14 @@ def initialize_ternary_branches_points(ax, tax):
         "size": fontsize,
         "weight": "bold",
     }
+    return fdict
+
+
+def initialize_ternary_branches_points(ax, tax):
+    """
+    Initialize ternary branches plot ax and tax.
+    """
+    fdict = initialize_ternary_ax(ax=ax, tax=tax)
     ax.text(-0.1, -0.06, "I - C", transform=ax.transAxes, fontdict=fdict)
     ax.text(1.0, -0.06, "C - C", transform=ax.transAxes, fontdict=fdict)
     ax.text(0.5, 1.07, "I - I", transform=ax.transAxes, fontdict=fdict, ha="center")
@@ -873,3 +908,21 @@ def tern_yi_func(c, x):
     y = (c + 3 * c * x) / (temp * temp3) - (4 * x) / (temp2 * temp3)
     i = 1 - x - y
     return x, i, y
+
+
+def convert_counts(counts: Dict[str, Number]) -> Dict[str, int]:
+    """
+    Convert float and int value in counts to ints only.
+
+    Used by branches and nodes count calculators.
+    """
+    if any(np.isnan(list(counts.values()))):
+        raise ValueError(f"Expected no nan in counts: {counts}")
+    counts_ints = {
+        key: int(value) for key, value in counts.items() if not np.isnan(value)
+    }
+    if len(counts_ints) != len(counts):
+        raise ValueError(f"Expected no nan in node_counts: {counts}")
+
+    assert all(isinstance(value, int) for value in counts_ints.values())
+    return counts_ints

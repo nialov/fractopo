@@ -24,12 +24,12 @@ from fractopo.analysis.contour_grid import run_grid_sampling
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
     branches_intersect_boundary,
+    convert_counts,
     determine_branch_type_counts,
     determine_node_type_counts,
     determine_topology_parameters,
-    plot_branch_plot,
     plot_parameters_plot,
-    plot_xyi_plot,
+    plot_ternary_plot,
 )
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
@@ -434,12 +434,14 @@ class Network:
         return node_class_series.to_numpy()
 
     @property
-    def node_counts(self) -> Dict[str, Number]:
+    def node_counts(self) -> Dict[str, int]:
         """
         Get node counts.
         """
-        return determine_node_type_counts(
-            self.node_types, branches_defined=self.topology_determined
+        return convert_counts(
+            determine_node_type_counts(
+                self.node_types, branches_defined=self.topology_determined
+            )
         )
 
     @property
@@ -456,12 +458,14 @@ class Network:
 
     @property
     @requires_topology
-    def branch_counts(self) -> Dict[str, Number]:
+    def branch_counts(self) -> Dict[str, int]:
         """
         Get branch counts.
         """
-        return determine_branch_type_counts(
-            self.branch_types, branches_defined=self.topology_determined
+        return convert_counts(
+            determine_branch_type_counts(
+                self.branch_types, branches_defined=self.topology_determined
+            )
         )
 
     @property
@@ -484,7 +488,7 @@ class Network:
         if self._parameters is None:
             self._parameters = determine_topology_parameters(
                 trace_length_array=self.trace_length_array_non_weighted,
-                node_counts=self.node_counts,  # type: ignore
+                node_counts=self.node_counts,
                 area=self.total_area,
                 branches_defined=self.topology_determined,
                 correct_mauldon=self.circular_target_area,
@@ -850,18 +854,9 @@ class Network:
         """
         if label is None:
             label = self.name
-        if self.node_counts is None:
-            raise AttributeError("Expected node_gdf to be defined for plot_xyi.")
-        if any(np.isnan(list(self.node_counts.values()))):
-            raise ValueError(f"Expected no nan in node_counts: {self.node_counts}")
-        node_counts_ints = {
-            key: int(value)
-            for key, value in self.node_counts.items()
-            if not np.isnan(value)
-        }
-        if len(node_counts_ints) != len(self.node_counts):
-            raise ValueError(f"Expected no nan in node_counts: {self.node_counts}")
-        return plot_xyi_plot(node_counts_list=[node_counts_ints], labels=[label])
+        return plot_ternary_plot(
+            counts_list=[self.node_counts], labels=[label], is_nodes=True
+        )
 
     @requires_topology
     def plot_branch(
@@ -872,16 +867,9 @@ class Network:
         """
         if label is None:
             label = self.name
-        if self.branch_counts is None:
-            raise AttributeError("Expected branch_gdf to be defined for plot_xyi.")
-        branch_counts_ints = {
-            key: int(value)
-            for key, value in self.branch_counts.items()
-            if not np.isnan(value)
-        }
-        if len(branch_counts_ints) != len(self.branch_counts):
-            raise ValueError(f"Expected no nan in branch_counts: {self.branch_counts}")
-        return plot_branch_plot(branch_counts_list=[branch_counts_ints], labels=[label])
+        return plot_ternary_plot(
+            counts_list=[self.branch_counts], labels=[label], is_nodes=False
+        )
 
     def plot_parameters(
         self, label: Optional[str] = None, color: Optional[str] = None
