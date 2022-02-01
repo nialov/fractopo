@@ -2,9 +2,13 @@
 Tests for multi_network.py.
 """
 
+import logging
+from pathlib import Path
+
 import pytest
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 import tests
 from fractopo import MultiNetwork, Network
@@ -45,13 +49,13 @@ def test_multinetwork_subsample(network_params, samples: int, min_radii: float):
 
 
 def multinetwork_plot_multi_length_distribution(
-    network_params, using_branches, cut_distributions
+    network_params, using_branches=False, cut_distributions=True
 ):
     """
     Create and test multi_network plot_multi_length_distribution.
     """
-    using_branches = False
-    cut_distributions = True
+    # using_branches = False
+    # cut_distributions = True
     networks = [
         Network(**kwargs, determine_branches_nodes=using_branches)
         for kwargs in network_params
@@ -106,3 +110,33 @@ def test_multinetwork_plot_multi_length_distribution_fast(
         using_branches=using_branches,
         cut_distributions=cut_distributions,
     )
+
+
+@pytest.mark.parametrize(
+    "network_params",
+    tests.test_multinetwork_plot_multi_length_distribution_fast_params(),
+)
+def test_multinetwork_plot_ternary(network_params, tmp_path):
+    """
+    Test MultiNetwork.plot_xyi and plot_branch.
+    """
+
+    networks = [
+        Network(**params, determine_branches_nodes=True) for params in network_params
+    ]
+
+    multi_network = MultiNetwork(tuple(networks))
+
+    for plot_func in ("plot_xyi", "plot_branch"):
+
+        fig, ax, tax = getattr(multi_network, plot_func)()
+
+        assert isinstance(fig, Figure)
+        assert isinstance(ax, Axes)
+        assert isinstance(tax, TernaryAxesSubplot)
+
+        tmp_path = Path(tmp_path)
+        tmp_path.mkdir(exist_ok=True)
+        plot_path = tmp_path / f"{plot_func}.png"
+        fig.savefig(plot_path, bbox_inches="tight")
+        logging.info(f"Saved {plot_func} plot to {plot_path.absolute()}.")

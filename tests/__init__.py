@@ -1803,26 +1803,27 @@ def test_multinetwork_plot_multi_length_distribution_slow_params():
     ]
 
 
+KB11_NETWORK_PARAMS = dict(
+    trace_gdf=Helpers.kb11_traces,
+    area_gdf=Helpers.kb11_area,
+    name="kb11",
+    circular_target_area=False,
+    snap_threshold=0.001,
+)
+KB7_NETWORK_PARAMS = dict(
+    trace_gdf=Helpers.kb7_traces,
+    area_gdf=Helpers.kb7_area,
+    name="kb7",
+    circular_target_area=False,
+    snap_threshold=0.001,
+)
+
+
 @lru_cache(maxsize=None)
 def test_multinetwork_plot_multi_length_distribution_fast_params():
     """
     Params for test_multinetwork_plot_multi_length_distribution_fast.
     """
     return [
-        [
-            dict(
-                trace_gdf=Helpers.kb11_traces,
-                area_gdf=Helpers.kb11_area,
-                name="kb11",
-                circular_target_area=False,
-                snap_threshold=0.001,
-            ),
-            dict(
-                trace_gdf=Helpers.kb7_traces,
-                area_gdf=Helpers.kb7_area,
-                name="kb7",
-                circular_target_area=False,
-                snap_threshold=0.001,
-            ),
-        ],
+        [KB11_NETWORK_PARAMS, KB7_NETWORK_PARAMS],
     ]

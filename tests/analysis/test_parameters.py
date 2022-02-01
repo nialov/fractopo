@@ -18,8 +18,8 @@ def test_plot_xyi_plot(node_counts_list, labels):
     """
     Test plotting xyi.
     """
-    fig, ax, tax = parameters.plot_xyi_plot(
-        node_counts_list=node_counts_list, labels=labels
+    fig, ax, tax = parameters.plot_ternary_plot(
+        counts_list=node_counts_list, labels=labels, is_nodes=True
     )
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
@@ -34,8 +34,8 @@ def test_plot_branch_plot(branch_counts_list, labels):
     """
     Test plotting branches.
     """
-    fig, ax, tax = parameters.plot_branch_plot(
-        branch_counts_list=branch_counts_list, labels=labels
+    fig, ax, tax = parameters.plot_ternary_plot(
+        counts_list=branch_counts_list, labels=labels, is_nodes=False
     )
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
