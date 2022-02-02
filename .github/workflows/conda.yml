@@ -12,21 +12,40 @@ on:
 jobs:
   conda-environment-install:
     name: Linux
-    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
+
+    runs-on: ${{ matrix.platform }}
     defaults:
       run:
         shell: bash -l {0}
     steps:
       - uses: actions/checkout@v2
+      - name: Cache conda
+        uses: actions/cache@v2
+        env:
+          # Increase this value to reset cache if etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key: ${{ matrix.platform }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('environment.yml') }}-${{
+            matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: fractopo
           environment-file: environment.yml
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
           auto-activate-base: false
+          # IMPORTANT: This needs to be set for caching to work properly!
+          use-only-tar-bz2: true
       - run: |
           conda info
           conda list
+          python --version
           python -c 'import fractopo'
           python -m fractopo --help
           pytest -v
