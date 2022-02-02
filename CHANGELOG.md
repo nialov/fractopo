@@ -11,7 +11,7 @@
 -   (analysis): add missing property decorator
 
 Full set of changes:
-[`v0.2.5...5dbabb0`](https://github.com/nialov/fractopo/compare/v0.2.5...5dbabb0)
+[`v0.2.5...711204e`](https://github.com/nialov/fractopo/compare/v0.2.5...711204e)
 
 ## v0.2.5 (2022-01-23)
 
