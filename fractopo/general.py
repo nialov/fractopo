@@ -345,8 +345,8 @@ def determine_regression_azimuth(line: LineString) -> float:
     45.0
 
     >>> line = LineString([(-1, -5), (3, 3)])
-    >>> determine_regression_azimuth(line)
-    26.565051177077994
+    >>> round(determine_regression_azimuth(line), 3)
+    26.565
 
     >>> line = LineString([(0, 0), (0, 3)])
     >>> determine_regression_azimuth(line)
