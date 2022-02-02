@@ -478,7 +478,7 @@ def sd_calc(data):
         if diff > 180:
             diff = 360 - diff
 
-        sd += diff ** 2
+        sd += diff**2
     sd = math.sqrt(sd / float(n - 1))
 
     return sd, mean
@@ -1625,7 +1625,7 @@ def calc_circle_area(radius: float) -> float:
     >>> calc_circle_area(1.78)
     9.953822163633902
     """
-    return np.pi * radius ** 2
+    return np.pi * radius**2
 
 
 def calc_circle_radius(area: float) -> float:
