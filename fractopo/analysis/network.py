@@ -582,6 +582,7 @@ class Network:
         """
         return self.trace_data.describe_fit(label="trace")
 
+    @property
     def branch_lengths_powerlaw_fit_description(self) -> Dict[str, float]:
         """
         Short numerical description dict of branch length powerlaw fit.
