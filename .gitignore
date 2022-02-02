@@ -21,7 +21,7 @@ venv/
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs
-requirements.txt
+/requirements.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -164,6 +164,9 @@ cython_debug/
 network_profile.py
 KB11_area_outputs
 docs_src/auto_examples/
+# doit cache
 .doit.db
+# direnv cache
 .direnv
 .envrc
+.direnv

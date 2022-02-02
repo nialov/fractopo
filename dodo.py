@@ -94,6 +94,8 @@ def task_requirements():
 def task_pre_commit():
     """
     Verify that pre-commit is installed, install its hooks and run them.
+
+    pre-commit is the main method for formatting documentation and code.
     """
     return {
         ACTIONS: [
@@ -107,25 +109,6 @@ def task_pre_commit():
             PRE_COMMIT_CONFIG_PATH,
             DODO_PATH,
         ],
-    }
-
-
-def task_format():
-    """
-    Format everything.
-    """
-    command = "nox --session format"
-    return {
-        FILE_DEP: [
-            *PYTHON_ALL_FILES,
-            *NOTEBOOKS,
-            *DOCS_FILES,
-            DEV_REQUIREMENTS_PATH,
-            NOXFILE_PATH,
-            DODO_PATH,
-        ],
-        ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
     }
 
 
@@ -144,7 +127,7 @@ def task_lint():
             DODO_PATH,
         ],
         ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
     }
 
 
@@ -160,14 +143,14 @@ def task_update_version():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
         ACTIONS: [command],
     }
 
 
 def task_ci_test():
     """
-    Test suite for continous integration testing.
+    Test suite for continuous integration testing.
 
     Installs with pip, tests with pytest and checks coverage with coverage.
     """
@@ -182,7 +165,7 @@ def task_ci_test():
                 DEV_REQUIREMENTS_PATH,
                 DODO_PATH,
             ],
-            TASK_DEP: [resolve_task_name(task_format)],
+            TASK_DEP: [resolve_task_name(task_pre_commit)],
             ACTIONS: [command],
             **(
                 {TARGETS: [COVERAGE_SVG_PATH]}
@@ -207,7 +190,7 @@ def task_docs():
             DODO_PATH,
         ],
         TASK_DEP: [
-            resolve_task_name(task_format),
+            resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
             resolve_task_name(task_update_version),
         ],
@@ -228,7 +211,7 @@ def task_notebooks():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
         ACTIONS: [command],
     }
 
@@ -246,7 +229,7 @@ def task_build():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
     }
 
 
@@ -264,7 +247,7 @@ def task_typecheck():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
     }
 
 
@@ -348,7 +331,7 @@ def task_codespell():
             NOXFILE_PATH,
             DODO_PATH,
         ],
-        TASK_DEP: [resolve_task_name(task_format)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
     }
 
 
@@ -378,8 +361,8 @@ def use_tag(tag: str):
             # Report to user
             if line != substituted:
                 print(
-                    f"Replacing version string:\n{line}\nin"
-                    f" {path} with:\n{substituted}\n"
+                    f"Replacing version string:\n{line}\n"
+                    f"in {path} with:\n{substituted}\n"
                 )
                 new_lines.append(substituted)
             else:
@@ -427,7 +410,7 @@ def task_tag(tag: str):
 DOIT_CONFIG = {
     "default_tasks": [
         resolve_task_name(task_requirements),
-        resolve_task_name(task_format),
+        resolve_task_name(task_pre_commit),
         resolve_task_name(task_lint),
         resolve_task_name(task_update_version),
         resolve_task_name(task_ci_test),

@@ -160,7 +160,7 @@ def notebooks(session):
         execute_notebook(session=session, notebook=notebook_path)
 
 
-def setup_format_and_lint(session) -> List[str]:
+def setup_lint(session) -> List[str]:
     existing_paths = filter_paths_to_existing(
         Path(PACKAGE_NAME),
         TESTS_PATH,
@@ -170,42 +170,9 @@ def setup_format_and_lint(session) -> List[str]:
         DOCS_EXAMPLES_PATH,
     )
 
-    if len(existing_paths) == 0:
-        print("Nothing to format.")
-
-    # Install formatting and lint dependencies
-    install_dev(session=session, extras="[format-lint]")
+    # Install lint dependencies
+    install_dev(session=session, extras="[lint]")
     return [str(path) for path in existing_paths]
-
-
-@nox.session(reuse_venv=True, **VENV_PARAMS)
-def format(session):
-    """
-    Format python files, notebooks and docs_src.
-    """
-    existing_paths = setup_format_and_lint(session=session)
-
-    # Format python files
-    session.run("black", *existing_paths)
-
-    # Format python file imports
-    session.run(
-        "isort",
-        *existing_paths,
-    )
-
-    # Format notebooks with black (must be installed with black[jupyter])
-    for notebook in NOTEBOOKS:
-        session.run("black", str(notebook))
-
-    # Format code blocks in documentation files
-    session.run("blacken-docs", *[str(path) for path in DOCS_FILES], str(README_PATH))
-
-    # Format code blocks in Python files
-    session.run(
-        "blackdoc",
-        *existing_paths,
-    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
@@ -213,7 +180,7 @@ def lint(session):
     """
     Lint python files, notebooks and docs_src.
     """
-    existing_paths = setup_format_and_lint(session=session)
+    existing_paths = setup_lint(session=session)
 
     # Lint docs
     session.run(
@@ -222,89 +189,6 @@ def lint(session):
         "docs_src",
         "--ignore-directives",
         "automodule",
-    )
-
-    # Lint Python files with black (all should be formatted.)
-    session.run("black", "--check", *existing_paths)
-
-    for notebook in NOTEBOOKS:
-        # Lint notebooks with black (all should be formatted.)
-        session.run("black", "--check", str(notebook))
-
-    # Lint imports
-    session.run(
-        "isort",
-        "--check-only",
-        *existing_paths,
-    )
-
-    # Lint with pylint
-    session.run(
-        "pylint",
-        *existing_paths,
-    )
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def format_and_lint(session):
-    """
-    Format and lint python files, notebooks and docs_src.
-    """
-    existing_paths = setup_format_and_lint(session=session)
-
-    if len(existing_paths) == 0:
-        print("Nothing to format or lint.")
-        return
-
-    # Install formatting and lint dependencies
-    install_dev(session=session, extras="[format-lint]")
-
-    # Format python files
-    session.run("black", *existing_paths)
-
-    # Format python file imports
-    session.run(
-        "isort",
-        *existing_paths,
-    )
-
-    # Format notebooks with black (must be installed with black[jupyter])
-    for notebook in NOTEBOOKS:
-        session.run("black", str(notebook))
-
-    # Format code blocks in documentation files
-    session.run(
-        "blacken-docs",
-        README_PATH,
-        *[str(path) for path in DOCS_FILES],
-    )
-
-    # Format code blocks in Python files
-    session.run(
-        "blackdoc",
-        *existing_paths,
-    )
-
-    # Lint docs
-    session.run(
-        "rstcheck",
-        "-r",
-        "docs_src",
-        "--ignore-directives",
-        "automodule",
-    )
-
-    # Lint Python files with black (all should be formatted.)
-    session.run("black", "--check", *existing_paths)
-
-    for notebook in NOTEBOOKS:
-        # Lint notebooks with black (all should be formatted.)
-        session.run("black", "--check", str(notebook))
-
-    session.run(
-        "isort",
-        "--check-only",
-        *existing_paths,
     )
 
     # Lint with pylint
@@ -481,7 +365,7 @@ def typecheck(session):
     # Install package and typecheck dependencies
     install_dev(session=session, extras="[typecheck]")
 
-    # Format python files
+    # Typecheck python files
     session.run("mypy", PACKAGE_NAME)
 
 

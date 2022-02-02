@@ -66,13 +66,9 @@ sphinx-gallery = {version = "*", optional = true}
 sphinx-autodoc-typehints = {version = "*", optional = true}
 sphinx-autobuild = {version = "*", optional = true}
 
-# Linting and formatting
+# Linting
 pylint = {version = "*", optional = true}
 rstcheck = {version = "*", optional = true}
-black = {version = "*", optional = true, extras = ["jupyter"]}
-blacken-docs = {version = "*", optional = true}
-blackdoc = {version = "*", optional = true}
-isort = {version = "*", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
@@ -101,14 +97,10 @@ docs = [
     "sphinx-autodoc-typehints",
     "sphinx-autobuild"
 ]
-format-lint = [
+lint = [
     "pylint",
     "rstcheck",
     "sphinx",
-    "black",
-    "isort",
-    "blacken-docs",
-    "blackdoc"
 ]
 typecheck = ["mypy"]
 

@@ -54,9 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Run auxiliary doit tasks to lint and make docs & citation.
     needs: [pytest-coverage-doit]
-    # strategy:
-    #   matrix:
-    #     invokecmd: [format-and-lint, docs, citation]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 🐍 3.8
@@ -86,11 +83,11 @@ jobs:
             "
       - name: Run commands
         # These could be better parallelized with a matrix
-        # but as some tasks are dependant on others it is
+        # but as some tasks are dependent on others it is
         # (probably) more efficient to run all here
         # (move efficient for github.com at least)
         run: |
-          doit -n 4 -v 0 format lint docs citation build
+          doit -n 4 -v 0 pre_commit lint docs citation build
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: >
