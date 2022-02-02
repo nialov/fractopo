@@ -1,9 +1,17 @@
 # Changelog
 
-## Unreleased (2022-01-25)
+## Unreleased (2022-02-02)
+
+### New Features
+
+-   (multi_network): add xyi and branch plotting
+
+### Fixes
+
+-   (analysis): add missing property decorator
 
 Full set of changes:
-[`v0.2.5...65e16c6`](https://github.com/nialov/fractopo/compare/v0.2.5...65e16c6)
+[`v0.2.5...5dbabb0`](https://github.com/nialov/fractopo/compare/v0.2.5...5dbabb0)
 
 ## v0.2.5 (2022-01-23)
 
