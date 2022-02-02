@@ -153,8 +153,9 @@ def test_network(
     )
 
     assert area.shape[0] == len(network.representative_points())
-    assert isinstance(network.numerical_network_description(), dict)
-    for key, item in network.numerical_network_description().items():
+    numerical_description = network.numerical_network_description()
+    assert isinstance(numerical_description, dict)
+    for key, item in numerical_description.items():
         assert isinstance(key, str)
         if not isinstance(item, (int, float, str)):
             assert isinstance(item.item(), (int, float))
@@ -172,9 +173,10 @@ def test_network(
         )
         assert num_description_explicit_cut_offs[key] == 1.0
 
-    assert isinstance(network.target_areas, list)
+    network_target_areas = network.target_areas
+    assert isinstance(network_target_areas, list)
     assert all(
-        [isinstance(val, (Polygon, MultiPolygon)) for val in network.target_areas]
+        [isinstance(val, (Polygon, MultiPolygon)) for val in network_target_areas]
     )
 
     network_attributes = dict()
@@ -184,7 +186,7 @@ def test_network(
             if not np.isnan(value):
                 network_attributes[key] = int(value)
 
-        for key, value in network.numerical_network_description().items():
+        for key, value in numerical_description.items():
             if isinstance(value, (float, int)):
                 network_attributes[key] = round(
                     value.item() if hasattr(value, "item") else value, 2
@@ -202,10 +204,12 @@ def test_network(
             network=network, traces=traces, area=area, snap_threshold=snap_threshold
         )
 
-    assert isinstance(network.trace_intersects_target_area_boundary, np.ndarray)
-    assert network.trace_intersects_target_area_boundary.dtype == "int"
-    assert isinstance(network.branch_intersects_target_area_boundary, np.ndarray)
-    assert network.branch_intersects_target_area_boundary.dtype == "int64"
+    trace_intersects = network.trace_intersects_target_area_boundary
+    assert isinstance(trace_intersects, np.ndarray)
+    assert trace_intersects.dtype in ("int32", "int64")
+    branch_intersects = network.branch_intersects_target_area_boundary
+    assert isinstance(branch_intersects, np.ndarray)
+    assert network.branch_intersects_target_area_boundary.dtype in ("int32", "int64")
 
 
 def network_extensive_testing(
@@ -226,8 +230,9 @@ def network_extensive_testing(
     assert_frame_equal(copy_trace_gdf, network.trace_data._line_gdf)
     assert_frame_equal(copy_branch_gdf, network.branch_data._line_gdf)
 
-    assert isinstance(network.anisotropy, tuple)
-    assert isinstance(network.anisotropy[0], np.ndarray)
+    network_anisotropy = network.anisotropy
+    assert isinstance(network_anisotropy, tuple)
+    assert isinstance(network_anisotropy[0], np.ndarray)
     assert isinstance(network.trace_length_set_array, np.ndarray)
     assert isinstance(network.branch_length_set_array, np.ndarray)
 

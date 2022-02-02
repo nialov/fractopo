@@ -119,7 +119,12 @@ class LineData:
             column=Col.LENGTH_WEIGHTS, gdf=self._line_gdf
         )
         if column_array is None:
-            assert self.area_boundary_intersects.dtype in ("int64", "float64")
+            assert self.area_boundary_intersects.dtype in (
+                "int64",
+                "float64",
+                "int32",
+                "float32",
+            )
             column_array = np.array(
                 [
                     intersection_count_to_boundary_weight(int(inter_count))
