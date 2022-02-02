@@ -27,6 +27,6 @@ jobs:
       - run: |
           conda info
           conda list
-      - run: |
           python -c 'import fractopo'
           python -m fractopo --help
+          pytest -v
