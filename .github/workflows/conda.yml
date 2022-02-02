@@ -32,12 +32,12 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key: ${{ matrix.platform }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('environment.yml') }}-${{
+            hashFiles('conda/environment.yml') }}-${{
             matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: fractopo
-          environment-file: environment.yml
+          environment-file: conda/environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
           # IMPORTANT: This needs to be set for caching to work properly!
