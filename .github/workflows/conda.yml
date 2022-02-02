@@ -1,0 +1,32 @@
+name: conda
+
+on:
+  # run on all pushes to any branch
+  push:
+  # run only on master pull requests
+  pull_request:
+    branches: [master]
+  # also run periodically
+  schedule:
+    - cron: "41 7 * * 5"
+jobs:
+  conda-environment-install:
+    name: Linux
+    runs-on: "ubuntu-latest"
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: fractopo
+          environment-file: environment.yml
+          python-version: 3.9
+          auto-activate-base: false
+      - run: |
+          conda info
+          conda list
+      - run: |
+          python -c 'import fractopo'
+          python -m fractopo --help

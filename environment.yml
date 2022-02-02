@@ -1,0 +1,22 @@
+name: fractopo
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python >=3.7.1,<4.0
+  - click
+  - geopandas >=0.10.2,<0.11.0
+  - matplotlib-base
+  - numpy
+  - pandas >=1.3,<1.4
+  - powerlaw
+  - pygeos >=0.12.0,<0.13.0
+  - python >=3.6,<4.0
+  - python-ternary
+  - rich >=11.0.0,<11.1.0
+  - scikit-learn
+  - scipy
+  - seaborn
+  - shapely >=1.8.0,<1.9.0
+  - typer >=0.4.0,<0.5.0
