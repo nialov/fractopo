@@ -317,8 +317,8 @@ Copyright © 2020, Nikolas Ovaskainen.
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish.yaml?query=branch%3Amaster
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish-doit/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish-doit.yaml?query=branch%3Amaster
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
