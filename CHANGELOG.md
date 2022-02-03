@@ -1,17 +1,19 @@
 # Changelog
 
-## Unreleased (2022-02-02)
+## v0.2.6 (2022-02-03)
 
 ### New Features
 
--   (multi_network): add xyi and branch plotting
+-   (analysis.multi_network): Enable plotting multiple networks into the same ternary
+    XYI or branch type plot.
 
 ### Fixes
 
--   (analysis): add missing property decorator
+-   (analysis.network): Add missing property decorator to
+    `branch_lengths_powerlaw_fit_description`.
 
 Full set of changes:
-[`v0.2.5...711204e`](https://github.com/nialov/fractopo/compare/v0.2.5...711204e)
+[`v0.2.5...v0.2.6`](https://github.com/nialov/fractopo/compare/v0.2.5...v0.2.6)
 
 ## v0.2.5 (2022-01-23)
 
