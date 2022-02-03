@@ -1,7 +1,8 @@
 """
 Tests for Network.
 """
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -19,7 +20,7 @@ from ternary.ternary_axes_subplot import TernaryAxesSubplot
 from fractopo.analysis import length_distributions
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
-from fractopo.general import SetRangeTuple
+from fractopo.general import SetRangeTuple, read_geofile
 from tests import Helpers
 
 
@@ -381,3 +382,78 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
                 boundary_intersect_count[f"{name} Boundary 2 Intersect Count"],
             )
         )
+
+
+@pytest.mark.parametrize(
+    "trace_gdf,area_gdf,network_name,snap_threshold",
+    [
+        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001),
+        (Helpers.kb11_traces, Helpers.kb11_area, "kb11", 0.001),
+    ],
+)
+@pytest.mark.parametrize(
+    "truncate_traces,circular_target_area",
+    [
+        (True, True),
+        (False, False),
+        (True, False),
+    ],
+)
+def test_network_topology_reassignment(
+    trace_gdf: gpd.GeoDataFrame,
+    area_gdf: gpd.GeoDataFrame,
+    tmp_path: Path,
+    network_name: str,
+    truncate_traces: bool,
+    circular_target_area: bool,
+    snap_threshold: float,
+):
+    """
+    Test reassignment of Network branch_gdf and node_gdf.
+    """
+    network_params: Dict[str, Any] = dict(
+        trace_gdf=trace_gdf,
+        area_gdf=area_gdf,
+        name=network_name,
+        truncate_traces=truncate_traces,
+        circular_target_area=circular_target_area,
+        snap_threshold=snap_threshold,
+    )
+    network = Network(**network_params, determine_branches_nodes=True)
+
+    original_description = network.numerical_network_description()
+
+    # Explicitly name outputs
+    branches_name = f"{network_name}_branches.geojson"
+    nodes_name = f"{network_name}_nodes.geojson"
+
+    # Save branches and nodes to tmp_path directory
+    network.write_branches_and_nodes(
+        output_dir_path=tmp_path, branches_name=branches_name, nodes_name=nodes_name
+    )
+
+    branches_path = tmp_path / branches_name
+    nodes_path = tmp_path / nodes_name
+
+    assert branches_path.exists()
+    assert nodes_path.exists()
+
+    branches_gdf = read_geofile(branches_path)
+    nodes_gdf = read_geofile(nodes_path)
+
+    assert isinstance(branches_gdf, gpd.GeoDataFrame)
+    assert isinstance(nodes_gdf, gpd.GeoDataFrame)
+
+    new_network = Network(
+        **network_params,
+        determine_branches_nodes=False,
+        branch_gdf=branches_gdf,
+        node_gdf=nodes_gdf,
+    )
+
+    new_description = new_network.numerical_network_description()
+
+    original_df = pd.DataFrame([original_description])
+    new_df = pd.DataFrame([new_description])
+    assert_frame_equal(original_df, new_df)
+    assert_frame_equal(new_network.branch_gdf, branches_gdf)
