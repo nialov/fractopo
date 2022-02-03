@@ -5,6 +5,7 @@ import logging
 from dataclasses import dataclass, field
 from functools import wraps
 from typing import Callable, Dict, List, Optional, Tuple, Union
+from pathlib import Path
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -57,6 +58,7 @@ from fractopo.general import (
     raise_determination_error,
     spatial_index_intersection,
     total_bounds,
+    write_geodata,
 )
 
 
@@ -66,7 +68,12 @@ def requires_topology(func: Callable):
     """
 
     @wraps(func)
-    def wrapper(network, *args, **kwargs):
+    def wrapper(*args, **kwargs):
+        if "network" in kwargs:
+            network = kwargs.pop("network")
+        else:
+            network = args[0]
+            args = args[1:] if len(args) > 1 else []
         if not network.topology_determined:
             raise_determination_error(func.__name__)
         return func(network, *args, **kwargs)
@@ -304,8 +311,13 @@ class Network:
         """
         Reset LineData attributes.
 
-        TODO: Deprecated?
+        WARNING: Mostly untested.
         """
+        logging.warning(
+            "Method Network.reset_length_data is mostly untested. Use with"
+            "caution. It is safer to recreate the Network instance.",
+            extra=dict(network_name=self.name),
+        )
         self.trace_data = LineData(
             _line_gdf=self.trace_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
@@ -1074,3 +1086,39 @@ class Network:
         assert isinstance(unpacked_value, float)
         assert unpacked_value >= 0.0
         return unpacked_value
+
+    @requires_topology
+    def write_branches_and_nodes(
+        self,
+        output_dir_path: Path,
+        branches_name: Optional[str] = None,
+        nodes_name: Optional[str] = None,
+    ):
+        """
+        Write branches and nodes to disk.
+
+        Enables reuse of the same data in analysis of the same data to skip
+        topology determination which is computationally expensive.
+
+        Writes only with the GeoJSON driver as there are differences between
+        different spatial filetypes. Only GeoJSON is supported to avoid unexpected
+        errors.
+        """
+        for topo_name, topo_type, gdf in zip(
+            (branches_name, nodes_name),
+            ("branches", "nodes"),
+            (self.branch_gdf, self.node_gdf),
+        ):
+
+            topo_path = output_dir_path / (
+                f"{self.name}_{topo_type}.geojson" if topo_name is None else topo_name
+            )
+            write_geodata(gdf=gdf, path=topo_path, allow_list_column_transform=False)
+            logging.info(
+                "Wrote topological data to disk.",
+                extra=dict(
+                    network_name=self.name,
+                    topo_path=topo_path,
+                    topo_type=topo_type,
+                ),
+            )

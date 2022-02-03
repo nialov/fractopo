@@ -4,6 +4,7 @@ Contains general calculation and plotting tools.
 import logging
 import math
 import random
+import json
 from bisect import bisect
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
@@ -77,6 +78,8 @@ RADIUS = "Radius"
 NAME = "Name"
 CENSORING = "Censoring"
 RELATIVE_CENSORING = "Relative Censoring"
+
+GEOJSON_DRIVER = "GeoJSON"
 
 SetRangeTuple = Tuple[Tuple[float, float], ...]
 BoundsTuple = Tuple[float, float, float, float]
@@ -478,7 +481,7 @@ def sd_calc(data):
         if diff > 180:
             diff = 360 - diff
 
-        sd += diff**2
+        sd += diff ** 2
     sd = math.sqrt(sd / float(n - 1))
 
     return sd, mean
@@ -1625,7 +1628,7 @@ def calc_circle_area(radius: float) -> float:
     >>> calc_circle_area(1.78)
     9.953822163633902
     """
-    return np.pi * radius**2
+    return np.pi * radius ** 2
 
 
 def calc_circle_radius(area: float) -> float:
@@ -1790,3 +1793,62 @@ def wrap_silence(func):
         return results
 
     return wrapper
+
+
+def convert_list_columns(gdf: gpd.GeoDataFrame, allow: bool = True) -> gpd.GeoDataFrame:
+    """
+    Convert list type columns to string.
+    """
+    gdf = gdf.copy()
+    if gdf.empty:
+        return gdf
+    for column in gdf.columns.values:
+        column_data = gdf[column]
+        assert isinstance(column_data, pd.Series)
+        if isinstance(column_data.values[0], list):
+            if not allow:
+                raise ValueError(
+                    "Trying to write geodata to disk but it has columns with"
+                    "`list`-type data and `allow` is set to `False`.\n"
+                    "Either set allow to True or fix the data."
+                )
+            logging.info(f"Converting {column} from list to str.")
+            gdf[column] = [str(tuple(item)) for item in column_data.values]
+    return gdf
+
+
+def write_geodata(
+    gdf: gpd.GeoDataFrame,
+    path: Path,
+    driver: str = GEOJSON_DRIVER,
+    allow_list_column_transform: bool = False,
+):
+    """
+    Write geodata with driver.
+
+    Default is GeoJSON.
+    """
+    if gdf.empty:
+        # Handle empty GeoDataFrames
+        path.write_text(gdf.to_json())
+    else:
+        gdf = convert_list_columns(gdf, allow=allow_list_column_transform)
+
+        gdf.to_file(path, driver=driver)
+
+    if driver != GEOJSON_DRIVER:
+        return
+
+    # Format geojson with indent of 1
+    read_json = path.read_text()
+    loaded_json = json.loads(read_json)
+    dumped_json = json.dumps(loaded_json, indent=1)
+    path.write_text(dumped_json)
+
+
+def write_topodata(gdf: gpd.GeoDataFrame, output_path: Path):
+    """
+    Write branch or nodes GeoDataFrame to `output_path`.
+
+    """
+    write_geodata(gdf=gdf, path=output_path, allow_list_column_transform=False)
