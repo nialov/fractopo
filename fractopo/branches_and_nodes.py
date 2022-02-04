@@ -919,6 +919,16 @@ def branches_and_nodes(
     Therefore cannot test if there are more branches than traces because
     there might be less due to this issue.
     """
+    logging.info(
+        "Starting determination of branches and nodes.",
+        extra=dict(
+            len_traces=len(traces),
+            len_areas=len(areas),
+            snap_threshold=snap_threshold,
+            already_clipped=already_clipped,
+            allowed_loops=allowed_loops,
+        ),
+    )
     traces_geosrs: gpd.GeoSeries = traces.geometry
 
     # Filter out traces that are not unique by wkt

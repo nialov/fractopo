@@ -1214,7 +1214,8 @@ class CachedNetwork(Network):
             # Log the exception
             logging.error(
                 "Failed to sha256 hash trace and area GeoDataFrames."
-                " If this error persists using the regular ``Network`` instance is recommended.",
+                " If this error persists using the regular ``Network``"
+                " instance is recommended.",
                 exc_info=True,
             )
             # If hashing cannot be done no caching can be done
@@ -1258,6 +1259,10 @@ class CachedNetwork(Network):
             assert self.branch_gdf.crs == self.trace_gdf.crs
             assert self.node_gdf.crs == self.trace_gdf.crs
         else:
+            logging.info(
+                "No cache hit for branch and node data. Determining.",
+                extra=dict(network_name=self.name),
+            )
             # No cache hit, determine branches and nodes
             self.assign_branches_nodes()
 
@@ -1272,7 +1277,7 @@ class CachedNetwork(Network):
                 gdf=self.node_gdf, path=node_path, allow_list_column_transform=False
             )
             logging.info(
-                "No cache hit for branch and node data. Caching determined.",
+                "Caching determined branches and nodes.",
                 extra=dict(
                     network_name=self.name, branch_path=branch_path, node_path=node_path
                 ),
