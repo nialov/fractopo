@@ -460,18 +460,15 @@ def test_network_topology_reassignment(
 
 
 @pytest.mark.parametrize(
-    "trace_gdf,area_gdf,network_name,snap_threshold",
+    (
+        "trace_gdf,area_gdf,network_name,snap_threshold,"
+        "truncate_traces,circular_target_area"
+    ),
     [
-        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001),
-        (Helpers.kb11_traces, Helpers.kb11_area, "kb11", 0.001),
-    ],
-)
-@pytest.mark.parametrize(
-    "truncate_traces,circular_target_area",
-    [
-        (True, True),
-        (False, False),
-        (True, False),
+        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, True, True),
+        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, False, False),
+        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, True, False),
+        (Helpers.kb11_traces, Helpers.kb11_area, "kb11", 0.001, True, False),
     ],
 )
 def test_cached_network(

@@ -630,13 +630,6 @@ class Helpers:
             True,  # auto_fix
             [],  # assume_errors
         ),
-        # (
-        #     kb11_traces,  # traces
-        #     kb11_area,  # area
-        #     "kb11",  # name
-        #     True,  # auto_fix
-        #     None,  # assume_errors
-        # ),
         (
             gpd.GeoDataFrame(
                 geometry=trace_builder.make_invalid_traces(
