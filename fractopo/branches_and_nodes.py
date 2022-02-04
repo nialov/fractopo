@@ -4,6 +4,7 @@ Functions for extracting branches and nodes from trace maps.
 branches_and_nodes is the main entrypoint.
 """
 import logging
+import math
 from itertools import chain, compress
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -21,6 +22,7 @@ from shapely.geometry import (
 )
 from shapely.geometry.base import BaseMultipartGeometry
 from shapely.ops import unary_union
+from shapely.wkt import dumps
 
 from fractopo.general import (
     CLASS_COLUMN,
@@ -577,7 +579,13 @@ def snap_others_to_trace(
         snap_threshold=snap_threshold,
     )
 
-    assert trace not in list(trace_candidates)
+    if trace in list(trace_candidates):
+        error = "Found trace in trace_candidates."
+        logging.error(
+            error,
+            extra=dict(trace_wkt=trace.wkt, trace_candidates_len=len(trace_candidates)),
+        )
+        raise ValueError(error)
 
     # If no candidates -> no intersecting -> trace is isolated
     if len(trace_candidates) == 0:
@@ -697,6 +705,18 @@ def simple_snap(
             sorted_points = sorted(
                 zip(coord_points, distances), key=lambda vals: vals[1]
             )
+            if endpoint.wkt in replace_endpoint:
+                error = "Found endpoint in replace_endpoint dict."
+                logging.error(
+                    error,
+                    extra=(
+                        dict(
+                            endpoint_wkt=endpoint.wkt,
+                            replace_endpoint_len=len(replace_endpoint),
+                        )
+                    ),
+                )
+                raise ValueError(error)
             assert endpoint.wkt not in replace_endpoint
             replace_endpoint[endpoint.wkt] = sorted_points[0][0]
 
@@ -716,7 +736,9 @@ def simple_snap(
     return modified, True
 
 
-def filter_non_unique_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
+def filter_non_unique_traces(
+    traces: gpd.GeoSeries, snap_threshold: float
+) -> gpd.GeoSeries:
     """
     Filter out traces that are not unique.
     """
@@ -725,7 +747,9 @@ def filter_non_unique_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
     idxs_to_keep = []
     for idx, geom in enumerate(traces.geometry.values):
         assert isinstance(geom, LineString)
-        geom_wkt = geom.wkt
+
+        # Use a less strict coordinate precision when finding duplicates
+        geom_wkt = dumps(geom, rounding_precision=int(-math.log10(snap_threshold)))
         if geom_wkt in traces_set:
             continue
         traces_set.add(geom_wkt)
@@ -733,6 +757,12 @@ def filter_non_unique_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
 
     unique_traces = traces.iloc[idxs_to_keep]
     assert isinstance(unique_traces, gpd.GeoSeries)
+
+    filter_count = len(traces) - len(unique_traces)
+    logging.info(
+        f"Filtered out {filter_count} traces.",
+        extra=dict(traces_len=len(traces), unique_traces_len=len(unique_traces)),
+    )
     return unique_traces
 
 
@@ -893,7 +923,9 @@ def branches_and_nodes(
 
     # Filter out traces that are not unique by wkt
     # unary_union will fail to take them into account any way
-    traces_geosrs = filter_non_unique_traces(traces_geosrs)
+    traces_geosrs = filter_non_unique_traces(
+        traces_geosrs, snap_threshold=snap_threshold
+    )
 
     areas_geosrs: gpd.GeoSeries = areas.geometry
 
