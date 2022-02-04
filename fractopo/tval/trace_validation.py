@@ -265,10 +265,16 @@ class Validation:
         validated_gdf[self.GEOMETRY_COLUMN] = all_geoms
         if first_pass:
             self.traces = validated_gdf
+            # Run validation again
             validated_gdf = self.run_validation(
                 first_pass=False, choose_validators=choose_validators
             )
 
+        # Convert ERROR_COLUMN value types to tuples for better
+        # interoperability with e.g. transformation to GeoJSON
+        validated_gdf[self.ERROR_COLUMN] = [
+            tuple(value) for value in validated_gdf[self.ERROR_COLUMN].values
+        ]
         return validated_gdf
 
     @staticmethod

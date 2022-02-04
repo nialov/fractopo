@@ -400,8 +400,9 @@ def tracevalidate(
         )
         output_path.unlink()
 
-    # Change validation_error column to type:  and consequently save
+    # Change validation_error column to type: str and consequently save
     # the GeoDataFrame.
+    assert not isinstance(validated_trace[validation.ERROR_COLUMN].iloc[0], list)
     validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
         output_path, driver=save_driver
     )
