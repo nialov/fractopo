@@ -4,8 +4,8 @@ Analyse and plot trace map data with Network.
 import logging
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Callable, Dict, List, Optional, Tuple, Union
 from pathlib import Path
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt

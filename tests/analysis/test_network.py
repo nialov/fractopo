@@ -1,8 +1,8 @@
 """
 Tests for Network.
 """
-from typing import Dict, List, Tuple, Any
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 import geopandas as gpd
 import numpy as np
