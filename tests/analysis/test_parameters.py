@@ -94,3 +94,4 @@ def test_ternary_heatmapping(x_values, y_values, i_values, number_of_bins):
     )
     assert isinstance(fig, Figure)
     assert isinstance(tax, ternary.TernaryAxesSubplot)
+    plt.close()
