@@ -74,15 +74,15 @@ def test_tracevalidate_only_area(args, tmp_path):
     outputs_cmds = ["--output", str(tmp_path / "output_traces")]
     clirunner = TyperCliRunner()
     result = clirunner.invoke(cli.app, ["tracevalidate"] + args + outputs_cmds)
-    # Check that exit code is 0 (i.e. ran succesfully.)
+    # Check that exit code is 0 (i.e. ran successfully.)
     click_error_print(result)
 
     assert Path(outputs_cmds[1]).exists()
-    assert Validation.ERROR_COLUMN[0:10] in gpd.read_file(outputs_cmds[1]).columns
+    assert Validation.ERROR_COLUMN in gpd.read_file(outputs_cmds[1]).columns
 
 
 @pytest.mark.parametrize(
-    "traces_path,area_path", [(Helpers.kb7_trace_path, Helpers.kb7_area_path)]
+    "traces_path,area_path", [(Helpers.kb7_trace_50_path, Helpers.kb7_area_path)]
 )
 def test_fractopo_network_cli(traces_path, area_path, tmp_path):
     """

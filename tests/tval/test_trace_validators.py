@@ -46,7 +46,10 @@ def test_determine_faulty_junctions_with_known_false_pos():
         SHARP_PREV_SEG_THRESHOLD=70.0,
     )
     result = validation.run_validation()
-    assert set(result[Validation.ERROR_COLUMN].astype(str)) == {"['SHARP TURNS']", "[]"}
+    assert set(result[Validation.ERROR_COLUMN].astype(str)) == {
+        "('SHARP TURNS',)",
+        "()",
+    }
     # faulty_junctions = validation.faulty_junctions
     # endpoint_nodes, intersect_nodes = (
     #     validation.endpoint_nodes,

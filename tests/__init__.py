@@ -401,21 +401,22 @@ class Helpers:
     assert isinstance(kb11_traces, gpd.GeoDataFrame)
     assert isinstance(kb11_area, gpd.GeoDataFrame)
 
-    kb7_trace_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.shp")
-    kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp")
+    kb7_trace_100_path = Path("tests/sample_data/KB7/KB7_tulkinta_100.geojson")
+    kb7_trace_50_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.geojson")
+    kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.geojson")
 
-    kb7_traces = read_geofile(kb7_trace_path)
+    kb7_traces = read_geofile(kb7_trace_50_path)
     kb7_area = read_geofile(kb7_area_path)
 
     test_tracevalidate_params = [
         (
-            Path("tests/sample_data/KB7/KB7_tulkinta_50.shp"),  # cut 0-50
-            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
+            kb7_trace_50_path,  # cut 0-50
+            kb7_area_path,
             "--allow-fix",
         ),
         (
-            Path("tests/sample_data/KB7/KB7_tulkinta_100.shp"),  # cut 50-100
-            Path("tests/sample_data/KB7/KB7_tulkinta_alue.shp"),
+            kb7_trace_100_path,  # cut 50-100
+            kb7_area_path,
             "--allow-fix",
         ),
     ]
@@ -840,8 +841,10 @@ class Helpers:
     test_tracevalidate_only_area_params = [
         (
             [
-                "tests/sample_data/KB7/KB7_tulkinta_50.shp",  # cut 0-50
-                "tests/sample_data/KB7/KB7_tulkinta_alue.shp",
+                # "tests/sample_data/KB7/KB7_tulkinta_50.shp",  # cut 0-50
+                # "tests/sample_data/KB7/KB7_tulkinta_alue.shp",
+                str(kb7_trace_50_path),  # cut 0-50
+                str(kb7_area_path),
                 "--allow-fix",
                 "--only-area-validation",
             ]  # args
