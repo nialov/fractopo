@@ -1213,12 +1213,15 @@ class CachedNetwork(Network):
 
             # Log the exception
             logging.error(
-                "Failed to sha256 hash trace and area GeoDataFrames.", exc_info=True
+                "Failed to sha256 hash trace and area GeoDataFrames."
+                " If this error persists using the regular ``Network`` instance is recommended.",
+                exc_info=True,
             )
-
             # If hashing cannot be done no caching can be done
+            raise
             # Continue with regular Network initialization
-            return super().__post_init__()
+
+            # return super().__post_init__()
 
         branch_path = self.network_cache_path / f"{sha256_hexdigest}_branches.geojson"
         node_path = self.network_cache_path / f"{sha256_hexdigest}_nodes.geojson"
