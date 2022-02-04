@@ -5,7 +5,6 @@ from pathlib import Path
 
 import geopandas as gpd
 import pytest
-from click.testing import CliRunner
 from typer.testing import CliRunner as TyperCliRunner
 
 from fractopo import cli
@@ -13,47 +12,6 @@ from fractopo.tval.trace_validation import Validation
 from tests import Helpers, click_error_print
 
 typer_cli_runner = TyperCliRunner()
-
-
-@pytest.mark.parametrize(
-    "trace_path, area_path, auto_fix", Helpers.test_tracevalidate_params
-)
-@pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
-def test_tracevalidate_click(
-    trace_path: Path,
-    area_path: Path,
-    auto_fix: str,
-    tmp_path: Path,
-    snap_threshold: float,
-):
-    """
-    Tests tracevalidate click functionality.
-    """
-    clirunner = CliRunner()
-    output_file = tmp_path / f"{trace_path.stem}.{trace_path.suffix}"
-    cli_args = [
-        str(trace_path),
-        str(area_path),
-        "--fix" if "no-" not in auto_fix else "--no-fix",
-        "--output",
-        str(output_file),
-        "--summary",
-        "--snap-threshold",
-        # should be valid for both 0.01 and 0.001
-        str(snap_threshold),
-    ]
-    result = clirunner.invoke(cli.tracevalidate_click, cli_args)
-    # Check that exit code is 0 (i.e. ran succesfully.)
-    click_error_print(result)
-    # Checks if output is saved
-    assert output_file.exists()
-    output_gdf = gpd.read_file(output_file)
-    if Validation.ERROR_COLUMN not in output_gdf.columns:
-        assert "shp" in trace_path.suffix
-        assert "VALID" in str(output_gdf.columns) or "valid" in str(output_gdf.columns)
-    if "--summary" in cli_args:
-        assert "Out of" in result.output
-        assert "There were" in result.output
 
 
 @pytest.mark.parametrize(
@@ -85,14 +43,14 @@ def test_tracevalidate_typer(
         str(snap_threshold),
     ]
     result = clirunner.invoke(cli.app, cli_args)
-    # Check that exit code is 0 (i.e. ran succesfully.)
+    # Check that exit code is 0 (i.e. ran successfully.)
     click_error_print(result)
     # Checks if output is saved
     assert output_file.exists()
     output_gdf = gpd.read_file(output_file)
-    if Validation.ERROR_COLUMN not in output_gdf.columns:
-        assert "shp" in trace_path.suffix
-        assert "VALID" in str(output_gdf.columns) or "valid" in str(output_gdf.columns)
+    assert isinstance(output_gdf, gpd.GeoDataFrame)
+    assert output_gdf.crs == gpd.read_file(trace_path).crs
+    assert Validation.ERROR_COLUMN in output_gdf.columns
     if "--summary" in cli_args:
         assert "Out of" in result.output
         assert "There were" in result.output
