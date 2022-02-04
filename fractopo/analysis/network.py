@@ -1258,6 +1258,9 @@ class CachedNetwork(Network):
             # No cache hit, determine branches and nodes
             self.assign_branches_nodes()
 
+            # Create cache directory
+            self.network_cache_path.mkdir(exist_ok=True)
+
             # Cache the determined branches and nodes
             write_geodata(
                 gdf=self.branch_gdf, path=branch_path, allow_list_column_transform=False
