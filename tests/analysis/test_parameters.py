@@ -24,7 +24,7 @@ def test_plot_xyi_plot(node_counts_list, labels):
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
     assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
-    plt.close()
+    plt.close("all")
 
 
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ def test_plot_branch_plot(branch_counts_list, labels):
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
     assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
-    plt.close()
+    plt.close("all")
 
 
 @pytest.mark.parametrize(
@@ -78,7 +78,7 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     )
     assert all(isinstance(fig, Figure) for fig in figs)
     assert all(isinstance(ax, Axes) for ax in axes)
-    plt.close()
+    plt.close("all")
 
 
 @pytest.mark.parametrize(
@@ -94,4 +94,4 @@ def test_ternary_heatmapping(x_values, y_values, i_values, number_of_bins):
     )
     assert isinstance(fig, Figure)
     assert isinstance(tax, ternary.TernaryAxesSubplot)
-    plt.close()
+    plt.close("all")

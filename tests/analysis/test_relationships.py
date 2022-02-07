@@ -153,4 +153,4 @@ def test_plot_crosscut_abutting_relationships_plot():
     )
     assert all(isinstance(fig, Figure) for fig in figs)
     assert all(isinstance(ax, Axes) for ax in chain(*fig_axes))
-    plt.close()
+    plt.close("all")

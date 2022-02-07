@@ -259,7 +259,7 @@ def network_extensive_testing(
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert isinstance(tax, TernaryAxesSubplot)
-    plt.close()
+    plt.close("all")
 
     # Test plotting
     fig_returns = network.plot_xyi()
@@ -268,7 +268,7 @@ def network_extensive_testing(
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert isinstance(tax, TernaryAxesSubplot)
-    plt.close()
+    plt.close("all")
 
     for plot in (
         "plot_parameters",
@@ -281,6 +281,8 @@ def network_extensive_testing(
         "plot_branch_azimuth",
         "plot_trace_lengths",
         "plot_branch_lengths",
+        "plot_trace_azimuth_set_lengths",
+        "plot_branch_azimuth_set_lengths",
     ):
         # Test plotting
         fig_returns = getattr(network, plot)()
@@ -289,7 +291,15 @@ def network_extensive_testing(
             fig, ax = fig_returns
         elif len(fig_returns) == 3 and "length" in plot:
             other, fig, ax = fig_returns
-            assert isinstance(other, powerlaw.Fit)
+            if not isinstance(other, powerlaw.Fit):
+                # assume fits, figs, axes from plot_*_set_lengths
+                assert isinstance(other, list)
+                assert isinstance(other[0], powerlaw.Fit)
+                # Check just the first value of returns
+                assert len(other) == len(fig)
+                assert len(other) == len(ax)
+                assert len(other) == len(network.azimuth_set_names)
+                other, fig, ax = other[0], fig[0], ax[0]
         elif len(fig_returns) == 3 and "azimuth" in plot:
             other, fig, ax = fig_returns
             assert isinstance(other, AzimuthBins)
@@ -297,12 +307,7 @@ def network_extensive_testing(
             raise ValueError("Expected 3 max returns.")
         assert isinstance(fig, Figure)
         assert isinstance(ax, (Axes, PolarAxes))
-        # if plot == "plot_trace_lengths" or plot == "plot_branch_lengths":
-        #     import IPython
-
-        #     IPython.embed()
-        #     raise Exception("Error after ipython.")
-        plt.close()
+        plt.close("all")
 
 
 def test_network_kb11_manual():

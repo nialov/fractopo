@@ -114,7 +114,7 @@ def test_network_contour_grid(
     )
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
-    plt.close(fig=fig)
+    plt.close("all")
 
     assert isinstance(sampled_grid, gpd.GeoDataFrame)
     assert sampled_grid.shape[0] > 0
