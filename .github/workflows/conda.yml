@@ -32,20 +32,24 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key: ${{ matrix.platform }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('conda/environment.yml') }}-${{
+            hashFiles('environment.yml') }}-${{
             matrix.python-version }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: fractopo
-          environment-file: conda/environment.yml
+          environment-file: environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
           # IMPORTANT: This needs to be set for caching to work properly!
           use-only-tar-bz2: true
       - run: |
+          # Print environment
           conda info
           conda list
           python --version
+          # Test package import
           python -c 'import fractopo'
+          # Test entrypoint
           python -m fractopo --help
+          # Run unittests with pytest
           pytest -v
