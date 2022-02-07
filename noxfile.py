@@ -261,7 +261,6 @@ def _docs(session, auto_build: bool):
             str(DOCS_PATH),
             *(
                 [
-                    "--open-browser",
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
                     "--watch=README.rst",
                     f"--watch={PACKAGE_NAME}/",
