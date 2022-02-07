@@ -346,17 +346,6 @@ def plot_length_data_on_ax(
         color="black" if truncated else "brown",
         marker="x",
     )
-    # # ax.scatter(
-    # #     x=length_array,
-    # #     y=ccm_array,
-    # #     s=1,
-    # #     label=label,
-    # #     color="black" if truncated_values else "brown",
-    # #     alpha=1.0 if truncated_values else 0.02,
-    # #     marker="x",
-    # # )
-    # ax.set_xscale("log")
-    # ax.set_yscale("log")
 
 
 def plot_fit_on_ax(
@@ -422,6 +411,13 @@ def plot_distribution_fits(
 
     # Create figure, ax
     fig, ax = plt.subplots(figsize=(7, 7))
+
+    if len(length_array) == 0:
+        logging.error(
+            "Empty length array passed into plot_distribution_fits. "
+            "Fit and plot will be invalid."
+        )
+        return fit, fig, ax
 
     # Get the x, y data from fit
     truncated_length_array, ccm_array = fit.ccdf()
@@ -682,95 +678,6 @@ def fit_to_multi_scale_lengths(
     return y_fit, m_value, constant
 
 
-# def multi_scale_length_distribution_fit(
-#     distributions: List[LengthDistribution],
-#     auto_cut_off: bool,
-#     using_branches: bool = False,
-# ) -> Tuple[Figure, Axes]:
-#     """
-#     Plot multi scale length distributions and their fit.
-#     """
-#     # Gather variations of length distribution lengths and ccm
-#     truncated_length_arrays = []
-#     ccm_arrays_normed = []
-#     names = []
-
-#     # Iterate over LengthDistributions
-#     for length_distribution in distributions:
-
-#         # Determine fit for distribution
-#         fit = determine_fit(
-#             length_distribution.lengths, cut_off=None if auto_cut_off else 1e-8
-#         )
-
-#         # Get the full length data along with full ccm using the original
-#         # data instead of fitted (should be same with cut_off==0.0)
-#         full_length_array, full_ccm_array = fit.ccdf(original_data=True)
-
-#         # Get boolean array where length is over cut_off
-#         are_over_cut_off = full_length_array > fit.xmin
-
-#         # Cut lengths and corresponding ccm to indexes where are over cut off
-#         truncated_length_array = full_length_array[are_over_cut_off]
-#         ccm_array = full_ccm_array[are_over_cut_off]
-
-#         # Normalize ccm with area value
-#         ccm_array_normed = ccm_array / length_distribution.area_value
-
-#         # Gather results
-#         truncated_length_arrays.append(truncated_length_array)
-#         ccm_arrays_normed.append(ccm_array_normed)
-#         names.append(length_distribution.name)
-
-#     # Create concatenated version of collected lengths and ccms
-#     ccm_arrays_normed_concat = np.concatenate(ccm_arrays_normed)
-#     truncated_length_arrays_concat = np.concatenate(truncated_length_arrays)
-
-#     # Determine polyfit to multiscale distributions
-#     # Last variable is constant
-#     y_fit, m, _ = polyfit_lengths(
-#         ccm=ccm_arrays_normed_concat,
-#         lengths=truncated_length_arrays_concat,
-#     )
-
-#     # Start making plot
-#     fig, ax = plt.subplots(figsize=(7, 7))
-#     setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
-#     ax.set_xscale("log")
-#     ax.set_yscale("log")
-#     ax.set_facecolor("oldlace")
-#     ax.set_title(f"$Exponent = {m}$")
-
-#     # Make color cycle
-#     color_cycle = cycle(sns.color_palette("dark", 5))
-
-#     # Plot length distributions
-#     for name, truncated_length_array, ccm_array_normed in zip(
-#         names, truncated_length_arrays, ccm_arrays_normed
-#     ):
-#         ax.scatter(
-#             x=truncated_length_array,
-#             y=ccm_array_normed,
-#             s=25,
-#             label=name,
-#             marker="X",
-#             color=next(color_cycle),
-#         )
-
-#     # Plot polyfit
-#     ax.plot(
-#         (truncated_length_arrays_concat[0], truncated_length_arrays_concat[-1]),
-#         (y_fit[0], y_fit[-1]),
-#         label="Polyfit",
-#         linestyle="dashed",
-#     )
-
-#     # Add legend
-#     plt.legend()
-
-#     return fig, ax
-
-
 def normalize_fit_to_area(
     fit: powerlaw.Fit, length_distribution: LengthDistribution
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -880,9 +787,6 @@ def plot_multi_distributions_and_fit(
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
 
-    # all_y_values = list(chain(*ccm_array_normed_all))
-    # min_y, max_y = min(all_y_values), max(all_y_values)
-    # y_range = max_y - min_y
     # Plot length distributions
     for name, truncated_length_array, ccm_array_normed in zip(
         names, truncated_length_array_all, ccm_array_normed_all
@@ -895,13 +799,6 @@ def plot_multi_distributions_and_fit(
             marker="X",
             color=next(color_cycle),
         )
-        # Plot cut-offs
-        # cut_off_line_x = truncated_length_array[0]
-        # cut_off_line_ys = [
-        #     ccm_array_normed[0] - (y_range / 20) ** 2,
-        #     ccm_array_normed[0] + (y_range / 20) ** 2,
-        # ]
-        # ax.plot([cut_off_line_x, cut_off_line_x], cut_off_line_ys)
 
     # Plot polyfit
     ax.plot(

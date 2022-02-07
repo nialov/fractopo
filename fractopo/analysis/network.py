@@ -992,6 +992,23 @@ class Network:
             label = self.name
         return self.branch_data.plot_length_set_count(label=label)
 
+    def plot_trace_azimuth_set_lengths(
+        self,
+    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+        """
+        Plot trace azimuth set lengths with fits.
+        """
+        return self.trace_data.plot_azimuth_set_lengths()
+
+    @requires_topology
+    def plot_branch_azimuth_set_lengths(
+        self,
+    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+        """
+        Plot branch azimuth set lengths with fits.
+        """
+        return self.branch_data.plot_azimuth_set_lengths()
+
     def contour_grid(
         self,
         cell_width: Optional[float] = None,

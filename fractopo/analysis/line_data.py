@@ -3,7 +3,7 @@ Trace and branch data analysis with LineData class abstraction.
 """
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -253,19 +253,6 @@ class LineData:
         """
         return length_distributions.determine_fit(self.length_array, cut_off=cut_off)
 
-    # def cut_off_proportion_of_data(self, fit: Optional[powerlaw.Fit] = None) -> float:
-    #     """
-    #     Get the proportion of data cut off by `powerlaw` cut off.
-
-    #     If no fit is passed the cut off is the one used in `automatic_fit`.
-    #     """
-    #     fit = self.automatic_fit if fit is None else fit
-    #     return (
-    #         sum(self.length_array < fit.xmin) / len(self.length_array)
-    #         if len(self.length_array) > 0
-    #         else 0.0
-    #     )
-
     def describe_fit(
         self, label: Optional[str] = None, cut_off: Optional[float] = None
     ):
@@ -332,3 +319,40 @@ class LineData:
             # trace_key_counts[f"Trace Boundary {key} Intersect Count"] = item
             intersect_key_counts[f"{label} Boundary {key} Intersect Count"] = item
         return intersect_key_counts
+
+    @property
+    def azimuth_set_length_arrays(self) -> Dict[str, np.ndarray]:
+        """
+        Get length arrays of each azimuth set.
+        """
+        return {
+            azimuth_set_name: self.length_array[
+                self.azimuth_set_array == azimuth_set_name
+            ]
+            for azimuth_set_name in self.azimuth_set_names
+        }
+
+    def plot_azimuth_set_lengths(
+        self,
+    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+        """
+        Plot azimuth set length distributions with fits.
+        """
+        # Collect fits and plots
+        fits, figs, axes = [], [], []
+
+        # Iterate over azimuth set names and corresponding length arrays
+        for azimuth_set_name, set_lengths in self.azimuth_set_length_arrays.items():
+
+            # Create plot for each set length array
+            fit, fig, ax = length_distributions.plot_distribution_fits(
+                set_lengths,
+                label=azimuth_set_name,
+            )
+
+            # Collect
+            fits.append(fit)
+            figs.append(fig)
+            axes.append(ax)
+
+        return fits, figs, axes
