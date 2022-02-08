@@ -1122,6 +1122,7 @@ def crop_to_target_areas(
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     is_filtered: bool = False,
     keep_column_data: bool = False,
+    allow_multilinestring_input: bool = False,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
     Crop traces to the area polygons.
@@ -1152,7 +1153,10 @@ def crop_to_target_areas(
         ``LineString's``.
     """
     # Only handle LineStrings
-    if not all(isinstance(trace, LineString) for trace in traces.geometry.values):
+    if (
+        not all(isinstance(trace, LineString) for trace in traces.geometry.values)
+        and not allow_multilinestring_input
+    ):
         raise TypeError(
             "Expected no MultiLineString geometries in crop_to_target_areas."
         )
@@ -1739,13 +1743,15 @@ def multiprocess(
     return collect_results
 
 
-def save_fig(fig: Figure, results_dir: Path, name: str):
+def save_fig(fig: Figure, results_dir: Path, name: str) -> Path:
     """
     Save figure as svg image to results dir.
     """
     assert results_dir.exists() and results_dir.is_dir()
     assert len(name) > 0
-    fig.savefig(results_dir / f"{name}.svg", bbox_inches="tight")
+    output_path = results_dir / f"{name}.svg"
+    fig.savefig(output_path, bbox_inches="tight")
+    return output_path
 
 
 @contextmanager
