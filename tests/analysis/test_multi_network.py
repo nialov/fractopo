@@ -68,10 +68,11 @@ def multinetwork_plot_multi_length_distribution(
 
     assert len(mld.distributions) == len(network_params)
 
-    fig, ax = multi_network.plot_multi_length_distribution(
+    mld, fig, ax = multi_network.plot_multi_length_distribution(
         using_branches=using_branches, cut_distributions=cut_distributions
     )
 
+    assert isinstance(mld, length_distributions.MultiLengthDistribution)
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     return mld, fig, ax
