@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 import tests
-from fractopo import MultiNetwork, Network
+from fractopo import MultiNetwork, Network, general
 from fractopo.analysis import length_distributions, subsampling
 
 
@@ -140,3 +140,44 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
         plot_path = tmp_path / f"{plot_func}.png"
         fig.savefig(plot_path, bbox_inches="tight")
         logging.info(f"Saved {plot_func} plot to {plot_path.absolute()}.")
+
+
+@pytest.mark.parametrize(
+    "cut_distributions",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    "using_branches",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    "network_params",
+    tests.test_multinetwork_plot_azimuth_set_lengths_params(),
+)
+def test_multinetwork_plot_azimuth_set_lengths(
+    network_params, using_branches, cut_distributions, tmp_path: Path
+):
+    """
+    Test MultiNetwork._plot_azimuth_set_lengths.
+    """
+
+    networks = [
+        Network(**params, determine_branches_nodes=using_branches)
+        for params in network_params
+    ]
+
+    multi_network = MultiNetwork(tuple(networks))
+
+    mlds, figs, axes = multi_network._plot_azimuth_set_lengths(
+        cut_distributions=cut_distributions, using_branches=using_branches
+    )
+
+    for name, fig in zip(mlds, figs):
+        output_path = general.save_fig(fig=fig, results_dir=tmp_path, name=name)
+        logging.info(f"Saved plot to {output_path}.")
+
+    assert isinstance(mlds, dict)
+    assert isinstance(figs, list)
+    assert isinstance(axes, list)
+    assert isinstance(figs[0], Figure)
+    assert isinstance(axes[0], Axes)

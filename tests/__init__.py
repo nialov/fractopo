@@ -125,6 +125,9 @@ class Helpers:
         Path("tests/sample_data/hastholmen_traces.geojson")
     )
     hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
+    hastholmen_traces_validated = read_geofile(
+        Path("tests/sample_data/hastholmen_traces_validated.geojson")
+    )
 
     geta_lidar_inf_valid_traces = read_geofile(
         Path("tests/sample_data/geta_lidar_lineaments_infinity_traces.geojson")
@@ -1813,6 +1816,13 @@ KB7_NETWORK_PARAMS = dict(
     circular_target_area=False,
     snap_threshold=0.001,
 )
+HASTHOLMEN_VALID_NETWORK_PARAMS = dict(
+    trace_gdf=Helpers.hastholmen_traces_validated,
+    area_gdf=Helpers.hastholmen_area,
+    name="hastholmen",
+    circular_target_area=False,
+    snap_threshold=0.001,
+)
 
 
 @lru_cache(maxsize=None)
@@ -1822,4 +1832,14 @@ def test_multinetwork_plot_multi_length_distribution_fast_params():
     """
     return [
         [KB11_NETWORK_PARAMS, KB7_NETWORK_PARAMS],
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_multinetwork_plot_azimuth_set_lengths_params():
+    """
+    Params for test_multinetwork_plot_multi_length_distribution_fast.
+    """
+    return [
+        [KB11_NETWORK_PARAMS, HASTHOLMEN_VALID_NETWORK_PARAMS],
     ]
