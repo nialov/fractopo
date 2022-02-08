@@ -158,7 +158,7 @@ class MultiNetwork(NamedTuple):
         self,
         using_branches: bool,
         cut_distributions: bool,
-    ):
+    ) -> Tuple[length_distributions.MultiLengthDistribution, Figure, Axes]:
         """
         Plot multi-length distribution fit.
 
@@ -170,7 +170,7 @@ class MultiNetwork(NamedTuple):
         )
         fig, ax = multi_distribution.plot_multi_length_distributions()
 
-        return fig, ax
+        return multi_distribution, fig, ax
 
     def plot_xyi(
         self,

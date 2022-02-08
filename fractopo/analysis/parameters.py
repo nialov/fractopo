@@ -112,7 +112,7 @@ def decorate_count_ax(
     """
     Decorate ternary count plot.
     """
-    text = "\n".join([f"{label}={value}" for label, value in label_counts.items()])
+    text = "\n".join([f"{label} (n={value})" for label, value in label_counts.items()])
     if is_nodes:
         initialize_ternary_points(ax=ax, tax=tax)
         tern_plot_the_fing_lines(tax)
