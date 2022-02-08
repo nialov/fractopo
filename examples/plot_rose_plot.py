@@ -8,8 +8,8 @@ Plotting rose plots with ``fractopo``
 
 from pprint import pprint
 
-# Load kb11_network network from examples/make_kb11_network.py
-from make_kb11_network import kb11_network
+# Load kb11_network network from examples/example_networks.py
+from example_networks import kb11_network
 
 # %%
 # Plotting a rose plot of fracture network trace orientations
@@ -27,7 +27,7 @@ azimuth_bins, fix, ax = kb11_network.plot_branch_azimuth()
 
 # %%
 # Numerical data is accessible with methods and class properties
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
 
 pprint((kb11_network.branch_azimuth_set_counts, kb11_network.trace_azimuth_set_counts))
 

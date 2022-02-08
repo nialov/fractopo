@@ -15,8 +15,8 @@ from pprint import pprint
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
-# Load kb11_network network from examples/make_kb11_network.py
-from make_kb11_network import kb11_network
+# Load kb11_network network from examples/example_networks.py
+from example_networks import kb11_network
 
 # Import Network class from fractopo
 from fractopo import Network
