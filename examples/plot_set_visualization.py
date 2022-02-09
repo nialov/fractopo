@@ -23,7 +23,7 @@ pprint(kb11_network.trace_azimuth_set_counts)
 
 # %%
 fig, ax = plt.subplots(figsize=(8, 8))
-colors = ("red", "green", "blue")
+colors = ("red", "blue")
 assert len(colors) == len(kb11_network.azimuth_set_names)
 for azimuth_set, set_range, color in zip(
     kb11_network.azimuth_set_names, kb11_network.azimuth_set_ranges, colors
