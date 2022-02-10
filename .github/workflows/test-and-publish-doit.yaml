@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - "**.py"
+      - "**.rst"
       # Ignore small changes to documentation files
       # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"
