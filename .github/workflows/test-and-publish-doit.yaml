@@ -6,6 +6,7 @@ on:
     paths:
       - "**.py"
       # Ignore small changes to documentation files
+      # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"
       - "!CHANGELOG.md"
   # run only on master pull requests
