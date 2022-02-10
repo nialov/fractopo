@@ -3,6 +3,9 @@ name: conda
 on:
   # run on all pushes to any branch
   push:
+    paths:
+      # Only run on changes to python files
+      - "**.py"
   # run only on master pull requests
   pull_request:
     branches: [master]

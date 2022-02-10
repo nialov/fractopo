@@ -3,6 +3,11 @@ name: test-and-publish-doit
 on:
   # run on all pushes to any branch
   push:
+    paths:
+      - "**.py"
+      # Ignore small changes to documentation files
+      - "!README.rst"
+      - "!CHANGELOG.md"
   # run only on master pull requests
   pull_request:
     branches: [master]

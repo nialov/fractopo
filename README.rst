@@ -208,22 +208,22 @@ produces. Brief example of command-line entrypoint:
 Citing
 ------
 
--  To cite this software:
+To cite this software:
 
-   -  The software is introduced in https://doi.org/10.1016/j.jsg.2022.104528 and
-      you can cite that article as a general citation:
+-  The software is introduced in https://doi.org/10.1016/j.jsg.2022.104528 and
+   you can cite that article as a general citation:
 
-   .. code:: text
+.. code:: text
 
-      Ovaskainen, N., Nordbäck, N., Skyttä, P. and Engström, J., 2022. A new
-      subsampling methodology to optimize the characterization of
-      two-dimensional bedrock fracture networks. Journal of Structural Geology,
-      p.104528.
+   Ovaskainen, N., Nordbäck, N., Skyttä, P. and Engström, J., 2022. A new
+   subsampling methodology to optimize the characterization of
+   two-dimensional bedrock fracture networks. Journal of Structural Geology,
+   p.104528.
 
-   -  To cite a specific version of ``fractopo`` you can use a ``zenodo``
-      provided ``doi``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
-      ``v0.2.6``. See the ``zenodo`` page of ``fractopo`` for the ``doi`` of each
-      version: https://doi.org/10.5281/zenodo.5517485
+-  To cite a specific version of ``fractopo`` you can use a ``zenodo``
+   provided ``doi``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
+   ``v0.2.6``. See the ``zenodo`` page of ``fractopo`` for the ``doi`` of each
+   version: https://doi.org/10.5281/zenodo.5517485
 
 Development
 -----------
