@@ -33,7 +33,16 @@ DOCS_REQUIREMENTS_PATH = Path("docs_src/requirements.txt")
 NOTEBOOKS_PATH = DOCS_SRC_PATH / "notebooks"
 COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
 README_PATH = Path("README.rst")
-DOCS_FILES = [*list(DOCS_SRC_PATH.rglob("*.rst")), README_PATH]
+# DOCS_FILES = [*list(DOCS_SRC_PATH.rglob("*.rst")), README_PATH]
+DOCS_FILES = [
+    *[
+        path
+        for path in DOCS_SRC_PATH.rglob("*.rst")
+        # Filter out sphinx-gallery files
+        if "auto_examples" not in str(path)
+    ],
+    README_PATH,
+]
 
 ## Build
 DEV_REQUIREMENTS_PATH = Path("requirements.txt")
