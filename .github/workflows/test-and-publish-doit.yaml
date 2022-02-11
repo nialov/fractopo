@@ -6,6 +6,8 @@ on:
     paths:
       - "**.py"
       - "**.rst"
+      - "pyproject.toml"
+      - "poetry.lock"
       # Ignore small changes to documentation files
       # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"
