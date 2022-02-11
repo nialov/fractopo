@@ -319,6 +319,8 @@ def task_citation():
 def task_changelog():
     """
     Generate changelog.
+
+    Currently only ran when task_tag is called.
     """
     command = "nox --session changelog"
     return {
@@ -416,7 +418,6 @@ def task_tag(tag: str):
     # Create changelog with 'tag' as latest version
     create_changelog = "nox --session changelog -- %(tag)s"
     return {
-        # NAME: "create changelog for tag and update version strings",
         ACTIONS: [create_changelog, use_tag],
     }
 
@@ -433,7 +434,6 @@ DOIT_CONFIG = {
         resolve_task_name(task_notebooks),
         resolve_task_name(task_build),
         resolve_task_name(task_citation),
-        resolve_task_name(task_changelog),
         resolve_task_name(task_codespell),
     ]
 }
