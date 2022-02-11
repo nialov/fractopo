@@ -50,8 +50,6 @@ matplotlib = "*"
 click = "*"
 rich = "^11.0.0"
 typer = "^0.4.0"
-# Logging
-nialog = {version = "^0.0.2", optional = true}
 
 # Extras
 # Coverage
@@ -87,7 +85,6 @@ pytest-regressions = "==2.2.0"
 toml = "^0.10.2"
 
 [tool.poetry.extras]
-logging = ["nialog"]
 coverage = ["coverage", "coverage-badge"]
 docs = [
     "sphinx",
