@@ -4,10 +4,10 @@ on:
   # run on all pushes to any branch
   push:
     paths:
-      # Only run on changes to python files and environment.yml
-      - "**.py"
+      # Only run on changes to source or test python files and environment.yml
+      - "fractopo/**.py"
+      - "tests/**.py"
       - "environment.yml"
-      - "!examples/**.py"
   # run only on master pull requests
   pull_request:
     branches: [master]
