@@ -253,34 +253,13 @@ to make sure your arguments are correct.
 @app.callback()
 def fractopo_callback(
     logging_level: LoggingLevel = typer.Option(LoggingLevel.WARNING.value),
-    json_indent: int = typer.Option(1),
 ):
     """
     Use fractopo command-line utilities.
     """
     logging_level_int = int(getattr(logging, logging_level.value))
-    try:
-        import nialog
-
-        nialog.setup_module_logging(
-            logging_level_int=logging_level_int,
-            json_indent=json_indent,
-        )
-    except ImportError:
-        logging.warning(
-            "\n".join(
-                [
-                    "Cannot setup json-logging of code without 'nialog' dependency.",
-                    "Note: Not available on conda.",
-                    "If installing with pip, add the optional dependency specification:",
-                    "pip install fractopo[logging]",
-                    "or alternatively (recommended with conda installation):",
-                    "pip install nialog",
-                ]
-            )
-        )
-        logging.info("Setting up logging with basicConfig.")
-        logging.basicConfig(level=logging_level_int, force=True)
+    logging.info("Setting up logging with basicConfig.")
+    logging.basicConfig(level=logging_level_int, force=True)
 
 
 @app.command()
