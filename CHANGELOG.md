@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.3.0 (2022-02-11)
+
+### New Features
+
+-   (analysis.multi_network): Added multi-scale azimuth set length distribution
+    plotting.
+
+-   (analysis.network): Implemented azimuth set length distribution
+    plotting.
+
+-   (analysis): Implemented a naive implementation of `Network` caching
+    with `CachedNetwork` class. Errors will be raised if caching fails. User is
+    recommended to fallback to `Network` in that case.
+
+### Fixes
+
+-   (cli): Validation column in validated trace dataset
+    is now set as a `tuple` instead of as `list` to avoid conflicts
+    with string representations of the data in e.g. `GeoJSON`.
+
+Full set of changes:
+[`v0.2.6...v0.3.0`](https://github.com/nialov/fractopo/compare/v0.2.6...v0.3.0)
+
 ## v0.2.6 (2022-02-03)
 
 ### New Features
