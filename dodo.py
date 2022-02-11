@@ -79,6 +79,7 @@ PYTHON_ALL_FILES = [*PYTHON_SRC_FILES, *PYTHON_TEST_FILES, *PYTHON_UTIL_FILES]
 NOTEBOOKS = [
     *list(NOTEBOOKS_PATH.rglob("*.ipynb")),
 ]
+DIST_DIR_PATH = Path("dist/")
 
 
 def resolve_task_name(func) -> str:
@@ -237,8 +238,10 @@ def task_build():
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
             DODO_PATH,
+            PYPROJECT_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
+        TARGETS: [DIST_DIR_PATH],
     }
 
 
