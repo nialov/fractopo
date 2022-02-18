@@ -229,19 +229,13 @@ def task_notebooks():
 def task_build():
     """
     Build package with poetry.
+
+    Runs always without dependencies or targets.
     """
     command = "nox --session build"
     return {
         ACTIONS: [command],
-        FILE_DEP: [
-            *PYTHON_SRC_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            DODO_PATH,
-            PYPROJECT_PATH,
-        ],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
-        TARGETS: [DIST_DIR_PATH],
+        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_ci_test)],
     }
 
 
