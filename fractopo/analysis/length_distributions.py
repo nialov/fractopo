@@ -12,9 +12,11 @@ import numpy as np
 import pandas as pd
 import powerlaw
 import seaborn as sns
+import sklearn.metrics as sklm
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from scipy.optimize import minimize
 from sklearn.linear_model import LinearRegression
 
 from fractopo import general
@@ -34,6 +36,8 @@ class LengthDistribution:
 
     """
     Dataclass for length distributions.
+
+    TODO: Move functionality from MultiLengthDistribution back here.
     """
 
     name: str
@@ -729,6 +733,8 @@ def create_normalized_distributions(
 ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
     """
     Create normalized ccms for all distributions.
+
+    TODO: Duplicate method name in MultiLengthDistribution.
     """
     truncated_length_array_all = []
     ccm_array_normed_all = []
@@ -812,3 +818,116 @@ def plot_multi_distributions_and_fit(
     plt.legend()
 
     return fig, ax
+
+
+def apply_cut_off(length_array: np.ndarray, ccm_array: np.ndarray, cut_off: float):
+    """
+    Apply cut-off to lengths and associated ccm array.
+    """
+    are_truncated = length_array < cut_off
+    return length_array[~are_truncated], ccm_array[~are_truncated]
+
+
+def apply_cut_offs(full_length_arrays, full_ccm_arrays, cut_offs):
+    """
+    Apply cut-offs to length data.
+    """
+    cut_lengths_all, cut_ccm_all = [], []
+    for arr, ccm, cut_off in zip(full_length_arrays, full_ccm_arrays, cut_offs):
+        cut_lengths, cut_ccm = apply_cut_off(
+            length_array=arr, ccm_array=ccm, cut_off=cut_off
+        )
+        cut_lengths_all.append(cut_lengths)
+        cut_ccm_all.append(cut_ccm)
+
+    return cut_lengths_all, cut_ccm_all
+
+
+def _objective_function(
+    cut_offs: np.ndarray,
+    full_length_arrays=List[np.ndarray],
+    full_ccm_arrays=List[np.ndarray],
+) -> Tuple[np.ndarray, float, float, float]:
+    cut_length_arrays, cut_ccm_arrays = apply_cut_offs(
+        full_length_arrays=full_length_arrays,
+        full_ccm_arrays=full_ccm_arrays,
+        cut_offs=cut_offs,
+    )
+
+    length_array_concat = np.concatenate(cut_length_arrays)
+    ccm_array_concat = np.concatenate(cut_ccm_arrays)
+
+    y_fit, m_value, constant = fit_to_multi_scale_lengths(
+        ccm=ccm_array_concat, lengths=length_array_concat
+    )
+    msle = sklm.mean_squared_log_error(ccm_array_concat, y_fit)
+    return y_fit, m_value, constant, msle
+
+
+def objective_function(
+    cut_offs: np.ndarray,
+    full_length_arrays=List[np.ndarray],
+    full_ccm_arrays=List[np.ndarray],
+) -> float:
+    """
+    Optimize multiscale fit.
+    """
+    y_fit, m_value, constant, msle = _objective_function(
+        cut_offs=cut_offs,
+        full_length_arrays=full_length_arrays,
+        full_ccm_arrays=full_ccm_arrays,
+    )
+    return msle
+
+
+def optimize_multi_scale_fit(
+    full_length_arrays: List[np.ndarray],
+    area_values: List[float],
+    names: List[str],
+    using_branches: bool,
+):
+    """
+    Create optimized powerlaw fit for multi-scale data.
+    """
+    distributions = [
+        LengthDistribution(
+            name=name,
+            lengths=lengths,
+            area_value=area_value,
+            using_branches=using_branches,
+        )
+        for name, lengths, area_value in zip(names, full_length_arrays, area_values)
+    ]
+
+    truncated_length_array_all, ccm_array_normed_all = create_normalized_distributions(
+        distributions=distributions, cut_distributions=False
+    )
+
+    fits = [determine_fit(length_array=arr) for arr in truncated_length_array_all]
+    xmins = [fit.xmin for fit in fits]
+
+    bounds = [(min(arr), max(arr)) for arr in truncated_length_array_all]
+
+    res = minimize(
+        objective_function,
+        x0=xmins,
+        args=(truncated_length_array_all, ccm_array_normed_all),
+        bounds=bounds,
+    )
+
+    y_fit, m_value, constant, msle = _objective_function(
+        res.x,
+        full_length_arrays=truncated_length_array_all,
+        full_ccm_arrays=ccm_array_normed_all,
+    )
+
+    fig, axes = plot_multi_distributions_and_fit(
+        truncated_length_array_all=truncated_length_array_all,
+        ccm_array_normed_all=ccm_array_normed_all,
+        concatted_lengths=np.concatenate(truncated_length_array_all),
+        names=names,
+        m_value=m_value,
+        y_fit=y_fit,
+    )
+
+    return res, y_fit, m_value, constant, msle, fig, axes
