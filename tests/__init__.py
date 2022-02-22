@@ -125,6 +125,8 @@ class Helpers:
         Path("tests/sample_data/hastholmen_traces.geojson")
     )
     hastholmen_area = read_geofile(Path("tests/sample_data/hastholmen_area.geojson"))
+    traces_200k = read_geofile(Path("tests/sample_data/traces_200k.geojson"))
+    area_200k = read_geofile(Path("tests/sample_data/area_200k.geojson"))
     hastholmen_traces_validated = read_geofile(
         Path("tests/sample_data/hastholmen_traces_validated.geojson")
     )
@@ -1534,6 +1536,22 @@ def hastholmen_area_value():
 
 
 @lru_cache(maxsize=None)
+def traces_200k_lengths():
+    """
+    Get trace lengths of 200k lineaments.
+    """
+    return Helpers.traces_200k.geometry.length.values
+
+
+@lru_cache(maxsize=None)
+def area_200k_value():
+    """
+    Get area value of hastholmen.
+    """
+    return sum(Helpers.area_200k.geometry.area)
+
+
+@lru_cache(maxsize=None)
 def test_populate_sample_cell_new_params():
     """
     Params for test_populate_sample_cell_new.
@@ -1647,6 +1665,12 @@ def test_fit_to_multi_scale_lengths_params():
                 name="hastholmen",
                 lengths=hastholmen_traces_lengths(),
                 area_value=hastholmen_area_value(),
+                using_branches=False,
+            ),
+            length_distributions.LengthDistribution(
+                name="200k",
+                lengths=traces_200k_lengths(),
+                area_value=area_200k_value(),
                 using_branches=False,
             ),
         ]
