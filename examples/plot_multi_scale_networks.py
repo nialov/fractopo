@@ -24,9 +24,9 @@ multi_network = MultiNetwork((kb11_network, hastholmen_network))
 # ------------------------------------------------------------------
 
 # Log-log plot of MultiNetwork trace length distribution
-mld_traces, fig, ax = multi_network.plot_multi_length_distribution(
+mld_traces, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
     using_branches=False,
-    cut_distributions=True,
+    automatic_cut_offs=True,
 )
 
 # Visual plot setup
@@ -36,9 +36,9 @@ plt.tight_layout()
 # %%
 
 # Log-log plot of MultiNetwork branch length distribution
-mld_branches, fig, ax = multi_network.plot_multi_length_distribution(
+mld_branches, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
     using_branches=True,
-    cut_distributions=True,
+    automatic_cut_offs=True,
 )
 
 # Visual plot setup
@@ -50,11 +50,11 @@ plt.tight_layout()
 # -----------------------------------------------------------
 
 # The returned MultiLengthDistribution objects contain details
-print(f"Exponent of traces fit: {mld_traces.m_value}")
+print(f"Exponent of traces fit: {polyfit.m_value}")
 
 # %%
 
-print(f"Exponent of branches fit: {mld_branches.m_value}")
+print(f"Exponent of branches fit: {polyfit.m_value}")
 
 # %%
 # Plot set-wise multi-scale distributions for traces
@@ -70,7 +70,7 @@ print(multi_network.collective_azimuth_sets())
 # %%
 
 mlds, figs, axes = multi_network.plot_trace_azimuth_set_lengths(
-    cut_distributions=True,
+    automatic_cut_offs=True,
 )
 
 for fig in figs:
