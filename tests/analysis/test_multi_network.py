@@ -49,30 +49,29 @@ def test_multinetwork_subsample(network_params, samples: int, min_radii: float):
 
 
 def multinetwork_plot_multi_length_distribution(
-    network_params, using_branches=False, cut_distributions=True
+    network_params, using_branches=False, automatic_cut_offs=True
 ):
     """
     Create and test multi_network plot_multi_length_distribution.
     """
     # using_branches = False
-    # cut_distributions = True
+    # automatic_cut_offs = True
     networks = [
         Network(**kwargs, determine_branches_nodes=using_branches)
         for kwargs in network_params
     ]
     multi_network = MultiNetwork(networks=tuple(networks))
 
-    mld = multi_network.multi_length_distributions(
-        using_branches=using_branches, cut_distributions=cut_distributions
-    )
+    mld = multi_network.multi_length_distributions(using_branches=using_branches)
 
     assert len(mld.distributions) == len(network_params)
 
-    mld, fig, ax = multi_network.plot_multi_length_distribution(
-        using_branches=using_branches, cut_distributions=cut_distributions
+    mld, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
+        using_branches=using_branches, automatic_cut_offs=automatic_cut_offs
     )
 
     assert isinstance(mld, length_distributions.MultiLengthDistribution)
+    assert isinstance(polyfit, length_distributions.Polyfit)
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     return mld, fig, ax
@@ -87,21 +86,21 @@ def test_multinetwork_plot_multi_length_distribution_slow(network_params):
     Test MultiNetwork.plot_multi_length_distribution with slow data.
     """
     mld, fig, ax = multinetwork_plot_multi_length_distribution(
-        network_params=network_params, using_branches=False, cut_distributions=True
+        network_params=network_params, using_branches=False, automatic_cut_offs=True
     )
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert isinstance(mld, length_distributions.MultiLengthDistribution)
 
 
-@pytest.mark.parametrize("cut_distributions", [True, False])
+@pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize("using_branches", [False, True])
 @pytest.mark.parametrize(
     "network_params",
     tests.test_multinetwork_plot_multi_length_distribution_fast_params(),
 )
 def test_multinetwork_plot_multi_length_distribution_fast(
-    network_params, using_branches, cut_distributions
+    network_params, using_branches, automatic_cut_offs
 ):
     """
     Test MultiNetwork.plot_multi_length_distribution with fast data.
@@ -109,7 +108,7 @@ def test_multinetwork_plot_multi_length_distribution_fast(
     multinetwork_plot_multi_length_distribution(
         network_params=network_params,
         using_branches=using_branches,
-        cut_distributions=cut_distributions,
+        automatic_cut_offs=automatic_cut_offs,
     )
 
 
@@ -144,7 +143,7 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
 
 
 @pytest.mark.parametrize(
-    "cut_distributions",
+    "automatic_cut_offs",
     [True, False],
 )
 @pytest.mark.parametrize(
@@ -156,7 +155,7 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
     tests.test_multinetwork_plot_azimuth_set_lengths_params(),
 )
 def test_multinetwork_plot_azimuth_set_lengths(
-    network_params, using_branches, cut_distributions, tmp_path: Path
+    network_params, using_branches, automatic_cut_offs, tmp_path: Path
 ):
     """
     Test MultiNetwork._plot_azimuth_set_lengths.
@@ -170,7 +169,7 @@ def test_multinetwork_plot_azimuth_set_lengths(
     multi_network = MultiNetwork(tuple(networks))
 
     mlds, figs, axes = multi_network._plot_azimuth_set_lengths(
-        cut_distributions=cut_distributions, using_branches=using_branches
+        automatic_cut_offs=automatic_cut_offs, using_branches=using_branches
     )
 
     for name, fig in zip(mlds, figs):

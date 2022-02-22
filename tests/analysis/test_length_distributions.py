@@ -3,6 +3,7 @@ Tests for length distributions utilities.
 """
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import powerlaw
 import pytest
@@ -76,13 +77,13 @@ def test_all_fit_attributes_dict(lengths, _):
         ),
     ],
 )
-@pytest.mark.parametrize("cut_distributions", [True, False])
+@pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize("using_branches", [True, False])
 def test_multilengthdistribution_plot(
     list_of_length_arrays,
     list_of_area_values,
     names,
-    cut_distributions,
+    automatic_cut_offs,
     using_branches,
     num_regression,
 ):
@@ -106,29 +107,30 @@ def test_multilengthdistribution_plot(
             )
         ],
         using_branches=using_branches,
-        cut_distributions=cut_distributions,
     )
 
-    fig, ax = multi_length_distribution.plot_multi_length_distributions()
+    polyfit, fig, ax = multi_length_distribution.plot_multi_length_distributions(
+        automatic_cut_offs=automatic_cut_offs
+    )
+    plt.close()
 
     mld = multi_length_distribution
 
+    truncated_length_array_all, ccm_array_normed_all = mld.normalized_distributions(
+        automatic_cut_offs=automatic_cut_offs
+    )
+
     assert isinstance(fig, Figure) and isinstance(ax, Axes)
-    assert isinstance(mld.truncated_length_array_all, list)
-    assert isinstance(mld.ccm_array_normed_all, list)
-    assert isinstance(mld.fitted_y_values, np.ndarray)
-    assert isinstance(mld.m_value, float)
-    assert isinstance(mld.constant, float)
-    assert isinstance(mld.concatted_lengths, np.ndarray)
-    assert isinstance(mld.concatted_ccm, np.ndarray)
+    assert isinstance(truncated_length_array_all, list)
+    assert isinstance(ccm_array_normed_all, list)
 
     num_regression.check(
         {
-            "concatted_lengths": mld.concatted_lengths,
-            "concatted_ccm": mld.concatted_ccm,
-            "fitted_y_values": mld.fitted_y_values,
-            "m_value": np.array([mld.m_value]),
-            "constant": np.array([mld.constant]),
+            "concatted_lengths": np.concatenate(truncated_length_array_all),
+            "concatted_ccm": np.concatenate(ccm_array_normed_all),
+            "fitted_y_values": polyfit.y_fit,
+            "m_value": np.array([polyfit.m_value]),
+            "constant": np.array([polyfit.constant]),
         },
         default_tolerance=dict(atol=1e-4, rtol=1e-4),
     )
@@ -145,14 +147,14 @@ def test_normalize_fit_to_area(
     Test normalize_fit_to_area.
     """
     # fit = powerlaw.Fit(length_distribution.lengths)
-    fit = length_distributions.SilentFit(length_distribution.lengths)
+    # fit = length_distributions.SilentFit(length_distribution.lengths)
+
+    fit = length_distribution.automatic_fit
 
     (
         truncated_length_array,
         ccm_array_normed,
-    ) = length_distributions.normalize_fit_to_area(
-        fit=fit, length_distribution=length_distribution
-    )
+    ) = length_distribution.apply_cut_off(cut_off=fit.xmin)
 
     assert isinstance(truncated_length_array, np.ndarray)
     assert isinstance(ccm_array_normed, np.ndarray)
@@ -170,29 +172,63 @@ def test_normalize_fit_to_area(
     )
 
 
+@pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize(
     "distributions", tests.test_fit_to_multi_scale_lengths_params()
 )
 def test_fit_to_multi_scale_lengths_fitter_comparisons(
     distributions: List[length_distributions.LengthDistribution],
+    automatic_cut_offs: bool,
 ):
     """
     Test fit_to_multi_scale_lengths.
     """
     mld = length_distributions.MultiLengthDistribution(
-        distributions=distributions, cut_distributions=True, using_branches=False
+        distributions=distributions, using_branches=False
     )
 
+    truncated_length_array_all, ccm_array_normed_all = mld.normalized_distributions(
+        automatic_cut_offs=automatic_cut_offs
+    )
+    concatted_lengths, concatted_ccm = np.concatenate(
+        truncated_length_array_all
+    ), np.concatenate(ccm_array_normed_all)
+
+    # Fit with np.polyfit
     numpy_polyfit_vals = length_distributions.fit_to_multi_scale_lengths(
-        lengths=mld.concatted_lengths,
-        ccm=mld.concatted_ccm,
+        lengths=concatted_lengths,
+        ccm=concatted_ccm,
         fitter=length_distributions.numpy_polyfit,
     )
+
+    # Fit with scikit LinearRegression
     linear_regression_vals = length_distributions.fit_to_multi_scale_lengths(
-        lengths=mld.concatted_lengths,
-        ccm=mld.concatted_ccm,
+        lengths=concatted_lengths,
+        ccm=concatted_ccm,
         fitter=length_distributions.scikit_linear_regression,
     )
 
     for val in [*numpy_polyfit_vals, *linear_regression_vals]:
         assert isinstance(val, (np.ndarray, float))
+
+
+@pytest.mark.parametrize(
+    "distributions", tests.test_fit_to_multi_scale_lengths_params()
+)
+def test_plot_mld_optimized(distributions):
+    """
+    Test plot_mld_optimized.
+    """
+    mld = length_distributions.MultiLengthDistribution(
+        distributions=distributions, using_branches=False
+    )
+
+    opt_result, opt_mld = mld.optimize_cut_offs()
+
+    polyfit, fig, ax = opt_mld.plot_multi_length_distributions(automatic_cut_offs=False)
+
+    assert isinstance(opt_result, length_distributions.MultiScaleOptimizationResult)
+    assert isinstance(polyfit, length_distributions.Polyfit)
+    assert isinstance(fig, Figure) and isinstance(ax, Axes), (fig, ax)
+
+    plt.close()

@@ -1506,7 +1506,7 @@ def kb11_traces_lengths():
     """
     Get trace lengths of KB11.
     """
-    return Helpers.kb11_traces.geometry.length
+    return Helpers.kb11_traces.geometry.length.values
 
 
 @lru_cache(maxsize=None)
@@ -1522,7 +1522,7 @@ def hastholmen_traces_lengths():
     """
     Get trace lengths of hastholmen infinity lineaments.
     """
-    return Helpers.hastholmen_traces.geometry.length
+    return Helpers.hastholmen_traces.geometry.length.values
 
 
 @lru_cache(maxsize=None)
@@ -1842,4 +1842,18 @@ def test_multinetwork_plot_azimuth_set_lengths_params():
     """
     return [
         [KB11_NETWORK_PARAMS, HASTHOLMEN_VALID_NETWORK_PARAMS],
+    ]
+
+
+@lru_cache(maxsize=None)
+def test_plot_mld_optimized_params():
+    """
+    Params for test_plot_mld_optimized.
+    """
+    return [
+        (
+            [kb11_traces_lengths(), hastholmen_traces_lengths()],
+            [kb11_area_value(), hastholmen_area_value()],
+            ["kb11", "hastholmen"],
+        )
     ]
