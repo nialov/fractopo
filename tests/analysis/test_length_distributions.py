@@ -235,8 +235,8 @@ def test_plot_mld_optimized(distributions):
     assert isinstance(fig, Figure) and isinstance(ax, Axes), (fig, ax)
 
     # FIXME: Debug cut off applies
-    import IPython
+    # import IPython
 
-    IPython.embed()
+    # IPython.embed()
 
     plt.close()

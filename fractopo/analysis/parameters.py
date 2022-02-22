@@ -389,17 +389,13 @@ def plot_branch_plot_ax(
     # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     point = counts_to_point(counts, is_nodes=False)
     if point is not None:
-        try:
-            tax.scatter(
-                points=[point],
-                **ternary_point_kwargs(marker="o"),
-                label=label,
-                color=color,
-            )
-        except Exception:
-            import IPython
+        tax.scatter(
+            points=[point],
+            **ternary_point_kwargs(marker="o"),
+            label=label,
+            color=color,
+        )
 
-            IPython.embed()
         # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
     tax.legend(
         loc="upper center",
