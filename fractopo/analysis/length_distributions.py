@@ -15,7 +15,7 @@ import sklearn.metrics as sklm
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from scipy.optimize import OptimizeResult, minimize
+from scipy.optimize import OptimizeResult, shgo
 from sklearn.linear_model import LinearRegression
 
 from fractopo import general
@@ -144,7 +144,7 @@ class LengthDistribution:
             self.lengths
         )
         high_filtered = filtered_proportion > 0.1
-        logging_func = logging.info if high_filtered else logging.warning
+        logging_func = logging.warning if high_filtered else logging.info
         logging_func(
             "Created LengthDistribution instance."
             + (" High filter proportion!" if high_filtered else ""),
@@ -176,43 +176,15 @@ class LengthDistribution:
         """
         return determine_fit(length_array=self.lengths, cut_off=cut_off)
 
-    @property
-    def sorted_full_lengths_and_ccdf(self):
-        """
-        Determine complementary cumulative distribution function values.
-
-        For length data that is not truncated with cut-off i.e. the original
-        data.
-        """
-        full_length_array, full_ccm_array = SilentFit(
-            data=self.lengths, xmin=general.MINIMUM_LINE_LENGTH
-        ).ccdf(original_data=True)
-        return full_length_array, full_ccm_array
-
-    def apply_cut_off(
-        self, cut_off: float = general.MINIMUM_LINE_LENGTH, normalize_ccm: bool = True
-    ):
+    def generate_distributions(self, cut_off: float = general.MINIMUM_LINE_LENGTH):
         """
         Generate ccdf and truncated length data by cut_off.
         """
-        # Get the full length data along with full ccm using the original
-        # data instead of fitted (should be same with cut_off==0.0)
-        full_length_array, full_ccm_array = self.sorted_full_lengths_and_ccdf
-
-        # Get boolean array where length is over cut_off
-        are_over_cut_off = full_length_array > cut_off
-
-        assert isinstance(are_over_cut_off, np.ndarray), str(type(are_over_cut_off))
-        assert sum(are_over_cut_off) > 0
-
-        # Cut lengths and corresponding ccm to indexes where are over cut off
-        truncated_length_array = full_length_array[are_over_cut_off]
-        ccm_array = full_ccm_array[are_over_cut_off]
-
-        if normalize_ccm:
-            ccm_array = ccm_array / self.area_value
-
-        return truncated_length_array, ccm_array
+        lengths, ccm = sorted_lengths_and_ccm(
+            lengths=self.lengths, area_value=self.area_value
+        )
+        lengths, ccm = apply_cut_off(lengths=lengths, ccm=ccm, cut_off=cut_off)
+        return lengths, ccm
 
 
 class Polyfit(NamedTuple):
@@ -236,6 +208,9 @@ class MultiScaleOptimizationResult(NamedTuple):
     polyfit: Polyfit
     cut_offs: np.ndarray
     optimize_result: OptimizeResult
+    x0: np.ndarray
+    bounds: np.ndarray
+    proportions_of_data: List[float]
 
 
 @dataclass
@@ -303,7 +278,7 @@ class MultiLengthDistribution:
             (
                 truncated_length_array,
                 ccm_array_normed,
-            ) = distribution.apply_cut_off(cut_off=cut_off, normalize_ccm=True)
+            ) = distribution.generate_distributions(cut_off=cut_off)
 
             # Collect
             truncated_length_array_all.append(truncated_length_array)
@@ -335,11 +310,10 @@ class MultiLengthDistribution:
         lengths_concat = np.concatenate(truncated_length_array_all)
         ccm_concat = np.concatenate(ccm_array_normed_all)
 
-        # Fit a fit to the multi dataset values
+        # Fit a powerlaw to the multi dataset values
         polyfit = fit_to_multi_scale_lengths(ccm=ccm_concat, lengths=lengths_concat)
         fig, ax = plot_multi_distributions_and_fit(
             truncated_length_array_all=truncated_length_array_all,
-            concatted_lengths=np.concatenate(truncated_length_array_all),
             ccm_array_normed_all=ccm_array_normed_all,
             names=self.names,
             polyfit=polyfit,
@@ -349,11 +323,15 @@ class MultiLengthDistribution:
 
     def optimize_cut_offs(
         self,
+        jac="2-point",
+        finite_diff_rel_step: np.ndarray = np.array([0.1, 100, 1000]),
     ) -> Tuple[MultiScaleOptimizationResult, "MultiLengthDistribution"]:
         """
         Get cut-off optimized MultiLengthDistribution.
         """
-        opt_result = self.optimized_multi_scale_fit()
+        opt_result = self.optimized_multi_scale_fit(
+            jac=jac, finite_diff_rel_step=finite_diff_rel_step
+        )
         optimized_mld = MultiLengthDistribution(
             distributions=self.distributions,
             using_branches=self.using_branches,
@@ -362,44 +340,74 @@ class MultiLengthDistribution:
         )
         return opt_result, optimized_mld
 
-    def optimized_multi_scale_fit(self) -> MultiScaleOptimizationResult:
+    def optimized_multi_scale_fit(
+        self,
+        jac="2-point",
+        finite_diff_rel_step: np.ndarray = np.array([0.1, 100, 1000]),
+    ) -> MultiScaleOptimizationResult:
         """
         Use scipy.optimize.minimize to optimize fit.
         """
         # Use automatic powerlaw fitting to get first guesses for optimization
         xmins = [ld.automatic_fit.xmin for ld in self.distributions]
+        # xmins = [1.0 for ld in self.distributions]
 
         # Get all arrays of lengths and use them to define
         # lower and upper bounds for cut-offs
         truncated_length_array_all, _ = self.normalized_distributions(
             automatic_cut_offs=False
         )
-        bounds = [(min(arr), max(arr)) for arr in truncated_length_array_all]
+
+        # Bound to upper 99 quantile
+        bounds = [np.quantile(arr, (0.0, 0.99)) for arr in truncated_length_array_all]
 
         # Use scipy to optimize the mean squared logarithmic error of a
         # powerlaw fit to the multi-scale data
-        optimize_result = minimize(
+        # tolerance = 1e-16
+        # optimize_result = minimize(
+        #     optimize_cut_offs,
+        #     x0=xmins,
+        #     args=(self.distributions,),
+        #     bounds=bounds,
+        #     method="L-BFGS-B",
+        #     options=dict(
+        #         maxls=50,
+        #         gtol=tolerance,
+        #         eps=finite_diff_rel_step,
+        #     ),
+        #     tol=tolerance,
+        #     jac=jac,
+        # )
+        optimize_result = shgo(
             optimize_cut_offs,
-            x0=xmins,
-            args=(self.distributions),
+            args=(self.distributions,),
             bounds=bounds,
+            sampling_method="sobol",
+            n=100,
+            iters=25,
+            # options=dict(
+            #     maxls=50,
+            #     gtol=tolerance,
+            #     eps=finite_diff_rel_step,
+            # ),
         )
+        print(optimize_result)
         assert isinstance(optimize_result, OptimizeResult)
 
         # Use the optimized cut-offs to determine the resulting exponent
-        y_fit, m_value, constant, msle = _optimize_cut_offs(
+        polyfit, proportions = _optimize_cut_offs(
             optimize_result.x,
             distributions=self.distributions,
         )
-
-        # Parse the fit results into a NamedTuple
-        polyfit = Polyfit(y_fit=y_fit, m_value=m_value, constant=constant, msle=msle)
 
         # Return a composed object of the results for easier parsing downstream
         return MultiScaleOptimizationResult(
             polyfit=polyfit,
             cut_offs=optimize_result.x,
             optimize_result=optimize_result,
+            x0=np.array(xmins),
+            bounds=np.array(bounds),
+            proportions_of_data=proportions,
         )
 
 
@@ -775,7 +783,6 @@ def fit_to_multi_scale_lengths(
 
 def plot_multi_distributions_and_fit(
     truncated_length_array_all: List[np.ndarray],
-    concatted_lengths: np.ndarray,
     ccm_array_normed_all: List[np.ndarray],
     names: List[str],
     polyfit: Polyfit,
@@ -808,6 +815,7 @@ def plot_multi_distributions_and_fit(
 
     # Plot polyfit
     y_fit = polyfit.y_fit
+    concatted_lengths = np.concatenate(truncated_length_array_all)
     ax.plot(
         (concatted_lengths[0], concatted_lengths[-1]),
         (y_fit[0], y_fit[-1]),
@@ -823,32 +831,32 @@ def plot_multi_distributions_and_fit(
 
 def _optimize_cut_offs(
     cut_offs: np.ndarray, distributions: List[LengthDistribution]
-) -> Tuple[np.ndarray, float, float, float]:
+) -> Tuple[Polyfit, List[float]]:
 
     # Each length and associated ccm must be collected
-    cut_length_arrays, cut_ccm_arrays = [], []
+    cut_length_arrays, cut_ccm_arrays, proportions = [], [], []
 
     # Iterate over given distributions and cut-offs
     for dist, cut_off in zip(distributions, cut_offs):
 
         # Use LengthDistribution.apply_cut_off to get truncated and normalized
         # length and ccm data
-        cut_lengths, cut_ccm = dist.apply_cut_off(cut_off=cut_off, normalize_ccm=True)
+        cut_lengths, cut_ccm = dist.generate_distributions(cut_off=cut_off)
+        cut_off_proportion = len(cut_lengths) / len(dist.lengths)
         cut_length_arrays.append(cut_lengths)
         cut_ccm_arrays.append(cut_ccm)
+        proportions.append(cut_off_proportion)
 
     # Concatenate length and ccm data into single arrays
     length_array_concat = np.concatenate(cut_length_arrays)
     ccm_array_concat = np.concatenate(cut_ccm_arrays)
 
     # Fit a regression fit to the concatenated arrays
-    y_fit, m_value, constant, msle = fit_to_multi_scale_lengths(
+    polyfit = fit_to_multi_scale_lengths(
         ccm=ccm_array_concat, lengths=length_array_concat
     )
 
-    # Calculate the mean squared logarithmic error
-    msle = sklm.mean_squared_log_error(ccm_array_concat, y_fit)
-    return y_fit, m_value, constant, msle
+    return polyfit, proportions
 
 
 def optimize_cut_offs(
@@ -861,11 +869,11 @@ def optimize_cut_offs(
     Requirements for scipy minimize state that the function to optimize must
     take one argument of a 1-d array and return a single float.
     """
-    *_, msle = _optimize_cut_offs(
+    polyfit, proportions = _optimize_cut_offs(
         cut_offs=cut_offs,
         distributions=distributions,
     )
-    return msle
+    return polyfit.msle * 10e9
 
 
 def scikit_linear_regression(
@@ -889,18 +897,49 @@ def scikit_linear_regression(
     return m_value, intercept
 
 
-def ccm(lengths: np.ndarray, area_value: Optional[float]) -> np.ndarray:
+def sorted_lengths_and_ccm(
+    lengths: np.ndarray, area_value: Optional[float]
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Get (normalized) complementary cumulative number array.
 
     Give area_value as None to **not** normalize.
+
+    >>> lengths = np.array([2, 4, 8, 16, 32])
+    >>> area_value = 10.0
+    >>> sorted_lengths_and_ccm(lengths, area_value)
+    (array([ 2,  4,  8, 16, 32]), array([0.1 , 0.08, 0.06, 0.04, 0.02]))
+
+    >>> lengths = np.array([2, 4, 8, 16, 32])
+    >>> area_value = None
+    >>> sorted_lengths_and_ccm(lengths, area_value)
+    (array([ 2,  4,  8, 16, 32]), array([1. , 0.8, 0.6, 0.4, 0.2]))
     """
     # use powerlaw.Fit to determine ccm
-    _, ccm = SilentFit(data=lengths, xmin=general.MINIMUM_LINE_LENGTH).ccdf()
+    lengths, ccm = SilentFit(data=lengths, xmin=general.MINIMUM_LINE_LENGTH).ccdf(
+        original_data=True
+    )
 
     if area_value is not None:
 
         # Normalize with area
         ccm = ccm / area_value
 
-    return ccm
+    return lengths, ccm
+
+
+def apply_cut_off(
+    lengths: np.ndarray, ccm: np.ndarray, cut_off: float = general.MINIMUM_LINE_LENGTH
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Apply cut-off to length data and associated ccm.
+
+    >>> lengths = np.array([2, 4, 8, 16, 32])
+    >>> ccm = np.array([1. , 0.8, 0.6, 0.4, 0.2])
+    >>> cut_off = 4.5
+    >>> apply_cut_off(lengths, ccm, cut_off)
+    (array([ 8, 16, 32]), array([0.6, 0.4, 0.2]))
+    """
+    are_over_cut_off = lengths > cut_off
+
+    return lengths[are_over_cut_off], ccm[are_over_cut_off]

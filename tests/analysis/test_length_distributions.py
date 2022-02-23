@@ -154,7 +154,7 @@ def test_normalize_fit_to_area(
     (
         truncated_length_array,
         ccm_array_normed,
-    ) = length_distribution.apply_cut_off(cut_off=fit.xmin)
+    ) = length_distribution.generate_distributions(cut_off=fit.xmin)
 
     assert isinstance(truncated_length_array, np.ndarray)
     assert isinstance(ccm_array_normed, np.ndarray)
@@ -223,9 +223,6 @@ def test_plot_mld_optimized(distributions):
         distributions=distributions, using_branches=False
     )
 
-    _, fig_auto_true, _ = mld.plot_multi_length_distributions(automatic_cut_offs=True)
-    _, fig_auto_false, _ = mld.plot_multi_length_distributions(automatic_cut_offs=False)
-
     opt_result, opt_mld = mld.optimize_cut_offs()
 
     polyfit, fig, ax = opt_mld.plot_multi_length_distributions(automatic_cut_offs=False)
@@ -233,10 +230,5 @@ def test_plot_mld_optimized(distributions):
     assert isinstance(opt_result, length_distributions.MultiScaleOptimizationResult)
     assert isinstance(polyfit, length_distributions.Polyfit)
     assert isinstance(fig, Figure) and isinstance(ax, Axes), (fig, ax)
-
-    # FIXME: Debug cut off applies
-    # import IPython
-
-    # IPython.embed()
 
     plt.close()
