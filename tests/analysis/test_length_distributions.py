@@ -229,6 +229,6 @@ def test_plot_mld_optimized(distributions):
 
     assert isinstance(opt_result, length_distributions.MultiScaleOptimizationResult)
     assert isinstance(polyfit, length_distributions.Polyfit)
-    assert isinstance(fig, Figure) and isinstance(ax, Axes), (fig, ax)
+    assert isinstance(fig, Figure) and isinstance(ax, Axes)
 
     plt.close()

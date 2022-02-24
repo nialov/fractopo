@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import chain, cycle
 from textwrap import wrap
-from typing import Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import numpy as np
 import powerlaw
@@ -311,7 +311,9 @@ class MultiLengthDistribution:
         ccm_concat = np.concatenate(ccm_array_normed_all)
 
         # Fit a powerlaw to the multi dataset values
-        polyfit = fit_to_multi_scale_lengths(ccm=ccm_concat, lengths=lengths_concat)
+        polyfit = fit_to_multi_scale_lengths(
+            ccm=ccm_concat, lengths=lengths_concat, fitter=self.fitter
+        )
         fig, ax = plot_multi_distributions_and_fit(
             truncated_length_array_all=truncated_length_array_all,
             ccm_array_normed_all=ccm_array_normed_all,
@@ -322,28 +324,23 @@ class MultiLengthDistribution:
         return polyfit, fig, ax
 
     def optimize_cut_offs(
-        self,
-        jac="2-point",
-        finite_diff_rel_step: np.ndarray = np.array([0.1, 100, 1000]),
+        self, shgo_kwargs: Dict[str, Any] = dict()
     ) -> Tuple[MultiScaleOptimizationResult, "MultiLengthDistribution"]:
         """
         Get cut-off optimized MultiLengthDistribution.
         """
-        opt_result = self.optimized_multi_scale_fit(
-            jac=jac, finite_diff_rel_step=finite_diff_rel_step
-        )
+        opt_result = self.optimized_multi_scale_fit(shgo_kwargs=shgo_kwargs)
         optimized_mld = MultiLengthDistribution(
             distributions=self.distributions,
             using_branches=self.using_branches,
             cut_offs=list(opt_result.cut_offs),
             _optimized=True,
+            fitter=self.fitter,
         )
         return opt_result, optimized_mld
 
     def optimized_multi_scale_fit(
-        self,
-        jac="2-point",
-        finite_diff_rel_step: np.ndarray = np.array([0.1, 100, 1000]),
+        self, shgo_kwargs: Dict[str, Any] = dict()
     ) -> MultiScaleOptimizationResult:
         """
         Use scipy.optimize.minimize to optimize fit.
@@ -359,45 +356,46 @@ class MultiLengthDistribution:
         )
 
         # Bound to upper 99 quantile
-        bounds = [np.quantile(arr, (0.0, 0.99)) for arr in truncated_length_array_all]
+        bounds = [np.quantile(arr, (0.0, 1.0)) for arr in truncated_length_array_all]
+        # bounds = [(0.0, 1.0) for _ in truncated_length_array_all]
 
-        # Use scipy to optimize the mean squared logarithmic error of a
-        # powerlaw fit to the multi-scale data
-        # tolerance = 1e-16
-        # optimize_result = minimize(
-        #     optimize_cut_offs,
-        #     x0=xmins,
-        #     args=(self.distributions,),
-        #     bounds=bounds,
-        #     method="L-BFGS-B",
-        #     options=dict(
-        #         maxls=50,
-        #         gtol=tolerance,
-        #         eps=finite_diff_rel_step,
-        #     ),
-        #     tol=tolerance,
-        #     jac=jac,
-        # )
+        def constrainer(cut_offs: np.ndarray, distributions: List[LengthDistribution]):
+            lens = 0
+            for dist, cut_off in zip(distributions, cut_offs):
+                ls, _ = dist.generate_distributions(cut_off=cut_off)
+                lens += len(ls)
+
+            # sample count should be 2 or more
+            return lens - 1.5
+
+        constraints = {
+            "type": "ineq",
+            "fun": constrainer,
+            "args": (self.distributions,),
+        }
+
         optimize_result = shgo(
             optimize_cut_offs,
-            args=(self.distributions,),
+            args=(self.distributions, self.fitter),
             bounds=bounds,
-            sampling_method="sobol",
-            n=100,
-            iters=25,
+            constraints=constraints,
+            **shgo_kwargs,
+            # sampling_method="sobol",
+            # n=100,
+            # iters=25,
             # options=dict(
             #     maxls=50,
             #     gtol=tolerance,
             #     eps=finite_diff_rel_step,
             # ),
         )
-        print(optimize_result)
         assert isinstance(optimize_result, OptimizeResult)
 
         # Use the optimized cut-offs to determine the resulting exponent
         polyfit, proportions = _optimize_cut_offs(
             optimize_result.x,
             distributions=self.distributions,
+            fitter=self.fitter,
         )
 
         # Return a composed object of the results for easier parsing downstream
@@ -776,7 +774,8 @@ def fit_to_multi_scale_lengths(
         m_value=m_value,
         constant=constant,
     )
-    msle = sklm.mean_squared_log_error(ccm, y_fit)
+    msle = abs(1 - sklm.r2_score(ccm, y_fit))
+    assert isinstance(msle, float)
 
     return Polyfit(y_fit=y_fit, m_value=m_value, constant=constant, msle=msle)
 
@@ -830,7 +829,9 @@ def plot_multi_distributions_and_fit(
 
 
 def _optimize_cut_offs(
-    cut_offs: np.ndarray, distributions: List[LengthDistribution]
+    cut_offs: np.ndarray,
+    distributions: List[LengthDistribution],
+    fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
 ) -> Tuple[Polyfit, List[float]]:
 
     # Each length and associated ccm must be collected
@@ -853,7 +854,7 @@ def _optimize_cut_offs(
 
     # Fit a regression fit to the concatenated arrays
     polyfit = fit_to_multi_scale_lengths(
-        ccm=ccm_array_concat, lengths=length_array_concat
+        ccm=ccm_array_concat, lengths=length_array_concat, fitter=fitter
     )
 
     return polyfit, proportions
@@ -862,6 +863,7 @@ def _optimize_cut_offs(
 def optimize_cut_offs(
     cut_offs: np.ndarray,
     distributions: List[LengthDistribution],
+    fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
 ) -> float:
     """
     Optimize multiscale fit.
@@ -869,11 +871,12 @@ def optimize_cut_offs(
     Requirements for scipy minimize state that the function to optimize must
     take one argument of a 1-d array and return a single float.
     """
-    polyfit, proportions = _optimize_cut_offs(
+    polyfit, _ = _optimize_cut_offs(
         cut_offs=cut_offs,
         distributions=distributions,
+        fitter=fitter,
     )
-    return polyfit.msle * 10e9
+    return polyfit.msle
 
 
 def scikit_linear_regression(
