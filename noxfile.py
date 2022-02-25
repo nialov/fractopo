@@ -152,12 +152,18 @@ def notebooks(session):
         print("No notebooks found.")
         return
 
+    # Remove .ipynb_checkpoints directories
+    for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):
+        rmtree(checkpoints_dir)
+
     # Install dev dependencies
     install_dev(session=session)
 
     # Test notebook(s)
     for notebook_path in NOTEBOOKS:
-        execute_notebook(session=session, notebook=notebook_path)
+        if notebook_path.exists():
+            # Might have been removed by .ipynb_checkpoints rmtree!
+            execute_notebook(session=session, notebook=notebook_path)
 
 
 def setup_lint(session) -> List[str]:
