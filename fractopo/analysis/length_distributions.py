@@ -297,7 +297,9 @@ class MultiLengthDistribution:
         return [ld.name for ld in self.distributions]
 
     def plot_multi_length_distributions(
-        self, automatic_cut_offs: bool
+        self,
+        automatic_cut_offs: bool,
+        scorer: Callable[[np.ndarray, np.ndarray], float] = sklm.mean_squared_log_error,
     ) -> Tuple[Polyfit, Figure, Axes]:
         """
         Plot multi-scale length distribution.
@@ -314,7 +316,7 @@ class MultiLengthDistribution:
 
         # Fit a powerlaw to the multi dataset values
         polyfit = fit_to_multi_scale_lengths(
-            ccm=ccm_concat, lengths=lengths_concat, fitter=self.fitter
+            ccm=ccm_concat, lengths=lengths_concat, fitter=self.fitter, scorer=scorer
         )
         fig, ax = plot_multi_distributions_and_fit(
             truncated_length_array_all=truncated_length_array_all,
@@ -816,7 +818,7 @@ def plot_multi_distributions_and_fit(
     fig, ax = plt.subplots(figsize=(7, 7))
     setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
     ax.set_facecolor("oldlace")
-    ax.set_title(f"$Exponent = {polyfit.m_value:.2f} | Score = {polyfit.score:.2f}$")
+    ax.set_title(f"$Exponent = {polyfit.m_value:.2f} Score = {polyfit.score:.2f}$")
 
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
