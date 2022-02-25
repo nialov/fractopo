@@ -23,6 +23,7 @@ from ternary.ternary_axes_subplot import TernaryAxesSubplot
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.contour_grid import run_grid_sampling
+from fractopo.analysis.length_distributions import LengthDistribution
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
     branches_intersect_boundary,
@@ -1163,6 +1164,50 @@ class Network:
                     topo_type=topo_type,
                 ),
             )
+
+    def _length_distribution(
+        self, using_branches: bool, azimuth_set: Optional[str]
+    ) -> LengthDistribution:
+        """
+        Create structured LengthDistribution instance.
+        """
+        length_array = (
+            self.branch_length_array if using_branches else self.trace_length_array
+        )
+        set_array = (
+            self.branch_azimuth_set_array
+            if using_branches
+            else self.trace_azimuth_set_array
+        )
+        if azimuth_set is None:
+            lengths = length_array
+            name = self.name
+        else:
+            lengths = length_array[set_array == azimuth_set]
+            name = f"{self.name} {azimuth_set}"
+        return LengthDistribution(
+            lengths=lengths,
+            area_value=self.total_area,
+            name=name,
+            using_branches=using_branches,
+        )
+
+    def trace_length_distribution(
+        self, azimuth_set: Optional[str]
+    ) -> LengthDistribution:
+        """
+        Create structured LengthDistribution instance of trace length data.
+        """
+        return self._length_distribution(using_branches=False, azimuth_set=azimuth_set)
+
+    @requires_topology
+    def branch_length_distribution(
+        self, azimuth_set: Optional[str]
+    ) -> LengthDistribution:
+        """
+        Create structured LengthDistribution instance of branch length data.
+        """
+        return self._length_distribution(using_branches=True, azimuth_set=azimuth_set)
 
 
 @dataclass

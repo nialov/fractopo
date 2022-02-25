@@ -101,34 +101,15 @@ class MultiNetwork(NamedTuple):
 
                 # Label the LengthDistribution with either just network name
                 # or with the name and the azimuth set
-                label = name if name == network.name else f"{network.name} {name}"
+                azimuth_set = name if using_azimuth_sets else None
 
-                # Use either trace or branch lengths
-                lengths = (
-                    network.trace_length_array
-                    if not using_branches
-                    else network.branch_length_array
+                # # Use network name or set name as key in second dictionary
+                network_distributions[name] = (
+                    network.branch_length_distribution(azimuth_set=azimuth_set)
+                    # Use either trace or branch lengths
+                    if using_branches
+                    else network.trace_length_distribution(azimuth_set=azimuth_set)
                 )
-
-                # Filter by azimuth set
-                if using_azimuth_sets:
-                    # Filter by set name
-                    filterer = (
-                        network.trace_azimuth_set_array == name
-                        if not using_branches
-                        else network.branch_azimuth_set_array == name
-                    )
-                    lengths = lengths[filterer]
-
-                # Create the LengthDistribution
-                distribution = length_distributions.LengthDistribution(
-                    name=label,
-                    lengths=lengths,
-                    area_value=network.total_area,
-                    using_branches=using_branches,
-                )
-                # Use network name or set name as key in dictionary
-                network_distributions[name] = distribution
 
             # Use network name as key
             distributions[network.name] = network_distributions
