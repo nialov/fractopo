@@ -117,8 +117,6 @@ class LengthDistribution:
 
     """
     Dataclass for length distributions.
-
-    TODO: Move functionality from MultiLengthDistribution back here.
     """
 
     lengths: np.ndarray
@@ -178,7 +176,7 @@ class LengthDistribution:
 
     def generate_distributions(self, cut_off: float = general.MINIMUM_LINE_LENGTH):
         """
-        Generate ccdf and truncated length data by cut_off.
+        Generate ccdf and truncated length data with cut_off.
         """
         lengths, ccm = sorted_lengths_and_ccm(
             lengths=self.lengths, area_value=self.area_value
@@ -196,13 +194,13 @@ class Polyfit(NamedTuple):
     y_fit: np.ndarray
     m_value: float
     constant: float
-    msle: float
+    score: float
 
 
 class MultiScaleOptimizationResult(NamedTuple):
 
     """
-    Results of scipy.optimize.minize on length data.
+    Results of scipy.optimize.shgo on length data.
     """
 
     polyfit: Polyfit
@@ -239,9 +237,13 @@ class MultiLengthDistribution:
         all_lengths = tuple(chain(*[ld.lengths for ld in self.distributions]))
         all_lengths_str = tuple(map(str, all_lengths))
         all_area_values_str = tuple(map(str, [ld.name for ld in self.distributions]))
+        cut_offs_tuple = (
+            self.cut_offs if self.cut_offs is None else tuple(self.cut_offs)
+        )
         return hash(
             (
                 all_lengths_str,
+                cut_offs_tuple,
                 self.using_branches,
                 all_area_values_str,
                 self.fitter.__name__,
@@ -324,12 +326,16 @@ class MultiLengthDistribution:
         return polyfit, fig, ax
 
     def optimize_cut_offs(
-        self, shgo_kwargs: Dict[str, Any] = dict()
+        self,
+        shgo_kwargs: Dict[str, Any] = dict(),
+        scorer: Callable[[np.ndarray, np.ndarray], float] = sklm.mean_squared_log_error,
     ) -> Tuple[MultiScaleOptimizationResult, "MultiLengthDistribution"]:
         """
         Get cut-off optimized MultiLengthDistribution.
         """
-        opt_result = self.optimized_multi_scale_fit(shgo_kwargs=shgo_kwargs)
+        opt_result = self.optimized_multi_scale_fit(
+            shgo_kwargs=shgo_kwargs, scorer=scorer
+        )
         optimized_mld = MultiLengthDistribution(
             distributions=self.distributions,
             using_branches=self.using_branches,
@@ -340,10 +346,12 @@ class MultiLengthDistribution:
         return opt_result, optimized_mld
 
     def optimized_multi_scale_fit(
-        self, shgo_kwargs: Dict[str, Any] = dict()
+        self,
+        scorer: Callable[[np.ndarray, np.ndarray], float],
+        shgo_kwargs: Dict[str, Any] = dict(),
     ) -> MultiScaleOptimizationResult:
         """
-        Use scipy.optimize.minimize to optimize fit.
+        Use scipy.optimize.shgo to optimize fit.
         """
         # Use automatic powerlaw fitting to get first guesses for optimization
         xmins = [ld.automatic_fit.xmin for ld in self.distributions]
@@ -359,7 +367,12 @@ class MultiLengthDistribution:
         bounds = [np.quantile(arr, (0.0, 1.0)) for arr in truncated_length_array_all]
         # bounds = [(0.0, 1.0) for _ in truncated_length_array_all]
 
-        def constrainer(cut_offs: np.ndarray, distributions: List[LengthDistribution]):
+        def constrainer(
+            cut_offs: np.ndarray, distributions: List[LengthDistribution]
+        ) -> float:
+            """
+            Constrain sample count to 2 or more.
+            """
             lens = 0
             for dist, cut_off in zip(distributions, cut_offs):
                 ls, _ = dist.generate_distributions(cut_off=cut_off)
@@ -374,20 +387,15 @@ class MultiLengthDistribution:
             "args": (self.distributions,),
         }
 
+        # Run the shgo global optimization to find optimal cut-off values
+        # that result in the minimum value of score (loss function).
+        # Values will be stored in the x attribute of optimize_result
         optimize_result = shgo(
             optimize_cut_offs,
-            args=(self.distributions, self.fitter),
+            args=(self.distributions, self.fitter, scorer),
             bounds=bounds,
             constraints=constraints,
             **shgo_kwargs,
-            # sampling_method="sobol",
-            # n=100,
-            # iters=25,
-            # options=dict(
-            #     maxls=50,
-            #     gtol=tolerance,
-            #     eps=finite_diff_rel_step,
-            # ),
         )
         assert isinstance(optimize_result, OptimizeResult)
 
@@ -396,6 +404,7 @@ class MultiLengthDistribution:
             optimize_result.x,
             distributions=self.distributions,
             fitter=self.fitter,
+            scorer=scorer,
         )
 
         # Return a composed object of the results for easier parsing downstream
@@ -747,11 +756,13 @@ def fit_to_multi_scale_lengths(
     ccm: np.ndarray,
     lengths: np.ndarray,
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]] = numpy_polyfit,
+    scorer: Callable[[np.ndarray, np.ndarray], float] = sklm.mean_squared_log_error,
 ) -> Polyfit:
     """
     Fit np.polyfit to multiscale length distributions.
 
-    Returns the fitted values, exponent and constant of fit.
+    Returns the fitted values, exponent and constant of fit
+    within a ``Polyfit`` instance.
     """
     log_lengths_sorted, log_ccm_sorted = sort_and_log_lengths_and_ccm(
         lengths=lengths, ccm=ccm
@@ -774,10 +785,21 @@ def fit_to_multi_scale_lengths(
         m_value=m_value,
         constant=constant,
     )
-    msle = abs(1 - sklm.r2_score(ccm, y_fit))
-    assert isinstance(msle, float)
+    score = scorer(ccm, y_fit)
+    assert isinstance(score, float)
 
-    return Polyfit(y_fit=y_fit, m_value=m_value, constant=constant, msle=msle)
+    return Polyfit(y_fit=y_fit, m_value=m_value, constant=constant, score=score)
+
+
+def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
+    """
+    Score fit with r2 metric.
+
+    Changes the scoring to be best at a value of 0.
+    """
+    score = abs(1 - sklm.r2_score(y_true=y_true, y_pred=y_predicted))
+    assert isinstance(score, float)
+    return score
 
 
 def plot_multi_distributions_and_fit(
@@ -794,7 +816,7 @@ def plot_multi_distributions_and_fit(
     fig, ax = plt.subplots(figsize=(7, 7))
     setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
     ax.set_facecolor("oldlace")
-    ax.set_title(f"$Exponent = {polyfit.m_value:.2f} | MSLE = {polyfit.msle:.2f}$")
+    ax.set_title(f"$Exponent = {polyfit.m_value:.2f} | Score = {polyfit.score:.2f}$")
 
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
@@ -832,6 +854,7 @@ def _optimize_cut_offs(
     cut_offs: np.ndarray,
     distributions: List[LengthDistribution],
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
+    scorer: Callable[[np.ndarray, np.ndarray], float],
 ) -> Tuple[Polyfit, List[float]]:
 
     # Each length and associated ccm must be collected
@@ -854,7 +877,7 @@ def _optimize_cut_offs(
 
     # Fit a regression fit to the concatenated arrays
     polyfit = fit_to_multi_scale_lengths(
-        ccm=ccm_array_concat, lengths=length_array_concat, fitter=fitter
+        ccm=ccm_array_concat, lengths=length_array_concat, fitter=fitter, scorer=scorer
     )
 
     return polyfit, proportions
@@ -864,19 +887,22 @@ def optimize_cut_offs(
     cut_offs: np.ndarray,
     distributions: List[LengthDistribution],
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
+    scorer: Callable[[np.ndarray, np.ndarray], float],
 ) -> float:
     """
     Optimize multiscale fit.
 
-    Requirements for scipy minimize state that the function to optimize must
-    take one argument of a 1-d array and return a single float.
+    Requirements for the optimization function are that the function must take
+    one argument of 1-d array and return a single float. It can take
+    static arguments (distributions, fitter).
     """
     polyfit, _ = _optimize_cut_offs(
         cut_offs=cut_offs,
         distributions=distributions,
         fitter=fitter,
+        scorer=scorer,
     )
-    return polyfit.msle
+    return polyfit.score
 
 
 def scikit_linear_regression(
