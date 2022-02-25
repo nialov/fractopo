@@ -65,3 +65,22 @@ hastholmen_network = Network(
     azimuth_set_names=("N-S", "E-W"),
     azimuth_set_ranges=((135, 45), (45, 135)),
 )
+
+lidar_200k_network = Network(
+    name="1:200 000",
+    trace_gdf=gpd.read_file(
+        "https://raw.githubusercontent.com/nialov/"
+        "fractopo/master/tests/sample_data/traces_200k.geojson"
+    ),
+    area_gdf=gpd.read_file(
+        "https://raw.githubusercontent.com/nialov/"
+        "fractopo/master/tests/sample_data/area_200k.geojson"
+    ),
+    truncate_traces=True,
+    circular_target_area=False,
+    determine_branches_nodes=True,
+    snap_threshold=0.001,
+    # Explicitly set azimuth sets (same as for KB11)
+    azimuth_set_names=("N-S", "E-W"),
+    azimuth_set_ranges=((135, 45), (45, 135)),
+)
