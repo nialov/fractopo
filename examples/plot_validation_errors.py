@@ -1,9 +1,12 @@
 """
-Visualize different types of validatation errors
+Visualize different types of validation errors
 ================================================
 
-A network consists of the geometrical traces and their interactions with
-each other.
+This example demonstrates using ``shapely`` and ``geopandas`` for visualization
+purposes. The different types of trace validation error scenarios are created
+declaratively in code with ``shapely`` geometries (``LineStrings``).
+Just scroll down to the bottom if you are interested in the visualization
+output.
 """
 
 # %%
@@ -128,6 +131,7 @@ plt.subplots_adjust(wspace=0.01)
 if __name__ == "__main__":
     # Save plot for usage outside sphinx
     # This section can be ignored if looking at the documentation
+    # in ReadTheDocs
     try:
         output_path = Path(__file__).parent / "validation_errors.svg"
         fig.savefig(output_path, bbox_inches="tight")
