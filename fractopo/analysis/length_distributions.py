@@ -890,6 +890,13 @@ def optimize_cut_offs(
     distributions: List[LengthDistribution],
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
     scorer: Callable[[np.ndarray, np.ndarray], float],
+    # TODO: extra args are passed in conda ci-tests.
+    #    def function_wrapper(x, *wrapper_args):
+    # ncalls[0] += 1
+    # # A copy of x is sent to the user function (gh13740)
+    # >       fx = function(np.copy(x), *(wrapper_args + args))
+    # E       TypeError: optimize_cut_offs() takes 4 positional arguments but 7 were given
+    *_,
 ) -> float:
     """
     Optimize multiscale fit.
