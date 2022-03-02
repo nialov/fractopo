@@ -1855,6 +1855,5 @@ def write_geodata(
 def write_topodata(gdf: gpd.GeoDataFrame, output_path: Path):
     """
     Write branch or nodes GeoDataFrame to `output_path`.
-
     """
     write_geodata(gdf=gdf, path=output_path, allow_list_column_transform=False)

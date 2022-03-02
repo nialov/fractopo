@@ -101,41 +101,22 @@ class MultiNetwork(NamedTuple):
 
                 # Label the LengthDistribution with either just network name
                 # or with the name and the azimuth set
-                label = name if name == network.name else f"{network.name} {name}"
+                azimuth_set = name if using_azimuth_sets else None
 
-                # Use either trace or branch lengths
-                lengths = (
-                    network.trace_length_array
-                    if not using_branches
-                    else network.branch_length_array
+                # # Use network name or set name as key in second dictionary
+                network_distributions[name] = (
+                    network.branch_length_distribution(azimuth_set=azimuth_set)
+                    # Use either trace or branch lengths
+                    if using_branches
+                    else network.trace_length_distribution(azimuth_set=azimuth_set)
                 )
-
-                # Filter by azimuth set
-                if using_azimuth_sets:
-                    # Filter by set name
-                    filterer = (
-                        network.trace_azimuth_set_array == name
-                        if not using_branches
-                        else network.branch_azimuth_set_array == name
-                    )
-                    lengths = lengths[filterer]
-
-                # Create the LengthDistribution
-                distribution = length_distributions.LengthDistribution(
-                    name=label,
-                    lengths=lengths,
-                    area_value=network.total_area,
-                    using_branches=using_branches,
-                )
-                # Use network name or set name as key in dictionary
-                network_distributions[name] = distribution
 
             # Use network name as key
             distributions[network.name] = network_distributions
         return distributions
 
     def multi_length_distributions(
-        self, using_branches: bool = False, cut_distributions: bool = True
+        self, using_branches: bool = False
     ) -> length_distributions.MultiLengthDistribution:
         """
         Get MultiLengthDistribution of all networks.
@@ -150,15 +131,19 @@ class MultiNetwork(NamedTuple):
         multi_distribution = length_distributions.MultiLengthDistribution(
             distributions=distributions,
             using_branches=using_branches,
-            cut_distributions=cut_distributions,
         )
         return multi_distribution
 
     def plot_multi_length_distribution(
         self,
         using_branches: bool,
-        cut_distributions: bool,
-    ) -> Tuple[length_distributions.MultiLengthDistribution, Figure, Axes]:
+        automatic_cut_offs: bool,
+    ) -> Tuple[
+        length_distributions.MultiLengthDistribution,
+        length_distributions.Polyfit,
+        Figure,
+        Axes,
+    ]:
         """
         Plot multi-length distribution fit.
 
@@ -166,11 +151,13 @@ class MultiNetwork(NamedTuple):
         fitting the multi-scale distribution.
         """
         multi_distribution = self.multi_length_distributions(
-            using_branches=using_branches, cut_distributions=cut_distributions
+            using_branches=using_branches
         )
-        fig, ax = multi_distribution.plot_multi_length_distributions()
+        polyfit, fig, ax = multi_distribution.plot_multi_length_distributions(
+            automatic_cut_offs=automatic_cut_offs
+        )
 
-        return multi_distribution, fig, ax
+        return multi_distribution, polyfit, fig, ax
 
     def plot_xyi(
         self,
@@ -202,7 +189,7 @@ class MultiNetwork(NamedTuple):
 
     def _plot_azimuth_set_lengths(
         self,
-        cut_distributions: bool,
+        automatic_cut_offs: bool,
         using_branches: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
@@ -212,21 +199,22 @@ class MultiNetwork(NamedTuple):
         """
         Plot multi-network azimuths set lengths with fits.
         """
-        mlds = self.set_multi_length_distributions(
-            using_branches=using_branches, cut_distributions=cut_distributions
-        )
+        mlds = self.set_multi_length_distributions(using_branches=using_branches)
 
-        figs, axes = [], []
+        figs, axes, polyfits = [], [], []
         for mld in mlds.values():
-            fig, ax = mld.plot_multi_length_distributions()
+            polyfit, fig, ax = mld.plot_multi_length_distributions(
+                automatic_cut_offs=automatic_cut_offs
+            )
             figs.append(fig)
             axes.append(ax)
+            polyfits.append(polyfit)
 
         return mlds, figs, axes
 
     def plot_trace_azimuth_set_lengths(
         self,
-        cut_distributions: bool,
+        automatic_cut_offs: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
         List[Figure],
@@ -236,12 +224,12 @@ class MultiNetwork(NamedTuple):
         Plot multi-network trace azimuths set lengths with fits.
         """
         return self._plot_azimuth_set_lengths(
-            cut_distributions=cut_distributions, using_branches=False
+            automatic_cut_offs=automatic_cut_offs, using_branches=False
         )
 
     def plot_branch_azimuth_set_lengths(
         self,
-        cut_distributions: bool,
+        automatic_cut_offs: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
         List[Figure],
@@ -251,11 +239,11 @@ class MultiNetwork(NamedTuple):
         Plot multi-network trace azimuths set lengths with fits.
         """
         return self._plot_azimuth_set_lengths(
-            cut_distributions=cut_distributions, using_branches=True
+            automatic_cut_offs=automatic_cut_offs, using_branches=True
         )
 
     def set_multi_length_distributions(
-        self, using_branches: bool = False, cut_distributions: bool = True
+        self, using_branches: bool = False
     ) -> Dict[str, length_distributions.MultiLengthDistribution]:
         """
         Get set-wise multi-length distributions.
@@ -267,12 +255,11 @@ class MultiNetwork(NamedTuple):
         mlds = dict()
         for set_name in self.networks[0].azimuth_set_names:
             set_lengths: List[length_distributions.LengthDistribution] = []
-            for network_name, lds in distributions_dict.items():
+            for lds in distributions_dict.values():
                 set_lengths.append(lds[set_name])
 
             mld = length_distributions.MultiLengthDistribution(
                 distributions=set_lengths,
-                cut_distributions=cut_distributions,
                 using_branches=using_branches,
             )
             mlds[set_name] = mld

@@ -74,6 +74,11 @@ class LineData:
             )
         return getattr(self, __name)
 
+    def __post_init__(self):
+        """
+        Initialize LengthDistribution from given data.
+        """
+
     @property
     def azimuth_array(self):
         """
