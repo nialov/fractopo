@@ -220,8 +220,8 @@ class Param(Enum):
     TRACE_MEAN_LENGTH = ParamInfo(
         "Trace Mean Length", True, "m", False, Aggregator.MEAN
     )
-    TRACE_MIN_LENGTH = ParamInfo("Trace Min Length", True, "m", True, Aggregator.MEAN)
-    TRACE_MAX_LENGTH = ParamInfo("Trace Max Length", True, "m", True, Aggregator.MEAN)
+    TRACE_MIN_LENGTH = ParamInfo("Trace Min Length", True, "m", False, Aggregator.MEAN)
+    TRACE_MAX_LENGTH = ParamInfo("Trace Max Length", True, "m", False, Aggregator.MEAN)
     TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
         "Trace Mean Length (Mauldon)", True, "m", True, Aggregator.MEAN
     )

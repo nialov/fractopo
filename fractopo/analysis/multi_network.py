@@ -2,15 +2,16 @@
 MultiNetwork implementation for handling multiple network analysis.
 """
 
-from typing import Dict, List, NamedTuple, Tuple, Union
+from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
 
+import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from fractopo.analysis import length_distributions, parameters, subsampling
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import RandomChoice
-from fractopo.general import ProcessResult, SetRangeTuple
+from fractopo.general import NAME, ProcessResult, SetRangeTuple
 
 
 class MultiNetwork(NamedTuple):
@@ -264,3 +265,46 @@ class MultiNetwork(NamedTuple):
             )
             mlds[set_name] = mld
         return mlds
+
+    def basic_network_descriptions_df(
+        self,
+        columns: Dict[str, Tuple[Optional[str], Type, int]] = {NAME: (None, str, 0)},
+    ):
+        """
+        Create DataFrame useful for basic Network characterization.
+
+        ``columns`` should contain key value pairs where the key is the column
+        name in ``numerical_network_description`` dict. Value is a tuple where
+        the first member is a new name for the column or alternatively None in
+        which case the column name isn't changed. The second member should be
+        the type of the column, typically either str, int or float. The third
+        member is the number of decimals to show for the column value
+        (Only applicable for floats).
+        """
+        numerical_df = pd.DataFrame(
+            [network.numerical_network_description() for network in self.networks]
+        )
+        # Filter to wanted columns only
+        numerical_df = numerical_df[list(columns)]
+
+        assert isinstance(numerical_df, pd.DataFrame)
+
+        for column, (_, column_type, decimals) in columns.items():
+            apply_func = (
+                column_type
+                if column_type is not float
+                else lambda val: round(column_type(val), decimals)
+            )
+            numerical_df[column] = numerical_df[column].apply(apply_func)
+
+        # Rename columns
+        renames = {key: value for key, value in columns.items() if value is not None}
+        numerical_df = numerical_df.rename(renames)
+
+        assert isinstance(numerical_df, pd.DataFrame)
+
+        numerical_df.set_index(NAME, inplace=True)
+
+        numerical_df_transposed = numerical_df.transpose()
+
+        return numerical_df_transposed
