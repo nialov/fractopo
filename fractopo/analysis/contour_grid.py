@@ -99,6 +99,7 @@ def populate_sample_cell(
     traces_sindex: PyGEOSSTRTreeIndex,
     traces: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
+    branches: gpd.GeoDataFrame,
     snap_threshold: float,
     resolve_branches_and_nodes: bool,
 ) -> Dict[str, float]:
@@ -109,8 +110,35 @@ def populate_sample_cell(
     every single sample circle. If correct Mauldon values are
     wanted `resolve_branches_and_nodes` must be passed as True.
     This will result in much longer analysis time.
-
     """
+
+    def resolve_samples(candidates, sample_circle):
+        """
+        Crop traces or branches to sample circle
+
+        First check if any geometries intersect.
+        If not: sample_features is an empty GeoDataFrame.
+        """
+        if any(
+            candidate.intersects(sample_circle)
+            for candidate in candidates.geometry.values
+        ):
+            samples = crop_to_target_areas(
+                traces=candidates,
+                areas=gpd.GeoSeries([sample_circle]),
+                is_filtered=True,
+                keep_column_data=False,
+            )
+        else:
+            samples = candidates.iloc[0:0]
+        return samples
+
+    def choose_geometries(sindex, sample_circle, geometries):
+        candidates_idx = spatial_index_intersection(sindex, geom_bounds(sample_circle))
+        candidates = geometries.iloc[candidates_idx]
+        assert isinstance(candidates, gpd.GeoDataFrame)
+        return candidates
+
     _centroid = sample_cell.centroid
     if not isinstance(_centroid, Point):
         raise TypeError("Expected Point centroid.")
@@ -123,50 +151,47 @@ def populate_sample_cell(
     # intersect it
     # Use spatial indexing to filter to only spatially relevant traces,
     # traces and nodes
-    trace_candidates_idx = spatial_index_intersection(
-        traces_sindex, geom_bounds(sample_circle)
+    # trace_candidates_idx = spatial_index_intersection(
+    #     traces_sindex, geom_bounds(sample_circle)
+    # )
+    trace_candidates = choose_geometries(
+        sindex=traces_sindex, sample_circle=sample_circle, geometries=traces
     )
-    trace_candidates = traces.iloc[trace_candidates_idx]
-
-    assert isinstance(trace_candidates, gpd.GeoDataFrame)
 
     if len(trace_candidates) == 0:
         return determine_topology_parameters(
             trace_length_array=np.array([]),
             node_counts=determine_node_type_counts(np.array([]), branches_defined=True),
             area=sample_circle_area,
+            branch_length_array=np.array([]),
         )
     if resolve_branches_and_nodes:
         # Solve branches and nodes for each cell if wanted
         # Only way to make sure Mauldon parameters are correct
-        _, nodes = branches_and_nodes(
+        branches, nodes = branches_and_nodes(
             traces=trace_candidates,
             areas=gpd.GeoSeries([sample_circle], crs=traces.crs),
             snap_threshold=snap_threshold,
         )
-    # node_candidates_idx = list(nodes_sindex.intersection(sample_circle.bounds))
-    node_candidates_idx = spatial_index_intersection(
-        spatial_index=pygeos_spatial_index(nodes),
-        coordinates=geom_bounds(sample_circle),
+
+    branch_candidates = choose_geometries(
+        sindex=pygeos_spatial_index(branches),
+        sample_circle=sample_circle,
+        geometries=branches,
     )
 
-    node_candidates = nodes.iloc[node_candidates_idx]
+    node_candidates = choose_geometries(
+        sindex=pygeos_spatial_index(nodes),
+        sample_circle=sample_circle,
+        geometries=nodes,
+    )
 
-    # Crop traces to sample circle
-    # First check if any geometries intersect
-    # If not: sample_features is an empty GeoDataFrame
-    if any(
-        trace_candidate.intersects(sample_circle)
-        for trace_candidate in trace_candidates.geometry.values
-    ):
-        sample_traces = crop_to_target_areas(
-            traces=trace_candidates,
-            areas=gpd.GeoSeries([sample_circle]),
-            is_filtered=True,
-            keep_column_data=False,
-        )
-    else:
-        sample_traces = traces.iloc[0:0]
+    sample_traces = resolve_samples(
+        candidates=trace_candidates, sample_circle=sample_circle
+    )
+    sample_branches = resolve_samples(
+        candidates=branch_candidates, sample_circle=sample_circle
+    )
     if any(node.intersects(sample_circle) for node in nodes.geometry.values):
         # if any(nodes.intersects(sample_circle)):
         # TODO: Is node clipping stable?
@@ -178,6 +203,7 @@ def populate_sample_cell(
 
     assert isinstance(sample_nodes, gpd.GeoDataFrame)
     assert isinstance(sample_traces, gpd.GeoDataFrame)
+    assert isinstance(sample_branches, gpd.GeoDataFrame)
 
     sample_node_type_values = sample_nodes[CLASS_COLUMN].values
     assert isinstance(sample_node_type_values, np.ndarray)
@@ -188,6 +214,7 @@ def populate_sample_cell(
 
     topology_parameters = determine_topology_parameters(
         trace_length_array=sample_traces.geometry.length.values,
+        branch_length_array=sample_branches.geometry.length.values,
         node_counts=node_counts,
         area=sample_circle_area,
         correct_mauldon=resolve_branches_and_nodes,
@@ -199,6 +226,7 @@ def sample_grid(
     grid: gpd.GeoDataFrame,
     traces: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
+    branches: gpd.GeoDataFrame,
     snap_threshold: float,
     resolve_branches_and_nodes: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -213,12 +241,15 @@ def sample_grid(
     # Iterate over sample cells
     # Uses a buffer 1.5 times the size of the sample_cell side length
     # Make sure index does not cause issues TODO
-    traces_reset, nodes_reset = traces.reset_index(drop=True), nodes.reset_index(
-        drop=True
+    traces_reset, nodes_reset, branches_reset = (
+        traces.reset_index(drop=True),
+        nodes.reset_index(drop=True),
+        branches.reset_index(drop=True),
     )
     assert isinstance(traces_reset, gpd.GeoDataFrame)
     assert isinstance(nodes_reset, gpd.GeoDataFrame)
-    traces, nodes = traces_reset, nodes_reset
+    assert isinstance(branches_reset, gpd.GeoDataFrame)
+    traces, nodes, branches = traces_reset, nodes_reset, branches_reset
     # [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
     traces_sindex = pygeos_spatial_index(traces)
     # nodes_sindex = pygeos_spatial_index(nodes)
@@ -231,6 +262,7 @@ def sample_grid(
                 traces_sindex=traces_sindex,
                 traces=traces,
                 nodes=nodes,
+                branches=branches,
                 snap_threshold=snap_threshold,
                 resolve_branches_and_nodes=resolve_branches_and_nodes,
             ),
@@ -284,6 +316,7 @@ def run_grid_sampling(
         grid,
         traces,
         nodes,
+        branches=branches,
         snap_threshold=snap_threshold,
         resolve_branches_and_nodes=resolve_branches_and_nodes,
     )

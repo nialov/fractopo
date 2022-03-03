@@ -170,6 +170,8 @@ class Param(Enum):
 
     """
     Column names for geometric and topological parameters.
+
+    The ``ParamInfo`` instances contain additional metadata.
     """
 
     AREA = ParamInfo("Area", False, r"$m^2$", False, Aggregator.SUM)
@@ -182,6 +184,8 @@ class Param(Enum):
     BRANCH_MEAN_LENGTH = ParamInfo(
         "Branch Mean Length", True, "m", True, Aggregator.MEAN
     )
+    BRANCH_MIN_LENGTH = ParamInfo("Branch Min Length", True, "m", True, Aggregator.MEAN)
+    BRANCH_MAX_LENGTH = ParamInfo("Branch Max Length", True, "m", True, Aggregator.MEAN)
     CONNECTIONS_PER_BRANCH = ParamInfo(
         "Connections per Branch", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
     )
@@ -216,6 +220,8 @@ class Param(Enum):
     TRACE_MEAN_LENGTH = ParamInfo(
         "Trace Mean Length", True, "m", False, Aggregator.MEAN
     )
+    TRACE_MIN_LENGTH = ParamInfo("Trace Min Length", True, "m", True, Aggregator.MEAN)
+    TRACE_MAX_LENGTH = ParamInfo("Trace Max Length", True, "m", True, Aggregator.MEAN)
     TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
         "Trace Mean Length (Mauldon)", True, "m", True, Aggregator.MEAN
     )

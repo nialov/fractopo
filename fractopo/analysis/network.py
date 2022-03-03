@@ -523,12 +523,18 @@ class Network:
         # Cannot do simple cached_property because None might have been
         # returned previously.
         if self._parameters is None:
+            branch_length_array = (
+                self.branch_length_array_non_weighted
+                if self.topology_determined
+                else None
+            )
             self._parameters = determine_topology_parameters(
                 trace_length_array=self.trace_length_array_non_weighted,
                 node_counts=self.node_counts,
                 area=self.total_area,
                 branches_defined=self.topology_determined,
                 correct_mauldon=self.circular_target_area,
+                branch_length_array=branch_length_array,
             )
         return self._parameters
 
@@ -696,6 +702,7 @@ class Network:
                 )
         return self._branch_intersects_target_area_boundary
 
+    @requires_topology
     def numerical_network_description(
         self,
         trace_lengths_cut_off: Optional[float] = None,

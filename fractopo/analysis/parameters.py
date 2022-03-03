@@ -459,16 +459,34 @@ def determine_topology_parameters(
     area: float,
     branches_defined: bool = True,
     correct_mauldon: bool = True,
+    branch_length_array: Optional[np.ndarray] = None,
 ) -> Dict[str, float]:
     """
-    Determine topology parameters.
+    Determine geometric (and topological) parameters.
 
-    Number of traces and branches are determined by node counting.
+    Number of traces (and branches) are determined by node counting.
+
+    The passed ``trace_length_array`` should be non-weighted.
     """
     radius = np.sqrt(area / np.pi)
-    characteristic_length_traces = (
-        trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
-    )
+    if len(trace_length_array) == 0:
+        min_length_traces, max_length_traces, characteristic_length_traces = (
+            0.0,
+            0.0,
+            0.0,
+        )
+    else:
+        min_length_traces, max_length_traces, characteristic_length_traces = (
+            float(trace_length_array.min()),
+            float(trace_length_array.max()),
+            float(trace_length_array.mean()),
+        )
+    assert isinstance(min_length_traces, float), type(min_length_traces)
+    assert isinstance(max_length_traces, float)
+    assert isinstance(characteristic_length_traces, float)
+    # characteristic_length_traces = (
+    #     trace_length_array.mean() if len(trace_length_array) > 0 else 0.0
+    # )
     fracture_intensity = trace_length_array.sum() / area
     dimensionless_intensity_traces = fracture_intensity * characteristic_length_traces
 
@@ -476,12 +494,15 @@ def determine_topology_parameters(
     params_without_topology = {
         Param.FRACTURE_INTENSITY_B21.value.name: fracture_intensity,
         Param.FRACTURE_INTENSITY_P21.value.name: fracture_intensity,
+        Param.TRACE_MIN_LENGTH.value.name: min_length_traces,
+        Param.TRACE_MAX_LENGTH.value.name: max_length_traces,
         Param.TRACE_MEAN_LENGTH.value.name: characteristic_length_traces,
         Param.DIMENSIONLESS_INTENSITY_P22.value.name: dimensionless_intensity_traces,
         Param.AREA.value.name: area,
     }
 
     if not branches_defined:
+        # Return dict with nans in place of topological parameters
         nan_dict = {
             param.value.name: np.nan
             for param in Param
@@ -495,7 +516,20 @@ def determine_topology_parameters(
     assert isinstance(trace_length_array, np.ndarray)
     assert isinstance(node_counts, dict)
     assert isinstance(area, float)
+
+    if branch_length_array is None:
+        raise ValueError("Expected branch_length_array to not be None.")
+
     number_of_traces = (node_counts[Y_node] + node_counts[I_node]) / 2
+
+    # Handle empty branch length array
+    if len(branch_length_array) == 0:
+        min_length_branches, max_length_branches = 0.0, 0.0
+    else:
+        min_length_branches, max_length_branches = (
+            float(branch_length_array.min()),
+            float(branch_length_array.max()),
+        )
     aerial_frequency_traces = number_of_traces / area
     number_of_branches = (
         (node_counts[X_node] * 4) + (node_counts[Y_node] * 3) + node_counts[I_node]
@@ -546,6 +580,8 @@ def determine_topology_parameters(
 
     params_with_topology = {
         Param.NUMBER_OF_TRACES.value.name: number_of_traces,
+        Param.BRANCH_MIN_LENGTH.value.name: min_length_branches,
+        Param.BRANCH_MAX_LENGTH.value.name: max_length_branches,
         Param.BRANCH_MEAN_LENGTH.value.name: characteristic_length_branches,
         Param.AREAL_FREQUENCY_B20.value.name: aerial_frequency_branches,
         Param.AREAL_FREQUENCY_P20.value.name: aerial_frequency_traces,
