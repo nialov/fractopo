@@ -44,13 +44,16 @@ def test_plot_branch_plot(branch_counts_list, labels):
 
 
 @pytest.mark.parametrize(
-    "trace_length_array, node_counts, area",
+    "trace_length_array,node_counts,area,branches_defined,correct_mauldon,branch_length_array",
     Helpers.test_determine_topology_parameters_params,
 )
 def test_determine_topology_parameters(
     trace_length_array,
     node_counts,
     area,
+    branches_defined,
+    correct_mauldon,
+    branch_length_array,
 ):
     """
     Test determining parameters.
@@ -59,6 +62,9 @@ def test_determine_topology_parameters(
         trace_length_array,
         node_counts,
         area,
+        branches_defined,
+        correct_mauldon,
+        branch_length_array,
     )
     assert all(param >= 0 for param in topology_parameters.values())
     assert all(

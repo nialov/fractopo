@@ -22,7 +22,7 @@ from fractopo.general import (
 from tests import Helpers
 
 CELL_WIDTH = 0.10
-branches = gpd.GeoDataFrame(
+BRANCHES = gpd.GeoDataFrame(
     {
         "geometry": [
             LineString(((0, 0), (1, 1))),
@@ -62,13 +62,13 @@ def test_create_grid(cell_width: float):
     """
     Test create_grid.
     """
-    assert isinstance(branches, gpd.GeoDataFrame)
-    grid = contour_grid.create_grid(cell_width, branches)
+    assert isinstance(BRANCHES, gpd.GeoDataFrame)
+    grid = contour_grid.create_grid(cell_width, BRANCHES)
     assert isinstance(grid, gpd.GeoDataFrame)
     some_intersect = False
     for cell in grid.geometry:
         # if any(branches.intersects(cell)):
-        if any(branch.intersects(cell) for branch in branches.geometry.values):
+        if any(branch.intersects(cell) for branch in BRANCHES.geometry.values):
             some_intersect = True
     assert some_intersect
     return grid
@@ -81,7 +81,11 @@ def test_sample_grid(snap_threshold: float):
     """
     grid = test_create_grid(cell_width=CELL_WIDTH)
     grid_with_topo = contour_grid.sample_grid(
-        grid, branches, nodes, snap_threshold=snap_threshold
+        grid,
+        BRANCHES,
+        nodes,
+        snap_threshold=snap_threshold,
+        branches=BRANCHES,
     )
     assert isinstance(grid_with_topo, gpd.GeoDataFrame)
 
@@ -125,9 +129,10 @@ def test_network_contour_grid(
 
 
 @pytest.mark.parametrize(
-    "sample_cell,traces,snap_threshold", tests.test_populate_sample_cell_new_params()
+    "sample_cell,traces,snap_threshold,branches",
+    tests.test_populate_sample_cell_new_params(),
 )
-def test_populate_sample_cell(sample_cell, traces, snap_threshold):
+def test_populate_sample_cell(sample_cell, traces, snap_threshold, branches):
     """
     Test populate_sample_cell.
     """
@@ -137,6 +142,7 @@ def test_populate_sample_cell(sample_cell, traces, snap_threshold):
         pygeos_spatial_index(traces),
         nodes=gpd.GeoDataFrame(),
         traces=traces,
+        branches=branches,
         snap_threshold=snap_threshold,
         resolve_branches_and_nodes=True,
     )

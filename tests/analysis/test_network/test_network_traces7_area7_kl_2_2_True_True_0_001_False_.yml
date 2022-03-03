@@ -4,7 +4,9 @@ Areal Frequency P20: 0.23
 Branch Boundary 0 Intersect Count: 3949
 Branch Boundary 1 Intersect Count: 0
 Branch Boundary 2 Intersect Count: 0
+Branch Max Length: 8.0
 Branch Mean Length: 0.53
+Branch Min Length: 0.0
 C - C: 2450
 C - E: 140
 C - I: 1187
@@ -30,8 +32,10 @@ Relative Censoring: .nan
 Trace Boundary 0 Intersect Count: 1500
 Trace Boundary 1 Intersect Count: 0
 Trace Boundary 2 Intersect Count: 0
+Trace Max Length: 24.04
 Trace Mean Length: 1.37
 Trace Mean Length (Mauldon): .nan
+Trace Min Length: 0.03
 X: 560
 Y: 1329
 branch exponential Kolmogorov-Smirnov distance D: 0.1

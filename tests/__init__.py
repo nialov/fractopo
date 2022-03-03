@@ -471,11 +471,17 @@ class Helpers:
             np.array([10, 10, 10, 10]),  # trace_length_array
             {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             10.0,  # area
+            True,  # branches_defined
+            True,  # correct_mauldon
+            np.array([5, 5, 5, 5]),  # branch_length_array
         ),
         (
             np.array([1, 1, 1, 1]),  # trace_length_array
             {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
             1.0,  # area
+            True,  # branches_defined
+            True,  # correct_mauldon
+            np.array([0.1, 0.1, 0.1, 0.1]),  # branch_length_array
         ),
     ]
 
@@ -1561,6 +1567,7 @@ def test_populate_sample_cell_new_params():
             box(0, 0, 2, 2),
             gpd.GeoDataFrame(geometry=[LineString([(-5, 1), (5, 1)])]),
             0.001,
+            gpd.GeoDataFrame(geometry=[LineString([(-5, 1), (5, 1)])]),  # branches
         )
     ]
 

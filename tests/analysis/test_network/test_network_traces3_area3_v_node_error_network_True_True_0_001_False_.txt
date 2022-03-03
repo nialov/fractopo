@@ -7,7 +7,8 @@
    "properties": {
     "Connection": "I - I",
     "boundary_weight": 1,
-    "length": 3.978289945811392
+    "length": 3.978289945811392,
+    "length non-weighted": 3.978289945811392
    },
    "geometry": {
     "type": "LineString",
@@ -65,7 +66,8 @@
    "properties": {
     "Connection": "I - I",
     "boundary_weight": 1,
-    "length": 12937.576211804224
+    "length": 12937.576211804224,
+    "length non-weighted": 12937.576211804224
    },
    "geometry": {
     "type": "LineString",

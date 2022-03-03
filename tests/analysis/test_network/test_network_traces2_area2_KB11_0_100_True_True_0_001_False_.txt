@@ -7,7 +7,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 4.693072790047076
+    "length": 4.693072790047076,
+    "length non-weighted": 4.693072790047076
    },
    "geometry": {
     "type": "LineString",
@@ -53,7 +54,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.07296473153547182
+    "length": 0.07296473153547182,
+    "length non-weighted": 0.07296473153547182
    },
    "geometry": {
     "type": "LineString",
@@ -75,7 +77,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.07678465281726077
+    "length": 0.07678465281726077,
+    "length non-weighted": 0.07678465281726077
    },
    "geometry": {
     "type": "LineString",
@@ -97,7 +100,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.08126960205929842
+    "length": 0.08126960205929842,
+    "length non-weighted": 0.08126960205929842
    },
    "geometry": {
     "type": "LineString",
@@ -119,7 +123,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.716746055907331
+    "length": 1.716746055907331,
+    "length non-weighted": 1.716746055907331
    },
    "geometry": {
     "type": "LineString",
@@ -153,7 +158,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3983020353340825
+    "length": 0.3983020353340825,
+    "length non-weighted": 0.3983020353340825
    },
    "geometry": {
     "type": "LineString",
@@ -179,7 +185,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.6571425481205996
+    "length": 0.6571425481205996,
+    "length non-weighted": 0.6571425481205996
    },
    "geometry": {
     "type": "LineString",
@@ -209,7 +216,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.37117394543988824
+    "length": 0.37117394543988824,
+    "length non-weighted": 0.37117394543988824
    },
    "geometry": {
     "type": "LineString",
@@ -239,7 +247,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.6424366271195985
+    "length": 0.6424366271195985,
+    "length non-weighted": 0.6424366271195985
    },
    "geometry": {
     "type": "LineString",
@@ -265,7 +274,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.623422934668255
+    "length": 1.623422934668255,
+    "length non-weighted": 1.623422934668255
    },
    "geometry": {
     "type": "LineString",
@@ -315,7 +325,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14916334532780517
+    "length": 0.14916334532780517,
+    "length non-weighted": 0.14916334532780517
    },
    "geometry": {
     "type": "LineString",
@@ -341,7 +352,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.110912763652368
+    "length": 1.110912763652368,
+    "length non-weighted": 1.110912763652368
    },
    "geometry": {
     "type": "LineString",
@@ -375,7 +387,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.3435307788134432
+    "length": 1.3435307788134432,
+    "length non-weighted": 1.3435307788134432
    },
    "geometry": {
     "type": "LineString",
@@ -445,7 +458,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3580509303880135
+    "length": 0.3580509303880135,
+    "length non-weighted": 0.3580509303880135
    },
    "geometry": {
     "type": "LineString",
@@ -471,7 +485,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.10318282249090499
+    "length": 0.10318282249090499,
+    "length non-weighted": 0.10318282249090499
    },
    "geometry": {
     "type": "LineString",
@@ -493,7 +508,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2728157488422915
+    "length": 1.2728157488422915,
+    "length non-weighted": 1.2728157488422915
    },
    "geometry": {
     "type": "LineString",
@@ -543,7 +559,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 7.425161040725125
+    "length": 7.425161040725125,
+    "length non-weighted": 7.425161040725125
    },
    "geometry": {
     "type": "LineString",
@@ -649,7 +666,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.27437512937943265
+    "length": 0.27437512937943265,
+    "length non-weighted": 0.27437512937943265
    },
    "geometry": {
     "type": "LineString",
@@ -675,7 +693,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.05416755524094097
+    "length": 0.05416755524094097,
+    "length non-weighted": 0.05416755524094097
    },
    "geometry": {
     "type": "LineString",
@@ -697,7 +716,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.0631254408484774
+    "length": 1.0631254408484774,
+    "length non-weighted": 1.0631254408484774
    },
    "geometry": {
     "type": "LineString",
@@ -739,7 +759,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.4779260332243638
+    "length": 1.4779260332243638,
+    "length non-weighted": 1.4779260332243638
    },
    "geometry": {
     "type": "LineString",
@@ -805,7 +826,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.605836462758804
+    "length": 0.605836462758804,
+    "length non-weighted": 0.605836462758804
    },
    "geometry": {
     "type": "LineString",
@@ -855,7 +877,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.2482038784760476
+    "length": 0.2482038784760476,
+    "length non-weighted": 0.2482038784760476
    },
    "geometry": {
     "type": "LineString",
@@ -881,7 +904,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.3460492928709402
+    "length": 1.3460492928709402,
+    "length non-weighted": 1.3460492928709402
    },
    "geometry": {
     "type": "LineString",
@@ -915,7 +939,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5899268464508385
+    "length": 1.5899268464508385,
+    "length non-weighted": 1.5899268464508385
    },
    "geometry": {
     "type": "LineString",
@@ -957,7 +982,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.434717443255902
+    "length": 1.434717443255902,
+    "length non-weighted": 1.434717443255902
    },
    "geometry": {
     "type": "LineString",
@@ -991,7 +1017,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.1857797036182622
+    "length": 0.1857797036182622,
+    "length non-weighted": 0.1857797036182622
    },
    "geometry": {
     "type": "LineString",
@@ -1013,7 +1040,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.6874090090113458
+    "length": 0.6874090090113458,
+    "length non-weighted": 0.6874090090113458
    },
    "geometry": {
     "type": "LineString",
@@ -1043,7 +1071,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.592814629058209
+    "length": 1.592814629058209,
+    "length non-weighted": 1.592814629058209
    },
    "geometry": {
     "type": "LineString",
@@ -1081,7 +1110,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.6134242241750727
+    "length": 0.6134242241750727,
+    "length non-weighted": 0.6134242241750727
    },
    "geometry": {
     "type": "LineString",
@@ -1115,7 +1145,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14136689899234312
+    "length": 0.14136689899234312,
+    "length non-weighted": 0.14136689899234312
    },
    "geometry": {
     "type": "LineString",
@@ -1137,7 +1168,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5777272364764823
+    "length": 1.5777272364764823,
+    "length non-weighted": 1.5777272364764823
    },
    "geometry": {
     "type": "LineString",
@@ -1187,7 +1219,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2262601725798314
+    "length": 0.2262601725798314,
+    "length non-weighted": 0.2262601725798314
    },
    "geometry": {
     "type": "LineString",
@@ -1217,7 +1250,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.6845391098553173
+    "length": 0.6845391098553173,
+    "length non-weighted": 0.6845391098553173
    },
    "geometry": {
     "type": "LineString",
@@ -1243,7 +1277,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.3205221506738427
+    "length": 2.3205221506738427,
+    "length non-weighted": 2.3205221506738427
    },
    "geometry": {
     "type": "LineString",
@@ -1289,7 +1324,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.6307025288438233
+    "length": 1.6307025288438233,
+    "length non-weighted": 1.6307025288438233
    },
    "geometry": {
     "type": "LineString",
@@ -1327,7 +1363,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.9090442178642589
+    "length": 0.9090442178642589,
+    "length non-weighted": 0.9090442178642589
    },
    "geometry": {
     "type": "LineString",
@@ -1357,7 +1394,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8005909541438516
+    "length": 0.8005909541438516,
+    "length non-weighted": 0.8005909541438516
    },
    "geometry": {
     "type": "LineString",
@@ -1391,7 +1429,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3588819432886353
+    "length": 0.3588819432886353,
+    "length non-weighted": 0.3588819432886353
    },
    "geometry": {
     "type": "LineString",
@@ -1413,7 +1452,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.06829822219590567
+    "length": 0.06829822219590567,
+    "length non-weighted": 0.06829822219590567
    },
    "geometry": {
     "type": "LineString",
@@ -1435,7 +1475,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.6980511737469126
+    "length": 1.6980511737469126,
+    "length non-weighted": 1.6980511737469126
    },
    "geometry": {
     "type": "LineString",
@@ -1489,7 +1530,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.25390746786554336
+    "length": 0.25390746786554336,
+    "length non-weighted": 0.25390746786554336
    },
    "geometry": {
     "type": "LineString",
@@ -1511,7 +1553,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.8921529808778963
+    "length": 1.8921529808778963,
+    "length non-weighted": 1.8921529808778963
    },
    "geometry": {
     "type": "LineString",
@@ -1557,7 +1600,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.11979724201265762
+    "length": 0.11979724201265762,
+    "length non-weighted": 0.11979724201265762
    },
    "geometry": {
     "type": "LineString",
@@ -1583,7 +1627,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8341662454177001
+    "length": 0.8341662454177001,
+    "length non-weighted": 0.8341662454177001
    },
    "geometry": {
     "type": "LineString",
@@ -1613,7 +1658,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2025622487234022
+    "length": 0.2025622487234022,
+    "length non-weighted": 0.2025622487234022
    },
    "geometry": {
     "type": "LineString",
@@ -1635,7 +1681,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.1089254000937079
+    "length": 1.1089254000937079,
+    "length non-weighted": 1.1089254000937079
    },
    "geometry": {
     "type": "LineString",
@@ -1669,7 +1716,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.41098465969749487
+    "length": 0.41098465969749487,
+    "length non-weighted": 0.41098465969749487
    },
    "geometry": {
     "type": "LineString",
@@ -1691,7 +1739,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.21767854831069205
+    "length": 0.21767854831069205,
+    "length non-weighted": 0.21767854831069205
    },
    "geometry": {
     "type": "LineString",
@@ -1717,7 +1766,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.28306935305181363
+    "length": 0.28306935305181363,
+    "length non-weighted": 0.28306935305181363
    },
    "geometry": {
     "type": "LineString",
@@ -1743,7 +1793,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.0802644538278674
+    "length": 2.0802644538278674,
+    "length non-weighted": 2.0802644538278674
    },
    "geometry": {
     "type": "LineString",
@@ -1789,7 +1840,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.18534876890377916
+    "length": 0.18534876890377916,
+    "length non-weighted": 0.18534876890377916
    },
    "geometry": {
     "type": "LineString",
@@ -1811,7 +1863,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.1474862164258771
+    "length": 0.1474862164258771,
+    "length non-weighted": 0.1474862164258771
    },
    "geometry": {
     "type": "LineString",
@@ -1833,7 +1886,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.4290998281284233
+    "length": 0.4290998281284233,
+    "length non-weighted": 0.4290998281284233
    },
    "geometry": {
     "type": "LineString",
@@ -1863,7 +1917,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.2643560371259253
+    "length": 1.2643560371259253,
+    "length non-weighted": 1.2643560371259253
    },
    "geometry": {
     "type": "LineString",
@@ -1901,7 +1956,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.021771984976963175
+    "length": 0.021771984976963175,
+    "length non-weighted": 0.021771984976963175
    },
    "geometry": {
     "type": "LineString",
@@ -1923,7 +1979,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.181596729325169
+    "length": 2.181596729325169,
+    "length non-weighted": 2.181596729325169
    },
    "geometry": {
     "type": "LineString",
@@ -1985,7 +2042,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7114529337935145
+    "length": 0.7114529337935145,
+    "length non-weighted": 0.7114529337935145
    },
    "geometry": {
     "type": "LineString",
@@ -2019,7 +2077,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.12330169545230407
+    "length": 0.12330169545230407,
+    "length non-weighted": 0.12330169545230407
    },
    "geometry": {
     "type": "LineString",
@@ -2041,7 +2100,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.9193411311690156
+    "length": 0.9193411311690156,
+    "length non-weighted": 0.9193411311690156
    },
    "geometry": {
     "type": "LineString",
@@ -2075,7 +2135,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.13579867239711174
+    "length": 0.13579867239711174,
+    "length non-weighted": 0.13579867239711174
    },
    "geometry": {
     "type": "LineString",
@@ -2097,7 +2158,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.0400957122199832
+    "length": 1.0400957122199832,
+    "length non-weighted": 1.0400957122199832
    },
    "geometry": {
     "type": "LineString",
@@ -2135,7 +2197,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3382048468853458
+    "length": 0.3382048468853458,
+    "length non-weighted": 0.3382048468853458
    },
    "geometry": {
     "type": "LineString",
@@ -2161,7 +2224,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5525032372941443
+    "length": 0.5525032372941443,
+    "length non-weighted": 0.5525032372941443
    },
    "geometry": {
     "type": "LineString",
@@ -2191,7 +2255,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.25867492530267083
+    "length": 0.25867492530267083,
+    "length non-weighted": 0.25867492530267083
    },
    "geometry": {
     "type": "LineString",
@@ -2221,7 +2286,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.02569865966043429
+    "length": 0.02569865966043429,
+    "length non-weighted": 0.02569865966043429
    },
    "geometry": {
     "type": "LineString",
@@ -2243,7 +2309,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.3673978750808708
+    "length": 0.3673978750808708,
+    "length non-weighted": 0.3673978750808708
    },
    "geometry": {
     "type": "LineString",
@@ -2269,7 +2336,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.04984150310301989
+    "length": 0.04984150310301989,
+    "length non-weighted": 0.04984150310301989
    },
    "geometry": {
     "type": "LineString",
@@ -2291,7 +2359,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 3.6544761452448293
+    "length": 3.6544761452448293,
+    "length non-weighted": 3.6544761452448293
    },
    "geometry": {
     "type": "LineString",
@@ -2381,7 +2450,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.429082631605083
+    "length": 0.429082631605083,
+    "length non-weighted": 0.429082631605083
    },
    "geometry": {
     "type": "LineString",
@@ -2407,7 +2477,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 2.8716610926851867
+    "length": 2.8716610926851867,
+    "length non-weighted": 2.8716610926851867
    },
    "geometry": {
     "type": "LineString",
@@ -2485,7 +2556,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.30869750874207763
+    "length": 0.30869750874207763,
+    "length non-weighted": 0.30869750874207763
    },
    "geometry": {
     "type": "LineString",
@@ -2511,7 +2583,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.25061402033103425
+    "length": 0.25061402033103425,
+    "length non-weighted": 0.25061402033103425
    },
    "geometry": {
     "type": "LineString",
@@ -2533,7 +2606,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.2897847907129356
+    "length": 0.2897847907129356,
+    "length non-weighted": 0.2897847907129356
    },
    "geometry": {
     "type": "LineString",
@@ -2559,7 +2633,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5267509868780821
+    "length": 0.5267509868780821,
+    "length non-weighted": 0.5267509868780821
    },
    "geometry": {
     "type": "LineString",
@@ -2589,7 +2664,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.8201802281230253
+    "length": 1.8201802281230253,
+    "length non-weighted": 1.8201802281230253
    },
    "geometry": {
     "type": "LineString",
@@ -2643,7 +2719,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.5851343814584942
+    "length": 0.5851343814584942,
+    "length non-weighted": 0.5851343814584942
    },
    "geometry": {
     "type": "LineString",
@@ -2665,7 +2742,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.9007305253247715
+    "length": 2.9007305253247715,
+    "length non-weighted": 2.9007305253247715
    },
    "geometry": {
     "type": "LineString",
@@ -2695,7 +2773,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.3446509856528592
+    "length": 1.3446509856528592,
+    "length non-weighted": 1.3446509856528592
    },
    "geometry": {
     "type": "LineString",
@@ -2725,7 +2804,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8965213845162134
+    "length": 0.8965213845162134,
+    "length non-weighted": 0.8965213845162134
    },
    "geometry": {
     "type": "LineString",
@@ -2751,7 +2831,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.05323450360862336
+    "length": 0.05323450360862336,
+    "length non-weighted": 0.05323450360862336
    },
    "geometry": {
     "type": "LineString",
@@ -2773,7 +2854,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.048297882810496
+    "length": 1.048297882810496,
+    "length non-weighted": 1.048297882810496
    },
    "geometry": {
     "type": "LineString",
@@ -2799,7 +2881,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 15.689146907112196
+    "length": 15.689146907112196,
+    "length non-weighted": 15.689146907112196
    },
    "geometry": {
     "type": "LineString",
@@ -2917,7 +3000,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.826829768362253
+    "length": 1.826829768362253,
+    "length non-weighted": 1.826829768362253
    },
    "geometry": {
     "type": "LineString",
@@ -2951,7 +3035,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3071120495167078
+    "length": 0.3071120495167078,
+    "length non-weighted": 0.3071120495167078
    },
    "geometry": {
     "type": "LineString",
@@ -2985,7 +3070,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.19659069629222667
+    "length": 0.19659069629222667,
+    "length non-weighted": 0.19659069629222667
    },
    "geometry": {
     "type": "LineString",
@@ -3007,7 +3093,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.12544848405679318
+    "length": 0.12544848405679318,
+    "length non-weighted": 0.12544848405679318
    },
    "geometry": {
     "type": "LineString",
@@ -3033,7 +3120,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.35194846503905375
+    "length": 0.35194846503905375,
+    "length non-weighted": 0.35194846503905375
    },
    "geometry": {
     "type": "LineString",
@@ -3067,7 +3155,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.5414041190115045
+    "length": 0.5414041190115045,
+    "length non-weighted": 0.5414041190115045
    },
    "geometry": {
     "type": "LineString",
@@ -3105,7 +3194,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.7492234863715175
+    "length": 0.7492234863715175,
+    "length non-weighted": 0.7492234863715175
    },
    "geometry": {
     "type": "LineString",
@@ -3135,7 +3225,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7848883052888262
+    "length": 0.7848883052888262,
+    "length non-weighted": 0.7848883052888262
    },
    "geometry": {
     "type": "LineString",
@@ -3169,7 +3260,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.806542214027409
+    "length": 1.806542214027409,
+    "length non-weighted": 1.806542214027409
    },
    "geometry": {
     "type": "LineString",
@@ -3211,7 +3303,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.21795672383448814
+    "length": 0.21795672383448814,
+    "length non-weighted": 0.21795672383448814
    },
    "geometry": {
     "type": "LineString",
@@ -3233,7 +3326,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.10602996834933838
+    "length": 0.10602996834933838,
+    "length non-weighted": 0.10602996834933838
    },
    "geometry": {
     "type": "LineString",
@@ -3259,7 +3353,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.25860464499425845
+    "length": 0.25860464499425845,
+    "length non-weighted": 0.25860464499425845
    },
    "geometry": {
     "type": "LineString",
@@ -3285,7 +3380,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.022656640048030564
+    "length": 0.022656640048030564,
+    "length non-weighted": 0.022656640048030564
    },
    "geometry": {
     "type": "LineString",
@@ -3307,7 +3403,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5665413198173268
+    "length": 0.5665413198173268,
+    "length non-weighted": 0.5665413198173268
    },
    "geometry": {
     "type": "LineString",
@@ -3337,7 +3434,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.12437760250509353
+    "length": 0.12437760250509353,
+    "length non-weighted": 0.12437760250509353
    },
    "geometry": {
     "type": "LineString",
@@ -3359,7 +3457,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2727291195634164
+    "length": 0.2727291195634164,
+    "length non-weighted": 0.2727291195634164
    },
    "geometry": {
     "type": "LineString",
@@ -3393,7 +3492,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14636787275371693
+    "length": 0.14636787275371693,
+    "length non-weighted": 0.14636787275371693
    },
    "geometry": {
     "type": "LineString",
@@ -3419,7 +3519,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.384394155434549
+    "length": 0.384394155434549,
+    "length non-weighted": 0.384394155434549
    },
    "geometry": {
     "type": "LineString",
@@ -3453,7 +3554,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.17998244220340184
+    "length": 0.17998244220340184,
+    "length non-weighted": 0.17998244220340184
    },
    "geometry": {
     "type": "LineString",
@@ -3479,7 +3581,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.12353490133414277
+    "length": 0.12353490133414277,
+    "length non-weighted": 0.12353490133414277
    },
    "geometry": {
     "type": "LineString",
@@ -3501,7 +3604,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2616499242054577
+    "length": 1.2616499242054577,
+    "length non-weighted": 1.2616499242054577
    },
    "geometry": {
     "type": "LineString",
@@ -3551,7 +3655,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.38120357243900804
+    "length": 0.38120357243900804,
+    "length non-weighted": 0.38120357243900804
    },
    "geometry": {
     "type": "LineString",
@@ -3577,7 +3682,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3888918576981564
+    "length": 0.3888918576981564,
+    "length non-weighted": 0.3888918576981564
    },
    "geometry": {
     "type": "LineString",
@@ -3603,7 +3709,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.21936034949239236
+    "length": 0.21936034949239236,
+    "length non-weighted": 0.21936034949239236
    },
    "geometry": {
     "type": "LineString",
@@ -3625,7 +3732,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14135155385699974
+    "length": 0.14135155385699974,
+    "length non-weighted": 0.14135155385699974
    },
    "geometry": {
     "type": "LineString",
@@ -3651,7 +3759,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.3343988965552724
+    "length": 1.3343988965552724,
+    "length non-weighted": 1.3343988965552724
    },
    "geometry": {
     "type": "LineString",
@@ -3693,7 +3802,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.10339153223577342
+    "length": 0.10339153223577342,
+    "length non-weighted": 0.10339153223577342
    },
    "geometry": {
     "type": "LineString",
@@ -3715,7 +3825,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.5978020722814703
+    "length": 0.5978020722814703,
+    "length non-weighted": 0.5978020722814703
    },
    "geometry": {
     "type": "LineString",
@@ -3741,7 +3852,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.09849529699216127
+    "length": 0.09849529699216127,
+    "length non-weighted": 0.09849529699216127
    },
    "geometry": {
     "type": "LineString",
@@ -3763,7 +3875,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.26786340840859324
+    "length": 0.26786340840859324,
+    "length non-weighted": 0.26786340840859324
    },
    "geometry": {
     "type": "LineString",
@@ -3789,7 +3902,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.05196441057843892
+    "length": 0.05196441057843892,
+    "length non-weighted": 0.05196441057843892
    },
    "geometry": {
     "type": "LineString",
@@ -3811,7 +3925,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.12001064024065099
+    "length": 0.12001064024065099,
+    "length non-weighted": 0.12001064024065099
    },
    "geometry": {
     "type": "LineString",
@@ -3837,7 +3952,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.22236489166626583
+    "length": 0.22236489166626583,
+    "length non-weighted": 0.22236489166626583
    },
    "geometry": {
     "type": "LineString",
@@ -3867,7 +3983,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3313632146546109
+    "length": 0.3313632146546109,
+    "length non-weighted": 0.3313632146546109
    },
    "geometry": {
     "type": "LineString",
@@ -3905,7 +4022,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 2.2476596319301594
+    "length": 2.2476596319301594,
+    "length non-weighted": 2.2476596319301594
    },
    "geometry": {
     "type": "LineString",
@@ -3947,7 +4065,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.11713627434176396
+    "length": 0.11713627434176396,
+    "length non-weighted": 0.11713627434176396
    },
    "geometry": {
     "type": "LineString",
@@ -3969,7 +4088,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.40196110221353526
+    "length": 0.40196110221353526,
+    "length non-weighted": 0.40196110221353526
    },
    "geometry": {
     "type": "LineString",
@@ -3999,7 +4119,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2997361401580523
+    "length": 1.2997361401580523,
+    "length non-weighted": 1.2997361401580523
    },
    "geometry": {
     "type": "LineString",
@@ -4049,7 +4170,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.47485860070967295
+    "length": 0.47485860070967295,
+    "length non-weighted": 0.47485860070967295
    },
    "geometry": {
     "type": "LineString",
@@ -4087,7 +4209,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.049088388106369375
+    "length": 0.049088388106369375,
+    "length non-weighted": 0.049088388106369375
    },
    "geometry": {
     "type": "LineString",
@@ -4113,7 +4236,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7959115826954758
+    "length": 0.7959115826954758,
+    "length non-weighted": 0.7959115826954758
    },
    "geometry": {
     "type": "LineString",
@@ -4155,7 +4279,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 12.304992073173699
+    "length": 12.304992073173699,
+    "length non-weighted": 12.304992073173699
    },
    "geometry": {
     "type": "LineString",
@@ -4341,7 +4466,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 9.12862738944831
+    "length": 9.12862738944831,
+    "length non-weighted": 9.12862738944831
    },
    "geometry": {
     "type": "LineString",
@@ -4439,7 +4565,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.9478602246865792
+    "length": 0.9478602246865792,
+    "length non-weighted": 0.9478602246865792
    },
    "geometry": {
     "type": "LineString",
@@ -4469,7 +4596,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.18733466115866723
+    "length": 0.18733466115866723,
+    "length non-weighted": 0.18733466115866723
    },
    "geometry": {
     "type": "LineString",
@@ -4491,7 +4619,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.164194989540437
+    "length": 0.164194989540437,
+    "length non-weighted": 0.164194989540437
    },
    "geometry": {
     "type": "LineString",
@@ -4517,7 +4646,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.492381017420304
+    "length": 1.492381017420304,
+    "length non-weighted": 1.492381017420304
    },
    "geometry": {
     "type": "LineString",
@@ -4559,7 +4689,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.04989156785069177
+    "length": 0.04989156785069177,
+    "length non-weighted": 0.04989156785069177
    },
    "geometry": {
     "type": "LineString",
@@ -4581,7 +4712,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5626106357368973
+    "length": 0.5626106357368973,
+    "length non-weighted": 0.5626106357368973
    },
    "geometry": {
     "type": "LineString",
@@ -4615,7 +4747,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.9796651311889968
+    "length": 0.9796651311889968,
+    "length non-weighted": 0.9796651311889968
    },
    "geometry": {
     "type": "LineString",
@@ -4653,7 +4786,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2938050804311519
+    "length": 0.2938050804311519,
+    "length non-weighted": 0.2938050804311519
    },
    "geometry": {
     "type": "LineString",
@@ -4679,7 +4813,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.016897139091647924
+    "length": 0.016897139091647924,
+    "length non-weighted": 0.016897139091647924
    },
    "geometry": {
     "type": "LineString",
@@ -4701,7 +4836,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.330699566721999
+    "length": 1.330699566721999,
+    "length non-weighted": 1.330699566721999
    },
    "geometry": {
     "type": "LineString",
@@ -4735,7 +4871,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.9090840347933783
+    "length": 0.9090840347933783,
+    "length non-weighted": 0.9090840347933783
    },
    "geometry": {
     "type": "LineString",
@@ -4769,7 +4906,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.690866850870618
+    "length": 2.690866850870618,
+    "length non-weighted": 2.690866850870618
    },
    "geometry": {
     "type": "LineString",
@@ -4819,7 +4957,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.09239052597202074
+    "length": 0.09239052597202074,
+    "length non-weighted": 0.09239052597202074
    },
    "geometry": {
     "type": "LineString",
@@ -4841,7 +4980,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 7.8266983809323385
+    "length": 7.8266983809323385,
+    "length non-weighted": 7.8266983809323385
    },
    "geometry": {
     "type": "LineString",
@@ -4939,7 +5079,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.010296668291000273
+    "length": 0.010296668291000273,
+    "length non-weighted": 0.010296668291000273
    },
    "geometry": {
     "type": "LineString",
@@ -4961,7 +5102,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.37202401892730674
+    "length": 0.37202401892730674,
+    "length non-weighted": 0.37202401892730674
    },
    "geometry": {
     "type": "LineString",
@@ -4987,7 +5129,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2106566390479567
+    "length": 1.2106566390479567,
+    "length non-weighted": 1.2106566390479567
    },
    "geometry": {
     "type": "LineString",
@@ -5025,7 +5168,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14950068025969135
+    "length": 0.14950068025969135,
+    "length non-weighted": 0.14950068025969135
    },
    "geometry": {
     "type": "LineString",
@@ -5051,7 +5195,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 12.859687682643715
+    "length": 12.859687682643715,
+    "length non-weighted": 12.859687682643715
    },
    "geometry": {
     "type": "LineString",
@@ -5173,7 +5318,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.06765312009825053
+    "length": 0.06765312009825053,
+    "length non-weighted": 0.06765312009825053
    },
    "geometry": {
     "type": "LineString",
@@ -5195,7 +5341,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.07197340437262206
+    "length": 0.07197340437262206,
+    "length non-weighted": 0.07197340437262206
    },
    "geometry": {
     "type": "LineString",
@@ -5221,7 +5368,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.22374813312929698
+    "length": 0.22374813312929698,
+    "length non-weighted": 0.22374813312929698
    },
    "geometry": {
     "type": "LineString",
@@ -5255,7 +5403,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.3380021081562096
+    "length": 0.3380021081562096,
+    "length non-weighted": 0.3380021081562096
    },
    "geometry": {
     "type": "LineString",
@@ -5281,7 +5430,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5396689122254918
+    "length": 0.5396689122254918,
+    "length non-weighted": 0.5396689122254918
    },
    "geometry": {
     "type": "LineString",
@@ -5311,7 +5461,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.21739128823115345
+    "length": 0.21739128823115345,
+    "length non-weighted": 0.21739128823115345
    },
    "geometry": {
     "type": "LineString",
@@ -5333,7 +5484,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.4880981269746653
+    "length": 0.4880981269746653,
+    "length non-weighted": 0.4880981269746653
    },
    "geometry": {
     "type": "LineString",
@@ -5363,7 +5515,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.9775671596090062
+    "length": 0.9775671596090062,
+    "length non-weighted": 0.9775671596090062
    },
    "geometry": {
     "type": "LineString",
@@ -5401,7 +5554,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 4.910886369520694
+    "length": 4.910886369520694,
+    "length non-weighted": 4.910886369520694
    },
    "geometry": {
     "type": "LineString",
@@ -5491,7 +5645,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.19602932611938073
+    "length": 0.19602932611938073,
+    "length non-weighted": 0.19602932611938073
    },
    "geometry": {
     "type": "LineString",
@@ -5513,7 +5668,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.16439325857790216
+    "length": 0.16439325857790216,
+    "length non-weighted": 0.16439325857790216
    },
    "geometry": {
     "type": "LineString",
@@ -5535,7 +5691,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.19175206663559632
+    "length": 0.19175206663559632,
+    "length non-weighted": 0.19175206663559632
    },
    "geometry": {
     "type": "LineString",
@@ -5557,7 +5714,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 2.512990909145598
+    "length": 2.512990909145598,
+    "length non-weighted": 2.512990909145598
    },
    "geometry": {
     "type": "LineString",
@@ -5623,7 +5781,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.500968321168062
+    "length": 1.500968321168062,
+    "length non-weighted": 1.500968321168062
    },
    "geometry": {
     "type": "LineString",
@@ -5661,7 +5820,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.439009960239467
+    "length": 1.439009960239467,
+    "length non-weighted": 1.439009960239467
    },
    "geometry": {
     "type": "LineString",
@@ -5707,7 +5867,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.149593733170522
+    "length": 1.149593733170522,
+    "length non-weighted": 1.149593733170522
    },
    "geometry": {
     "type": "LineString",
@@ -5741,7 +5902,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.4093072329317633
+    "length": 1.4093072329317633,
+    "length non-weighted": 1.4093072329317633
    },
    "geometry": {
     "type": "LineString",
@@ -5775,7 +5937,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.33166987123126324
+    "length": 0.33166987123126324,
+    "length non-weighted": 0.33166987123126324
    },
    "geometry": {
     "type": "LineString",
@@ -5801,7 +5964,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 2.1467775435105967
+    "length": 2.1467775435105967,
+    "length non-weighted": 2.1467775435105967
    },
    "geometry": {
     "type": "LineString",
@@ -5843,7 +6007,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.16052632482256474
+    "length": 0.16052632482256474,
+    "length non-weighted": 0.16052632482256474
    },
    "geometry": {
     "type": "LineString",
@@ -5865,7 +6030,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.19834968962050517
+    "length": 0.19834968962050517,
+    "length non-weighted": 0.19834968962050517
    },
    "geometry": {
     "type": "LineString",
@@ -5887,7 +6053,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.24456978415884212
+    "length": 0.24456978415884212,
+    "length non-weighted": 0.24456978415884212
    },
    "geometry": {
     "type": "LineString",
@@ -5913,7 +6080,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.2984293875390933
+    "length": 1.2984293875390933,
+    "length non-weighted": 1.2984293875390933
    },
    "geometry": {
     "type": "LineString",
@@ -5947,7 +6115,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.09873032188684658
+    "length": 0.09873032188684658,
+    "length non-weighted": 0.09873032188684658
    },
    "geometry": {
     "type": "LineString",
@@ -5973,7 +6142,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.49580031409509
+    "length": 1.49580031409509,
+    "length non-weighted": 1.49580031409509
    },
    "geometry": {
     "type": "LineString",
@@ -6023,7 +6193,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.16257061750827262
+    "length": 0.16257061750827262,
+    "length non-weighted": 0.16257061750827262
    },
    "geometry": {
     "type": "LineString",
@@ -6045,7 +6216,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.988826662606735
+    "length": 0.988826662606735,
+    "length non-weighted": 0.988826662606735
    },
    "geometry": {
     "type": "LineString",
@@ -6103,7 +6275,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.21390311530985423
+    "length": 0.21390311530985423,
+    "length non-weighted": 0.21390311530985423
    },
    "geometry": {
     "type": "LineString",
@@ -6133,7 +6306,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8143264695345654
+    "length": 0.8143264695345654,
+    "length non-weighted": 0.8143264695345654
    },
    "geometry": {
     "type": "LineString",
@@ -6187,7 +6361,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.6648073345335794
+    "length": 1.6648073345335794,
+    "length non-weighted": 1.6648073345335794
    },
    "geometry": {
     "type": "LineString",
@@ -6221,7 +6396,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.390319715062994
+    "length": 1.390319715062994,
+    "length non-weighted": 1.390319715062994
    },
    "geometry": {
     "type": "LineString",
@@ -6263,7 +6439,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.1880900139358363
+    "length": 0.1880900139358363,
+    "length non-weighted": 0.1880900139358363
    },
    "geometry": {
     "type": "LineString",
@@ -6285,7 +6462,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.01771142904589176
+    "length": 0.01771142904589176,
+    "length non-weighted": 0.01771142904589176
    },
    "geometry": {
     "type": "LineString",
@@ -6307,7 +6485,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.0541089260221981
+    "length": 0.0541089260221981,
+    "length non-weighted": 0.0541089260221981
    },
    "geometry": {
     "type": "LineString",
@@ -6329,7 +6508,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.13154982324258868
+    "length": 0.13154982324258868,
+    "length non-weighted": 0.13154982324258868
    },
    "geometry": {
     "type": "LineString",
@@ -6355,7 +6535,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5054809552847926
+    "length": 0.5054809552847926,
+    "length non-weighted": 0.5054809552847926
    },
    "geometry": {
     "type": "LineString",
@@ -6389,7 +6570,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.1539400368937662
+    "length": 0.1539400368937662,
+    "length non-weighted": 0.1539400368937662
    },
    "geometry": {
     "type": "LineString",
@@ -6419,7 +6601,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2721477435303913
+    "length": 0.2721477435303913,
+    "length non-weighted": 0.2721477435303913
    },
    "geometry": {
     "type": "LineString",
@@ -6449,7 +6632,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.18599037794310935
+    "length": 0.18599037794310935,
+    "length non-weighted": 0.18599037794310935
    },
    "geometry": {
     "type": "LineString",
@@ -6471,7 +6655,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.6949095578679101
+    "length": 0.6949095578679101,
+    "length non-weighted": 0.6949095578679101
    },
    "geometry": {
     "type": "LineString",
@@ -6501,7 +6686,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.30658974442638814
+    "length": 0.30658974442638814,
+    "length non-weighted": 0.30658974442638814
    },
    "geometry": {
     "type": "LineString",
@@ -6527,7 +6713,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.22578767304916175
+    "length": 0.22578767304916175,
+    "length non-weighted": 0.22578767304916175
    },
    "geometry": {
     "type": "LineString",
@@ -6549,7 +6736,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.3535831698970695
+    "length": 1.3535831698970695,
+    "length non-weighted": 1.3535831698970695
    },
    "geometry": {
     "type": "LineString",
@@ -6595,7 +6783,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.5428500676532725
+    "length": 0.5428500676532725,
+    "length non-weighted": 0.5428500676532725
    },
    "geometry": {
     "type": "LineString",
@@ -6617,7 +6806,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.3339311225833563
+    "length": 1.3339311225833563,
+    "length non-weighted": 1.3339311225833563
    },
    "geometry": {
     "type": "LineString",
@@ -6667,7 +6857,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.050798741502088934
+    "length": 0.050798741502088934,
+    "length non-weighted": 0.050798741502088934
    },
    "geometry": {
     "type": "LineString",
@@ -6689,7 +6880,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.2380416466907134
+    "length": 1.2380416466907134,
+    "length non-weighted": 1.2380416466907134
    },
    "geometry": {
     "type": "LineString",
@@ -6731,7 +6923,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.575531349009883
+    "length": 0.575531349009883,
+    "length non-weighted": 0.575531349009883
    },
    "geometry": {
     "type": "LineString",
@@ -6761,7 +6954,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.7348992240338541
+    "length": 0.7348992240338541,
+    "length non-weighted": 0.7348992240338541
    },
    "geometry": {
     "type": "LineString",
@@ -6787,7 +6981,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.664808246994831
+    "length": 0.664808246994831,
+    "length non-weighted": 0.664808246994831
    },
    "geometry": {
     "type": "LineString",
@@ -6817,7 +7012,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2006116141537383
+    "length": 0.2006116141537383,
+    "length non-weighted": 0.2006116141537383
    },
    "geometry": {
     "type": "LineString",
@@ -6843,7 +7039,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.28071599577643347
+    "length": 0.28071599577643347,
+    "length non-weighted": 0.28071599577643347
    },
    "geometry": {
     "type": "LineString",
@@ -6869,7 +7066,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.6951758358681965
+    "length": 0.6951758358681965,
+    "length non-weighted": 0.6951758358681965
    },
    "geometry": {
     "type": "LineString",
@@ -6899,7 +7097,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.172107381453583
+    "length": 1.172107381453583,
+    "length non-weighted": 1.172107381453583
    },
    "geometry": {
     "type": "LineString",
@@ -6937,7 +7136,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.34956247603041446
+    "length": 0.34956247603041446,
+    "length non-weighted": 0.34956247603041446
    },
    "geometry": {
     "type": "LineString",
@@ -6967,7 +7167,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.28915890599084515
+    "length": 0.28915890599084515,
+    "length non-weighted": 0.28915890599084515
    },
    "geometry": {
     "type": "LineString",
@@ -6989,7 +7190,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.26599690409780213
+    "length": 0.26599690409780213,
+    "length non-weighted": 0.26599690409780213
    },
    "geometry": {
     "type": "LineString",
@@ -7015,7 +7217,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 4.409081616030242
+    "length": 4.409081616030242,
+    "length non-weighted": 4.409081616030242
    },
    "geometry": {
     "type": "LineString",
@@ -7053,7 +7256,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7265746510998395
+    "length": 0.7265746510998395,
+    "length non-weighted": 0.7265746510998395
    },
    "geometry": {
     "type": "LineString",
@@ -7091,7 +7295,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.2626182774887844
+    "length": 1.2626182774887844,
+    "length non-weighted": 1.2626182774887844
    },
    "geometry": {
     "type": "LineString",
@@ -7125,7 +7330,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2750207392541686
+    "length": 1.2750207392541686,
+    "length non-weighted": 1.2750207392541686
    },
    "geometry": {
     "type": "LineString",
@@ -7175,7 +7381,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2078161440809275
+    "length": 0.2078161440809275,
+    "length non-weighted": 0.2078161440809275
    },
    "geometry": {
     "type": "LineString",
@@ -7201,7 +7408,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.3726525995553556
+    "length": 1.3726525995553556,
+    "length non-weighted": 1.3726525995553556
    },
    "geometry": {
     "type": "LineString",
@@ -7243,7 +7451,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 4.035982946049878
+    "length": 4.035982946049878,
+    "length non-weighted": 4.035982946049878
    },
    "geometry": {
     "type": "LineString",
@@ -7297,7 +7506,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.8278760106630186
+    "length": 0.8278760106630186,
+    "length non-weighted": 0.8278760106630186
    },
    "geometry": {
     "type": "LineString",
@@ -7327,7 +7537,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.13096801323235716
+    "length": 0.13096801323235716,
+    "length non-weighted": 0.13096801323235716
    },
    "geometry": {
     "type": "LineString",
@@ -7357,7 +7568,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.13445418715699708
+    "length": 0.13445418715699708,
+    "length non-weighted": 0.13445418715699708
    },
    "geometry": {
     "type": "LineString",
@@ -7379,7 +7591,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.2826349648149116
+    "length": 1.2826349648149116,
+    "length non-weighted": 1.2826349648149116
    },
    "geometry": {
     "type": "LineString",
@@ -7429,7 +7642,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.37837927713619196
+    "length": 0.37837927713619196,
+    "length non-weighted": 0.37837927713619196
    },
    "geometry": {
     "type": "LineString",
@@ -7459,7 +7673,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.8832665265956975
+    "length": 0.8832665265956975,
+    "length non-weighted": 0.8832665265956975
    },
    "geometry": {
     "type": "LineString",
@@ -7493,7 +7708,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.3360776091550552
+    "length": 0.3360776091550552,
+    "length non-weighted": 0.3360776091550552
    },
    "geometry": {
     "type": "LineString",
@@ -7519,7 +7735,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.8599699631949638
+    "length": 1.8599699631949638,
+    "length non-weighted": 1.8599699631949638
    },
    "geometry": {
     "type": "LineString",
@@ -7573,7 +7790,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.4832924915441502
+    "length": 0.4832924915441502,
+    "length non-weighted": 0.4832924915441502
    },
    "geometry": {
     "type": "LineString",
@@ -7603,7 +7821,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.75047013675938
+    "length": 0.75047013675938,
+    "length non-weighted": 0.75047013675938
    },
    "geometry": {
     "type": "LineString",
@@ -7629,7 +7848,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7654409241291458
+    "length": 0.7654409241291458,
+    "length non-weighted": 0.7654409241291458
    },
    "geometry": {
     "type": "LineString",
@@ -7663,7 +7883,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.29522864786837816
+    "length": 0.29522864786837816,
+    "length non-weighted": 0.29522864786837816
    },
    "geometry": {
     "type": "LineString",
@@ -7685,7 +7906,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.22726077876467388
+    "length": 0.22726077876467388,
+    "length non-weighted": 0.22726077876467388
    },
    "geometry": {
     "type": "LineString",
@@ -7715,7 +7937,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5478016913380244
+    "length": 1.5478016913380244,
+    "length non-weighted": 1.5478016913380244
    },
    "geometry": {
     "type": "LineString",
@@ -7749,7 +7972,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.7255726989923663
+    "length": 2.7255726989923663,
+    "length non-weighted": 2.7255726989923663
    },
    "geometry": {
     "type": "LineString",
@@ -7791,7 +8015,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.2695695835401075
+    "length": 2.2695695835401075,
+    "length non-weighted": 2.2695695835401075
    },
    "geometry": {
     "type": "LineString",
@@ -7857,7 +8082,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.48676838710084064
+    "length": 0.48676838710084064,
+    "length non-weighted": 0.48676838710084064
    },
    "geometry": {
     "type": "LineString",
@@ -7883,7 +8109,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.46573887388547675
+    "length": 0.46573887388547675,
+    "length non-weighted": 0.46573887388547675
    },
    "geometry": {
     "type": "LineString",
@@ -7913,7 +8140,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.7703755443292029
+    "length": 0.7703755443292029,
+    "length non-weighted": 0.7703755443292029
    },
    "geometry": {
     "type": "LineString",
@@ -7947,7 +8175,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.4719323526460522
+    "length": 1.4719323526460522,
+    "length non-weighted": 1.4719323526460522
    },
    "geometry": {
     "type": "LineString",
@@ -7981,7 +8210,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.931198432714642
+    "length": 1.931198432714642,
+    "length non-weighted": 1.931198432714642
    },
    "geometry": {
     "type": "LineString",
@@ -8007,7 +8237,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.5001024378398021
+    "length": 0.5001024378398021,
+    "length non-weighted": 0.5001024378398021
    },
    "geometry": {
     "type": "LineString",
@@ -8029,7 +8260,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.9829389872003347
+    "length": 2.9829389872003347,
+    "length non-weighted": 2.9829389872003347
    },
    "geometry": {
     "type": "LineString",
@@ -8067,7 +8299,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5200737591458925
+    "length": 0.5200737591458925,
+    "length non-weighted": 0.5200737591458925
    },
    "geometry": {
     "type": "LineString",
@@ -8097,7 +8330,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5009526935668949
+    "length": 1.5009526935668949,
+    "length non-weighted": 1.5009526935668949
    },
    "geometry": {
     "type": "LineString",
@@ -8131,7 +8365,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.0805026897272942
+    "length": 1.0805026897272942,
+    "length non-weighted": 1.0805026897272942
    },
    "geometry": {
     "type": "LineString",
@@ -8157,7 +8392,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7161453879750727
+    "length": 0.7161453879750727,
+    "length non-weighted": 0.7161453879750727
    },
    "geometry": {
     "type": "LineString",
@@ -8199,7 +8435,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5769735253923135
+    "length": 0.5769735253923135,
+    "length non-weighted": 0.5769735253923135
    },
    "geometry": {
     "type": "LineString",
@@ -8233,7 +8470,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.1897543177275136
+    "length": 0.1897543177275136,
+    "length non-weighted": 0.1897543177275136
    },
    "geometry": {
     "type": "LineString",
@@ -8259,7 +8497,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8062867393498225
+    "length": 0.8062867393498225,
+    "length non-weighted": 0.8062867393498225
    },
    "geometry": {
     "type": "LineString",
@@ -8289,7 +8528,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 4.041738119967653
+    "length": 4.041738119967653,
+    "length non-weighted": 4.041738119967653
    },
    "geometry": {
     "type": "LineString",
@@ -8355,7 +8595,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7237501153065512
+    "length": 0.7237501153065512,
+    "length non-weighted": 0.7237501153065512
    },
    "geometry": {
     "type": "LineString",
@@ -8389,7 +8630,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.061670030415932
+    "length": 1.061670030415932,
+    "length non-weighted": 1.061670030415932
    },
    "geometry": {
     "type": "LineString",
@@ -8415,7 +8657,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5346937790187339
+    "length": 0.5346937790187339,
+    "length non-weighted": 0.5346937790187339
    },
    "geometry": {
     "type": "LineString",
@@ -8437,7 +8680,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.15338399001078837
+    "length": 0.15338399001078837,
+    "length non-weighted": 0.15338399001078837
    },
    "geometry": {
     "type": "LineString",
@@ -8459,7 +8703,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.568427086134903
+    "length": 2.568427086134903,
+    "length non-weighted": 2.568427086134903
    },
    "geometry": {
     "type": "LineString",
@@ -8497,7 +8742,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.0659842878491477
+    "length": 1.0659842878491477,
+    "length non-weighted": 1.0659842878491477
    },
    "geometry": {
     "type": "LineString",
@@ -8527,7 +8773,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.11998021632098965
+    "length": 0.11998021632098965,
+    "length non-weighted": 0.11998021632098965
    },
    "geometry": {
     "type": "LineString",
@@ -8549,7 +8796,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.3895853237295004
+    "length": 0.3895853237295004,
+    "length non-weighted": 0.3895853237295004
    },
    "geometry": {
     "type": "LineString",
@@ -8575,7 +8823,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.683538090038684
+    "length": 1.683538090038684,
+    "length non-weighted": 1.683538090038684
    },
    "geometry": {
     "type": "LineString",
@@ -8617,7 +8866,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.17608702492441064
+    "length": 0.17608702492441064,
+    "length non-weighted": 0.17608702492441064
    },
    "geometry": {
     "type": "LineString",
@@ -8639,7 +8889,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.05464770053231399
+    "length": 0.05464770053231399,
+    "length non-weighted": 0.05464770053231399
    },
    "geometry": {
     "type": "LineString",
@@ -8661,7 +8912,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.3626879815868251
+    "length": 1.3626879815868251,
+    "length non-weighted": 1.3626879815868251
    },
    "geometry": {
     "type": "LineString",
@@ -8699,7 +8951,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5877479416917648
+    "length": 1.5877479416917648,
+    "length non-weighted": 1.5877479416917648
    },
    "geometry": {
     "type": "LineString",
@@ -8741,7 +8994,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.48622107808038584
+    "length": 0.48622107808038584,
+    "length non-weighted": 0.48622107808038584
    },
    "geometry": {
     "type": "LineString",
@@ -8767,7 +9021,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2513197153671073
+    "length": 0.2513197153671073,
+    "length non-weighted": 0.2513197153671073
    },
    "geometry": {
     "type": "LineString",
@@ -8793,7 +9048,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.4857392777654717
+    "length": 2.4857392777654717,
+    "length non-weighted": 2.4857392777654717
    },
    "geometry": {
     "type": "LineString",
@@ -8843,7 +9099,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.7604809913730262
+    "length": 0.7604809913730262,
+    "length non-weighted": 0.7604809913730262
    },
    "geometry": {
     "type": "LineString",
@@ -8873,7 +9130,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.4050099272059977
+    "length": 0.4050099272059977,
+    "length non-weighted": 0.4050099272059977
    },
    "geometry": {
     "type": "LineString",
@@ -8899,7 +9157,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 2.42029296755833
+    "length": 2.42029296755833,
+    "length non-weighted": 2.42029296755833
    },
    "geometry": {
     "type": "LineString",
@@ -8953,7 +9212,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.11437563608924892
+    "length": 0.11437563608924892,
+    "length non-weighted": 0.11437563608924892
    },
    "geometry": {
     "type": "LineString",
@@ -8975,7 +9235,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2480657728547644
+    "length": 0.2480657728547644,
+    "length non-weighted": 0.2480657728547644
    },
    "geometry": {
     "type": "LineString",
@@ -9001,7 +9262,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.8139782480278936
+    "length": 1.8139782480278936,
+    "length non-weighted": 1.8139782480278936
    },
    "geometry": {
     "type": "LineString",
@@ -9047,7 +9309,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.560766990961804
+    "length": 0.560766990961804,
+    "length non-weighted": 0.560766990961804
    },
    "geometry": {
     "type": "LineString",
@@ -9077,7 +9340,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.33253052081944456
+    "length": 0.33253052081944456,
+    "length non-weighted": 0.33253052081944456
    },
    "geometry": {
     "type": "LineString",
@@ -9103,7 +9367,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.4462979973887862
+    "length": 1.4462979973887862,
+    "length non-weighted": 1.4462979973887862
    },
    "geometry": {
     "type": "LineString",
@@ -9133,7 +9398,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.14963724624059996
+    "length": 0.14963724624059996,
+    "length non-weighted": 0.14963724624059996
    },
    "geometry": {
     "type": "LineString",
@@ -9155,7 +9421,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.4831968944178568
+    "length": 1.4831968944178568,
+    "length non-weighted": 1.4831968944178568
    },
    "geometry": {
     "type": "LineString",
@@ -9213,7 +9480,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.6529774060908444
+    "length": 0.6529774060908444,
+    "length non-weighted": 0.6529774060908444
    },
    "geometry": {
     "type": "LineString",
@@ -9243,7 +9511,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.32451485658659995
+    "length": 0.32451485658659995,
+    "length non-weighted": 0.32451485658659995
    },
    "geometry": {
     "type": "LineString",
@@ -9277,7 +9546,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.8342211808686163
+    "length": 0.8342211808686163,
+    "length non-weighted": 0.8342211808686163
    },
    "geometry": {
     "type": "LineString",
@@ -9307,7 +9577,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.12745803751274828
+    "length": 0.12745803751274828,
+    "length non-weighted": 0.12745803751274828
    },
    "geometry": {
     "type": "LineString",
@@ -9329,7 +9600,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 0.85421545389348
+    "length": 0.85421545389348,
+    "length non-weighted": 0.85421545389348
    },
    "geometry": {
     "type": "LineString",
@@ -9367,7 +9639,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 0.6230126296204325
+    "length": 0.6230126296204325,
+    "length non-weighted": 0.6230126296204325
    },
    "geometry": {
     "type": "LineString",
@@ -9401,7 +9674,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 1.5386037904490624
+    "length": 1.5386037904490624,
+    "length non-weighted": 1.5386037904490624
    },
    "geometry": {
     "type": "LineString",
@@ -9463,7 +9737,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.2152838725522101
+    "length": 0.2152838725522101,
+    "length non-weighted": 0.2152838725522101
    },
    "geometry": {
     "type": "LineString",
@@ -9489,7 +9764,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.14700901806794064
+    "length": 0.14700901806794064,
+    "length non-weighted": 0.14700901806794064
    },
    "geometry": {
     "type": "LineString",
@@ -9515,7 +9791,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.28499328632299664
+    "length": 0.28499328632299664,
+    "length non-weighted": 0.28499328632299664
    },
    "geometry": {
     "type": "LineString",
@@ -9541,7 +9818,8 @@
    "properties": {
     "Connection": "C - I",
     "boundary_weight": 1,
-    "length": 1.1436721241026224
+    "length": 1.1436721241026224,
+    "length non-weighted": 1.1436721241026224
    },
    "geometry": {
     "type": "LineString",
@@ -9587,7 +9865,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5272951270072558
+    "length": 0.5272951270072558,
+    "length non-weighted": 0.5272951270072558
    },
    "geometry": {
     "type": "LineString",
@@ -9609,7 +9888,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.4697236085222048
+    "length": 0.4697236085222048,
+    "length non-weighted": 0.4697236085222048
    },
    "geometry": {
     "type": "LineString",
@@ -9631,7 +9911,8 @@
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 0.5421671142062819
+    "length": 0.5421671142062819,
+    "length non-weighted": 0.5421671142062819
    },
    "geometry": {
     "type": "LineString",
@@ -9657,7 +9938,8 @@
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 1.4645367296042076
+    "length": 1.4645367296042076,
+    "length non-weighted": 1.4645367296042076
    },
    "geometry": {
     "type": "LineString",
