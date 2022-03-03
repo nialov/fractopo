@@ -5,6 +5,7 @@ Tests for multi_network.py.
 import logging
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -154,11 +155,11 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
     "network_params",
     tests.test_multinetwork_plot_azimuth_set_lengths_params(),
 )
-def test_multinetwork_plot_azimuth_set_lengths(
+def test_multinetwork_methods(
     network_params, using_branches, automatic_cut_offs, tmp_path: Path
 ):
     """
-    Test MultiNetwork._plot_azimuth_set_lengths.
+    Test MultiNetwork methods generally.
     """
 
     networks = [
@@ -181,3 +182,22 @@ def test_multinetwork_plot_azimuth_set_lengths(
     assert isinstance(axes, list)
     assert isinstance(figs[0], Figure)
     assert isinstance(axes[0], Axes)
+
+    # Test basic_network_descriptions_df
+
+    if using_branches:
+        columns = {
+            general.NAME: (None, str, 0),
+            general.Param.AREA.value.name: (None, float, 2),
+            general.Param.TRACE_MEAN_LENGTH.value.name: (None, float, 2),
+            general.Param.BRANCH_MEAN_LENGTH.value.name: (None, float, 2),
+            general.Param.FRACTURE_INTENSITY_P21.value.name: (None, float, 2),
+        }
+        basic_network_descriptions_df = multi_network.basic_network_descriptions_df(
+            columns=columns
+        )
+        assert isinstance(basic_network_descriptions_df, pd.DataFrame)
+        assert general.NAME not in basic_network_descriptions_df.index.values
+        assert (
+            general.Param.AREA.value.name in basic_network_descriptions_df.index.values
+        )
