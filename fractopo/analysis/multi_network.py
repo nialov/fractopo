@@ -298,7 +298,7 @@ class MultiNetwork(NamedTuple):
             numerical_df[column] = numerical_df[column].apply(apply_func)
 
         # Rename columns
-        renames = {key: value for key, value in columns.items() if value is not None}
+        renames = {key: value[0] for key, value in columns.items() if value is not None}
         numerical_df = numerical_df.rename(renames)
 
         assert isinstance(numerical_df, pd.DataFrame)
