@@ -605,8 +605,9 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     # Individual powerlaw fits are not normalized to area because they aren't
     # multiscale
     ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
+    prefix = "" if indiv_fit else "AN"
     ax.set_ylabel(
-        "Complementary Cumulative Number " + ccm_unit,
+        prefix + "CCM" + ccm_unit,
         fontsize="xx-large",
         fontfamily="DejaVu Sans",
         style="italic",
