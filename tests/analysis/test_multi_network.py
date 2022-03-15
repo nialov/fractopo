@@ -185,19 +185,29 @@ def test_multinetwork_methods(
 
     # Test basic_network_descriptions_df
 
-    if using_branches:
-        columns = {
-            general.NAME: (None, str, 0),
-            general.Param.AREA.value.name: (None, float, 2),
-            general.Param.TRACE_MEAN_LENGTH.value.name: (None, float, 2),
-            general.Param.BRANCH_MEAN_LENGTH.value.name: (None, float, 2),
-            general.Param.FRACTURE_INTENSITY_P21.value.name: (None, float, 2),
-        }
-        basic_network_descriptions_df = multi_network.basic_network_descriptions_df(
-            columns=columns
-        )
-        assert isinstance(basic_network_descriptions_df, pd.DataFrame)
-        assert general.NAME not in basic_network_descriptions_df.index.values
-        assert (
-            general.Param.AREA.value.name in basic_network_descriptions_df.index.values
-        )
+    if not using_branches:
+        return
+    connection_frequency_new = "C FREQ"
+    columns = {
+        general.NAME: (None, str),
+        general.Param.AREA.value.name: (None, float),
+        general.Param.TRACE_MEAN_LENGTH.value.name: (None, float),
+        general.Param.BRANCH_MEAN_LENGTH.value.name: (None, float),
+        general.Param.FRACTURE_INTENSITY_P21.value.name: (None, float),
+        general.Param.CONNECTION_FREQUENCY.value.name: (
+            connection_frequency_new,
+            float,
+        ),
+    }
+    basic_network_descriptions_df = multi_network.basic_network_descriptions_df(
+        columns=columns
+    )
+    assert isinstance(basic_network_descriptions_df, pd.DataFrame)
+    assert general.NAME not in basic_network_descriptions_df.index.values
+    assert general.Param.AREA.value.name in basic_network_descriptions_df.index.values
+
+    # Test renaming
+    for old_column, (new_column, _) in columns.items():
+        if new_column is not None:
+            assert new_column in basic_network_descriptions_df.index.values
+            assert old_column not in basic_network_descriptions_df.index.values
