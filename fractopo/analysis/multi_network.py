@@ -268,7 +268,7 @@ class MultiNetwork(NamedTuple):
 
     def basic_network_descriptions_df(
         self,
-        columns: Dict[str, Tuple[Optional[str], Type, int]] = {NAME: (None, str, 0)},
+        columns: Dict[str, Tuple[Optional[str], Type]] = {NAME: (None, str)},
     ):
         """
         Create DataFrame useful for basic Network characterization.
@@ -277,9 +277,7 @@ class MultiNetwork(NamedTuple):
         name in ``numerical_network_description`` dict. Value is a tuple where
         the first member is a new name for the column or alternatively None in
         which case the column name isn't changed. The second member should be
-        the type of the column, typically either str, int or float. The third
-        member is the number of decimals to show for the column value
-        (Only applicable for floats).
+        the type of the column, typically either str, int or float.
         """
         numerical_df = pd.DataFrame(
             [network.numerical_network_description() for network in self.networks]
@@ -289,21 +287,29 @@ class MultiNetwork(NamedTuple):
 
         assert isinstance(numerical_df, pd.DataFrame)
 
-        for column, (_, column_type, decimals) in columns.items():
-            apply_func = (
-                column_type
-                if column_type is not float
-                else lambda val: round(column_type(val), decimals)
-            )
-            numerical_df[column] = numerical_df[column].apply(apply_func)
+        for column, (_, column_type) in columns.items():
+            # apply_func = (
+            #     column_type
+            #     # if column_type is not float
+            #     # else lambda val: round(column_type(val), decimals)
+            # )
+            numerical_df[column] = numerical_df[column].apply(column_type)
 
         # Rename columns
-        renames = {key: value[0] for key, value in columns.items() if value is not None}
-        numerical_df = numerical_df.rename(renames)
+        renames = {
+            key: value[0] for key, value in columns.items() if value[0] is not None
+        }
+        numerical_df = numerical_df.rename(renames, axis="columns")
 
         assert isinstance(numerical_df, pd.DataFrame)
 
-        numerical_df.set_index(NAME, inplace=True)
+        # Resolve index name
+        index_name = NAME
+        if NAME in columns:
+            new_name = columns[NAME][0]
+            if new_name is not None:
+                index_name = new_name
+        numerical_df.set_index(index_name, inplace=True)
 
         numerical_df_transposed = numerical_df.transpose()
 
