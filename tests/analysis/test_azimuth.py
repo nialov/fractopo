@@ -53,5 +53,3 @@ def test_plot_azimuth_plot(
     assert isinstance(bins, AzimuthBins)
     assert isinstance(fig, Figure)
     assert isinstance(ax, PolarAxes)
-
-    fig.savefig(f"/mnt/c/tmp/{label}.png", bbox_inches="tight")
