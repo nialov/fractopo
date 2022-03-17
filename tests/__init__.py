@@ -1888,3 +1888,31 @@ def test_plot_mld_optimized_params():
             ["kb11", "hastholmen"],
         )
     ]
+
+
+def test_plot_azimuth_plot_params():
+    """
+    Params for test_plot_azimuth_plot.
+    """
+    return [
+        (
+            # np.linspace(0, 360, 100),
+            np.random.normal(180, 90, 100),
+            np.ones(100),
+            np.ones(100),
+            np.ones(100).astype(str),
+            "PlotWithNonAxialAzimuthData",
+            False,
+            False,
+        ),
+        (
+            np.random.normal(90, 45, 100),
+            # np.linspace(0, 180, 100),
+            np.ones(100),
+            np.ones(100),
+            np.ones(100).astype(str),
+            "PlotWithAxialAzimuthData",
+            False,
+            True,
+        ),
+    ]
