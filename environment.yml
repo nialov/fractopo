@@ -3,6 +3,7 @@ name: fractopo
 channels:
   - conda-forge
 
+# Changes here should be kept in sync with ./pyproject.toml
 dependencies:
   - python >=3.7.1,<4.0
   - click
