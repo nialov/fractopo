@@ -3,7 +3,7 @@ Analysis and plotting of geometric and topological parameters.
 """
 import logging
 from itertools import compress
-from textwrap import wrap
+from textwrap import fill
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -666,7 +666,8 @@ def plot_parameters_plot(
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
         locs, xtick_labels = plt.xticks()
-        xtick_labels = ["\n".join(wrap(label.get_text(), 6)) for label in xtick_labels]
+        # xtick_labels = ["\n".join(wrap(label.get_text(), 6)) for label in xtick_labels]
+        xtick_labels = [fill(label.get_text(), 6) for label in xtick_labels]
         plt.yticks(fontsize="xx-large", color="black")
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS

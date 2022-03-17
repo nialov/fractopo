@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import chain, cycle
-from textwrap import wrap
+from textwrap import fill
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import numpy as np
@@ -618,7 +618,8 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     plt.tick_params(axis="both", width=1.2)
     # LEGEND
     handles, labels = ax.get_legend_handles_labels()
-    labels = ["\n".join(wrap(label, 13)) for label in labels]
+    # labels = ["\n".join(wrap(label, 13)) for label in labels]
+    labels = [fill(label, 13) for label in labels]
     lgnd = plt.legend(
         handles,
         labels,
