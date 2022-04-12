@@ -1863,3 +1863,11 @@ def write_topodata(gdf: gpd.GeoDataFrame, output_path: Path):
     Write branch or nodes GeoDataFrame to `output_path`.
     """
     write_geodata(gdf=gdf, path=output_path, allow_list_column_transform=False)
+
+
+def azimuth_to_unit_vector(azimuth: float) -> np.ndarray:
+    """
+    Convert azimuth to unit vector.
+    """
+    azimuth_rad = np.deg2rad(azimuth)
+    return np.array([np.sin(azimuth_rad), np.cos(azimuth_rad)])

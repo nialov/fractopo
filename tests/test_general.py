@@ -6,7 +6,7 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
 from shapely.geometry import Polygon
 
@@ -137,3 +137,15 @@ def test_determine_boundary_intersecting_lines(
     assert isinstance(cuts_through_lines, np.ndarray)
     assert all(intersecting_lines == assumed_result_inter)
     assert all(cuts_through_lines == assumed_result_cuts)
+
+
+@example(45.0)
+@given(floats())
+def test_azimuth_to_unit_vector(azimuth: float):
+    """
+    Test azimuth_to_unit_vector.
+    """
+    result = general.azimuth_to_unit_vector(azimuth=azimuth)
+
+    assert len(result) == 2
+    assert isinstance(result, np.ndarray)
