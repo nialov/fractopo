@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.3.0.post44.dev0+f39a026"
+version = "0.3.0.post49.dev0+a9627aa"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -68,6 +68,7 @@ sphinx-autobuild = {version = "*", optional = true}
 # Linting
 pylint = {version = "*", optional = true}
 rstcheck = {version = "*", optional = true}
+markupsafe = {version = "2.0.1", optional = true}
 
 # Typecheck
 mypy = {version = "*", optional = true}
@@ -100,6 +101,7 @@ lint = [
     "pylint",
     "rstcheck",
     "sphinx",
+    "markupsafe",
 ]
 typecheck = ["mypy"]
 
