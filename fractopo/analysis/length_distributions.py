@@ -551,7 +551,7 @@ def plot_distribution_fits(
         plot_fit_on_ax(ax, fit, fit_distribution)
 
     # Setup of ax appearance and axlims
-    setup_ax_for_ld(ax, using_branches=using_branches)
+    setup_ax_for_ld(ax, using_branches=using_branches, indiv_fit=True)
     _setup_length_plot_axlims(
         ax=ax,
         length_array=truncated_length_array,
@@ -583,20 +583,16 @@ def plot_distribution_fits(
     return fit, fig, ax
 
 
-def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
+def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
     """
     Configure ax for length distribution plots.
 
     :param ax_for_setup: Ax to setup.
-    :type ax_for_setup: Axes
-    :param using_branches: Are the lines branches or traces.
-    :type using_branches: bool
+    :param using_branches: Are the lines in the axis branches or traces.
     """
-    #
-    ax = ax_for_setup
     # LABELS
     label = "Branch Length $(m)$" if using_branches else "Trace Length $(m)$"
-    ax.set_xlabel(
+    ax_for_setup.set_xlabel(
         label,
         fontsize="xx-large",
         fontfamily="DejaVu Sans",
@@ -607,7 +603,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     # multiscale
     ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
     prefix = "" if indiv_fit else "AN"
-    ax.set_ylabel(
+    ax_for_setup.set_ylabel(
         prefix + "CCM" + ccm_unit,
         fontsize="xx-large",
         fontfamily="DejaVu Sans",
@@ -618,7 +614,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     plt.yticks(color="black", fontsize="x-large")
     plt.tick_params(axis="both", width=1.2)
     # LEGEND
-    handles, labels = ax.get_legend_handles_labels()
+    handles, labels = ax_for_setup.get_legend_handles_labels()
     # labels = ["\n".join(wrap(label, 13)) for label in labels]
     labels = [fill(label, 13) for label in labels]
     lgnd = plt.legend(
@@ -636,9 +632,9 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     for lh in lgnd.legendHandles:
         # lh._sizes = [750]
         lh.set_linewidth(3)
-    ax.grid(zorder=-10, color="black", alpha=0.5)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
+    ax_for_setup.grid(zorder=-10, color="black", alpha=0.5)
+    ax_for_setup.set_xscale("log")
+    ax_for_setup.set_yscale("log")
 
 
 def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
@@ -819,7 +815,7 @@ def plot_multi_distributions_and_fit(
     """
     # Start making plot
     fig, ax = plt.subplots(figsize=(7, 7))
-    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches)
+    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches, indiv_fit=False)
     ax.set_facecolor("oldlace")
     ax.set_title(f"$Exponent = {polyfit.m_value:.2f} Score = {polyfit.score:.2f}$")
 
