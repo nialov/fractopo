@@ -258,6 +258,7 @@ class Network:
             length_set_ranges=self.trace_length_set_ranges,
             length_set_names=self.trace_length_set_names,
             area_boundary_intersects=self.trace_intersects_target_area_boundary,
+            using_branches=False,
         )
 
         empty_branches_and_nodes = self.branch_gdf.empty and self.node_gdf.empty
@@ -343,6 +344,8 @@ class Network:
             "caution. It is safer to recreate the Network instance.",
             extra=dict(network_name=self.name),
         )
+        # TODO: Refactor to use e.g. self.setup_trace_data as it is setup twice.
+        # It is used here and in __post_init__
         self.trace_data = LineData(
             _line_gdf=self.trace_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
@@ -350,6 +353,7 @@ class Network:
             length_set_ranges=self.trace_length_set_ranges,
             length_set_names=self.trace_length_set_names,
             area_boundary_intersects=self.trace_intersects_target_area_boundary,
+            using_branches=False,
         )
         if not self.branch_gdf.empty:
             self.branch_data = LineData(
@@ -359,6 +363,7 @@ class Network:
                 length_set_ranges=self.branch_length_set_ranges,
                 length_set_names=self.branch_length_set_names,
                 area_boundary_intersects=self.branch_intersects_target_area_boundary,
+                using_branches=True,
             )
             self._azimuth_set_relationships = None
 
@@ -818,6 +823,7 @@ class Network:
             length_set_ranges=self.branch_length_set_ranges,
             length_set_names=self.branch_length_set_names,
             area_boundary_intersects=self.branch_intersects_target_area_boundary,
+            using_branches=True,
         )
 
     def plot_trace_lengths(

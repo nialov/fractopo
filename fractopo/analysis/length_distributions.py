@@ -121,7 +121,7 @@ class LengthDistribution:
 
     lengths: np.ndarray
     area_value: float
-    using_branches: bool = False
+    using_branches: bool
     name: str = ""
 
     _automatic_fit: Optional[powerlaw.Fit] = None
@@ -507,6 +507,7 @@ def _setup_length_plot_axlims(
 def plot_distribution_fits(
     length_array: np.ndarray,
     label: str,
+    using_branches: bool,
     cut_off: Optional[float] = None,
     fit: Optional[powerlaw.Fit] = None,
 ) -> Tuple[powerlaw.Fit, Figure, Axes]:
@@ -550,7 +551,7 @@ def plot_distribution_fits(
         plot_fit_on_ax(ax, fit, fit_distribution)
 
     # Setup of ax appearance and axlims
-    setup_ax_for_ld(ax, using_branches=False)
+    setup_ax_for_ld(ax, using_branches=using_branches)
     _setup_length_plot_axlims(
         ax=ax,
         length_array=truncated_length_array,
@@ -594,7 +595,7 @@ def setup_ax_for_ld(ax_for_setup, using_branches, indiv_fit=False):
     #
     ax = ax_for_setup
     # LABELS
-    label = "Branch length $(m)$" if using_branches else "Trace Length $(m)$"
+    label = "Branch Length $(m)$" if using_branches else "Trace Length $(m)$"
     ax.set_xlabel(
         label,
         fontsize="xx-large",
@@ -811,7 +812,7 @@ def plot_multi_distributions_and_fit(
     ccm_array_normed_all: List[np.ndarray],
     names: List[str],
     polyfit: Polyfit,
-    using_branches: bool = False,
+    using_branches: bool,
 ) -> Tuple[Figure, Axes]:
     """
     Plot multi-scale length distribution.

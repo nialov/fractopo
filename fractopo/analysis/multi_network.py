@@ -117,7 +117,7 @@ class MultiNetwork(NamedTuple):
         return distributions
 
     def multi_length_distributions(
-        self, using_branches: bool = False
+        self, using_branches: bool
     ) -> length_distributions.MultiLengthDistribution:
         """
         Get MultiLengthDistribution of all networks.
@@ -244,7 +244,7 @@ class MultiNetwork(NamedTuple):
         )
 
     def set_multi_length_distributions(
-        self, using_branches: bool = False
+        self, using_branches: bool
     ) -> Dict[str, length_distributions.MultiLengthDistribution]:
         """
         Get set-wise multi-length distributions.

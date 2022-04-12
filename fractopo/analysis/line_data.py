@@ -52,6 +52,7 @@ class LineData:
     """
 
     _line_gdf: gpd.GeoDataFrame
+    using_branches: bool
 
     azimuth_set_ranges: SetRangeTuple
     azimuth_set_names: Tuple[str, ...]
@@ -285,6 +286,7 @@ class LineData:
             self.length_array,
             label=label,
             fit=self.automatic_fit if fit is None else fit,
+            using_branches=self.using_branches,
         )
 
     def plot_azimuth(
@@ -353,6 +355,7 @@ class LineData:
             fit, fig, ax = length_distributions.plot_distribution_fits(
                 set_lengths,
                 label=azimuth_set_name,
+                using_branches=self.using_branches,
             )
 
             # Collect
