@@ -69,11 +69,6 @@ def execute_notebook(session, notebook: Path):
         "nbstripout",
         str(notebook),
     )
-    # Strip output
-    session.run(
-        "nbstripout",
-        str(notebook),
-    )
 
 
 def install_dev(session, extras: str = ""):
@@ -438,7 +433,10 @@ def changelog(session):
         print("Expected 'pandoc' to be installed. Cannot generate clean changelog.")
 
     # Install auto-changelog from own repo
-    session.install("git+https://github.com/nialov/auto-changelog.git")
+    # TODO: markupsafe breakage with 2.1.0
+    session.install(
+        "git+https://github.com/nialov/auto-changelog.git", "markupsafe==2.0.1"
+    )
     session.run(
         "auto-changelog",
         "--tag-prefix=v",

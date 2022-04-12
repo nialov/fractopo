@@ -23,6 +23,7 @@
             stdenv
             pastel
             zlib
+            nixFlakes
           ];
 
           # Required for building C extensions
