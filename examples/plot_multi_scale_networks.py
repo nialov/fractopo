@@ -22,6 +22,8 @@ multi_network = MultiNetwork((kb11_network, hastholmen_network))
 # %%
 # Plot automatically cut length distributions with a multi-scale fit
 # ------------------------------------------------------------------
+# Powerlaw exponent and fit 'score' are embedded into the plots.
+# MSLE = Mean Squared Logarithmic Error
 
 # Log-log plot of MultiNetwork trace length distribution
 mld_traces, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
@@ -73,6 +75,7 @@ mlds, figs, axes = multi_network.plot_trace_azimuth_set_lengths(
     automatic_cut_offs=True,
 )
 
+# Just some visual plot setup...
 for fig in figs:
     fig.set_size_inches(5, 5)
     fig.tight_layout()

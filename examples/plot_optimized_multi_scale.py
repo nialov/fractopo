@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 # Load three networks, each digitized from a different scale of observation
 from example_networks import hastholmen_network, kb11_network, lidar_200k_network
 
+from fractopo import general
 from fractopo.analysis import length_distributions
 
 # %%
@@ -47,7 +48,7 @@ shgo_kwargs = dict(
 # Choose loss function for optimization. Here r2 is chosen to get a visually
 # sensible result but it is generally ill-suited for optimizing cut-offs of
 # power-law distributions.
-scorer = length_distributions.r2_scorer
+scorer = general.r2_scorer
 
 # Returns new instance of MultiLengthDistribution
 # with optimized cut-offs.
