@@ -209,7 +209,8 @@ def test_fit_to_multi_scale_lengths_fitter_comparisons(
     )
 
     for val in [*numpy_polyfit_vals, *linear_regression_vals]:
-        assert isinstance(val, (np.ndarray, float))
+        # Polyfit attributes should be floats, array and callables (scorer func)
+        assert isinstance(val, (np.ndarray, float)) or callable(val)
 
 
 @pytest.mark.parametrize(
