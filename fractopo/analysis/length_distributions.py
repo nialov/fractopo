@@ -28,6 +28,10 @@ SIGMA = "sigma"
 MU = "mu"
 LAMBDA = "lambda"
 LOGLIKELIHOOD = "loglikelihood"
+SCORER_NAMES: Dict[Callable, str] = {
+    sklm.mean_squared_log_error: "MSLE",
+    sklm.r2_score: "R2",
+}
 
 
 class SilentFit(powerlaw.Fit):
@@ -195,6 +199,7 @@ class Polyfit(NamedTuple):
     m_value: float
     constant: float
     score: float
+    scorer: Callable[[np.ndarray, np.ndarray], float]
 
 
 class MultiScaleOptimizationResult(NamedTuple):
@@ -440,8 +445,9 @@ def plot_length_data_on_ax(
     ax: Axes,
     length_array: np.ndarray,
     ccm_array: np.ndarray,
-    label: str,
-    truncated: bool = True,
+    label: Optional[str],
+    color: str,
+    alpha: float,
 ):
     """
     Plot length data on given ax.
@@ -452,9 +458,9 @@ def plot_length_data_on_ax(
         x=length_array,
         y=ccm_array,
         s=25,
-        label=label if truncated else None,
-        alpha=1.0 if truncated else 0.02,
-        color="black" if truncated else "brown",
+        label=label,
+        alpha=alpha,
+        color=color,
         marker="x",
     )
 
@@ -500,6 +506,7 @@ def _setup_length_plot_axlims(
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
     except ValueError:
+        logging.error("Failed to set up x and y limits.", exc_info=True)
         # Don't try setting if it errors
         pass
 
@@ -523,6 +530,8 @@ def plot_distribution_fits(
 
     # Create figure, ax
     fig, ax = plt.subplots(figsize=(7, 7))
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
 
     if len(length_array) == 0:
         logging.error(
@@ -540,15 +549,48 @@ def plot_distribution_fits(
         full_ccm_array[len(full_ccm_array) - len(ccm_array)] / ccm_array.max()
     )
 
-    # Plot length scatter plot
-    plot_length_data_on_ax(ax, truncated_length_array, ccm_array, label)
+    # Plot truncated length scatter plot
     plot_length_data_on_ax(
-        ax, full_length_array, full_ccm_array, label, truncated=False
+        ax, truncated_length_array, ccm_array, label, color="black", alpha=1.0
+    )
+    # Plot full length scatter plot with different color and transparency
+    plot_length_data_on_ax(
+        ax, full_length_array, full_ccm_array, label, color="brown", alpha=0.02
     )
 
     # Plot the actual fits (powerlaw, exp...)
     for fit_distribution in (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW):
         plot_fit_on_ax(ax, fit, fit_distribution)
+
+    # Plot cut-off if applicable
+    plot_axvline = cut_off is None or cut_off != 0.0
+    if plot_axvline:
+        # Indicate cut-off if cut-off is not given as 0.0
+        truncated_length_array_min = truncated_length_array.min()
+        ax.axvline(
+            truncated_length_array_min,
+            linestyle="dotted",
+            color="black",
+            alpha=0.6,
+            label="Cut-Off",
+            linewidth=1.5,
+        )
+        ax.text(
+            truncated_length_array_min,
+            ccm_array.min(),
+            f"{round(truncated_length_array.min(), 2)} m",
+            rotation=90,
+            horizontalalignment="right",
+            fontsize="large",
+        )
+
+    # Set title with exponent
+    rounded_exponent = round(calculate_exponent(fit.alpha), 3)
+    target = "Branches" if using_branches else "Traces"
+    ax.set_title(
+        f"{label}\nPower-law Exponent for {target} = ${rounded_exponent}$",
+        fontdict=dict(fontsize="x-large"),
+    )
 
     # Setup of ax appearance and axlims
     setup_ax_for_ld(ax, using_branches=using_branches, indiv_fit=True)
@@ -557,30 +599,36 @@ def plot_distribution_fits(
         length_array=truncated_length_array,
         ccm_array=ccm_array,
     )
-    rounded_exponent = round(calculate_exponent(fit.alpha), 3)
 
-    # Set title with exponent
-    ax.set_title(f"Power-law Exponent = ${rounded_exponent}$")
-
-    plot_axvline = cut_off is None or cut_off != 0.0
-    if plot_axvline:
-        # Indicate cut-off if cut-off is not given as 0.0
-        ax.axvline(
-            truncated_length_array.min(),
-            linestyle="dotted",
-            color="black",
-            alpha=0.8,
-            label="Cut-Off",
-        )
-        ax.text(
-            truncated_length_array.min(),
-            ccm_array.min(),
-            f"{round(truncated_length_array.min(), 2)} m",
-            rotation=90,
-            horizontalalignment="right",
-            fontsize="small",
-        )
     return fit, fig, ax
+
+
+def setup_length_dist_legend(ax_for_setup: Axes):
+    """
+    Set up legend for length distribution plots.
+
+    Used for both single and multi distribution plots.
+    """
+    # Setup legend
+    handles, labels = ax_for_setup.get_legend_handles_labels()
+    labels = [fill(label, 13) for label in labels]
+    lgnd = plt.legend(
+        handles,
+        labels,
+        loc="upper right",
+        # bbox_to_anchor=(1.37, 1.02),
+        ncol=2,
+        columnspacing=0.3,
+        # shadow=True,
+        prop={"size": "large"},
+        framealpha=0.8,
+        facecolor="white",
+    )
+
+    # Setup legend line widths larger
+    for lh in lgnd.legendHandles:
+        # lh._sizes = [750]
+        lh.set_linewidth(3)
 
 
 def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
@@ -609,32 +657,25 @@ def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
         fontfamily="DejaVu Sans",
         style="italic",
     )
-    # TICKS
+
+    # Setup x and y axis ticks and their labels
     plt.xticks(color="black", fontsize="x-large")
     plt.yticks(color="black", fontsize="x-large")
     plt.tick_params(axis="both", width=1.2)
-    # LEGEND
-    handles, labels = ax_for_setup.get_legend_handles_labels()
-    # labels = ["\n".join(wrap(label, 13)) for label in labels]
-    labels = [fill(label, 13) for label in labels]
-    lgnd = plt.legend(
-        handles,
-        labels,
-        loc="upper right",
-        # bbox_to_anchor=(1.37, 1.02),
-        ncol=2,
-        columnspacing=0.3,
-        # shadow=True,
-        # prop={"family": "DejaVu Sans", "weight": "heavy", "size": "large"},
-        framealpha=0.8,
-        facecolor="white",
-    )
-    for lh in lgnd.legendHandles:
-        # lh._sizes = [750]
-        lh.set_linewidth(3)
+
+    # Setup legend
+    setup_length_dist_legend(ax_for_setup=ax_for_setup)
+
+    # Setup grid
     ax_for_setup.grid(zorder=-10, color="black", alpha=0.5)
+
+    # Change x and y scales to logarithmic
     ax_for_setup.set_xscale("log")
     ax_for_setup.set_yscale("log")
+
+    # Set facecolor depending on using_branches
+    # facecolor = "oldlace" if using_branches else "gray"
+    # ax_for_setup.set_facecolor(facecolor)
 
 
 def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
@@ -789,7 +830,9 @@ def fit_to_multi_scale_lengths(
     score = scorer(ccm, y_fit)
     assert isinstance(score, float)
 
-    return Polyfit(y_fit=y_fit, m_value=m_value, constant=constant, score=score)
+    return Polyfit(
+        y_fit=y_fit, m_value=m_value, constant=constant, score=score, scorer=scorer
+    )
 
 
 def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
@@ -815,9 +858,16 @@ def plot_multi_distributions_and_fit(
     """
     # Start making plot
     fig, ax = plt.subplots(figsize=(7, 7))
-    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches, indiv_fit=False)
-    ax.set_facecolor("oldlace")
-    ax.set_title(f"$Exponent = {polyfit.m_value:.2f} Score = {polyfit.score:.2f}$")
+
+    # Set title with powerlaw exponent and score
+    scorer_str = SCORER_NAMES[polyfit.scorer]
+    is_very_low_score = polyfit.score < 0.01
+    score_descriptive = (
+        f"{polyfit.score:.2e}" if is_very_low_score else str(round(polyfit.score, 2))
+    )
+    ax.set_title(
+        f"Exponent = {polyfit.m_value:.2f} and Score ({scorer_str}) = {score_descriptive}"
+    )
 
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
@@ -845,8 +895,11 @@ def plot_multi_distributions_and_fit(
         linestyle="dashed",
     )
 
+    # Setup axes
+    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches, indiv_fit=False)
+
     # Add legend
-    plt.legend()
+    setup_length_dist_legend(ax_for_setup=ax)
 
     return fig, ax
 
