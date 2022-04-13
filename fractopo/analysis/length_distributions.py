@@ -28,9 +28,11 @@ SIGMA = "sigma"
 MU = "mu"
 LAMBDA = "lambda"
 LOGLIKELIHOOD = "loglikelihood"
+
 SCORER_NAMES: Dict[Callable, str] = {
     sklm.mean_squared_log_error: "MSLE",
-    sklm.r2_score: "R2",
+    sklm.r2_score: "$R^2$",
+    general.r2_scorer: "$R^2$ (inv.)",
 }
 
 
@@ -835,17 +837,6 @@ def fit_to_multi_scale_lengths(
     )
 
 
-def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
-    """
-    Score fit with r2 metric.
-
-    Changes the scoring to be best at a value of 0.
-    """
-    score = abs(1 - sklm.r2_score(y_true=y_true, y_pred=y_predicted))
-    assert isinstance(score, float)
-    return score
-
-
 def plot_multi_distributions_and_fit(
     truncated_length_array_all: List[np.ndarray],
     ccm_array_normed_all: List[np.ndarray],
@@ -859,12 +850,24 @@ def plot_multi_distributions_and_fit(
     # Start making plot
     fig, ax = plt.subplots(figsize=(7, 7))
 
-    # Set title with powerlaw exponent and score
-    scorer_str = SCORER_NAMES[polyfit.scorer]
+    # Determine scorer name
+    # If not found in SCORER_NAMES, the __name__ of the scorer function is used
+    try:
+        scorer_str = SCORER_NAMES[polyfit.scorer]
+    except KeyError:
+        logging.warning(
+            "Expected to find name string for polyfit scorer: "
+            f"{polyfit.scorer} in SCORER_NAMES."
+        )
+        scorer_str = polyfit.scorer.__name__
+
+    # Determine score string (float or scientific notation)
     is_very_low_score = polyfit.score < 0.01
     score_descriptive = (
         f"{polyfit.score:.2e}" if is_very_low_score else str(round(polyfit.score, 2))
     )
+
+    # Set title with powerlaw exponent and score
     ax.set_title(
         f"Exponent = {polyfit.m_value:.2f} and Score ({scorer_str}) = {score_descriptive}"
     )

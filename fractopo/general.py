@@ -20,6 +20,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pygeos
+import sklearn.metrics as sklm
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
 from matplotlib.figure import Figure
@@ -1871,3 +1872,14 @@ def azimuth_to_unit_vector(azimuth: float) -> np.ndarray:
     """
     azimuth_rad = np.deg2rad(azimuth)
     return np.array([np.sin(azimuth_rad), np.cos(azimuth_rad)])
+
+
+def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
+    """
+    Score fit with r2 metric.
+
+    Changes the scoring to be best at a value of 0.
+    """
+    score = abs(1 - sklm.r2_score(y_true=y_true, y_pred=y_predicted))
+    assert isinstance(score, float)
+    return score
