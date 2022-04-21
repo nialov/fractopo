@@ -71,7 +71,7 @@ print(multi_network.collective_azimuth_sets())
 
 # %%
 
-mlds, figs, axes = multi_network.plot_trace_azimuth_set_lengths(
+mlds, polyfits, figs, axes = multi_network.plot_trace_azimuth_set_lengths(
     automatic_cut_offs=True,
 )
 
