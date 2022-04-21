@@ -169,7 +169,7 @@ def test_multinetwork_methods(
 
     multi_network = MultiNetwork(tuple(networks))
 
-    mlds, figs, axes = multi_network._plot_azimuth_set_lengths(
+    mlds, polyfits, figs, axes = multi_network._plot_azimuth_set_lengths(
         automatic_cut_offs=automatic_cut_offs, using_branches=using_branches
     )
 
@@ -178,10 +178,12 @@ def test_multinetwork_methods(
         logging.info(f"Saved plot to {output_path}.")
 
     assert isinstance(mlds, dict)
+    assert isinstance(polyfits, list)
     assert isinstance(figs, list)
     assert isinstance(axes, list)
     assert isinstance(figs[0], Figure)
     assert isinstance(axes[0], Axes)
+    assert isinstance(polyfits[0], length_distributions.Polyfit)
 
     # Test basic_network_descriptions_df
 
