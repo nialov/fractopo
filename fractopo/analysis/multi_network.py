@@ -194,6 +194,7 @@ class MultiNetwork(NamedTuple):
         using_branches: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
+        List[length_distributions.Polyfit],
         List[Figure],
         List[Axes],
     ]:
@@ -211,13 +212,14 @@ class MultiNetwork(NamedTuple):
             axes.append(ax)
             polyfits.append(polyfit)
 
-        return mlds, figs, axes
+        return mlds, polyfits, figs, axes
 
     def plot_trace_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
+        List[length_distributions.Polyfit],
         List[Figure],
         List[Axes],
     ]:
@@ -233,6 +235,7 @@ class MultiNetwork(NamedTuple):
         automatic_cut_offs: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
+        List[length_distributions.Polyfit],
         List[Figure],
         List[Axes],
     ]:
