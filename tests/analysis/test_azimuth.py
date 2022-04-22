@@ -40,14 +40,16 @@ def test_plot_azimuth_plot(
     assert len(azimuth_array) == len(length_array)
     assert len(length_array) == len(azimuth_set_array)
     assert len(length_array) == len(azimuth_set_names)
+    azimuth_set_ranges = ((0, 60), (60, 120), (120, 180))
     bins, fig, ax = azimuth.plot_azimuth_plot(
-        azimuth_array,
-        length_array,
-        azimuth_set_array,
-        azimuth_set_names,
-        label,
-        append_azimuth_set_text,
-        axial,
+        azimuth_array=azimuth_array,
+        length_array=length_array,
+        azimuth_set_array=azimuth_set_array,
+        azimuth_set_names=azimuth_set_names,
+        label=label,
+        append_azimuth_set_text=append_azimuth_set_text,
+        axial=axial,
+        azimuth_set_ranges=azimuth_set_ranges,
     )
 
     assert isinstance(bins, AzimuthBins)
