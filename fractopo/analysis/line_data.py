@@ -290,7 +290,10 @@ class LineData:
         )
 
     def plot_azimuth(
-        self, label: str, append_azimuth_set_text: bool = False
+        self,
+        label: str,
+        append_azimuth_set_text: bool = False,
+        visualize_sets: bool = False,
     ) -> Tuple[azimuth.AzimuthBins, Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
@@ -300,8 +303,10 @@ class LineData:
             self.length_array,
             self.azimuth_set_array,
             self.azimuth_set_names,
+            azimuth_set_ranges=self.azimuth_set_ranges,
             label=label,
             append_azimuth_set_text=append_azimuth_set_text,
+            visualize_sets=visualize_sets,
         )
 
     def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:

@@ -13,7 +13,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
-from fractopo.general import Number
+from fractopo.general import Number, SetRangeTuple
 
 
 @dataclass
@@ -215,8 +215,8 @@ def _create_azimuth_set_text(
     >>> set_array = np.array([str(val) for val in [1, 1, 2, 2]])
     >>> set_names = ["1", "2"]
     >>> print(_create_azimuth_set_text(length_array, set_array, set_names))
-    Set 1, FoL = 12.5%
-    Set 2, FoL = 87.5%
+    1: 12.5%
+    2: 87.5%
 
     """
     sum_length = length_array.sum()
@@ -224,7 +224,7 @@ def _create_azimuth_set_text(
     for idx, set_name in enumerate(set_names):
         total_length = sum(length_array[set_array == set_name])
         percent = total_length / sum_length
-        text = f"Set {set_name}, FoL = {percent:.1%}"
+        text = f"{set_name}: {percent:.1%}"
         if idx < len(set_names) - 1:
             text = text + "\n"
         t = t + text
@@ -237,7 +237,9 @@ def decorate_azimuth_ax(
     length_array: np.ndarray,
     set_array: np.ndarray,
     set_names: Tuple[str, ...],
+    set_ranges: SetRangeTuple,
     axial: bool,
+    visualize_sets: bool,
     append_azimuth_set_text: bool = False,
 ):
     """
@@ -278,15 +280,23 @@ def decorate_azimuth_ax(
         ha="center",
     )
 
+    # Add lines to denote azimuth set edges
+    if visualize_sets:
+        for set_range in set_ranges:
+            for edge in set_range:
+                ax.axvline(np.deg2rad(edge), linestyle="dashed", color="black")
+
 
 def plot_azimuth_plot(
     azimuth_array: np.ndarray,
     length_array: np.ndarray,
     azimuth_set_array: np.ndarray,
     azimuth_set_names: Tuple[str, ...],
+    azimuth_set_ranges: SetRangeTuple,
     label: str,
     append_azimuth_set_text: bool = False,
     axial: bool = True,
+    visualize_sets: bool = False,
 ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
     Plot azimuth rose plot to its own figure.
@@ -308,8 +318,10 @@ def plot_azimuth_plot(
         length_array=length_array,
         set_array=azimuth_set_array,
         set_names=azimuth_set_names,
+        set_ranges=azimuth_set_ranges,
         append_azimuth_set_text=append_azimuth_set_text,
         axial=axial,
+        visualize_sets=visualize_sets,
     )
     return (
         azimuth_bins,

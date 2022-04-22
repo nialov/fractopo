@@ -850,7 +850,10 @@ class Network:
         )
 
     def plot_trace_azimuth(
-        self, label: Optional[str] = None, append_azimuth_set_text: bool = False
+        self,
+        label: Optional[str] = None,
+        append_azimuth_set_text: bool = False,
+        visualize_sets: bool = False,
     ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot trace azimuth rose plot.
@@ -858,12 +861,17 @@ class Network:
         if label is None:
             label = self.name
         return self.trace_data.plot_azimuth(
-            label=label, append_azimuth_set_text=append_azimuth_set_text
+            label=label,
+            append_azimuth_set_text=append_azimuth_set_text,
+            visualize_sets=visualize_sets,
         )
 
     @requires_topology
     def plot_branch_azimuth(
-        self, label: Optional[str] = None, append_azimuth_set_text: bool = False
+        self,
+        label: Optional[str] = None,
+        append_azimuth_set_text: bool = False,
+        visualize_sets: bool = False,
     ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
         """
         Plot branch azimuth rose plot.
