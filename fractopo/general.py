@@ -183,10 +183,14 @@ class Param(Enum):
         "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
     )
     BRANCH_MEAN_LENGTH = ParamInfo(
-        "Branch Mean Length", True, "m", True, Aggregator.MEAN
+        "Branch Mean Length", True, "$m$", True, Aggregator.MEAN
     )
-    BRANCH_MIN_LENGTH = ParamInfo("Branch Min Length", True, "m", True, Aggregator.MEAN)
-    BRANCH_MAX_LENGTH = ParamInfo("Branch Max Length", True, "m", True, Aggregator.MEAN)
+    BRANCH_MIN_LENGTH = ParamInfo(
+        "Branch Min Length", True, "$m$", True, Aggregator.MEAN
+    )
+    BRANCH_MAX_LENGTH = ParamInfo(
+        "Branch Max Length", True, "$m$", True, Aggregator.MEAN
+    )
     CONNECTIONS_PER_BRANCH = ParamInfo(
         "Connections per Branch", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
     )
@@ -219,12 +223,16 @@ class Param(Enum):
     )
     NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True, Aggregator.SUM)
     TRACE_MEAN_LENGTH = ParamInfo(
-        "Trace Mean Length", True, "m", False, Aggregator.MEAN
+        "Trace Mean Length", True, "$m$", False, Aggregator.MEAN
     )
-    TRACE_MIN_LENGTH = ParamInfo("Trace Min Length", True, "m", False, Aggregator.MEAN)
-    TRACE_MAX_LENGTH = ParamInfo("Trace Max Length", True, "m", False, Aggregator.MEAN)
+    TRACE_MIN_LENGTH = ParamInfo(
+        "Trace Min Length", True, "$m$", False, Aggregator.MEAN
+    )
+    TRACE_MAX_LENGTH = ParamInfo(
+        "Trace Max Length", True, "$m$", False, Aggregator.MEAN
+    )
     TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
-        "Trace Mean Length (Mauldon)", True, "m", True, Aggregator.MEAN
+        "Trace Mean Length (Mauldon)", True, "$m$", True, Aggregator.MEAN
     )
     CIRCLE_COUNT = ParamInfo(
         "Circle Count",
