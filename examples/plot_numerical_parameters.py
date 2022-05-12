@@ -48,18 +48,20 @@ kb7_network = Network(
 kb11_parameters = kb11_network.parameters
 kb7_parameters = kb7_network.parameters
 
-pprint(kb11_network)
-pprint(kb7_network)
+# %%
+pprint(kb11_parameters)
 
 # %%
-# Compare KB11 and KB7 Networks
+pprint(kb7_parameters)
+
+# %%
+# Compare KB11 and KB7 Networks selected parameter values
 
 b22 = "Dimensionless Intensity B22"
 cpb = "Connections per Branch"
 selected = {b22, cpb}
 
 # Filter to only selected parameters
-
 kb11_network_selected_params = {
     param: value for param, value in kb11_parameters.items() if param in selected
 }
@@ -67,8 +69,7 @@ kb7_network_selected_params = {
     param: value for param, value in kb7_parameters.items() if param in selected
 }
 
-# Compare parameters
-
+# Compare parameters with a simple bar plot
 figs, axes = plot_parameters_plot(
     topology_parameters_list=[
         kb11_network_selected_params,

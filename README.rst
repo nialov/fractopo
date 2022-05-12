@@ -80,8 +80,8 @@ Usage
 
 ``fractopo`` has two main use cases:
 
-1.  Validation of lineament & fracture trace data
-2.  Analysis of lineament & fracture trace data
+1. Validation of lineament & fracture trace data
+2. Analysis of lineament & fracture trace data
 
 Validation is done to make sure the data is valid for the analysis and is
 crucial as analysis cannot take into account different kinds of geometric and
@@ -204,6 +204,10 @@ produces. Brief example of command-line entrypoint:
 
    # Use --help to see all up-to-date arguments and help
    fractopo network --help
+
+See full documentation for more examples and help:
+
+-  https://fractopo.readthedocs.io/en/latest/index.html#full-documentation
 
 Citing
 ------
