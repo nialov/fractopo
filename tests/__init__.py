@@ -1904,6 +1904,7 @@ def test_plot_azimuth_plot_params():
             "PlotWithNonAxialAzimuthData",
             False,
             False,
+            False,
         ),
         (
             np.random.normal(90, 45, 100),
@@ -1913,6 +1914,7 @@ def test_plot_azimuth_plot_params():
             np.ones(100).astype(str),
             "PlotWithAxialAzimuthData",
             False,
+            True,
             True,
         ),
     ]
