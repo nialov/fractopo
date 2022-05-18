@@ -162,6 +162,7 @@ class MultiNetwork(NamedTuple):
 
     def plot_xyi(
         self,
+        colors: Optional[List[Optional[str]]] = None,
     ):
         """
         Plot multi-network ternary XYI plot.
@@ -172,10 +173,12 @@ class MultiNetwork(NamedTuple):
             counts_list=node_counts_list,
             labels=labels,
             is_nodes=True,
+            colors=colors,
         )
 
     def plot_branch(
         self,
+        colors: Optional[List[Optional[str]]] = None,
     ):
         """
         Plot multi-network ternary branch type plot.
@@ -186,6 +189,7 @@ class MultiNetwork(NamedTuple):
             counts_list=branch_counts_list,
             labels=labels,
             is_nodes=False,
+            colors=colors,
         )
 
     def _plot_azimuth_set_lengths(
