@@ -146,6 +146,7 @@ def plot_azimuth_ax(
     bin_width: float,
     bin_locs: np.ndarray,
     bin_heights: np.ndarray,
+    bar_color: str,
     ax: PolarAxes,  # type: ignore
     axial: bool = True,
 ):
@@ -161,7 +162,7 @@ def plot_azimuth_ax(
         number_of_azimuths,
         width=np.deg2rad(bin_width),
         bottom=0.0,
-        color="darkgrey",
+        color=bar_color,
         edgecolor="k",
         alpha=0.85,
         zorder=4,
@@ -294,9 +295,11 @@ def plot_azimuth_plot(
     azimuth_set_names: Tuple[str, ...],
     azimuth_set_ranges: SetRangeTuple,
     label: str,
+    plain: bool,
     append_azimuth_set_text: bool = False,
     axial: bool = True,
     visualize_sets: bool = False,
+    bar_color: str = "darkgrey",
 ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
     Plot azimuth rose plot to its own figure.
@@ -311,18 +314,20 @@ def plot_azimuth_plot(
         bin_width=azimuth_bins.bin_width,
         ax=ax,
         axial=axial,
+        bar_color=bar_color,
     )
-    decorate_azimuth_ax(
-        ax=ax,
-        label=label,
-        length_array=length_array,
-        set_array=azimuth_set_array,
-        set_names=azimuth_set_names,
-        set_ranges=azimuth_set_ranges,
-        append_azimuth_set_text=append_azimuth_set_text,
-        axial=axial,
-        visualize_sets=visualize_sets,
-    )
+    if not plain:
+        decorate_azimuth_ax(
+            ax=ax,
+            label=label,
+            length_array=length_array,
+            set_array=azimuth_set_array,
+            set_names=azimuth_set_names,
+            set_ranges=azimuth_set_ranges,
+            append_azimuth_set_text=append_azimuth_set_text,
+            axial=axial,
+            visualize_sets=visualize_sets,
+        )
     return (
         azimuth_bins,
         fig,

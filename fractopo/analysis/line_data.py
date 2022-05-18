@@ -294,6 +294,8 @@ class LineData:
         label: str,
         append_azimuth_set_text: bool = False,
         visualize_sets: bool = False,
+        bar_color: str = "darkgrey",
+        plain: bool = False,
     ) -> Tuple[azimuth.AzimuthBins, Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
@@ -307,6 +309,8 @@ class LineData:
             label=label,
             append_azimuth_set_text=append_azimuth_set_text,
             visualize_sets=visualize_sets,
+            bar_color=bar_color,
+            plain=plain,
         )
 
     def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:
