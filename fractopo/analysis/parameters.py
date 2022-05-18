@@ -216,6 +216,7 @@ def plot_ternary_plot(
 
         if one_label:
             # Only one label for all points is given
+            tax.scatter(points, color="black", **ternary_point_kwargs(s=35, zorder=3))
             tax.scatter(
                 points,
                 label=labels[0],
@@ -230,6 +231,9 @@ def plot_ternary_plot(
             assert len(points) == len(colors)
             for point, label, color in zip(points, labels, colors):
                 # Plot individually while giving unique label for each
+                tax.scatter(
+                    [point], color="black", **ternary_point_kwargs(s=35, zorder=3)
+                )
                 tax.scatter([point], label=label, color=color, **ternary_point_kwargs())
     tax.legend(
         loc="upper center",
@@ -344,6 +348,10 @@ def plot_xyi_plot_ax(
     point = counts_to_point(counts, scale=100, is_nodes=True)
     if point is not None:
         # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
+        # Add shadow to point
+        tax.scatter(
+            points=[point], **ternary_point_kwargs(marker="o", s=35), color="black"
+        )
         tax.scatter(
             points=[point], **ternary_point_kwargs(marker="o"), label=label, color=color
         )
@@ -389,6 +397,11 @@ def plot_branch_plot_ax(
     # cc_count, ci_count, ii_count = _get_branch_class_counts(branch_counts)
     point = counts_to_point(counts, is_nodes=False)
     if point is not None:
+        tax.scatter(
+            points=[point],
+            **ternary_point_kwargs(marker="o", s=35, zorder=3),
+            color="black",
+        )
         tax.scatter(
             points=[point],
             **ternary_point_kwargs(marker="o"),
