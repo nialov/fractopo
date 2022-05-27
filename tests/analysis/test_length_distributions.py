@@ -79,6 +79,7 @@ def test_all_fit_attributes_dict(lengths, _):
 )
 @pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize("using_branches", [True, False])
+@pytest.mark.parametrize("plot_truncated_data", [True, False])
 def test_multilengthdistribution_plot(
     list_of_length_arrays,
     list_of_area_values,
@@ -86,6 +87,7 @@ def test_multilengthdistribution_plot(
     automatic_cut_offs,
     using_branches,
     num_regression,
+    plot_truncated_data,
 ):
     """
     Test MultiLengthDistribution plot_multi_length_distributions.
@@ -110,14 +112,14 @@ def test_multilengthdistribution_plot(
     )
 
     polyfit, fig, ax = multi_length_distribution.plot_multi_length_distributions(
-        automatic_cut_offs=automatic_cut_offs
+        automatic_cut_offs=automatic_cut_offs, plot_truncated_data=plot_truncated_data
     )
     plt.close()
 
     mld = multi_length_distribution
 
     truncated_length_array_all, ccm_array_normed_all = mld.normalized_distributions(
-        automatic_cut_offs=automatic_cut_offs
+        automatic_cut_offs=automatic_cut_offs,
     )
 
     assert isinstance(fig, Figure) and isinstance(ax, Axes)
@@ -187,9 +189,13 @@ def test_fit_to_multi_scale_lengths_fitter_comparisons(
         distributions=distributions, using_branches=False
     )
 
-    truncated_length_array_all, ccm_array_normed_all = mld.normalized_distributions(
-        automatic_cut_offs=automatic_cut_offs
-    )
+    (
+        truncated_length_array_all,
+        ccm_array_normed_all,
+        # All length and ccm data ignored
+        _,
+        _,
+    ) = mld.normalized_distributions(automatic_cut_offs=automatic_cut_offs)
     concatted_lengths, concatted_ccm = np.concatenate(
         truncated_length_array_all
     ), np.concatenate(ccm_array_normed_all)
