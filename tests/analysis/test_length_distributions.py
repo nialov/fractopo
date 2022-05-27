@@ -118,7 +118,12 @@ def test_multilengthdistribution_plot(
 
     mld = multi_length_distribution
 
-    truncated_length_array_all, ccm_array_normed_all = mld.normalized_distributions(
+    (
+        truncated_length_array_all,
+        ccm_array_normed_all,
+        _,
+        _,
+    ) = mld.normalized_distributions(
         automatic_cut_offs=automatic_cut_offs,
     )
 
