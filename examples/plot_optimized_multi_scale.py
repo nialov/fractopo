@@ -12,6 +12,7 @@ complementary cumulative number (=ccm) has been done.
 # Initializing
 # ------------
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load three networks, each digitized from a different scale of observation
@@ -19,6 +20,9 @@ from example_networks import hastholmen_network, kb11_network, lidar_200k_networ
 
 from fractopo import general
 from fractopo.analysis import length_distributions
+
+mpl.rcParams["figure.figsize"] = (5, 5)
+mpl.rcParams["font.size"] = 8
 
 # %%
 # Collect LengthDistributions into MultiLengthDistribution
@@ -74,5 +78,4 @@ Resulting {scorer.__name__} score:
 )
 
 # Visual plot setup
-fig.set_size_inches(5, 5)
 plt.tight_layout()

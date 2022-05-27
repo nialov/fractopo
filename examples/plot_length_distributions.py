@@ -8,10 +8,14 @@ Plotting length distributions with ``fractopo``
 
 from pprint import pprint
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load kb11_network network from examples/example_networks.py
 from example_networks import kb11_network
+
+mpl.rcParams["figure.figsize"] = (5, 5)
+mpl.rcParams["font.size"] = 8
 
 # %%
 # Plotting length distribution plots of fracture traces and branches
@@ -22,7 +26,6 @@ fit, fig, ax = kb11_network.plot_trace_lengths()
 
 # Use matplotlib helpers to make sure plot fits in the gallery webpage!
 # (Not required.)
-fig.set_size_inches(7, 7)
 plt.tight_layout()
 plt.show()
 
@@ -30,7 +33,6 @@ plt.show()
 
 # Log-log plot of network branch length distribution
 fit, fig, ax = kb11_network.plot_branch_lengths()
-fig.set_size_inches(7, 7)
 plt.tight_layout()
 plt.show()
 

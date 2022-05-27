@@ -9,10 +9,14 @@ traces can be determined with ``fractopo``.
 
 from pprint import pprint
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load kb11_network network from examples/example_networks.py
 from example_networks import kb11_network
+
+mpl.rcParams["figure.figsize"] = (5, 5)
+mpl.rcParams["font.size"] = 8
 
 # %%
 # Analyzing azimuth set relationships
@@ -28,7 +32,6 @@ pprint((kb11_network.azimuth_set_names, kb11_network.azimuth_set_ranges))
 figs, _ = kb11_network.plot_azimuth_crosscut_abutting_relationships()
 
 # Edit the figure to better fit the gallery webpage
-figs[0].set_size_inches(5, 5)
 figs[0].suptitle(
     kb11_network.name,
     fontsize="large",

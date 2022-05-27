@@ -6,12 +6,16 @@ Plotting multi-scale fracture networks with ``fractopo``
 # Initializing
 # ------------
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load kb11_network and hastholmen_network
 from example_networks import hastholmen_network, kb11_network
 
 from fractopo import MultiNetwork
+
+mpl.rcParams["figure.figsize"] = (5, 5)
+mpl.rcParams["font.size"] = 8
 
 # %%
 # Create MultiNetwork object
@@ -29,10 +33,10 @@ multi_network = MultiNetwork((kb11_network, hastholmen_network))
 mld_traces, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
     using_branches=False,
     automatic_cut_offs=True,
+    plot_truncated_data=True,
 )
 
 # Visual plot setup
-fig.set_size_inches(5, 5)
 plt.tight_layout()
 
 # %%
@@ -41,10 +45,10 @@ plt.tight_layout()
 mld_branches, polyfit, fig, ax = multi_network.plot_multi_length_distribution(
     using_branches=True,
     automatic_cut_offs=True,
+    plot_truncated_data=True,
 )
 
 # Visual plot setup
-fig.set_size_inches(5, 5)
 plt.tight_layout()
 
 # %%
@@ -73,11 +77,11 @@ print(multi_network.collective_azimuth_sets())
 
 mlds, polyfits, figs, axes = multi_network.plot_trace_azimuth_set_lengths(
     automatic_cut_offs=True,
+    plot_truncated_data=True,
 )
 
 # Just some visual plot setup...
 for fig in figs:
-    fig.set_size_inches(5, 5)
     fig.tight_layout()
 
 # %%
@@ -91,7 +95,6 @@ for fig in figs:
 fig, ax, tax = multi_network.plot_xyi()
 
 # Visual plot setup
-fig.set_size_inches(5, 5)
 plt.tight_layout()
 
 # %%
@@ -101,5 +104,4 @@ plt.tight_layout()
 fig, ax, tax = multi_network.plot_branch()
 
 # Visual plot setup
-fig.set_size_inches(5, 5)
 plt.tight_layout()
