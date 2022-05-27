@@ -79,7 +79,6 @@ def test_all_fit_attributes_dict(lengths, _):
 )
 @pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize("using_branches", [True, False])
-@pytest.mark.parametrize("plot_truncated_data", [True, False])
 def test_multilengthdistribution_plot(
     list_of_length_arrays,
     list_of_area_values,
@@ -87,7 +86,6 @@ def test_multilengthdistribution_plot(
     automatic_cut_offs,
     using_branches,
     num_regression,
-    plot_truncated_data,
 ):
     """
     Test MultiLengthDistribution plot_multi_length_distributions.
@@ -112,7 +110,7 @@ def test_multilengthdistribution_plot(
     )
 
     polyfit, fig, ax = multi_length_distribution.plot_multi_length_distributions(
-        automatic_cut_offs=automatic_cut_offs, plot_truncated_data=plot_truncated_data
+        automatic_cut_offs=automatic_cut_offs, plot_truncated_data=True
     )
     plt.close()
 
@@ -237,7 +235,9 @@ def test_plot_mld_optimized(distributions):
 
     opt_result, opt_mld = mld.optimize_cut_offs()
 
-    polyfit, fig, ax = opt_mld.plot_multi_length_distributions(automatic_cut_offs=False)
+    polyfit, fig, ax = opt_mld.plot_multi_length_distributions(
+        automatic_cut_offs=False, plot_truncated_data=True
+    )
 
     assert isinstance(opt_result, length_distributions.MultiScaleOptimizationResult)
     assert isinstance(polyfit, length_distributions.Polyfit)
