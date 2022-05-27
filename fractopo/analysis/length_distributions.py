@@ -911,26 +911,27 @@ def plot_multi_distributions_and_fit(
         # Get color for distribution
         point_color = next(color_cycle)
 
-        # Indicate the cut-off with a dotted vertical line
-        truncated_length_array_min = truncated_length_array.min()
-        ax.axvline(
-            truncated_length_array_min,
-            linestyle="dotted",
-            color="black",
-            alpha=0.6,
-            linewidth=1.5,
-        )
+        if len(truncated_length_array) > 0:
+            # Indicate the cut-off with a dotted vertical line
+            truncated_length_array_min = truncated_length_array.min()
+            ax.axvline(
+                truncated_length_array_min,
+                linestyle="dotted",
+                color="black",
+                alpha=0.6,
+                linewidth=1.5,
+            )
 
-        # Also indicate cut-off value, embedded into plot
-        ax.text(
-            truncated_length_array_min,
-            ccm_array_normed.min(),
-            f"{round(truncated_length_array.min(), 2)} m",
-            rotation=90,
-            horizontalalignment="right",
-            fontsize="small",
-            verticalalignment="center",
-        )
+            # Also indicate cut-off value, embedded into plot
+            ax.text(
+                truncated_length_array_min,
+                ccm_array_normed.min(),
+                f"{round(truncated_length_array.min(), 2)} m",
+                rotation=90,
+                horizontalalignment="right",
+                fontsize="small",
+                verticalalignment="center",
+            )
 
         # Plot main data, not truncated
         ax.scatter(
