@@ -58,7 +58,7 @@ opt_result, opt_mld = mld.optimize_cut_offs(scorer=scorer)
 # automatic_cut_offs is given as False to use the optimized cut-offs added as
 # attributes of the MultiLengthDistribution instance.
 polyfit, fig, ax = opt_mld.plot_multi_length_distributions(
-    automatic_cut_offs=False, scorer=scorer
+    automatic_cut_offs=False, scorer=scorer, plot_truncated_data=True
 )
 
 # Print some results
