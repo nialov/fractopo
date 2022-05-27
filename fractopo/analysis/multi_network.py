@@ -230,6 +230,7 @@ class MultiNetwork(NamedTuple):
     def plot_trace_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
+        plot_truncated_data: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
         List[length_distributions.Polyfit],
@@ -240,12 +241,15 @@ class MultiNetwork(NamedTuple):
         Plot multi-network trace azimuths set lengths with fits.
         """
         return self._plot_azimuth_set_lengths(
-            automatic_cut_offs=automatic_cut_offs, using_branches=False
+            automatic_cut_offs=automatic_cut_offs,
+            using_branches=False,
+            plot_truncated_data=plot_truncated_data,
         )
 
     def plot_branch_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
+        plot_truncated_data: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
         List[length_distributions.Polyfit],
@@ -256,7 +260,9 @@ class MultiNetwork(NamedTuple):
         Plot multi-network trace azimuths set lengths with fits.
         """
         return self._plot_azimuth_set_lengths(
-            automatic_cut_offs=automatic_cut_offs, using_branches=True
+            automatic_cut_offs=automatic_cut_offs,
+            using_branches=True,
+            plot_truncated_data=plot_truncated_data,
         )
 
     def set_multi_length_distributions(

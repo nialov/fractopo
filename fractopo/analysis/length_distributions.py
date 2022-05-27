@@ -339,8 +339,8 @@ class MultiLengthDistribution:
         # Concatenate
         lengths_concat = np.concatenate(truncated_length_array_all)
         ccm_concat = np.concatenate(ccm_array_normed_all)
-        full_lengths_concat = np.concatenate(full_length_array_all)
-        full_ccm_concat = np.concatenate(full_ccm_array_normed_all)
+        # full_lengths_concat = np.concatenate(full_length_array_all)
+        # full_ccm_concat = np.concatenate(full_ccm_array_normed_all)
 
         # Fit a powerlaw to the multi dataset values
         polyfit = fit_to_multi_scale_lengths(
@@ -349,8 +349,8 @@ class MultiLengthDistribution:
         fig, ax = plot_multi_distributions_and_fit(
             truncated_length_array_all=truncated_length_array_all,
             ccm_array_normed_all=ccm_array_normed_all,
-            full_lengths_concat=full_lengths_concat,
-            full_ccm_concat=full_ccm_concat,
+            full_length_array_all=full_length_array_all,
+            full_ccm_array_normed_all=full_ccm_array_normed_all,
             names=self.names,
             polyfit=polyfit,
             using_branches=self.using_branches,
@@ -392,7 +392,7 @@ class MultiLengthDistribution:
 
         # Get all arrays of lengths and use them to define
         # lower and upper bounds for cut-offs
-        truncated_length_array_all, _ = self.normalized_distributions(
+        truncated_length_array_all, _, _, _ = self.normalized_distributions(
             automatic_cut_offs=False
         )
 
@@ -500,10 +500,12 @@ def _setup_length_plot_axlims(
     #     length_array[length_array > cut_off] if cut_off is not None else length_array
     # )
 
-    left = length_array.min() / 10
+    # TODO: Anomalous very low value lengths can mess up xlims
+    left = np.quantile(length_array, 0.01) / 10
+    # left = length_array.min() / 10
     right = length_array.max() * 10
-    bottom = ccm_array.min() / 10
-    top = ccm_array.max() * 10
+    bottom = ccm_array.min() / 20
+    top = ccm_array.max() * 100
     try:
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
@@ -565,7 +567,7 @@ def plot_distribution_fits(
     ax.scatter(
         x=full_length_array,
         y=full_ccm_array,
-        s=25,
+        s=5,
         label=label,
         alpha=0.02,
         color="brown",
@@ -681,7 +683,7 @@ def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
     setup_length_dist_legend(ax_for_setup=ax_for_setup)
 
     # Setup grid
-    ax_for_setup.grid(zorder=-10, color="black", alpha=0.5)
+    ax_for_setup.grid(zorder=-10, color="black", alpha=0.25)
 
     # Change x and y scales to logarithmic
     ax_for_setup.set_xscale("log")
@@ -852,8 +854,8 @@ def fit_to_multi_scale_lengths(
 def plot_multi_distributions_and_fit(
     truncated_length_array_all: List[np.ndarray],
     ccm_array_normed_all: List[np.ndarray],
-    full_lengths_concat: List[np.ndarray],
-    full_ccm_concat: List[np.ndarray],
+    full_length_array_all: List[np.ndarray],
+    full_ccm_array_normed_all: List[np.ndarray],
     names: List[str],
     polyfit: Polyfit,
     using_branches: bool,
@@ -887,6 +889,8 @@ def plot_multi_distributions_and_fit(
         f"Exponent = {polyfit.m_value:.2f} and Score ({scorer_str}) = {score_descriptive}"
     )
 
+    full_ccm_array_normed_concat = np.concatenate(full_ccm_array_normed_all)
+
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
 
@@ -901,10 +905,34 @@ def plot_multi_distributions_and_fit(
         names,
         truncated_length_array_all,
         ccm_array_normed_all,
-        full_lengths_concat,
-        full_ccm_concat,
+        full_length_array_all,
+        full_ccm_array_normed_all,
     ):
+        # Get color for distribution
         point_color = next(color_cycle)
+
+        # Indicate the cut-off with a dotted vertical line
+        truncated_length_array_min = truncated_length_array.min()
+        ax.axvline(
+            truncated_length_array_min,
+            linestyle="dotted",
+            color="black",
+            alpha=0.6,
+            linewidth=1.5,
+        )
+
+        # Also indicate cut-off value, embedded into plot
+        ax.text(
+            truncated_length_array_min,
+            ccm_array_normed.min(),
+            f"{round(truncated_length_array.min(), 2)} m",
+            rotation=90,
+            horizontalalignment="right",
+            fontsize="small",
+            verticalalignment="center",
+        )
+
+        # Plot main data, not truncated
         ax.scatter(
             x=truncated_length_array,
             y=ccm_array_normed,
@@ -914,10 +942,11 @@ def plot_multi_distributions_and_fit(
             color=point_color,
         )
         if plot_truncated_data:
+            # Plot truncated data part
             ax.scatter(
                 x=full_length_array,
                 y=full_ccm_array,
-                s=25,
+                s=5,
                 marker="x",
                 color=point_color,
                 alpha=0.02,
@@ -935,6 +964,11 @@ def plot_multi_distributions_and_fit(
 
     # Setup axes
     setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches, indiv_fit=False)
+    _setup_length_plot_axlims(
+        ax=ax,
+        length_array=np.concatenate(full_length_array_all),
+        ccm_array=full_ccm_array_normed_concat,
+    )
 
     # Add legend
     setup_length_dist_legend(ax_for_setup=ax)
