@@ -139,6 +139,10 @@ class MultiNetwork(NamedTuple):
         self,
         using_branches: bool,
         automatic_cut_offs: bool,
+        plot_truncated_data: bool,
+        multi_distribution: Optional[
+            length_distributions.MultiLengthDistribution
+        ] = None,
     ) -> Tuple[
         length_distributions.MultiLengthDistribution,
         length_distributions.Polyfit,
@@ -151,11 +155,14 @@ class MultiNetwork(NamedTuple):
         Use ``multi_length_distributions()`` to get most parameters used in
         fitting the multi-scale distribution.
         """
-        multi_distribution = self.multi_length_distributions(
-            using_branches=using_branches
+        multi_distribution = (
+            self.multi_length_distributions(using_branches=using_branches)
+            if multi_distribution is None
+            else multi_distribution
         )
         polyfit, fig, ax = multi_distribution.plot_multi_length_distributions(
-            automatic_cut_offs=automatic_cut_offs
+            automatic_cut_offs=automatic_cut_offs,
+            plot_truncated_data=plot_truncated_data,
         )
 
         return multi_distribution, polyfit, fig, ax
@@ -196,6 +203,7 @@ class MultiNetwork(NamedTuple):
         self,
         automatic_cut_offs: bool,
         using_branches: bool,
+        plot_truncated_data: bool,
     ) -> Tuple[
         Dict[str, length_distributions.MultiLengthDistribution],
         List[length_distributions.Polyfit],
@@ -210,7 +218,8 @@ class MultiNetwork(NamedTuple):
         figs, axes, polyfits = [], [], []
         for mld in mlds.values():
             polyfit, fig, ax = mld.plot_multi_length_distributions(
-                automatic_cut_offs=automatic_cut_offs
+                automatic_cut_offs=automatic_cut_offs,
+                plot_truncated_data=plot_truncated_data,
             )
             figs.append(fig)
             axes.append(ax)

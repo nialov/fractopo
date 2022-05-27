@@ -259,12 +259,17 @@ class MultiLengthDistribution:
 
     def normalized_distributions(
         self, automatic_cut_offs: bool
-    ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+    ) -> Tuple[List[np.ndarray], List[np.ndarray], List[np.ndarray], List[np.ndarray]]:
         """
         Create normalized and truncated lengths and ccms.
         """
         # Collect length and ccm arrays after their normalization
-        truncated_length_array_all, ccm_array_normed_all = [], []
+        (
+            truncated_length_array_all,
+            ccm_array_normed_all,
+            full_length_array_all,
+            full_ccm_array_normed_all,
+        ) = ([], [], [], [])
 
         # Iterate over distributions
         for idx, distribution in enumerate(self.distributions):
@@ -288,13 +293,24 @@ class MultiLengthDistribution:
                 truncated_length_array,
                 ccm_array_normed,
             ) = distribution.generate_distributions(cut_off=cut_off)
+            (
+                full_length_array,
+                full_ccm_array_normed,
+            ) = distribution.generate_distributions(cut_off=general.MINIMUM_LINE_LENGTH)
 
             # Collect
             truncated_length_array_all.append(truncated_length_array)
             ccm_array_normed_all.append(ccm_array_normed)
+            full_length_array_all.append(full_length_array)
+            full_ccm_array_normed_all.append(full_ccm_array_normed)
 
         # Return all length arrays and all ccm arrays
-        return truncated_length_array_all, ccm_array_normed_all
+        return (
+            truncated_length_array_all,
+            ccm_array_normed_all,
+            full_length_array_all,
+            full_ccm_array_normed_all,
+        )
 
     @property
     def names(self) -> List[str]:
@@ -306,6 +322,7 @@ class MultiLengthDistribution:
     def plot_multi_length_distributions(
         self,
         automatic_cut_offs: bool,
+        plot_truncated_data: bool,
         scorer: Callable[[np.ndarray, np.ndarray], float] = sklm.mean_squared_log_error,
     ) -> Tuple[Polyfit, Figure, Axes]:
         """
@@ -315,11 +332,15 @@ class MultiLengthDistribution:
         (
             truncated_length_array_all,
             ccm_array_normed_all,
+            full_length_array_all,
+            full_ccm_array_normed_all,
         ) = self.normalized_distributions(automatic_cut_offs=automatic_cut_offs)
 
         # Concatenate
         lengths_concat = np.concatenate(truncated_length_array_all)
         ccm_concat = np.concatenate(ccm_array_normed_all)
+        full_lengths_concat = np.concatenate(full_length_array_all)
+        full_ccm_concat = np.concatenate(full_ccm_array_normed_all)
 
         # Fit a powerlaw to the multi dataset values
         polyfit = fit_to_multi_scale_lengths(
@@ -328,9 +349,12 @@ class MultiLengthDistribution:
         fig, ax = plot_multi_distributions_and_fit(
             truncated_length_array_all=truncated_length_array_all,
             ccm_array_normed_all=ccm_array_normed_all,
+            full_lengths_concat=full_lengths_concat,
+            full_ccm_concat=full_ccm_concat,
             names=self.names,
             polyfit=polyfit,
             using_branches=self.using_branches,
+            plot_truncated_data=plot_truncated_data,
         )
         return polyfit, fig, ax
 
@@ -443,30 +467,6 @@ def determine_fit(
     return fit
 
 
-def plot_length_data_on_ax(
-    ax: Axes,
-    length_array: np.ndarray,
-    ccm_array: np.ndarray,
-    label: Optional[str],
-    color: str,
-    alpha: float,
-):
-    """
-    Plot length data on given ax.
-
-    Sets ax scales to logarithmic.
-    """
-    ax.scatter(
-        x=length_array,
-        y=ccm_array,
-        s=25,
-        label=label,
-        alpha=alpha,
-        color=color,
-        marker="x",
-    )
-
-
 def plot_fit_on_ax(
     ax: Axes,
     fit: powerlaw.Fit,
@@ -552,12 +552,24 @@ def plot_distribution_fits(
     )
 
     # Plot truncated length scatter plot
-    plot_length_data_on_ax(
-        ax, truncated_length_array, ccm_array, label, color="black", alpha=1.0
+    ax.scatter(
+        x=truncated_length_array,
+        y=ccm_array,
+        s=25,
+        label=label,
+        alpha=1.0,
+        color="black",
+        marker="x",
     )
     # Plot full length scatter plot with different color and transparency
-    plot_length_data_on_ax(
-        ax, full_length_array, full_ccm_array, label, color="brown", alpha=0.02
+    ax.scatter(
+        x=full_length_array,
+        y=full_ccm_array,
+        s=25,
+        label=label,
+        alpha=0.02,
+        color="brown",
+        marker="x",
     )
 
     # Plot the actual fits (powerlaw, exp...)
@@ -840,9 +852,12 @@ def fit_to_multi_scale_lengths(
 def plot_multi_distributions_and_fit(
     truncated_length_array_all: List[np.ndarray],
     ccm_array_normed_all: List[np.ndarray],
+    full_lengths_concat: List[np.ndarray],
+    full_ccm_concat: List[np.ndarray],
     names: List[str],
     polyfit: Polyfit,
     using_branches: bool,
+    plot_truncated_data: bool,
 ) -> Tuple[Figure, Axes]:
     """
     Plot multi-scale length distribution.
@@ -876,17 +891,37 @@ def plot_multi_distributions_and_fit(
     color_cycle = cycle(sns.color_palette("dark", 5))
 
     # Plot length distributions
-    for name, truncated_length_array, ccm_array_normed in zip(
-        names, truncated_length_array_all, ccm_array_normed_all
+    for (
+        name,
+        truncated_length_array,
+        ccm_array_normed,
+        full_length_array,
+        full_ccm_array,
+    ) in zip(
+        names,
+        truncated_length_array_all,
+        ccm_array_normed_all,
+        full_lengths_concat,
+        full_ccm_concat,
     ):
+        point_color = next(color_cycle)
         ax.scatter(
             x=truncated_length_array,
             y=ccm_array_normed,
             s=25,
             label=name,
             marker="X",
-            color=next(color_cycle),
+            color=point_color,
         )
+        if plot_truncated_data:
+            ax.scatter(
+                x=full_length_array,
+                y=full_ccm_array,
+                s=25,
+                marker="x",
+                color=point_color,
+                alpha=0.02,
+            )
 
     # Plot polyfit
     y_fit = polyfit.y_fit
