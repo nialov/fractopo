@@ -947,10 +947,10 @@ def plot_multi_distributions_and_fit(
             ax.scatter(
                 x=full_length_array,
                 y=full_ccm_array,
-                s=5,
+                s=3,
                 marker="x",
-                color=point_color,
-                alpha=0.02,
+                color="gray",
+                alpha=0.5,
             )
 
     # Plot polyfit
