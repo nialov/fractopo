@@ -951,6 +951,7 @@ def plot_multi_distributions_and_fit(
                 marker="x",
                 color="gray",
                 alpha=0.5,
+                zorder=-10,
             )
 
     # Plot polyfit
