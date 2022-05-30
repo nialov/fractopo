@@ -567,11 +567,12 @@ def plot_distribution_fits(
     ax.scatter(
         x=full_length_array,
         y=full_ccm_array,
-        s=5,
+        s=3,
         label=label,
-        alpha=0.02,
-        color="brown",
+        alpha=0.5,
+        color="gray",
         marker="x",
+        zorder=-10,
     )
 
     # Plot the actual fits (powerlaw, exp...)
