@@ -221,7 +221,13 @@ class Param(Enum):
     NUMBER_OF_BRANCHES = ParamInfo(
         "Number of Branches", False, "-", True, Aggregator.SUM
     )
+    NUMBER_OF_BRANCHES_TRUE = ParamInfo(
+        "Number of Branches (Real)", False, "-", True, Aggregator.SUM
+    )
     NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True, Aggregator.SUM)
+    NUMBER_OF_TRACES_TRUE = ParamInfo(
+        "Number of Traces (Real)", False, "-", True, Aggregator.SUM
+    )
     TRACE_MEAN_LENGTH = ParamInfo(
         "Trace Mean Length", True, "$m$", False, Aggregator.MEAN
     )

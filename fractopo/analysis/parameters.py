@@ -512,6 +512,7 @@ def determine_topology_parameters(
         Param.TRACE_MEAN_LENGTH.value.name: characteristic_length_traces,
         Param.DIMENSIONLESS_INTENSITY_P22.value.name: dimensionless_intensity_traces,
         Param.AREA.value.name: area,
+        Param.NUMBER_OF_TRACES_TRUE.value.name: len(trace_length_array),
     }
 
     if not branches_defined:
@@ -606,6 +607,7 @@ def determine_topology_parameters(
         Param.TRACE_MEAN_LENGTH_MAULDON.value.name: trace_mean_length_mauldon,
         Param.CONNECTION_FREQUENCY.value.name: connection_frequency,
         Param.NUMBER_OF_BRANCHES.value.name: number_of_branches,
+        Param.NUMBER_OF_BRANCHES_TRUE.value.name: len(branch_length_array),
     }
 
     all_parameters = {**params_without_topology, **params_with_topology}
