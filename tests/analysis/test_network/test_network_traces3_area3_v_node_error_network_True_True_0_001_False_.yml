@@ -26,7 +26,9 @@ I: 4
 I - E: 0
 I - I: 2
 Number of Branches: 2.0
+Number of Branches (Real): 2
 Number of Traces: 2.0
+Number of Traces (Real): 2
 Radius: .nan
 Relative Censoring: .nan
 Trace Boundary 0 Intersect Count: 2

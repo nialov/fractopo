@@ -26,7 +26,9 @@ I: 64
 I - E: 0
 I - I: 0
 Number of Branches: 268.0
+Number of Branches (Real): 282
 Number of Traces: 86.0
+Number of Traces (Real): 100
 Radius: .nan
 Relative Censoring: .nan
 Trace Boundary 0 Intersect Count: 100
