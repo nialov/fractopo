@@ -372,6 +372,7 @@ class Helpers:
 
     # sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
     sample_trace_data = Path("tests/sample_data/KB11/KB11_traces.geojson")
+    sample_trace_100_data = Path("tests/sample_data/KB11/KB11_traces_100.geojson")
     # sample_area_data = Path("tests/sample_data/KB11_area.shp")
     sample_area_data = Path("tests/sample_data/KB11/KB11_area.geojson")
     kb11_traces = read_geofile(sample_trace_data)
@@ -449,7 +450,7 @@ class Helpers:
             False,  # is_none
         ),
     ]
-    test_is_within_buffer_distance_params = [
+    test_determine_proximal_traces_params = [
         (nice_traces, 0.5, 25),
         (nice_traces, 1, 35),
     ]
