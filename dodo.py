@@ -295,9 +295,9 @@ def update_citation():
     CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
 
 
-def task_citation():
+def update_citation():
     """
-    Sync and validate CITATION.cff.
+    Sync CITATION.cff.
     """
     # Command used to validate CITATION.cff
     command = "nox --session validate_citation_cff"
@@ -321,7 +321,7 @@ def task_changelog():
     """
     command = "nox --session changelog"
     return {
-        ACTIONS: [command],
+        ACTIONS: [update_citation, command],
         FILE_DEP: [
             *PYTHON_SRC_FILES,
             POETRY_LOCK_PATH,

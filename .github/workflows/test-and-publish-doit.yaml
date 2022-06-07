@@ -9,6 +9,7 @@ on:
       - "pyproject.toml"
       - "poetry.lock"
       - ".pre-commit-config.yaml"
+      - ".github/workflows/*.yaml"
       # Ignore small changes to documentation files
       # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"

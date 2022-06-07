@@ -74,8 +74,9 @@ markupsafe = {version = "2.0.1", optional = true}
 mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
+# TODO: copier could be installed outside the poetry environment
 copier = "*"
-doit = "^0.34.0"
+doit = "*"
 hypothesis = "*"
 ipython = "^7.0"
 jupyterlab = "*"
@@ -131,7 +132,7 @@ testpaths =[
     "tests",
     "fractopo",
     ]
-addopts = "--doctest-modules --pdbcls=IPython.terminal.debugger:Pdb"
+addopts = "--doctest-modules"
 doctest_optionflags =[
     "NUMBER",
     "NORMALIZE_WHITESPACE",

@@ -75,8 +75,8 @@ def install_dev(session, extras: str = ""):
     """
     Install all package and dev dependencies.
     """
-    session.install(f".{extras}")
     session.install("-r", str(DEV_REQUIREMENTS_PATH))
+    session.install(f".{extras}")
 
 
 @nox.session(python=PYTHON_VERSIONS, reuse_venv=True, **VENV_PARAMS)
@@ -146,6 +146,10 @@ def notebooks(session):
     if len(NOTEBOOKS) == 0:
         print("No notebooks found.")
         return
+
+    # Remove .ipynb_checkpoints directories
+    for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):
+        rmtree(checkpoints_dir)
 
     # Remove .ipynb_checkpoints directories
     for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):

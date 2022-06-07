@@ -167,6 +167,6 @@ docs_src/auto_examples/
 # doit cache
 .doit.db
 # direnv cache
+# direnv rc. it is created by nix develop
 .direnv
 .envrc
-.direnv
