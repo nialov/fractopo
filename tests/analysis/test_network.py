@@ -119,7 +119,8 @@ def test_length_set_relationships_regression(num_regression):
     determine_branches_nodes,
     truncate_traces,
     snap_threshold,
-    circular_target_area
+    circular_target_area,
+    try_export_of_data,
     """,
     Helpers.test_network_params,
 )
@@ -131,8 +132,10 @@ def test_network(
     truncate_traces,
     snap_threshold,
     circular_target_area,
+    try_export_of_data,
     file_regression,
     data_regression,
+    tmp_path,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -211,6 +214,13 @@ def test_network(
     branch_intersects = network.branch_intersects_target_area_boundary
     assert isinstance(branch_intersects, np.ndarray)
     assert network.branch_intersects_target_area_boundary.dtype in ("int32", "int64")
+
+    # Test export_network_analysis
+    # But only with small amount of traces as processing is time-consuming
+    if try_export_of_data:
+        network.export_network_analysis(
+            output_path=tmp_path, include_contour_grid=network.trace_gdf.shape[0] < 250
+        )
 
 
 def network_extensive_testing(

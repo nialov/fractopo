@@ -881,6 +881,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             True,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             kb11_traces,  # traces
@@ -890,6 +891,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             kb11_traces.iloc[0:100],  # traces
@@ -899,6 +901,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            True,  # try_export_of_data
         ),
         (
             v_node_network_error_gdf,  # traces
@@ -908,6 +911,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             multipolygon_traces,  # traces
@@ -917,6 +921,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             multipolygon_traces,  # traces
@@ -926,6 +931,7 @@ class Helpers:
             False,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             multipolygon_traces,  # traces
@@ -935,6 +941,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
         (
             kl2_2_traces.iloc[0:1500],  # traces
@@ -944,6 +951,7 @@ class Helpers:
             True,  # truncate_traces
             0.001,  # snap_threshold
             False,  # circular_target_area
+            False,  # try_export_of_data
         ),
     ]
 
