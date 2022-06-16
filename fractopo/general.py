@@ -23,6 +23,7 @@ import pygeos
 import sklearn.metrics as sklm
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from matplotlib import patheffects as path_effects
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from shapely import prepared
 from shapely.affinity import scale
@@ -1764,15 +1765,18 @@ def multiprocess(
     return collect_results
 
 
-def save_fig(fig: Figure, results_dir: Path, name: str) -> Path:
+def save_fig(fig: Figure, results_dir: Path, name: str) -> List[Path]:
     """
     Save figure as svg image to results dir.
     """
     assert results_dir.exists() and results_dir.is_dir()
     assert len(name) > 0
-    output_path = results_dir / f"{name}.svg"
-    fig.savefig(output_path, bbox_inches="tight")
-    return output_path
+    output_paths = []
+    for suffix in ("png", "svg"):
+        output_path = results_dir / f"{name}.{suffix}"
+        fig.savefig(output_path, bbox_inches="tight")
+        output_paths.append(output_path)
+    return output_paths
 
 
 @contextmanager
@@ -1897,3 +1901,84 @@ def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
     score = abs(1 - sklm.r2_score(y_true=y_true, y_pred=y_predicted))
     assert isinstance(score, float)
     return score
+
+
+def focus_plot_to_bounds(ax: Axes, total_bounds: np.ndarray) -> Axes:
+    """
+    Focus plot to given bounds.
+    """
+    xmin, ymin, xmax, ymax = total_bounds
+    extend_x = (xmax - xmin) * 0.05
+    extend_y = (ymax - ymin) * 0.05
+    ax.set_xlim(xmin - extend_x, xmax + extend_x)
+    ax.set_ylim(ymin - extend_y, ymax + extend_y)
+    return ax
+
+
+def assign_branch_and_node_colors(feature_type: str) -> str:
+    """
+    Determine color for each branch and node type.
+
+    Defaults to red.
+
+    >>> assign_branch_and_node_colors("C-C")
+    'red'
+    """
+    if feature_type in (CC_branch, X_node):
+        return "green"
+    if feature_type in (CI_branch, Y_node):
+        return "blue"
+    if feature_type in (II_branch, I_node):
+        return "black"
+    return "red"
+
+
+def remove_duplicate_caseinsensitive_columns(columns) -> set:
+    """
+    Remove duplicate columns case-insensitively.
+    """
+    lower_case_columns = set(column.lower() for column in columns)
+    new_cols = set(columns)
+    for column in columns:
+        if column not in lower_case_columns and column.lower() in columns:
+            new_cols.remove(column)
+    return new_cols
+
+
+def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: Path):
+    """
+    Save geodataframe as GeoPackage, GeoJSON and shapefile.
+    """
+    non_dupl_columns = remove_duplicate_caseinsensitive_columns(geodataframe.columns)
+    fid_col = "fid"
+    for column in geodataframe.columns:
+        if column not in non_dupl_columns:
+            # print(f"Dropping column: {column}")
+            geodataframe.drop(columns=[column], inplace=True)
+        if column.lower() == fid_col:
+
+            # Remove fid columns
+            # print(f"Dropping column: {column} due to case-insensitive match to fid.")
+            geodataframe.drop(columns=[column], inplace=True)
+    error_base = "Failed to write {} as {}."
+    try:
+        geodataframe.to_file(results_dir / f"{name}.gpkg", driver="GPKG")
+    except Exception:
+        logging.error(error_base.format(name, "GeoPackage"), exc_info=True)
+    try:
+        geodataframe.to_file(results_dir / f"{name}.geojson", driver="GeoJSON")
+    except Exception:
+        logging.error(error_base.format(name, "GeoJSON"), exc_info=True)
+    try:
+        shp_dir = results_dir / f"{name}_as_shp"
+        shp_dir.mkdir(exist_ok=False)
+        geodataframe.to_file(shp_dir / f"{name}.shp")
+    except Exception:
+        logging.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
+
+
+def sanitize_name(name: str) -> str:
+    """
+    Return only alphanumeric parts of name string.
+    """
+    return "".join(filter(str.isalnum, name))
