@@ -295,7 +295,7 @@ def update_citation():
     CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
 
 
-def update_citation():
+def task_citation():
     """
     Sync CITATION.cff.
     """
