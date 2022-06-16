@@ -419,6 +419,9 @@ def plot_crosscut_abutting_relationships_plot(
     # SUBPLOTS, FIGURE SETUP
     # set_column = "set"
     cols = relations_df.shape[0]
+    if cols == 0:
+        logging.warning("Expected relations_df to have rows. Returning empty lists.")
+        return [], []
     if cols == 2:
         cols = 1
     width = 12 / 3 * cols
