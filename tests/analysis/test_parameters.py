@@ -40,8 +40,6 @@ def test_plot_branch_plot(branch_counts_list, labels, colors):
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert isinstance(tax, TernaryAxesSubplot)
-    if colors is not None:
-        fig.savefig(f"/mnt/c/tmp/test_plot_branch_plot_{colors[0]}")
     plt.close("all")
 
 
