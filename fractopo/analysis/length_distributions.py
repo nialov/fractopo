@@ -115,8 +115,15 @@ def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, 
     """
     vals = np.polyfit(log_lengths, log_ccm, 1)
     assert len(vals) == 2
-    assert isinstance(vals, tuple)
-    return vals
+    if isinstance(vals, tuple):
+        return vals
+    elif isinstance(vals, np.ndarray):
+        return vals[0], vals[1]
+    else:
+        raise TypeError(
+            "Expected np.polyfit results to be a tuple or an array."
+            f" Got {vals} with type: {type(vals)}."
+        )
 
 
 @dataclass
