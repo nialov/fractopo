@@ -1,5 +1,68 @@
 # Changelog
 
+## v0.4.0 (2022-06-17)
+
+### New Features
+
+-   (analysis.network): Added method (`export_network_analysis`) for
+    exporting a selected set of `Network` analysis results.
+
+-   (analysis): Added parameters for representing the real counts of traces and
+    branches.
+
+-   (general): Added `azimuth_to_unit_vector` function.
+
+-   (analysis): Implemented rose plot functionality for non-axial data.
+
+-   (analysis.multi_network): Added a ``MultiNetwork`` description function
+    (`basic_network_descriptions_df`).
+
+-   (analysis.multi_network): Implemented a rough first draft of a multi-scale
+    length distribution fit optimizer using `scipy`.
+
+### Fixes
+
+-   (analysis): handle empty dataframe
+
+-   update single dist plot
+
+-   (analysis): change zorder
+
+-   (analysis): handle empty array
+
+-   (analysis): finalize multi-scale shadows
+
+-   (analysis): show truncated length data
+
+-   (analysis): add shadows to ternary plot points
+
+-   (general): use latex format for units
+
+-   (analysis): extend rose plot
+
+-   (analysis): return polyfits from set-wise dists
+
+-   (analysis): improve length distributions plots
+
+-   (analysis): improved length distribution plots
+
+-   (analysis): specify if lengths are normed
+
+-   (analysis): pass using_branches to LineData
+
+-   (analysis): fix basic_network_descriptions_df
+
+-   (analysis): fix rename
+
+-   (analysis): report min and max lengths
+
+-   (analysis): handle extra args
+
+-   (analysis): finalize implement of optimization
+
+Full set of changes:
+[`v0.3.0...v0.4.0`](https://github.com/nialov/fractopo/compare/v0.3.0...v0.4.0)
+
 ## v0.3.0 (2022-02-11)
 
 ### New Features
