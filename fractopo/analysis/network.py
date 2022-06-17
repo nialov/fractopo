@@ -72,7 +72,7 @@ from fractopo.general import (
 DEFAULT_NETWORK_CACHE_PATH = Path(".fractopo_cache")
 
 
-def requires_topology(func: Callable):
+def requires_topology(func: Callable) -> Callable:
     """
     Wrap methods that require determined topology.
 
@@ -311,8 +311,12 @@ class Network:
             if gdf is None:
                 return None
             if isinstance(gdf, (gpd.GeoSeries, gpd.GeoDataFrame)):
-                return gdf.geometry.to_json()
-            return gdf.wkt
+                as_json = gdf.geometry.to_json()
+                assert isinstance(as_json, str)
+                return as_json
+            as_wkt = gdf.wkt
+            assert isinstance(as_wkt, str)
+            return as_wkt
 
         traces_geojson = convert_gdf(self.trace_gdf)
         area_geojson = convert_gdf(self.area_gdf)
@@ -485,7 +489,9 @@ class Network:
         """
         node_class_series = self.node_gdf[CLASS_COLUMN]
         assert isinstance(node_class_series, pd.Series)
-        return node_class_series.to_numpy()
+        numpy_array = node_class_series.to_numpy()
+        assert isinstance(numpy_array, np.ndarray)
+        return numpy_array
 
     @property
     def node_counts(self) -> Dict[str, int]:
@@ -766,6 +772,7 @@ class Network:
             REPRESENTATIVE_POINT: MultiPoint(self.representative_points()).centroid.wkt,
             **censoring_and_relative,
         }
+        assert isinstance(description, dict)
 
         return description
 

@@ -138,7 +138,9 @@ def branches_intersect_boundary(branch_types: np.ndarray) -> np.ndarray:
     """
     Get array of if branches have E-component (intersects target area).
     """
-    return ~np.isin(branch_types, (CC_branch, CI_branch, II_branch))
+    array_isin = ~np.isin(branch_types, (CC_branch, CI_branch, II_branch))
+    assert isinstance(array_isin, np.ndarray)
+    return array_isin
 
 
 def plot_ternary_plot(
@@ -468,7 +470,7 @@ def decorate_branch_ax(
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    node_counts: Dict[str, int],
+    node_counts: Dict[str, Number],
     area: float,
     branches_defined: bool = True,
     correct_mauldon: bool = True,

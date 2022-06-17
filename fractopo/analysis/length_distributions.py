@@ -115,6 +115,7 @@ def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, 
     """
     vals = np.polyfit(log_lengths, log_ccm, 1)
     assert len(vals) == 2
+    assert isinstance(vals, tuple)
     return vals
 
 

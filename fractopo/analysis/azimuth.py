@@ -58,7 +58,9 @@ def _calc_ideal_bin_width(n: Number, axial=True) -> float:
         degree_range = 180
     else:
         degree_range = 360
-    return degree_range / (2 * n ** (1 / 3))
+    result = degree_range / (2 * n ** (1 / 3))
+    assert isinstance(result, float)
+    return result
 
 
 def _calc_bins(ideal_bin_width: float, axial: bool) -> Tuple[np.ndarray, float]:
@@ -99,6 +101,7 @@ def _calc_locs(bin_width: float, axial: bool) -> np.ndarray:
     start = bin_width / 2
     end = max_angle + bin_width / 2
     locs = np.arange(start, end, bin_width)
+    assert isinstance(locs, np.ndarray)
     return locs
 
 

@@ -36,7 +36,9 @@ def _column_array_property(
     if column.value in gdf:
         values = gdf[column.value]
         assert isinstance(values, pd.Series)
-        return values.to_numpy()
+        result = values.to_numpy()
+        assert isinstance(result, np.ndarray)
+        return result
     return None
 
 
@@ -81,7 +83,7 @@ class LineData:
         """
 
     @property
-    def azimuth_array(self):
+    def azimuth_array(self) -> np.ndarray:
         """
         Array of trace or branch azimuths.
         """
@@ -91,10 +93,11 @@ class LineData:
                 [determine_azimuth(line, halved=True) for line in self.geometry]
             )
             self._line_gdf[Col.AZIMUTH.value] = column_array
+        assert isinstance(column_array, np.ndarray)
         return column_array
 
     @property
-    def azimuth_set_array(self):
+    def azimuth_set_array(self) -> np.ndarray:
         """
         Array of trace or branch azimuth set ids.
         """
@@ -114,6 +117,7 @@ class LineData:
                 ]
             )
             self._line_gdf[Col.AZIMUTH_SET.value] = column_array
+        assert isinstance(column_array, np.ndarray)
         return column_array
 
     @property
@@ -141,7 +145,7 @@ class LineData:
         return column_array
 
     @property
-    def length_array_non_weighted(self):
+    def length_array_non_weighted(self) -> np.ndarray:
         """
         Array of trace or branch lengths not weighted by boundary conditions.
         """
@@ -151,6 +155,7 @@ class LineData:
         if column_array is None:
             column_array = self.geometry.length.to_numpy()
             self._line_gdf[Col.LENGTH_NON_WEIGHTED.value] = column_array
+        assert isinstance(column_array, np.ndarray)
         return column_array
 
     @property

@@ -124,14 +124,18 @@ def sum_aggregation(values, **_) -> Number:
     """
     Aggregate by calculating sum.
     """
-    return np.array(values).sum()
+    value_sum = np.array(values).sum()
+    assert isinstance(value_sum, (float, int))
+    return value_sum
 
 
 def mean_aggregation(values, weights) -> Number:
     """
     Aggregate by calculating mean.
     """
-    return np.average(values, weights=weights)
+    average_value = np.average(values, weights=weights)
+    assert isinstance(average_value, (float, int))
+    return average_value
 
 
 def fallback_aggregation(values) -> str:
@@ -1009,6 +1013,7 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     if any(np.isnan(segment_vector)):
         return np.array([np.nan, np.nan])
     segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
+    assert isinstance(segment_unit_vector, np.ndarray)
     return segment_unit_vector
 
 
