@@ -3,10 +3,10 @@ Test parameters.py.
 """
 import matplotlib
 import pytest
-import ternary
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 import tests
 from fractopo.analysis import parameters
@@ -23,23 +23,25 @@ def test_plot_xyi_plot(node_counts_list, labels):
     )
     assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
     assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
-    assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
+    assert isinstance(tax, TernaryAxesSubplot)
     plt.close("all")
 
 
 @pytest.mark.parametrize(
-    "branch_counts_list,labels", Helpers.test_plot_branch_plot_params
+    "branch_counts_list,labels,colors", Helpers.test_plot_branch_plot_params
 )
-def test_plot_branch_plot(branch_counts_list, labels):
+def test_plot_branch_plot(branch_counts_list, labels, colors):
     """
     Test plotting branches.
     """
     fig, ax, tax = parameters.plot_ternary_plot(
-        counts_list=branch_counts_list, labels=labels, is_nodes=False
+        counts_list=branch_counts_list, labels=labels, is_nodes=False, colors=colors
     )
-    assert isinstance(fig, matplotlib.figure.Figure)  # type: ignore
-    assert isinstance(ax, matplotlib.axes.Axes)  # type: ignore
-    assert isinstance(tax, ternary.ternary_axes_subplot.TernaryAxesSubplot)
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
+    assert isinstance(tax, TernaryAxesSubplot)
+    if colors is not None:
+        fig.savefig(f"/mnt/c/tmp/test_plot_branch_plot_{colors[0]}")
     plt.close("all")
 
 
@@ -99,5 +101,5 @@ def test_ternary_heatmapping(x_values, y_values, i_values, number_of_bins):
         x_values, y_values, i_values, number_of_bins
     )
     assert isinstance(fig, Figure)
-    assert isinstance(tax, ternary.TernaryAxesSubplot)
+    assert isinstance(tax, TernaryAxesSubplot)
     plt.close("all")

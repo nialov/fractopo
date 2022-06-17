@@ -22,6 +22,7 @@ from fractopo.analysis.azimuth import AzimuthBins
             "append_azimuth_set_text",
             "axial",
             "plain",
+            "color",
         ]
     ),
     tests.test_plot_azimuth_plot_params(),
@@ -35,6 +36,7 @@ def test_plot_azimuth_plot(
     append_azimuth_set_text,
     axial,
     plain,
+    color,
 ):
     """
     Test plot_azimuth_plot.
@@ -53,6 +55,7 @@ def test_plot_azimuth_plot(
         axial=axial,
         azimuth_set_ranges=azimuth_set_ranges,
         plain=plain,
+        bar_color=color,
     )
 
     assert isinstance(bins, AzimuthBins)

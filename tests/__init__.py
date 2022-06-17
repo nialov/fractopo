@@ -462,9 +462,9 @@ class Helpers:
     ]
 
     test_plot_branch_plot_params = [
-        ([{CC_branch: 30, CI_branch: 15, II_branch: 50}], ["title"]),
-        ([{CC_branch: 0, CI_branch: 0, II_branch: 50}], ["title"]),
-        ([{CC_branch: 0, CI_branch: 0, II_branch: 0}], ["title"]),
+        ([{CC_branch: 30, CI_branch: 15, II_branch: 50}], ["title"], ["black"]),
+        ([{CC_branch: 0, CI_branch: 0, II_branch: 50}], ["title"], ["white"]),
+        ([{CC_branch: 0, CI_branch: 0, II_branch: 0}], ["title"], None),
     ]
 
     test_determine_topology_parameters_params = [
@@ -1914,6 +1914,7 @@ def test_plot_azimuth_plot_params():
             False,
             False,
             False,
+            "white",
         ),
         (
             np.random.normal(90, 45, 100),
@@ -1925,5 +1926,6 @@ def test_plot_azimuth_plot_params():
             False,
             True,
             True,
+            "red",
         ),
     ]
