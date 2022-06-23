@@ -218,9 +218,13 @@ def angle_to_point(
             return 180.0
         if np.isclose(unit_vector_sum_len, 2.0, atol=1e-07):
             return 0.0
-        logging.error(unit_vector_1, unit_vector_2, unit_vector_sum_len)
+        vectors_dict = dict(
+            unit_vector_1=unit_vector_1,
+            unit_vector_2=unit_vector_2,
+            unit_vector_sum_len=unit_vector_sum_len,
+        )
         raise ValueError(
-            "Could not determine point relationships. Vectors printed above."
+            f"Could not determine point relationships. Vectors: {vectors_dict}"
         )
     degrees = numpy_to_python_type(np.rad2deg(rad_angle))
     assert 360.0 >= degrees >= 0.0
