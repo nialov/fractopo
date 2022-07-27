@@ -3,12 +3,12 @@ repos:
   # Check commit messages on commit
   - repo: https://github.com/commitizen-tools/commitizen
     # Specify tag
-    rev: v2.23.0
+    rev: v2.29.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
   - repo: https://github.com/python/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
         language_version: python3
