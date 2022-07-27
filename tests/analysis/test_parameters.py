@@ -12,7 +12,17 @@ import tests
 from fractopo.analysis import parameters
 from tests import Helpers
 
+# import os
 
+
+# @pytest.mark.skipif(
+#     os.environ.get("RUNNER_OS") == "Windows",
+#     reason="""
+# Odd bug with Windows and TKinter for only this single test.
+
+# See:
+#     """,
+# )
 @pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)
 def test_plot_xyi_plot(node_counts_list, labels):
     """
