@@ -467,30 +467,32 @@ class Helpers:
         ([{CC_branch: 0, CI_branch: 0, II_branch: 0}], ["title"], None),
     ]
 
-    test_determine_topology_parameters_params = [
-        (
-            np.array([10, 10, 10, 10]),  # trace_length_array
-            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
-            10.0,  # area
-            True,  # branches_defined
-            True,  # correct_mauldon
-            np.array([5, 5, 5, 5]),  # branch_length_array
+    test_determine_topology_parameters_params_dict = [
+        dict(
+trace_length_array=            np.array([10, 10, 10, 10]),  # trace_length_array
+node_counts=            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
+area=            10.0,  # area
+branches_defined=            True,  # branches_defined
+correct_mauldon=            True,  # correct_mauldon
+branch_length_array=            np.array([5, 5, 5, 5]),  # branch_length_array
         ),
-        (
-            np.array([1, 1, 1, 1]),  # trace_length_array
-            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
-            1.0,  # area
-            True,  # branches_defined
-            True,  # correct_mauldon
-            np.array([0.1, 0.1, 0.1, 0.1]),  # branch_length_array
+        dict(
+trace_length_array=            np.array([1, 1, 1, 1]),  # trace_length_array
+node_counts=            {X_node: 3, Y_node: 5, I_node: 8, E_node: 0},  # node_counts dict
+area=            1.0,  # area
+branches_defined=            True,  # branches_defined
+correct_mauldon=            True,  # correct_mauldon
+branch_length_array=            np.array([0.1, 0.1, 0.1, 0.1]),  # branch_length_array
         ),
     ]
+
+    test_determine_topology_parameters_params = [kwargs.values() for kwargs in test_determine_topology_parameters_params_dict]
 
     test_plot_topology_params = [
         (
             [
                 parameters.determine_topology_parameters(  # topology_parameters_list
-                    *test_determine_topology_parameters_params[0]
+                    **test_determine_topology_parameters_params_dict[0] # type: ignore
                 )
             ],
             ["title"],  # labels

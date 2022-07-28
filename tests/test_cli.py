@@ -82,9 +82,15 @@ def test_tracevalidate_only_area(args, tmp_path):
 
 
 @pytest.mark.parametrize(
-    "traces_path,area_path", [(Helpers.kb7_trace_50_path, Helpers.kb7_area_path)]
+    "traces_path,area_path,determine_branches_nodes",
+    [
+        (Helpers.kb7_trace_50_path, Helpers.kb7_area_path, True),
+        (Helpers.kb7_trace_50_path, Helpers.kb7_area_path, False),
+    ],
 )
-def test_fractopo_network_cli(traces_path, area_path, tmp_path):
+def test_fractopo_network_cli(
+    traces_path, area_path, determine_branches_nodes, tmp_path
+):
     """
     Test fractopo network cli entrypoint.
     """
@@ -97,7 +103,8 @@ def test_fractopo_network_cli(traces_path, area_path, tmp_path):
             str(area_path),
             "--general-output",
             str(tmp_path),
-        ],
+        ]
+        + ([] if determine_branches_nodes else ["--no-determine-branches-nodes"]),
     )
 
     click_error_print(result)
@@ -105,8 +112,8 @@ def test_fractopo_network_cli(traces_path, area_path, tmp_path):
     output_files = list(tmp_path.glob("*"))
     assert len(output_files) > 0
 
-    assert "branches" in str(output_files)
-    assert "nodes" in str(output_files)
+    assert "branches" in str(output_files) or not determine_branches_nodes
+    assert "nodes" in str(output_files) or not determine_branches_nodes
 
     assert len(list(tmp_path.glob("*.svg"))) > 0
 

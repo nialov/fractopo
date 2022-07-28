@@ -68,13 +68,14 @@ def test_determine_topology_parameters(
     """
     Test determining parameters.
     """
+    assert isinstance(area, float)
     topology_parameters = parameters.determine_topology_parameters(
-        trace_length_array,
-        node_counts,
-        area,
-        branches_defined,
-        correct_mauldon,
-        branch_length_array,
+        trace_length_array=trace_length_array,
+        node_counts=node_counts,
+        area=area,
+        branches_defined=branches_defined,
+        correct_mauldon=correct_mauldon,
+        branch_length_array=branch_length_array,
     )
     assert all(param >= 0 for param in topology_parameters.values())
     assert all(
