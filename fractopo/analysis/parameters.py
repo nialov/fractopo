@@ -470,11 +470,11 @@ def decorate_branch_ax(
 
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
-    node_counts: Dict[str, Number],
     area: float,
-    branches_defined: bool = True,
-    correct_mauldon: bool = True,
-    branch_length_array: Optional[np.ndarray] = None,
+    branches_defined: bool,
+    correct_mauldon: bool,
+    node_counts: Optional[Dict[str, Number]],
+    branch_length_array: Optional[np.ndarray],
 ) -> Dict[str, float]:
     """
     Determine geometric (and topological) parameters.
@@ -522,7 +522,7 @@ def determine_topology_parameters(
         nan_dict = {
             param.value.name: np.nan
             for param in Param
-            if param.value not in params_without_topology
+            if param.value.name not in params_without_topology
         }
         all_params_without_topo = {**params_without_topology, **nan_dict}
         assert all(param.value.name in all_params_without_topo for param in Param)

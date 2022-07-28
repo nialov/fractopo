@@ -551,12 +551,14 @@ class Network:
                 if self.topology_determined
                 else None
             )
+            node_counts = self.node_counts if self.topology_determined else None
             self._parameters = determine_topology_parameters(
                 trace_length_array=self.trace_length_array_non_weighted,
-                node_counts=self.node_counts,
                 area=self.total_area,
                 branches_defined=self.topology_determined,
                 correct_mauldon=self.circular_target_area,
+                # Require determined topology (branches & nodes)
+                node_counts=node_counts,
                 branch_length_array=branch_length_array,
             )
         return self._parameters
@@ -1065,6 +1067,7 @@ class Network:
         cell_width: Optional[float] = None,
         bounds_divider: float = 20.0,
         precursor_grid: Optional[gpd.GeoDataFrame] = None,
+        resolve_branches_nodes: bool = False,
     ):
         """
         Sample the network with a contour grid.
@@ -1095,7 +1098,7 @@ class Network:
             cell_width=cell_width,
             snap_threshold=self.snap_threshold,
             precursor_grid=precursor_grid,
-            resolve_branches_and_nodes=False,
+            resolve_branches_and_nodes=resolve_branches_nodes,
         )
         return sampled_grid
 

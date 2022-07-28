@@ -164,6 +164,8 @@ def populate_sample_cell(
             node_counts=determine_node_type_counts(np.array([]), branches_defined=True),
             area=sample_circle_area,
             branch_length_array=np.array([]),
+            branches_defined=True,
+            correct_mauldon=resolve_branches_and_nodes,
         )
     if resolve_branches_and_nodes:
         # Solve branches and nodes for each cell if wanted
@@ -218,6 +220,9 @@ def populate_sample_cell(
         node_counts=node_counts,
         area=sample_circle_area,
         correct_mauldon=resolve_branches_and_nodes,
+        # TODO: Sample grids are currently not implemented for Networks
+        # without determined topology.
+        branches_defined=True,
     )
     return topology_parameters
 
@@ -287,7 +292,7 @@ def run_grid_sampling(
     cell_width: float,
     snap_threshold: float,
     precursor_grid: Optional[gpd.GeoDataFrame] = None,
-    resolve_branches_and_nodes=False,
+    resolve_branches_and_nodes: bool = False,
 ) -> gpd.GeoDataFrame:
     """
     Run the contour grid sampling to passed trace, branch and node data.

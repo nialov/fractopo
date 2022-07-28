@@ -462,39 +462,48 @@ def network(
         nodes_output=nodes_output,
         parameters_output=parameters_output,
     )
-    # Save branches and nodes
-    console.print(
-        Text.assemble(
-            "Saving branches to ",
-            (str(branches_output_path), "bold green"),
-            " and nodes to ",
-            (str(nodes_output_path), "bold green"),
-            ".",
+    if determine_branches_nodes:
+        # Save branches and nodes
+        console.print(
+            Text.assemble(
+                "Saving branches to ",
+                (str(branches_output_path), "bold green"),
+                " and nodes to ",
+                (str(nodes_output_path), "bold green"),
+                ".",
+            )
         )
-    )
-    network.branch_gdf.to_file(branches_output_path, driver="GPKG")
-    network.node_gdf.to_file(nodes_output_path, driver="GPKG")
+        network.branch_gdf.to_file(branches_output_path, driver="GPKG")
+        network.node_gdf.to_file(nodes_output_path, driver="GPKG")
 
-    console.print(rich_table_from_parameters(network.parameters))
+    base_parameters = network.parameters
 
-    pd.DataFrame([network.numerical_network_description()]).to_csv(
-        parameters_output_path
+    # Print pretty table of basic network parameters
+    console.print(rich_table_from_parameters(base_parameters))
+
+    parameters = (
+        network.numerical_network_description()
+        if determine_branches_nodes
+        else base_parameters
     )
+
+    pd.DataFrame([parameters]).to_csv(parameters_output_path)
 
     console.print(
         Text.assemble(
-            "Saving extensive network parameter csv to path:\n",
+            "Saving network parameter csv to path:\n",
             (str(parameters_output_path), "bold green"),
         )
     )
 
-    # Plot ternary XYI-node proportion plot
-    fig, _, _ = network.plot_xyi()
-    save_fig(fig=fig, results_dir=general_output_path, name="xyi_ternary_plot")
+    if determine_branches_nodes:
+        # Plot ternary XYI-node proportion plot
+        fig, _, _ = network.plot_xyi()
+        save_fig(fig=fig, results_dir=general_output_path, name="xyi_ternary_plot")
 
-    # Plot ternary branch proportion plot
-    fig, _, _ = network.plot_branch()
-    save_fig(fig=fig, results_dir=general_output_path, name="branch_ternary_plot")
+        # Plot ternary branch proportion plot
+        fig, _, _ = network.plot_branch()
+        save_fig(fig=fig, results_dir=general_output_path, name="branch_ternary_plot")
 
     # Plot trace azimuth rose plot
     _, fig, _ = network.plot_trace_azimuth()
