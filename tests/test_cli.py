@@ -110,12 +110,18 @@ def test_fractopo_network_cli(
     click_error_print(result)
 
     output_files = list(tmp_path.glob("*"))
+    output_files_names = [path.name for path in output_files]
     assert len(output_files) > 0
 
     assert "branches" in str(output_files) or not determine_branches_nodes
     assert "nodes" in str(output_files) or not determine_branches_nodes
 
     assert len(list(tmp_path.glob("*.svg"))) > 0
+
+    assert "additional_numerical_data.json" in output_files_names
+
+    # Sanity check
+    assert "adddditional_numerical_data.json" not in output_files_names
 
 
 @pytest.mark.parametrize(
