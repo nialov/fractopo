@@ -529,6 +529,9 @@ def plot_distribution_fits(
     using_branches: bool,
     cut_off: Optional[float] = None,
     fit: Optional[powerlaw.Fit] = None,
+    fig: Optional[Figure] = None,
+    ax: Optional[Axes] = None,
+    fits_to_plot: Tuple[Dist, ...] = (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW),
 ) -> Tuple[powerlaw.Fit, Figure, Axes]:
     """
     Plot length distribution and `powerlaw` fits.
@@ -540,8 +543,15 @@ def plot_distribution_fits(
         # Determine powerlaw, exponential, lognormal fits
         fit = determine_fit(length_array, cut_off)
 
-    # Create figure, ax
-    fig, ax = plt.subplots(figsize=(7, 7))
+    if fig is None:
+        if ax is None:
+            # Create figure, ax
+            fig, ax = plt.subplots(figsize=(7, 7))
+        else:
+            fig_maybe = ax.get_figure()
+            assert isinstance(fig_maybe, Figure)
+            fig = fig_maybe
+
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
 
@@ -584,7 +594,7 @@ def plot_distribution_fits(
     )
 
     # Plot the actual fits (powerlaw, exp...)
-    for fit_distribution in (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW):
+    for fit_distribution in fits_to_plot:
         plot_fit_on_ax(ax, fit, fit_distribution)
 
     # Plot cut-off if applicable
@@ -606,7 +616,7 @@ def plot_distribution_fits(
             f"{round(truncated_length_array.min(), 2)} m",
             rotation=90,
             horizontalalignment="right",
-            fontsize="large",
+            fontsize="x-large",
         )
 
     # Set title with exponent
@@ -637,7 +647,7 @@ def setup_length_dist_legend(ax_for_setup: Axes):
     # Setup legend
     handles, labels = ax_for_setup.get_legend_handles_labels()
     labels = [fill(label, 13) for label in labels]
-    lgnd = plt.legend(
+    lgnd = ax_for_setup.legend(
         handles,
         labels,
         loc="upper right",
@@ -982,7 +992,7 @@ def plot_multi_distributions_and_fit(
     )
 
     # Add legend
-    setup_length_dist_legend(ax_for_setup=ax)
+    # setup_length_dist_legend(ax_for_setup=ax)
 
     return fig, ax
 
