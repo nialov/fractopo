@@ -230,12 +230,14 @@ def task_build():
     """
     Build package with poetry.
 
-    Runs always without dependencies or targets.
+    Runs always without strict dependencies or targets.
     """
     command = "nox --session build"
     return {
         ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_ci_test)],
+        TASK_DEP: [
+            resolve_task_name(task_pre_commit),
+        ],
     }
 
 
