@@ -1,14 +1,12 @@
 # Changes here will be overwritten by Copier
-_commit: ec2d9dd
+_commit: '4483535'
 _src_path: https://github.com/nialov/nialov-py-template.git
-broad_topic: Data Analysis
 classifier: 'Topic :: Scientific/Engineering :: GIS'
 description: Fracture Network Analysis
 email: nikolasovaskainen@gmail.com
 full_name: Nikolas Ovaskainen
 github_account: nialov
 keyword: data
-keywords: data analysis spatial fracture geology trace topology geometry
-narrow_topic: Spatial Analysis
 package: fractopo
 year: 2020
+

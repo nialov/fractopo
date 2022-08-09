@@ -291,8 +291,11 @@ def update_citation():
         line if "date-released" not in line else f'date-released: "{date}"'
         for line in citation_lines
     ]
-    new_lines.append("\n")
-    CITATION_CFF_PATH.write_text("\n".join(new_lines), encoding=UTF8)
+    # new_lines.append("\n")
+
+    # Write back to CITATION.cff including newline at end
+    with CITATION_CFF_PATH.open("w", newline="\n", encoding=UTF8) as openfile:
+        openfile.write("\n".join(new_lines))
 
 
 def task_citation():
@@ -385,7 +388,8 @@ def use_tag(tag: str):
 
         new_lines.append("\n")
         # Write results to file
-        path.write_text("\n".join(new_lines), encoding=UTF8)
+        with path.open("w", newline="\n", encoding=UTF8) as openfile:
+            openfile.write("\n".join(new_lines))
 
     # Iterate over all files determined from VERSION_PATHS
     for path_name in VERSION_PATHS:
