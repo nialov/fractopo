@@ -102,7 +102,7 @@ jobs:
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: >
-          github.event_name == 'push' 
+          github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
@@ -117,8 +117,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Create incremental changelog
         run: >
-          cat CHANGELOG.md 
-          | sed -n '1,/github/p' 
+          cat CHANGELOG.md
+          | sed -n '1,/github/p'
           > RELEASE_CHANGELOG.md
 
       - name: Echo RELEASE_CHANGELOG.md
@@ -126,7 +126,7 @@ jobs:
 
       - name: Publish release on GitHub
         if: >
-          github.event_name == 'push' 
+          github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
         uses: softprops/action-gh-release@v1
         with:

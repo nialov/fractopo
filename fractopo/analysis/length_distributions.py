@@ -368,14 +368,14 @@ class MultiLengthDistribution:
 
     def optimize_cut_offs(
         self,
-        shgo_kwargs: Dict[str, Any] = dict(),
+        shgo_kwargs: Optional[Dict[str, Any]] = None,
         scorer: Callable[[np.ndarray, np.ndarray], float] = sklm.mean_squared_log_error,
     ) -> Tuple[MultiScaleOptimizationResult, "MultiLengthDistribution"]:
         """
         Get cut-off optimized MultiLengthDistribution.
         """
         opt_result = self.optimized_multi_scale_fit(
-            shgo_kwargs=shgo_kwargs, scorer=scorer
+            shgo_kwargs=shgo_kwargs if shgo_kwargs is not None else {}, scorer=scorer
         )
         optimized_mld = MultiLengthDistribution(
             distributions=self.distributions,
@@ -389,7 +389,7 @@ class MultiLengthDistribution:
     def optimized_multi_scale_fit(
         self,
         scorer: Callable[[np.ndarray, np.ndarray], float],
-        shgo_kwargs: Dict[str, Any] = dict(),
+        shgo_kwargs: Dict[str, Any],
     ) -> MultiScaleOptimizationResult:
         """
         Use scipy.optimize.shgo to optimize fit.

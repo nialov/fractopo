@@ -290,7 +290,7 @@ class MultiNetwork(NamedTuple):
 
     def basic_network_descriptions_df(
         self,
-        columns: Dict[str, Tuple[Optional[str], Type]] = {NAME: (None, str)},
+        columns: Dict[str, Tuple[Optional[str], Type]],
     ):
         """
         Create DataFrame useful for basic Network characterization.
