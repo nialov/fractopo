@@ -232,13 +232,17 @@ def task_build():
 
     Runs always without strict dependencies or targets.
     """
-    command = "nox --session build"
-    return {
-        ACTIONS: [command],
-        TASK_DEP: [
-            resolve_task_name(task_pre_commit),
-        ],
-    }
+    # python_version = "" if len(python) == 0 else f"-p {python}"
+    for python_version in [DEFAULT_PYTHON_VERSION]:
+        # command = f"nox --session tests_pip -p {python_version}"
+        command = f"nox --session build -p {python_version}"
+        yield {
+            NAME: python_version,
+            ACTIONS: [command],
+            TASK_DEP: [
+                resolve_task_name(task_pre_commit),
+            ],
+        }
 
 
 def task_typecheck():

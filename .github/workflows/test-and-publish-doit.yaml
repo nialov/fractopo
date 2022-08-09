@@ -98,7 +98,7 @@ jobs:
         # (probably) more efficient to run all here
         # (move efficient for github.com at least)
         run: |
-          doit -n 4 -v 0 pre_commit lint docs citation build
+          doit -n 4 -v 0 pre_commit lint docs citation build:${{ matrix.python-version }}
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: >
