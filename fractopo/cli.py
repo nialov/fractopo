@@ -513,6 +513,30 @@ def network(
     _, fig, _ = network.plot_trace_lengths()
     save_fig(fig=fig, results_dir=general_output_path, name="trace_length_distribution")
 
+    # Save additional numerical data for possible post-processing needs in a
+    # json file
+    json_data_arrays = {
+        "trace_length_array": network.trace_length_array,
+        "branch_length_array": network.branch_length_array
+        if determine_branches_nodes
+        else None,
+        "trace_azimuth_array": network.trace_azimuth_array,
+        "branch_azimuth_array": network.branch_azimuth_array
+        if determine_branches_nodes
+        else None,
+        "trace_azimuth_set_array": network.trace_azimuth_set_array,
+        "branch_azimuth_set_array": network.branch_azimuth_set_array
+        if determine_branches_nodes
+        else None,
+    }
+    json_data_lists = {
+        key: (item.tolist() if item is not None else None)
+        for key, item in json_data_arrays.items()
+    }
+    json_data_path = general_output_path / "additional_numerical_data.json"
+
+    json_data_path.write_text(json.dumps(json_data_lists))
+
 
 def default_network_output_paths(
     network_name: str,
