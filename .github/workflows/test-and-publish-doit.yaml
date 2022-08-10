@@ -62,15 +62,19 @@ jobs:
         run: doit ci_test:${{ matrix.python-version }}
 
   doit:
-    runs-on: ubuntu-latest
     name: Run auxiliary doit tasks to lint and make docs & citation.
+    strategy:
+      matrix:
+        python-version: [3.8]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
     needs: [pytest-coverage-doit]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 🐍 3.8
+      - name: Set up Python 🐍 ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -98,7 +102,7 @@ jobs:
         # (probably) more efficient to run all here
         # (move efficient for github.com at least)
         run: |
-          doit -n 4 -v 0 pre_commit lint docs citation build:${{ matrix.python-version }}
+          doit pre_commit lint docs citation build:${{ matrix.python-version }}
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: >
