@@ -1,5 +1,5 @@
-fractopo-readme
-===============
+fractopo
+========
 
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
@@ -244,7 +244,7 @@ Development dependencies for ``fractopo`` include:
 
       # Use poetry run to execute poetry installed cli tools such as invoke,
       # nox and pytest.
-      poetry run <cmd>
+      poetry run '<cmd>'
 
 
 -  ``doit``
