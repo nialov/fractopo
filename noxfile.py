@@ -151,10 +151,6 @@ def notebooks(session):
     for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):
         rmtree(checkpoints_dir)
 
-    # Remove .ipynb_checkpoints directories
-    for checkpoints_dir in NOTEBOOKS_PATH.rglob(".ipynb_checkpoints/"):
-        rmtree(checkpoints_dir)
-
     # Install dev dependencies
     install_dev(session=session)
 
