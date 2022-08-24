@@ -8,16 +8,16 @@
    Homepage (GitHub) <https://github.com/nialov/fractopo>
    Bug & Issue Reporting (GitHub) <https://github.com/nialov/fractopo/issues>
 
-Full Documentation
-==================
+Full Documentation (End of README.rst)
+======================================
 
 .. figure:: ./imgs/fractopo-visualizations.png
    :alt: Data visualization
 
-   Visualization of ``fractopo`` data. ``fractopo`` analyses the trace data
-   that can e.g. be digitized from drone orthophotographs (fractures) or from
-   digital elevation models (lineaments). The displayed branches and nodes are
-   extracted with ``fractopo``.
+   Visualization of ``fractopo`` data. ``fractopo`` analyses the trace
+   data that can e.g. be digitized from drone orthophotographs
+   (=fractures) or from digital elevation models (=lineaments). The
+   displayed branches and nodes are extracted with ``fractopo``.
 
 Validating trace data
 ---------------------
