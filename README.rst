@@ -11,9 +11,8 @@ analysing lineament and fracture trace maps (fracture networks).
 
    Overview of fractopo
 
--  Full Documentation is hosted on Read the Docs:
-
-   -  `Documentation <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
+-  `Full Documentation is hosted on Read the Docs
+   <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
 
 Installation
 ------------
@@ -26,7 +25,7 @@ For ``pip`` and ``poetry``: Omit --dev or [dev] for regular
 installation. Keep if you want to test/develop or otherwise install all
 development python dependencies.
 
-Conda
+conda
 ~~~~~
 
 -  Only supported installation method for ``Windows``!
@@ -39,7 +38,7 @@ Conda
    # Available on conda-forge channel
    conda install -c conda-forge fractopo
 
-Pip
+pip
 ~~~
 
 The module is on `PyPI <https://www.pypi.org>`__.
@@ -71,7 +70,7 @@ For development:
 
 .. code:: bash
 
-   git clone https://github.com/nialov/fractopo --depth 1
+   git clone https://github.com/nialov/fractopo
    cd fractopo
    poetry install
 
@@ -83,9 +82,55 @@ Usage
 1. Validation of lineament & fracture trace data
 2. Analysis of lineament & fracture trace data
 
-Validation is done to make sure the data is valid for the analysis and is
-crucial as analysis cannot take into account different kinds of geometric and
-topological inconsistencies between the traces.
+Validation is done to make sure the data is valid for the analysis and
+is crucial as analysis cannot take into account different kinds of
+geometric and topological inconsistencies between the traces.
+Capabilities and associated guides are inexhaustively listed in the
+table below.
+
+========================================================  ======================
+Functionality                                             Tutorial/Guide/Example
+========================================================  ======================
+Validation of trace data                                  `Validation 1`_; `Validation 2`_
+Visualize trace map data                                  `Visualizing`_
+Topological branches and nodes                            `Network`_; `Topological`_
+Trace and branch length distributions                     `Length-distributions`_
+Orientation rose plots                                    `Orientation 1`_; `Orientation 2`_
+Plot topological ternary node and branch proportions      `Proportions`_
+Cross-cutting and abutting relationships                  `Relationships 1`_; `Relationships 2`_;
+Geometric and topological fracture network parameters     `Parameters`_
+Contour grids of fracture network parameters              `Contour-grids`_
+Multi-scale length distributions                          `Multi-scale`_
+========================================================  ======================
+
+.. _Validation 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_1.html
+.. _Validation 2:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_2.html
+.. _Visualizing:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Visualizing-trace-map-data
+.. _Network:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Network
+.. _Topological:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_branches_and_nodes.html#sphx-glr-auto-examples-plot-branches-and-nodes-py
+.. _Length-distributions:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Length-distributions
+.. _Orientation 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Rose-plots
+.. _Orientation 2:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_rose_plot.html#sphx-glr-auto-examples-plot-rose-plot-py
+.. _Proportions:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Node-and-branch-proportions
+.. _Relationships 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Crosscutting-and-abutting-relationships
+.. _Relationships 2:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_azimuth_set_relationships.html#sphx-glr-auto-examples-plot-azimuth-set-relationships-py
+.. _Parameters:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Numerical-Fracture-Network-Characterization-Parameters
+.. _Contour-grids:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Contour-Grids
+.. _Multi-scale:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
 
 Input data
 ~~~~~~~~~~
@@ -184,7 +229,7 @@ visualizing different parameters and attributes of trace data.
    )
 
    # Properties are easily accessible
-   # e.g.
+   # e.g.,
    network.branch_counts
    network.node_counts
 
@@ -205,10 +250,6 @@ produces. Brief example of command-line entrypoint:
    # Use --help to see all up-to-date arguments and help
    fractopo network --help
 
-See full documentation for more examples and help:
-
--  https://fractopo.readthedocs.io/en/latest/index.html#full-documentation
-
 Citing
 ------
 
@@ -225,8 +266,8 @@ To cite this software:
    p.104528.
 
 -  To cite a specific version of ``fractopo`` you can use a ``zenodo``
-   provided ``doi``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
-   ``v0.2.6``. See the ``zenodo`` page of ``fractopo`` for the ``doi`` of each
+   provided ``DOI``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
+   ``v0.2.6``. See the ``zenodo`` page of ``fractopo`` for the ``DOI`` of each
    version: https://doi.org/10.5281/zenodo.5517485
 
 Development
@@ -252,7 +293,7 @@ Development dependencies for ``fractopo`` include:
    -  A general task executor that is a replacement for a ``Makefile``
    -  Understands task dependencies and can run tasks in parallel
       even while running them in the order determined from dependencies
-      between tasks. E.g. requirements.txt is a requirement for running
+      between tasks. E.g., requirements.txt is a requirement for running
       tests and therefore the task creating requirements.txt will always
       run before the test task.
 
@@ -283,7 +324,7 @@ Development dependencies for ``fractopo`` include:
    -  ``copier`` is a project templater. Many Python projects follow a similar
       framework for testing, creating documentations and overall placement of
       files and configuration. ``copier`` allows creating a template project
-      (e.g. https://github.com/nialov/nialov-py-template) which can be firstly
+      (e.g., https://github.com/nialov/nialov-py-template) which can be firstly
       cloned as the framework for your own package and secondly to pull updates
       from the template to your already started project.
 
@@ -332,7 +373,7 @@ Big thanks to all maintainers of the above packages!
 License
 ~~~~~~~
 
-Copyright © 2020, Nikolas Ovaskainen.
+Copyright © 2020-2022, Nikolas Ovaskainen.
 
 -----
 
