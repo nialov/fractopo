@@ -5,15 +5,14 @@ channels:
 
 # Changes here should be kept in sync with ./pyproject.toml
 dependencies:
-  - python >=3.7.1,<4.0
+  - python >=3.8,<3.12
   - click
-  - geopandas >=0.10.2,<0.11.0
+  - geopandas >=0.11.1,<0.12
   - matplotlib-base
   - numpy
   - pandas >=1.3,<1.4
   - powerlaw
-  - pygeos >=0.12.0,<0.13.0
-  - python >=3.6,<4.0
+  - pygeos >=0.13.0,<0.14.0
   - python-ternary
   - rich >=11.0.0,<11.1.0
   - scikit-learn
