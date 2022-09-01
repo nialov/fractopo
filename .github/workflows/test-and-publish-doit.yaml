@@ -26,7 +26,7 @@ jobs:
     name: Test and check coverage of 🐍 code
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10]
+        python-version: ["3.8", "3.9", "3.10"]
         platform: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -65,7 +65,7 @@ jobs:
     name: Run auxiliary doit tasks to lint and make docs & citation.
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.8"]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     needs: [pytest-coverage-doit]
