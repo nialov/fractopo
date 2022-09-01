@@ -17,9 +17,8 @@ analysing lineament and fracture trace maps (fracture networks).
 Installation
 ------------
 
-``pip`` and ``poetry`` installation only supported for ``linux`` and
-``MacOS`` based operating systems. For ``Windows`` install using
-``(ana)conda``.
+``pip`` and ``poetry`` installation only supported for ``linux`` -based
+operating systems. For ``Windows`` install using ``(ana)conda``.
 
 For ``pip`` and ``poetry``: Omit --dev or [dev] for regular
 installation. Keep if you want to test/develop or otherwise install all
@@ -28,7 +27,7 @@ development python dependencies.
 conda
 ~~~~~
 
--  Only supported installation method for ``Windows``!
+-  Only (supported) installation method for ``Windows`` and ``MacOS``!
 
 .. code:: bash
 
