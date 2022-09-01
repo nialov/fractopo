@@ -15,7 +15,7 @@
           inherit (pkgs) lib;
           # The wanted python interpreters are set here. E.g. if you want to
           # add Python 3.7, add 'python37'.
-          pythons = with pkgs; [ python37 python38 python39 ];
+          pythons = with pkgs; [ python38 python39 python310 ];
 
           # The paths to site-packages are extracted and joined with a colon
           site-packages = lib.concatStringsSep ":"
