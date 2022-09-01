@@ -23,7 +23,7 @@ from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
 
 # Import the geometries used to create traces and target areas.
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, MultiLineString, Point
 
 # %%
 # Traces are explicitly defined in code and plotted
@@ -31,14 +31,14 @@ from shapely.geometry import LineString, Point
 
 # Initialization
 fig: Figure
-fig, axes = plt.subplots(2, 2, figsize=(7, 7))
+fig, axes = plt.subplots(2, 3, figsize=(7, 7))
 fig.tight_layout(h_pad=1.5)
 
 axes_flat: Sequence[Axes] = axes.flatten()
 
 
 def label_gen():
-    for label in ("A.", "B.", "C.", "D."):
+    for label in ("A.", "B.", "C.", "D.", "E.", "F."):
         yield label
 
 
@@ -64,7 +64,7 @@ errors_1 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
 traces_1.plot(ax=axis_1, color="black")
 errors_1.plot(ax=axis_1, marker="X", color="red", zorder=10)
 axis_1.text(
-    x=0, y=-7, s="More than two traces" "\n" "in the same intersection.", ha="center"
+    x=0, y=-7, s="More than two traces intersect" "\n" "on the same point.", ha="center"
 )
 
 # Axis 2: MULTI JUNCTION
@@ -81,7 +81,7 @@ traces_2.plot(ax=axis_2, color="black")
 axis_2.annotate(
     "Overlap distance higher\n than defined snap threshold.",
     xy=(0.5, -0.5),
-    xytext=(-0.5, -4),
+    xytext=(-1.0, -4),
     arrowprops=dict(arrowstyle="->", color="red"),
     fontstyle="italic",
     fontsize="small",
@@ -125,6 +125,56 @@ errors_4.plot(ax=axis_4, marker="X", color="red", zorder=10)
 axis_4.text(
     x=0, y=-7, s="Two traces cross each\nother more than two times.", ha="center"
 )
+
+# Axis 5: OVERLAPPING
+
+axis_5 = axes_flat[4]
+
+traces_5 = gpd.GeoDataFrame(
+    geometry=[
+        LineString([(-5, 0), (5, 0)]),
+        LineString([(-5, 1), (-1, 0), (1, 0), (5, -1)]),
+    ]
+)
+intersections = traces_5.geometry.values[0].intersection(traces_5.geometry.values[1])
+assert isinstance(intersections, LineString)
+
+errors_5 = gpd.GeoDataFrame(geometry=[intersections])
+
+traces_5.plot(ax=axis_5, color="black")
+errors_5.plot(ax=axis_5, color="red", zorder=10)
+# axis_5.set_title("Two traces cross each\nother more than two times.")
+axis_5.text(x=0, y=-7, s="Two traces overlap.", ha="center")
+axis_5.annotate(
+    "Trace continues\n along the other trace.",
+    xy=(0.0, 0.0),
+    xytext=(-3, 3),
+    arrowprops=dict(arrowstyle="->", color="red"),
+    fontstyle="italic",
+    fontsize="small",
+)
+
+# Axis 6: OVERLAPPING
+
+axis_6 = axes_flat[5]
+
+traces_6 = gpd.GeoDataFrame(
+    geometry=[
+        LineString([(-5, -1), (-1, -1), (-2, 1), (5, 1)]),
+    ]
+)
+
+traces_6.plot(ax=axis_6, color="red")
+# axis_6.set_title("Two traces cross each\nother more than two times.")
+axis_6.text(x=0, y=-7, s="Trace is not sub-linear.", ha="center")
+# axis_6.annotate(
+#     "Trace continues\n along the other trace.",
+#     xy=(0.0, 0.0),
+#     xytext=(-3, 3),
+#     arrowprops=dict(arrowstyle="->", color="red"),
+#     fontstyle="italic",
+#     fontsize="small",
+# )
 
 plt.subplots_adjust(wspace=0.01)
 
