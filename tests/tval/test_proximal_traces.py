@@ -42,4 +42,7 @@ def test_determine_proximal_traces_regression(file_regression):
     )
     assert proximal_traces.MERGE_COLUMN in result.columns
     assert isinstance(result, gpd.GeoDataFrame)
-    file_regression.check(result.sort_index().to_json(indent=1))
+    # Sort index and then sort by columns so file refression can work
+    result.sort_index(inplace=True)
+    result.sort_index(axis="columns", inplace=True)
+    file_regression.check(result.to_json(indent=1))

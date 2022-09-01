@@ -5,8 +5,8 @@
    "id": "0",
    "type": "Feature",
    "properties": {
-    "another data": "not sublinear",
-    "data": "fid is 1"
+    "data": "fid is 1",
+    "another data": "not sublinear"
    },
    "geometry": {
     "type": "LineString",
@@ -26,8 +26,8 @@
    "id": "0",
    "type": "Feature",
    "properties": {
-    "another data": "not sublinear",
-    "data": "fid is 1"
+    "data": "fid is 1",
+    "another data": "not sublinear"
    },
    "geometry": {
     "type": "LineString",
@@ -47,8 +47,8 @@
    "id": "1",
    "type": "Feature",
    "properties": {
-    "another data": "n-s",
-    "data": "fid is 2"
+    "data": "fid is 2",
+    "another data": "n-s"
    },
    "geometry": {
     "type": "LineString",
@@ -68,8 +68,8 @@
    "id": "2",
    "type": "Feature",
    "properties": {
-    "another data": "e-w",
-    "data": "fid is 3"
+    "data": "fid is 3",
+    "another data": "e-w"
    },
    "geometry": {
     "type": "LineString",
@@ -89,8 +89,8 @@
    "id": "3",
    "type": "Feature",
    "properties": {
-    "another data": "sublinear",
-    "data": "fid is 4"
+    "data": "fid is 4",
+    "another data": "sublinear"
    },
    "geometry": {
     "type": "LineString",
@@ -110,8 +110,8 @@
    "id": "3",
    "type": "Feature",
    "properties": {
-    "another data": "sublinear",
-    "data": "fid is 4"
+    "data": "fid is 4",
+    "another data": "sublinear"
    },
    "geometry": {
     "type": "LineString",

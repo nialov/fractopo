@@ -1,17 +1,7 @@
 {
- "type": "FeatureCollection",
  "features": [
   {
-   "id": "0",
-   "type": "Feature",
-   "properties": {
-    "Connection": "I - E",
-    "boundary_weight": 1,
-    "length": 54.98342176009675,
-    "length non-weighted": 54.98342176009675
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345994.09480548534,
@@ -21,20 +11,20 @@
       346009.27415079135,
       6659736.44005451
      ]
-    ]
-   }
-  },
-  {
-   "id": "1",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "0",
    "properties": {
     "Connection": "I - E",
     "boundary_weight": 1,
-    "length": 48.25623196152618,
-    "length non-weighted": 48.25623196152618
+    "length": 54.98342176009675,
+    "length non-weighted": 54.98342176009675
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346291.2821557333,
@@ -44,20 +34,20 @@
       346259.6547469718,
       6659774.386981984
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "1",
+   "properties": {
+    "Connection": "I - E",
+    "boundary_weight": 1,
+    "length": 48.25623196152618,
+    "length non-weighted": 48.25623196152618
+   },
+   "type": "Feature"
   },
   {
-   "id": "2",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 82.72214046951079,
-    "length non-weighted": 82.72214046951079
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345925.90425597195,
@@ -67,20 +57,20 @@
       345954.854499164,
       6659814.03429238
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "2",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 82.72214046951079,
+    "length non-weighted": 82.72214046951079
+   },
+   "type": "Feature"
   },
   {
-   "id": "3",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - C",
-    "boundary_weight": 1,
-    "length": 28.455380260934742,
-    "length non-weighted": 28.455380260934742
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345954.854499164,
@@ -90,20 +80,20 @@
       345964.81302023225,
       6659840.69018336
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "3",
+   "properties": {
+    "Connection": "C - C",
+    "boundary_weight": 1,
+    "length": 28.455380260934742,
+    "length non-weighted": 28.455380260934742
+   },
+   "type": "Feature"
   },
   {
-   "id": "4",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 69.61497630708553,
-    "length non-weighted": 69.61497630708553
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345964.81302023225,
@@ -113,20 +103,20 @@
       345989.17615303415,
       6659905.902779431
      ]
-    ]
-   }
-  },
-  {
-   "id": "5",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "4",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 42.209222371260275,
-    "length non-weighted": 42.209222371260275
+    "length": 69.61497630708553,
+    "length non-weighted": 69.61497630708553
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345924.4203194954,
@@ -136,20 +126,20 @@
       345964.81302023225,
       6659840.69018336
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "5",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 42.209222371260275,
+    "length non-weighted": 42.209222371260275
+   },
+   "type": "Feature"
   },
   {
-   "id": "6",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - C",
-    "boundary_weight": 1,
-    "length": 36.12961356303095,
-    "length non-weighted": 36.12961356303095
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345964.81302023225,
@@ -159,20 +149,20 @@
       345999.38775500335,
       6659830.205113417
      ]
-    ]
-   }
-  },
-  {
-   "id": "7",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "6",
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 42.79008718840999,
-    "length non-weighted": 42.79008718840999
+    "length": 36.12961356303095,
+    "length non-weighted": 36.12961356303095
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345999.38775500335,
@@ -182,20 +172,20 @@
       346040.33632238273,
       6659817.787126818
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "7",
+   "properties": {
+    "Connection": "C - C",
+    "boundary_weight": 1,
+    "length": 42.79008718840999,
+    "length non-weighted": 42.79008718840999
+   },
+   "type": "Feature"
   },
   {
-   "id": "8",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 72.60029073713902,
-    "length non-weighted": 72.60029073713902
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346040.33632238273,
@@ -205,20 +195,20 @@
       346109.812177478,
       6659796.718007854
      ]
-    ]
-   }
-  },
-  {
-   "id": "9",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "8",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 40.48645038519237,
-    "length non-weighted": 40.48645038519237
+    "length": 72.60029073713902,
+    "length non-weighted": 72.60029073713902
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346245.77236866264,
@@ -228,20 +218,20 @@
       346270.48966485995,
       6659527.699882806
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "9",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 40.48645038519237,
+    "length non-weighted": 40.48645038519237
+   },
+   "type": "Feature"
   },
   {
-   "id": "10",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - I",
-    "boundary_weight": 1,
-    "length": 190.79804423671936,
-    "length non-weighted": 190.79804423671936
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346270.48966485995,
@@ -251,20 +241,20 @@
       346386.97337060375,
       6659678.813879447
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "10",
+   "properties": {
+    "Connection": "C - I",
+    "boundary_weight": 1,
+    "length": 190.79804423671936,
+    "length non-weighted": 190.79804423671936
+   },
+   "type": "Feature"
   },
   {
-   "id": "11",
-   "type": "Feature",
-   "properties": {
-    "Connection": "I - I",
-    "boundary_weight": 1,
-    "length": 99.82998650398942,
-    "length non-weighted": 99.82998650398942
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346463.2151515574,
@@ -274,20 +264,20 @@
       346440.65380821395,
       6659646.916807823
      ]
-    ]
-   }
-  },
-  {
-   "id": "12",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "11",
    "properties": {
     "Connection": "I - I",
     "boundary_weight": 1,
-    "length": 67.755530412056,
-    "length non-weighted": 67.755530412056
+    "length": 99.82998650398942,
+    "length non-weighted": 99.82998650398942
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346250.82733318646,
@@ -297,20 +287,20 @@
       346318.51136321673,
       6659650.02871725
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "12",
+   "properties": {
+    "Connection": "I - I",
+    "boundary_weight": 1,
+    "length": 67.755530412056,
+    "length non-weighted": 67.755530412056
+   },
+   "type": "Feature"
   },
   {
-   "id": "13",
-   "type": "Feature",
-   "properties": {
-    "Connection": "E - E",
-    "boundary_weight": 1,
-    "length": 222.9084029215424,
-    "length non-weighted": 222.9084029215424
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346592.8643378989,
@@ -320,20 +310,20 @@
       346638.25773283927,
       6659597.16735213
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "13",
+   "properties": {
+    "Connection": "E - E",
+    "boundary_weight": 1,
+    "length": 222.9084029215424,
+    "length non-weighted": 222.9084029215424
+   },
+   "type": "Feature"
   },
   {
-   "id": "14",
-   "type": "Feature",
-   "properties": {
-    "Connection": "I - E",
-    "boundary_weight": 1,
-    "length": 30.626673174918913,
-    "length non-weighted": 30.626673174918913
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346518.451543881,
@@ -343,20 +333,20 @@
       346509.54105112434,
       6659824.812295666
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "14",
+   "properties": {
+    "Connection": "I - E",
+    "boundary_weight": 1,
+    "length": 30.626673174918913,
+    "length non-weighted": 30.626673174918913
+   },
+   "type": "Feature"
   },
   {
-   "id": "15",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 88.916992562457,
-    "length non-weighted": 88.916992562457
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346337.7745142958,
@@ -366,20 +356,20 @@
       346270.48966485995,
       6659527.699882806
      ]
-    ]
-   }
-  },
-  {
-   "id": "16",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "15",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 98.5435784623958,
-    "length non-weighted": 98.5435784623958
+    "length": 88.916992562457,
+    "length non-weighted": 88.916992562457
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346270.48966485995,
@@ -389,20 +379,20 @@
       346195.92023050727,
       6659592.1222105855
      ]
-    ]
-   }
-  },
-  {
-   "id": "17",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "16",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 59.67295815423344,
-    "length non-weighted": 59.67295815423344
+    "length": 98.5435784623958,
+    "length non-weighted": 98.5435784623958
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346069.4308998033,
@@ -412,20 +402,20 @@
       346040.33632238273,
       6659817.787126818
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "17",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 59.67295815423344,
+    "length non-weighted": 59.67295815423344
+   },
+   "type": "Feature"
   },
   {
-   "id": "18",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - C",
-    "boundary_weight": 1,
-    "length": 25.98454261027171,
-    "length non-weighted": 25.98454261027171
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346040.33632238273,
@@ -435,20 +425,20 @@
       346027.6671115693,
       6659840.473853158
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "18",
+   "properties": {
+    "Connection": "C - C",
+    "boundary_weight": 1,
+    "length": 25.98454261027171,
+    "length non-weighted": 25.98454261027171
+   },
+   "type": "Feature"
   },
   {
-   "id": "19",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 75.79235426946973,
-    "length non-weighted": 75.79235426946973
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346027.6671115693,
@@ -458,20 +448,20 @@
       345990.713245239,
       6659906.647055657
      ]
-    ]
-   }
-  },
-  {
-   "id": "20",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "19",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 71.78496631419928,
-    "length non-weighted": 71.78496631419928
+    "length": 75.79235426946973,
+    "length non-weighted": 75.79235426946973
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346163.61615949357,
@@ -481,20 +471,20 @@
       346214.95146355574,
       6659908.480148272
      ]
-    ]
-   }
-  },
-  {
-   "id": "21",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "20",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 30.32038821370443,
-    "length non-weighted": 30.32038821370443
+    "length": 71.78496631419928,
+    "length non-weighted": 71.78496631419928
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346214.95146355574,
@@ -504,20 +494,20 @@
       346236.6343649786,
       6659887.286334851
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "21",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 30.32038821370443,
+    "length non-weighted": 30.32038821370443
+   },
+   "type": "Feature"
   },
   {
-   "id": "22",
-   "type": "Feature",
-   "properties": {
-    "Connection": "I - E",
-    "boundary_weight": 1,
-    "length": 41.01503113163937,
-    "length non-weighted": 41.01503113163937
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346320.29953762173,
@@ -527,20 +517,20 @@
       346349.6304574836,
       6659776.839026387
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "22",
+   "properties": {
+    "Connection": "I - E",
+    "boundary_weight": 1,
+    "length": 41.01503113163937,
+    "length non-weighted": 41.01503113163937
+   },
+   "type": "Feature"
   },
   {
-   "id": "23",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 173.1268018322629,
-    "length non-weighted": 173.1268018322629
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346496.1039596578,
@@ -550,20 +540,20 @@
       346333.37344851485,
       6659951.481287297
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "23",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 173.1268018322629,
+    "length non-weighted": 173.1268018322629
+   },
+   "type": "Feature"
   },
   {
-   "id": "24",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - C",
-    "boundary_weight": 1,
-    "length": 125.98755684240749,
-    "length non-weighted": 125.98755684240749
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346333.37344851485,
@@ -573,20 +563,20 @@
       346214.95146355574,
       6659908.480148272
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "24",
+   "properties": {
+    "Connection": "C - C",
+    "boundary_weight": 1,
+    "length": 125.98755684240749,
+    "length non-weighted": 125.98755684240749
+   },
+   "type": "Feature"
   },
   {
-   "id": "25",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 45.17474763785973,
-    "length non-weighted": 45.17474763785973
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346214.95146355574,
@@ -596,20 +586,20 @@
       346172.4894663603,
       6659893.061438263
      ]
-    ]
-   }
-  },
-  {
-   "id": "26",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "25",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 75.09006407510613,
-    "length non-weighted": 75.09006407510613
+    "length": 45.17474763785973,
+    "length non-weighted": 45.17474763785973
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346098.24800591584,
@@ -619,20 +609,20 @@
       346027.6671115693,
       6659840.473853158
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "26",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 75.09006407510613,
+    "length non-weighted": 75.09006407510613
+   },
+   "type": "Feature"
   },
   {
-   "id": "27",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - C",
-    "boundary_weight": 1,
-    "length": 30.086027050103326,
-    "length non-weighted": 30.086027050103326
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346027.6671115693,
@@ -642,20 +632,20 @@
       345999.38775500335,
       6659830.205113417
      ]
-    ]
-   }
-  },
-  {
-   "id": "28",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "27",
    "properties": {
     "Connection": "C - C",
     "boundary_weight": 1,
-    "length": 47.378331847376,
-    "length non-weighted": 47.378331847376
+    "length": 30.086027050103326,
+    "length non-weighted": 30.086027050103326
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345999.38775500335,
@@ -665,20 +655,20 @@
       345954.854499164,
       6659814.03429238
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "28",
+   "properties": {
+    "Connection": "C - C",
+    "boundary_weight": 1,
+    "length": 47.378331847376,
+    "length non-weighted": 47.378331847376
+   },
+   "type": "Feature"
   },
   {
-   "id": "29",
-   "type": "Feature",
-   "properties": {
-    "Connection": "C - E",
-    "boundary_weight": 1,
-    "length": 73.26037065408505,
-    "length non-weighted": 73.26037065408505
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       345954.854499164,
@@ -688,20 +678,20 @@
       345885.99342487124,
       6659789.029605707
      ]
-    ]
-   }
-  },
-  {
-   "id": "30",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "29",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 110.99089162547692,
-    "length non-weighted": 110.99089162547692
+    "length": 73.26037065408505,
+    "length non-weighted": 73.26037065408505
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346281.81414446264,
@@ -711,20 +701,20 @@
       346333.37344851485,
       6659951.481287297
      ]
-    ]
-   }
-  },
-  {
-   "id": "31",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "30",
    "properties": {
     "Connection": "C - E",
     "boundary_weight": 1,
-    "length": 81.02094247873652,
-    "length non-weighted": 81.02094247873652
+    "length": 110.99089162547692,
+    "length non-weighted": 110.99089162547692
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346333.37344851485,
@@ -734,20 +724,20 @@
       346371.0106216798,
       6659879.732863507
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "31",
+   "properties": {
+    "Connection": "C - E",
+    "boundary_weight": 1,
+    "length": 81.02094247873652,
+    "length non-weighted": 81.02094247873652
+   },
+   "type": "Feature"
   },
   {
-   "id": "32",
-   "type": "Feature",
-   "properties": {
-    "Connection": "E - E",
-    "boundary_weight": 1,
-    "length": 339.2497566828711,
-    "length non-weighted": 339.2497566828711
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346392.91299152526,
@@ -757,20 +747,20 @@
       346550.5068363735,
       6659537.555983644
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "32",
+   "properties": {
+    "Connection": "E - E",
+    "boundary_weight": 1,
+    "length": 339.2497566828711,
+    "length non-weighted": 339.2497566828711
+   },
+   "type": "Feature"
   },
   {
-   "id": "33",
-   "type": "Feature",
-   "properties": {
-    "Connection": "I - E",
-    "boundary_weight": 1,
-    "length": 42.839529912450516,
-    "length non-weighted": 42.839529912450516
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346474.1068345508,
@@ -780,20 +770,20 @@
       346456.72503148083,
       6659830.775394659
      ]
-    ]
-   }
-  },
-  {
-   "id": "34",
-   "type": "Feature",
+    ],
+    "type": "LineString"
+   },
+   "id": "33",
    "properties": {
     "Connection": "I - E",
     "boundary_weight": 1,
-    "length": 43.998879326690336,
-    "length non-weighted": 43.998879326690336
+    "length": 42.839529912450516,
+    "length non-weighted": 42.839529912450516
    },
+   "type": "Feature"
+  },
+  {
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       346418.0511856639,
@@ -803,8 +793,18 @@
       346400.19898566714,
       6659958.107750491
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "34",
+   "properties": {
+    "Connection": "I - E",
+    "boundary_weight": 1,
+    "length": 43.998879326690336,
+    "length non-weighted": 43.998879326690336
+   },
+   "type": "Feature"
   }
- ]
+ ],
+ "type": "FeatureCollection"
 }

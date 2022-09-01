@@ -5,8 +5,8 @@
    "id": "0",
    "type": "Feature",
    "properties": {
-    "desc": "triangle at s",
-    "fid text": "this is 1"
+    "fid text": "this is 1",
+    "desc": "triangle at s"
    },
    "geometry": {
     "type": "LineString",
@@ -30,8 +30,8 @@
    "id": "1",
    "type": "Feature",
    "properties": {
-    "desc": "sw edge",
-    "fid text": "this is 2"
+    "fid text": "this is 2",
+    "desc": "sw edge"
    },
    "geometry": {
     "type": "LineString",
@@ -51,8 +51,8 @@
    "id": "2",
    "type": "Feature",
    "properties": {
-    "desc": "ends",
-    "fid text": "this is 3"
+    "fid text": "this is 3",
+    "desc": "ends"
    },
    "geometry": {
     "type": "LineString",
@@ -72,8 +72,8 @@
    "id": "3",
    "type": "Feature",
    "properties": {
-    "desc": "over",
-    "fid text": "this is 4"
+    "fid text": "this is 4",
+    "desc": "over"
    },
    "geometry": {
     "type": "LineString",
@@ -93,8 +93,8 @@
    "id": "4",
    "type": "Feature",
    "properties": {
-    "desc": "r triangle at e",
-    "fid text": "this is 5"
+    "fid text": "this is 5",
+    "desc": "r triangle at e"
    },
    "geometry": {
     "type": "LineString",
@@ -114,8 +114,8 @@
    "id": "5",
    "type": "Feature",
    "properties": {
-    "desc": "r triangle at e",
-    "fid text": "this is 5"
+    "fid text": "this is 5",
+    "desc": "r triangle at e"
    },
    "geometry": {
     "type": "LineString",
@@ -135,8 +135,8 @@
    "id": "6",
    "type": "Feature",
    "properties": {
-    "desc": "M at e",
-    "fid text": "6"
+    "fid text": "6",
+    "desc": "M at e"
    },
    "geometry": {
     "type": "LineString",
@@ -160,8 +160,8 @@
    "id": "7",
    "type": "Feature",
    "properties": {
-    "desc": "M at e",
-    "fid text": "6"
+    "fid text": "6",
+    "desc": "M at e"
    },
    "geometry": {
     "type": "LineString",
