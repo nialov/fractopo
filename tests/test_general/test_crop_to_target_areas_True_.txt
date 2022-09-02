@@ -1,15 +1,7 @@
 {
- "type": "FeatureCollection",
  "features": [
   {
-   "id": "0",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 1",
-    "desc": "triangle at s"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.35487156610189946,
@@ -23,18 +15,18 @@
       -0.7113530726640707,
       -0.26075336081880224
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "0",
+   "properties": {
+    "desc": "triangle at s",
+    "fid text": "this is 1"
+   },
+   "type": "Feature"
   },
   {
-   "id": "1",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 2",
-    "desc": "sw edge"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.9701793716071244,
@@ -44,18 +36,18 @@
       -0.9990930331944172,
       -0.10905321542206411
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "1",
+   "properties": {
+    "desc": "sw edge",
+    "fid text": "this is 2"
+   },
+   "type": "Feature"
   },
   {
-   "id": "2",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 3",
-    "desc": "ends"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.9698497961593768,
@@ -65,18 +57,18 @@
       -0.5028387855010212,
       0.182320674740858
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "2",
+   "properties": {
+    "desc": "ends",
+    "fid text": "this is 3"
+   },
+   "type": "Feature"
   },
   {
-   "id": "3",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 4",
-    "desc": "over"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.18214138223500972,
@@ -86,18 +78,18 @@
       -0.963369295041618,
       0.40709320823389855
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "3",
+   "properties": {
+    "desc": "over",
+    "fid text": "this is 4"
+   },
+   "type": "Feature"
   },
   {
-   "id": "4",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 5",
-    "desc": "r triangle at e"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.29128013239023887,
@@ -107,18 +99,18 @@
       -0.20463506592936442,
       -0.047669454264696196
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "4",
+   "properties": {
+    "desc": "r triangle at e",
+    "fid text": "this is 5"
+   },
+   "type": "Feature"
   },
   {
-   "id": "5",
-   "type": "Feature",
-   "properties": {
-    "fid text": "this is 5",
-    "desc": "r triangle at e"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.19237718539265877,
@@ -128,18 +120,18 @@
       -0.2715036921494822,
       0.25541724097702595
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "5",
+   "properties": {
+    "desc": "r triangle at e",
+    "fid text": "this is 5"
+   },
+   "type": "Feature"
   },
   {
-   "id": "6",
-   "type": "Feature",
-   "properties": {
-    "fid text": "6",
-    "desc": "M at e"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.18744921999307793,
@@ -153,18 +145,18 @@
       -0.1864388403028939,
       0.2790714667671423
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "6",
+   "properties": {
+    "desc": "M at e",
+    "fid text": "6"
+   },
+   "type": "Feature"
   },
   {
-   "id": "7",
-   "type": "Feature",
-   "properties": {
-    "fid text": "6",
-    "desc": "M at e"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.18510644487631306,
@@ -178,8 +170,16 @@
       -0.1842930388481704,
       0.3176025972367426
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "7",
+   "properties": {
+    "desc": "M at e",
+    "fid text": "6"
+   },
+   "type": "Feature"
   }
- ]
+ ],
+ "type": "FeatureCollection"
 }

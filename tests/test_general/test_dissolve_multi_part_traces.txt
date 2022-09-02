@@ -1,15 +1,7 @@
 {
- "type": "FeatureCollection",
  "features": [
   {
-   "id": "0",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 1",
-    "another data": "not sublinear"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.9647463456577816,
@@ -19,18 +11,18 @@
       -0.6861564918314704,
       0.28116938950988823
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "0",
+   "properties": {
+    "another data": "not sublinear",
+    "data": "fid is 1"
+   },
+   "type": "Feature"
   },
   {
-   "id": "0",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 1",
-    "another data": "not sublinear"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.18916595012897686,
@@ -40,18 +32,18 @@
       -0.4213241616509029,
       0.413585554600172
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "0",
+   "properties": {
+    "another data": "not sublinear",
+    "data": "fid is 1"
+   },
+   "type": "Feature"
   },
   {
-   "id": "1",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 2",
-    "another data": "n-s"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       0.40068787618228696,
@@ -61,18 +53,18 @@
       0.4436801375752364,
       0.4256233877901977
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "1",
+   "properties": {
+    "another data": "n-s",
+    "data": "fid is 2"
+   },
+   "type": "Feature"
   },
   {
-   "id": "2",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 3",
-    "another data": "e-w"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       0.816852966466036,
@@ -82,18 +74,18 @@
       0.16337059329320702,
       0.2553740326741186
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "2",
+   "properties": {
+    "another data": "e-w",
+    "data": "fid is 3"
+   },
+   "type": "Feature"
   },
   {
-   "id": "3",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 4",
-    "another data": "sublinear"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -0.9148753224419605,
@@ -103,18 +95,18 @@
       -1.1384350816852966,
       -1.0223559759243335
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "3",
+   "properties": {
+    "another data": "sublinear",
+    "data": "fid is 4"
+   },
+   "type": "Feature"
   },
   {
-   "id": "3",
-   "type": "Feature",
-   "properties": {
-    "data": "fid is 4",
-    "another data": "sublinear"
-   },
    "geometry": {
-    "type": "LineString",
     "coordinates": [
      [
       -1.3998280309544282,
@@ -124,8 +116,16 @@
       -1.1435941530524505,
       -0.4909716251074806
      ]
-    ]
-   }
+    ],
+    "type": "LineString"
+   },
+   "id": "3",
+   "properties": {
+    "another data": "sublinear",
+    "data": "fid is 4"
+   },
+   "type": "Feature"
   }
- ]
+ ],
+ "type": "FeatureCollection"
 }
