@@ -535,7 +535,7 @@ def network(
     }
     json_data_path = general_output_path / "additional_numerical_data.json"
 
-    json_data_path.write_text(json.dumps(json_data_lists))
+    json_data_path.write_text(json.dumps(json_data_lists, sort_keys=True))
 
 
 def default_network_output_paths(
@@ -589,4 +589,4 @@ def info():
         package_location=str(Path(__file__).parent.absolute()),
         python_location=str(Path(sys.executable).absolute()),
     )
-    CONSOLE.print_json(json.dumps(information))
+    CONSOLE.print_json(json.dumps(information, sort_keys=True))

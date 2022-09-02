@@ -312,7 +312,7 @@ class Network:
             if gdf is None:
                 return None
             if isinstance(gdf, (gpd.GeoSeries, gpd.GeoDataFrame)):
-                as_json = gdf.geometry.to_json()
+                as_json = gdf.geometry.to_json(sort_keys=True)
                 assert isinstance(as_json, str)
                 return as_json
             as_wkt = gdf.wkt
@@ -1447,8 +1447,8 @@ class CachedNetwork(Network):
             # Combine jsons of trace_gdf and area_gdf + other relevant network
             # data
             network_data_as_string = (
-                str(self.trace_gdf.to_json())
-                + str(self.area_gdf.to_json())
+                str(self.trace_gdf.to_json(sort_keys=True))
+                + str(self.area_gdf.to_json(sort_keys=True))
                 + str(self.circular_target_area)
                 + str(self.snap_threshold)
             )

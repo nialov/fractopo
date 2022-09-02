@@ -1866,7 +1866,7 @@ def write_geodata(
     """
     if gdf.empty:
         # Handle empty GeoDataFrames
-        path.write_text(gdf.to_json())
+        path.write_text(gdf.to_json(sort_keys=True))
     else:
         gdf = convert_list_columns(gdf, allow=allow_list_column_transform)
 
@@ -1878,7 +1878,7 @@ def write_geodata(
     # Format geojson with indent of 1
     read_json = path.read_text()
     loaded_json = json.loads(read_json)
-    dumped_json = json.dumps(loaded_json, indent=1)
+    dumped_json = json.dumps(loaded_json, indent=1, sort_keys=True)
     path.write_text(dumped_json)
 
 
