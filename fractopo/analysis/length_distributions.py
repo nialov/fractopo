@@ -531,7 +531,7 @@ def plot_distribution_fits(
     fit: Optional[powerlaw.Fit] = None,
     fig: Optional[Figure] = None,
     ax: Optional[Axes] = None,
-    fits_to_plot: Tuple[Dist, ...] = (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW),
+    fits_to_plot: Tuple[Dist, ...] = (Dist.POWERLAW,),
 ) -> Tuple[powerlaw.Fit, Figure, Axes]:
     """
     Plot length distribution and `powerlaw` fits.
