@@ -554,6 +554,8 @@ def plot_distribution_fits(
 
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
+    assert ax is not None
+    assert fit is not None
 
     if len(length_array) == 0:
         logging.error(
@@ -616,15 +618,15 @@ def plot_distribution_fits(
             f"{round(truncated_length_array.min(), 2)} m",
             rotation=90,
             horizontalalignment="right",
-            fontsize="x-large",
+            fontsize="xx-large",
         )
 
     # Set title with exponent
     rounded_exponent = round(calculate_exponent(fit.alpha), 3)
     target = "Branches" if using_branches else "Traces"
     ax.set_title(
-        f"{label}\nPower-law Exponent for {target} = ${rounded_exponent}$",
-        fontdict=dict(fontsize="x-large"),
+        f"{label}\nPower-law Exponent ({target}) = ${rounded_exponent}$",
+        fontdict=dict(fontsize="xx-large"),
     )
 
     # Setup of ax appearance and axlims
@@ -658,6 +660,7 @@ def setup_length_dist_legend(ax_for_setup: Axes):
         prop={"size": "large"},
         framealpha=0.8,
         facecolor="white",
+        fontsize="xx-large",
     )
 
     # Setup legend line widths larger
@@ -675,12 +678,16 @@ def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
     """
     # LABELS
     label = "Branch Length $(m)$" if using_branches else "Trace Length $(m)$"
-    ax_for_setup.set_xlabel(
-        label,
+    font_props = dict(
         fontsize="xx-large",
         fontfamily="DejaVu Sans",
         style="italic",
+        fontweight="bold",
+    )
+    ax_for_setup.set_xlabel(
+        label,
         labelpad=14,
+        **font_props,
     )
     # Individual powerlaw fits are not normalized to area because they aren't
     # multiscale
@@ -688,9 +695,7 @@ def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
     prefix = "" if indiv_fit else "AN"
     ax_for_setup.set_ylabel(
         prefix + "CCM" + ccm_unit,
-        fontsize="xx-large",
-        fontfamily="DejaVu Sans",
-        style="italic",
+        **font_props,
     )
 
     # Setup x and y axis ticks and their labels
@@ -948,7 +953,7 @@ def plot_multi_distributions_and_fit(
                 f"{round(truncated_length_array.min(), 2)} m",
                 rotation=90,
                 horizontalalignment="right",
-                fontsize="small",
+                fontsize="xx-large",
                 verticalalignment="center",
             )
 
