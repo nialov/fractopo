@@ -875,6 +875,7 @@ class Network:
         self,
         label: Optional[str] = None,
         append_azimuth_set_text: bool = False,
+        add_abundance_order: bool = False,
         visualize_sets: bool = False,
         bar_color: str = "darkgrey",
         plain: bool = False,
@@ -887,6 +888,7 @@ class Network:
         return self.trace_data.plot_azimuth(
             label=label,
             append_azimuth_set_text=append_azimuth_set_text,
+            add_abundance_order=add_abundance_order,
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
@@ -897,6 +899,7 @@ class Network:
         self,
         label: Optional[str] = None,
         append_azimuth_set_text: bool = False,
+        add_abundance_order: bool = False,
         visualize_sets: bool = False,
         bar_color: str = "darkgrey",
         plain: bool = False,
@@ -909,6 +912,7 @@ class Network:
         return self.branch_data.plot_azimuth(
             label=label,
             append_azimuth_set_text=append_azimuth_set_text,
+            add_abundance_order=add_abundance_order,
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,

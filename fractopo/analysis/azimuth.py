@@ -208,7 +208,10 @@ def plot_azimuth_ax(
 
 
 def _create_azimuth_set_text(
-    length_array: np.ndarray, set_array: np.ndarray, set_names: Tuple[str, ...]
+    length_array: np.ndarray,
+    set_array: np.ndarray,
+    set_names: Tuple[str, ...],
+    add_abundance_order: bool,
 ) -> str:
     """
     Create azimuth set statistics for figure.
@@ -218,17 +221,34 @@ def _create_azimuth_set_text(
     >>> length_array = np.array([5, 5, 10, 60])
     >>> set_array = np.array([str(val) for val in [1, 1, 2, 2]])
     >>> set_names = ["1", "2"]
-    >>> print(_create_azimuth_set_text(length_array, set_array, set_names))
-    1: 12.5%
-    2: 87.5%
+    >>> print(_create_azimuth_set_text(length_array, set_array, set_names, False))
+    1 = 12.5%
+    2 = 87.5%
 
     """
+    # Sum of all length of all sets
     sum_length = length_array.sum()
+
+    # String to collect text in
     t = ""
-    for idx, set_name in enumerate(set_names):
-        total_length = sum(length_array[set_array == set_name])
-        percent = total_length / sum_length
-        text = f"{set_name}: {percent:.1%}"
+
+    # Ratio of all length for each set
+    ratios = [
+        sum(length_array[set_array == set_name]) / sum_length for set_name in set_names
+    ]
+
+    # Sorted from largest ratio to smallest
+    sorted_ratios = sorted(ratios, reverse=True)
+
+    # Abundance order where 1 has the highest ratio
+    abundance_order = [sorted_ratios.index(ratio) + 1 for ratio in ratios]
+
+    for idx, (set_name, ratio, order) in enumerate(
+        zip(set_names, ratios, abundance_order)
+    ):
+        text = f"{set_name} = {ratio:.1%}"
+        if add_abundance_order:
+            text += f" ({order}.)"
         if idx < len(set_names) - 1:
             text = text + "\n"
         t = t + text
@@ -245,43 +265,47 @@ def decorate_azimuth_ax(
     axial: bool,
     visualize_sets: bool,
     append_azimuth_set_text: bool = False,
+    add_abundance_order: bool = False,
 ):
     """
     Decorate azimuth rose plot ax.
     """
     # Title is the name of the target area or group
-    prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
+    # prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
     # title = "\n".join(wrap(f"{label}", 10))
     title = fill(label, 10)
     ax.set_title(
         title,
-        x=0.94 if axial else 1.15,
+        x=0.97 if axial else 1.15,
         y=0.8 if axial else 1.0,
-        fontsize="large",
+        fontsize="xx-large",
         fontweight="bold",
         fontfamily="DejaVu Sans",
         va="top",
-        bbox=prop_title,
+        # bbox=prop_title,
         transform=ax.transAxes,
         ha="center",
     )
-    prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
+    # prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
     # text = f"n ={len(set_array)}\n"
-    text = f"n ={len(set_array)}"
+    text = f"n = {len(set_array)}"
     if append_azimuth_set_text:
         text += "\n"
-        text = text + _create_azimuth_set_text(length_array, set_array, set_names)
+        text = text + _create_azimuth_set_text(
+            length_array, set_array, set_names, add_abundance_order=add_abundance_order
+        )
     ax.text(
-        x=0.96 if axial else 1.1,
-        y=0.3 if axial else 0.15,
+        x=0.92 if axial else 1.1,
+        y=0.03 if axial else 0.15,
         s=text,
         transform=ax.transAxes,
-        fontsize="medium",
-        weight="roman",
-        bbox=prop,
+        fontsize="large",
+        # weight="roman",
+        # bbox=prop,
         fontfamily="DejaVu Sans",
         va="top",
         ha="center",
+        ma="left",
     )
 
     # Add lines to denote azimuth set edges
@@ -300,6 +324,7 @@ def plot_azimuth_plot(
     label: str,
     plain: bool,
     append_azimuth_set_text: bool = False,
+    add_abundance_order: bool = False,
     axial: bool = True,
     visualize_sets: bool = False,
     bar_color: str = "darkgrey",
@@ -328,6 +353,7 @@ def plot_azimuth_plot(
             set_names=azimuth_set_names,
             set_ranges=azimuth_set_ranges,
             append_azimuth_set_text=append_azimuth_set_text,
+            add_abundance_order=add_abundance_order,
             axial=axial,
             visualize_sets=visualize_sets,
         )

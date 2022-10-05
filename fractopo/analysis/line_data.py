@@ -298,6 +298,7 @@ class LineData:
         self,
         label: str,
         append_azimuth_set_text: bool = False,
+        add_abundance_order: bool = False,
         visualize_sets: bool = False,
         bar_color: str = "darkgrey",
         plain: bool = False,
@@ -316,6 +317,7 @@ class LineData:
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
+            add_abundance_order=add_abundance_order,
         )
 
     def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:
