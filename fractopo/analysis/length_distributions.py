@@ -588,7 +588,7 @@ def plot_distribution_fits(
         x=full_length_array,
         y=full_ccm_array,
         s=3,
-        label=label,
+        label=f"{label} (cut)",
         alpha=0.5,
         color="gray",
         marker="x",
@@ -657,10 +657,10 @@ def setup_length_dist_legend(ax_for_setup: Axes):
         ncol=2,
         columnspacing=0.3,
         # shadow=True,
-        prop={"size": "large"},
-        framealpha=0.8,
+        prop={"size": "xx-large"},
+        framealpha=0.6,
         facecolor="white",
-        fontsize="xx-large",
+        # fontsize=40,
     )
 
     # Setup legend line widths larger
