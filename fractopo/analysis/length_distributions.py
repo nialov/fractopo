@@ -648,7 +648,7 @@ def setup_length_dist_legend(ax_for_setup: Axes):
     """
     # Setup legend
     handles, labels = ax_for_setup.get_legend_handles_labels()
-    labels = [fill(label, 13) for label in labels]
+    labels = [fill(label, 16) for label in labels]
     lgnd = ax_for_setup.legend(
         handles,
         labels,
