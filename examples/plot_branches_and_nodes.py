@@ -72,12 +72,17 @@ area.boundary.plot(ax=axes[0], color="black", label="Target Area", linestyle="da
 axes[0].set_title("Traces & Target Area")
 
 # Plot the created branches and nodes
-branches_axes = branches.plot(ax=axes[1], column="Connection", legend=True)
+branches_axes = branches.plot(ax=axes[1], column="Connection")
 nodes.plot(ax=axes[1], column="Class", zorder=10, legend=True)
 axes[1].set_title("Branches & Nodes & Area")
 
 # Plot the area boundary to the other ax as well
 area.boundary.plot(ax=axes[1], color="black", linestyle="dashed")
+
+# Set second plot boundaries to same as first
+x_min, y_min, x_max, y_max = traces.total_bounds
+axes[1].set_xlim(*axes[0].get_xlim())
+axes[1].set_ylim(*axes[0].get_ylim())
 
 # Show the plot
 plt.show()
