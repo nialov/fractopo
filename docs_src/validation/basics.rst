@@ -16,13 +16,14 @@ Y-node (See `Sanderson and Nixon,
 Alongside trace data a defined target/sample area (or areas) must be
 supplied.
 
-All spatial file types containing two-dimensional polylines (i.e. ``LineStrings``) that can be loaded with
+All spatial file types containing two-dimensional polylines (i.e.
+``LineStrings``) that can be loaded with
 `geopandas <https://geopandas.org/>`__ can be validated as trace data.
 The validation tool along with all other fractopo modules only accept
 ``geopandas.GeoDataFrame's`` as inputs (``geopandas`` easily handles
 transformation of spatial data types – shapefiles, geopackages, etc. –
-to ``GeoDataFrames`` and back). A ``GeoDataFrame`` is the inmemory representation
-of the spatial data that is modified in a Python session.
+to ``GeoDataFrames`` and back). A ``GeoDataFrame`` is the inmemory
+representation of the spatial data that is modified in a Python session.
 
 Validation
 ----------
@@ -42,8 +43,10 @@ validation error types and how manually fix the validation errors.
 
 -  Usage examples in two notebooks:
 
-   -  `Trace data validation 1 <../notebooks/fractopo_validation_1>`__
-   -  `Trace data validation 2 <../notebooks/fractopo_validation_2>`__
+   -  `Trace data validation
+      1 <../notebooks/fractopo_validation_1.html>`__
+   -  `Trace data validation
+      2 <../notebooks/fractopo_validation_2.html>`__
    -  Loading data for analysis with ``geopandas``
    -  Trace validation
    -  Visualizing found validation errors with ``geopandas`` and
