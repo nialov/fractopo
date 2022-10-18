@@ -30,13 +30,11 @@ trace validation is recommended before all analysis using ``Network``.
 
 -  Introduction to trace data validation
 
-   -  `Basics <validation/basics>`__
-   -  `Error Types <validation/errors>`__
+   -  `Basics <validation/basics.html>`__
 
--  Basic trace data validation workflows
+      -  See inside for usage example notebooks.
 
-   -  `Notebook 1 <notebooks/fractopo_validation_1>`__
-   -  `Notebook 2 <notebooks/fractopo_validation_2>`__
+   -  `Error Types <validation/errors.html>`__
 
 For trace validation also see `above guide <#trace-validation>`__ on
 ``tracevalidate`` command-line tool. After trace data validation, ``Network``

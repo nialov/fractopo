@@ -89,7 +89,7 @@ string:
 2. An overlapping Y-node i.e. a trace overlaps the trace it “is
    supposed” to end at too much (alternatively detected by
    `UnderlappingSnapValidator <#underlappingsnapvalidator>`__).
-3. :literal:`\`V NODE` <#vnodevalidator>\_\_ errors might also be
+3. `V NODE <#vnodevalidator>`__ errors might also be
    detected asMULTI JUNCTION\` errors.
 
 .. figure:: ../imgs/MultiJunctionValidator.png
@@ -172,14 +172,13 @@ slightly resulting in a dangling end. Such dangling ends might not be
 registered as Y-nodes and might cause spatial/topological analysis
 problems later.
 
-Overlapping snap might also be registered as a
-:literal:`\`MULTI JUNCTION` <#multijunctionvalidator>`_\_ error.
+Overlapping snap might also be registered as a `MULTI
+JUNCTION <#multijunctionvalidator>`__ error.
 
-.. figure:: ../imgs/UnderlappingSnapValidator.png%20%22Underlapping%20snap%20error%20examples.%22
+.. figure:: ../imgs/UnderlappingSnapValidator.png
    :alt: Underlapping snap error examples.
 
    Underlapping snap error examples.
-
 
    * [ ] Automatic fix
 
