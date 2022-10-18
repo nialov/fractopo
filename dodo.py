@@ -8,6 +8,7 @@ from pathlib import Path
 from time import strftime
 
 from doit import task_params
+from doit.tools import config_changed
 
 # Strings
 PACKAGE_NAME = "fractopo"
@@ -344,6 +345,8 @@ def task_changelog():
 def task_codespell():
     """
     Check code spelling.
+
+    TODO: Move to pre-commit
     """
     command = "nox --session codespell"
     return {
@@ -427,6 +430,31 @@ def task_tag(tag: str):
     return {
         ACTIONS: [create_changelog, use_tag],
     }
+
+
+def task_test_docker():
+    """
+    Test with docker+nix.
+    """
+    # python_version = "" if len(python) == 0 else f"-p {python}"
+    for python_version in [
+        # "python37",
+        "python38",
+        "python39",
+        "python310",
+    ]:
+        # command = f"nox --session tests_pip -p {python_version}"
+        # TODO: Generalize volume
+        # TODO: Refactor with doit utilities for using outputs of cmds
+        command_base = """
+            export STREAM=$(nix build .#{}-fractopo-test --print-out-paths) && \
+                $STREAM | docker load && \
+                docker run --rm -v /home/nialov/.cache/pypoetry:/poetry-cache layered-image:latest
+        """
+        yield {
+            NAME: python_version,
+            ACTIONS: [command_base.format(python_version)],
+        }
 
 
 # Define default tasks
