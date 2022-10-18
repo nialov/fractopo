@@ -1868,10 +1868,13 @@ def write_geodata(
         # Handle empty GeoDataFrames
         path.write_text(gdf.to_json(sort_keys=True))
     else:
+        # Convert list type columns to string.
         gdf = convert_list_columns(gdf, allow=allow_list_column_transform)
 
+        # Write to disk
         gdf.to_file(path, driver=driver)
 
+    # Only geojson output is formatted afterwards.
     if driver != GEOJSON_DRIVER:
         return
 
