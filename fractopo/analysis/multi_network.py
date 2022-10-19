@@ -43,7 +43,7 @@ class MultiNetwork(NamedTuple):
         :param random_choice: Whether to use radius or area
             as the random choice parameter.
         :param samples: How many subsamples to conduct per network.
-        :rtype: Subsamples and information on whether
+        :returns: Subsamples and information (``ProcessResult``) on whether
             subsampling succeeded for network.
         """
         return subsampling.subsample_networks(

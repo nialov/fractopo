@@ -100,10 +100,13 @@ class Network:
     Trace network.
 
     Consists of at its simplest of validated traces and a target area that
-    delineates the traces.
+    delineates the traces i.e., only ``trace_gdf`` and ``area_gdf`` parameters
+    are required to run the network analysis but results might not be correct
+    or match your expectations e.g., traces are truncated to target area
+    by default.
 
     :param trace_gdf: ``GeoDataFrame`` containing trace data
-        i.e. ``shapely.geometry.LineString's``.
+        i.e. ``shapely.geometry.LineString`` geometries.
     :param area_gdf: ``GeoDataFrame`` containing
         target area data i.e. ``(Multi)Polygon's``.
     :param name: Name the Network.
@@ -125,8 +128,9 @@ class Network:
     :param node_gdf: GeoDataFrame containing node data.
         It is recommended to let ``fractopo.Network`` determine both
         branches and nodes instead of passing them here.
-    :param censoring_area: Geometry that delineates the area in which trace
-        digitization was uncertain due to censoring caused by e.g. vegetation.
+    :param censoring_area: Polygon(s) in ``GeoDataFrame`` that delineate(s) the
+        area in which trace digitization was uncertain due to censoring caused
+        by e.g. vegetation.
     """
 
     # Base data
