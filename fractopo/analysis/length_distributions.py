@@ -669,7 +669,11 @@ def setup_length_dist_legend(ax_for_setup: Axes):
         lh.set_linewidth(3)
 
 
-def setup_ax_for_ld(ax_for_setup: Axes, using_branches: bool, indiv_fit: bool):
+def setup_ax_for_ld(
+    ax_for_setup: Axes,
+    using_branches: bool,
+    indiv_fit: bool,
+):
     """
     Configure ax for length distribution plots.
 
@@ -910,7 +914,11 @@ def plot_multi_distributions_and_fit(
 
     # Set title with powerlaw exponent and score
     ax.set_title(
-        f"Exponent = {polyfit.m_value:.2f} and Score ({scorer_str}) = {score_descriptive}"
+        (
+            f"Exponent = {polyfit.m_value:.2f} and"
+            f" Score ({scorer_str}) = {score_descriptive}"
+        ),
+        fontsize="x-large",
     )
 
     full_ccm_array_normed_concat = np.concatenate(full_ccm_array_normed_all)
@@ -989,7 +997,11 @@ def plot_multi_distributions_and_fit(
     )
 
     # Setup axes
-    setup_ax_for_ld(ax_for_setup=ax, using_branches=using_branches, indiv_fit=False)
+    setup_ax_for_ld(
+        ax_for_setup=ax,
+        using_branches=using_branches,
+        indiv_fit=False,
+    )
     _setup_length_plot_axlims(
         ax=ax,
         length_array=np.concatenate(full_length_array_all),
