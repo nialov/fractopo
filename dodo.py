@@ -457,6 +457,41 @@ def task_test_docker():
         }
 
 
+def task_test_tmp_dir():
+    """
+    Test with nix+temporary directory.
+    """
+    cache_dir = Path(".cache/")
+    # python_version = "" if len(python) == 0 else f"-p {python}"
+    for python_version in [
+        # "python37",
+        "python38",
+        "python39",
+        "python310",
+    ]:
+        python_cache_dir = cache_dir / f"{PACKAGE_NAME}-{python_version}"
+        python_cache_dir_diff = (python_cache_dir / "repository.diff").resolve()
+        # command = f"nox --session tests_pip -p {python_version}"
+        # TODO: Generalize volume
+        # TODO: Refactor with doit utilities for using outputs of cmds
+
+        yield {
+            NAME: python_version,
+            ACTIONS: [
+                f"rm -rf {python_cache_dir}",
+                f"mkdir -p {python_cache_dir}",
+                f"git clone . {python_cache_dir}",
+                f"git diff HEAD > {python_cache_dir_diff}",
+                f"""
+                cd {python_cache_dir} && \
+                        git apply {python_cache_dir_diff} && \
+                        nix develop --unset PATH .#{python_version} -c poetry install && \
+                        nix develop --unset PATH .#{python_version} -c poetry run pytest --collect-only
+                 """,
+            ],
+        }
+
+
 # Define default tasks
 DOIT_CONFIG = {
     "default_tasks": [

@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     let
       # Create function to generate the poetry-included shell with single
       # input: pkgs
@@ -52,47 +52,85 @@
       # Use flake-utils to declare the development shell for each system nix
       # supports e.g. x86_64-linux and x86_64-darwin (but no guarantees are
       # given that it works except for x86_64-linux, which I use).
-    in flake-utils.lib.eachDefaultSystem (system:
+    in flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ]
+    (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         # Pass pkgs input to poetry-wrapped-generate function which then
         # returns the poetry-wrapped package.
-        poetry-wrapped = poetry-wrapped-generate {
-          inherit pkgs;
-          pythons = with pkgs; [ python39 ];
-          poetry = pkgs.python39Packages.poetry;
-        };
+        # poetry-wrapped = poetry-wrapped-generate {
+        #   inherit pkgs;
+        #   pythons = with pkgs; [ python39 ];
+        #   poetry = pkgs.python39Packages.poetry;
+        # };
       in {
-        devShells.default = pkgs.mkShell {
-          # The development environment can contain any tools from nixpkgs
-          # alongside poetry Here we add e.g. pre-commit and pandoc
-          packages = with pkgs; [ pre-commit pandoc poetry-wrapped ];
+        devShells = let
+          mkPoetryShell = pythonv:
+            let
+              poetry-wrapped = poetry-wrapped-generate {
+                inherit pkgs;
+                pythons = [ pythonv ];
+              };
+            in pkgs.mkShell {
+              # The development environment can contain any tools from nixpkgs
+              # alongside poetry Here we add e.g. pre-commit and pandoc
+              packages = with pkgs; [
+                pre-commit
+                pandoc
+                poetry-wrapped
+                git
+                (doit.overrideAttrs (prev: {
+                  propagatedBuildInputs = prev.propagatedBuildInputs
+                    ++ [ python3Packages.tomli ];
+                }))
+              ];
 
-          envrc_contents = ''
-            use flake
-          '';
+              envrc_contents = ''
+                use flake
+              '';
 
-          # Define a shellHook that is called every time that development shell
-          # is entered. It installs pre-commit hooks and prints a message about
-          # how to install python dependencies with poetry. Lastly, it
-          # generates an '.envrc' file for use with 'direnv' which I recommend
-          # using for easy usage of the development shell
-          shellHook = ''
-            [[ -a .pre-commit-config.yaml ]] && \
-              echo "Installing pre-commit hooks"; pre-commit install
-            ${pkgs.pastel}/bin/pastel paint -n green "
-            Run poetry install to install environment from poetry.lock
-            "
-            [[ ! -a .envrc ]] && echo -n "$envrc_contents" > .envrc
-          '';
-        };
-        checks = {
-          test-poetry-wrapped = pkgs.runCommand "test-poetry-wrapped" { } ''
-            ${poetry-wrapped}/bin/poetry --help
-            ${poetry-wrapped}/bin/poetry init -n
-            ${poetry-wrapped}/bin/poetry check
-            mkdir $out
-          '';
+              # Define a shellHook that is called every time that development shell
+              # is entered. It installs pre-commit hooks and prints a message about
+              # how to install python dependencies with poetry. Lastly, it
+              # generates an '.envrc' file for use with 'direnv' which I recommend
+              # using for easy usage of the development shell
+              shellHook = ''
+                [[ -a .pre-commit-config.yaml ]] && \
+                  echo "Installing pre-commit hooks"; pre-commit install
+                [[ ! -a .envrc ]] && echo -n "$envrc_contents" > .envrc
+                ${poetry-wrapped}/bin/poetry env use ${pythonv.interpreter}
+                ${pkgs.pastel}/bin/pastel paint -n green "
+                Run poetry install to install environment from poetry.lock
+                "
+              '';
+            };
+          checks = let
+            mkCheck = pythonv:
+              let
+                poetry-wrapped = poetry-wrapped-generate {
+                  inherit pkgs;
+                  pythons = [ pythonv ];
+                };
+              in {
+                test-poetry-wrapped =
+                  pkgs.runCommand "test-poetry-wrapped" { } ''
+                    ${poetry-wrapped}/bin/poetry --help
+                    ${poetry-wrapped}/bin/poetry init -n
+                    ${poetry-wrapped}/bin/poetry check
+                    mkdir $out
+                  '';
+              };
+          in {
+            python38 = mkCheck pkgs.python38;
+            python39 = mkCheck pkgs.python39;
+            python310 = mkCheck pkgs.python310;
+
+          };
+        in {
+          python38 = mkPoetryShell pkgs.python38;
+          python39 = mkPoetryShell pkgs.python39;
+          python310 = mkPoetryShell pkgs.python310;
+          default = self.devShells."${system}".python39;
         };
         packages = let
           genImg = pythonv:
