@@ -244,3 +244,21 @@ def test_plot_mld_optimized(distributions):
     assert isinstance(fig, Figure) and isinstance(ax, Axes)
 
     plt.close()
+
+
+@pytest.mark.parametrize("using_branches", (True, False))
+@pytest.mark.parametrize(
+    "length_array,label", [*Helpers.test_describe_powerlaw_fit_params]
+)
+def test_plot_distribution_fits(
+    length_array: np.ndarray, label: str, using_branches: bool
+):
+    """
+    Test plot_distribution_fits.
+    """
+    fit, fig, ax = length_distributions.plot_distribution_fits(
+        length_array=length_array, label=label, using_branches=using_branches
+    )
+    assert isinstance(fit, length_distributions.SilentFit)
+    assert isinstance(fig, Figure)
+    assert isinstance(ax, Axes)
