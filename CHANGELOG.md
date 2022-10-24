@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.4.1 (2022-10-24)
+
+### New Features
+
+-   (cli): Save additional json data to output directory
+    when running `fractopo network` for possible post-processing
+    needs.
+
+### Fixes
+
+-   (network): General fixes to `fractopo network` command-line
+    entrypoint.
+
+-   Sort keys in any json output.
+
+-   (network): Allow `MultiLineString` geometries when possible.
+    Topologically non-valid data should be analyzeable with the
+    best effort possible.
+
+-   (branches_and_nodes): Fixes small logging bug.
+
+Full set of changes:
+[`v0.4.0...v0.4.1`](https://github.com/nialov/fractopo/compare/v0.4.0...v0.4.1)
+
 ## v0.4.0 (2022-06-17)
 
 ### New Features
