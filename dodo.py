@@ -8,6 +8,7 @@ from pathlib import Path
 from time import strftime
 
 from doit import task_params
+from doit.tools import config_changed
 
 # Strings
 PACKAGE_NAME = "fractopo"
@@ -20,6 +21,7 @@ TASK_DEP = "task_dep"
 TARGETS = "targets"
 NAME = "name"
 PARAMS = "params"
+UP_TO_DATE = "uptodate"
 PYTHON_VERSIONS = ["3.8", "3.9", "3.10"]
 DEFAULT_PYTHON_VERSION = "3.8"
 
@@ -43,6 +45,7 @@ DOCS_FILES = [
     ],
     README_PATH,
 ]
+DOCS_APIDOC_PATH = DOCS_SRC_PATH / "apidoc"
 
 ## Build
 DEV_REQUIREMENTS_PATH = Path("requirements.txt")
@@ -95,9 +98,14 @@ def task_requirements():
     """
     command = "nox --session requirements"
     return {
-        FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
+        FILE_DEP: [
+            POETRY_LOCK_PATH,
+            NOXFILE_PATH,
+            # DODO_PATH,
+        ],
         ACTIONS: [command],
         TARGETS: [DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -107,18 +115,20 @@ def task_pre_commit():
 
     pre-commit is the main method for formatting documentation and code.
     """
+    cmds = [
+        "pre-commit install",
+        "pre-commit install --hook-type commit-msg",
+        "pre-commit run --all-files",
+    ]
     return {
-        ACTIONS: [
-            "pre-commit install",
-            "pre-commit install --hook-type commit-msg",
-            "pre-commit run --all-files",
-        ],
+        ACTIONS: cmds,
         FILE_DEP: [
             *PYTHON_ALL_FILES,
             POETRY_LOCK_PATH,
             PRE_COMMIT_CONFIG_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
+        UP_TO_DATE: [config_changed(dict(cmds=cmds))],
     }
 
 
@@ -134,10 +144,11 @@ def task_lint():
             *DOCS_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
+        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_apidocs)],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -151,10 +162,11 @@ def task_update_version():
             *PYTHON_SRC_FILES,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
         ACTIONS: [command],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -165,24 +177,51 @@ def task_ci_test():
     Installs with pip, tests with pytest and checks coverage with coverage.
     """
     # python_version = "" if len(python) == 0 else f"-p {python}"
+    command_base = "nox --session tests_pip -p {}"
     for python_version in PYTHON_VERSIONS:
-        command = f"nox --session tests_pip -p {python_version}"
+        command = command_base.format(python_version)
         yield {
             NAME: python_version,
             FILE_DEP: [
                 *PYTHON_SRC_FILES,
                 *PYTHON_TEST_FILES,
                 DEV_REQUIREMENTS_PATH,
-                DODO_PATH,
+                # DODO_PATH,
             ],
             TASK_DEP: [resolve_task_name(task_pre_commit)],
             ACTIONS: [command],
+            UP_TO_DATE: [config_changed(dict(command_base=command_base))],
             **(
                 {TARGETS: [COVERAGE_SVG_PATH]}
                 if python_version == DEFAULT_PYTHON_VERSION
                 else dict()
             ),
         }
+
+
+def task_apidocs():
+    """
+    Make apidoc documentation.
+
+    Done separately to allow linting of them.
+    """
+    command = f"nox --session apidocs"
+    return {
+        ACTIONS: [command],
+        FILE_DEP: [
+            *PYTHON_ALL_FILES,
+            *DOCS_FILES,
+            DOCS_REQUIREMENTS_PATH,
+            NOXFILE_PATH,
+            # DODO_PATH,
+        ],
+        TASK_DEP: [
+            resolve_task_name(task_pre_commit),
+            resolve_task_name(task_update_version),
+        ],
+        TARGETS: [DOCS_APIDOC_PATH],
+        UP_TO_DATE: [config_changed(dict(command=command))],
+    }
 
 
 def task_docs():
@@ -197,14 +236,16 @@ def task_docs():
             *DOCS_FILES,
             DOCS_REQUIREMENTS_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
             resolve_task_name(task_update_version),
+            resolve_task_name(task_apidocs),
         ],
         TARGETS: [DOCS_PATH],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -219,10 +260,11 @@ def task_notebooks():
             *NOTEBOOKS,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
         ACTIONS: [command],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -233,15 +275,17 @@ def task_build():
     Runs always without strict dependencies or targets.
     """
     # python_version = "" if len(python) == 0 else f"-p {python}"
+    command_base = "nox --session build -p {}"
     for python_version in [DEFAULT_PYTHON_VERSION]:
         # command = f"nox --session tests_pip -p {python_version}"
-        command = f"nox --session build -p {python_version}"
+        command = command_base.format(python_version)
         yield {
             NAME: python_version,
             ACTIONS: [command],
             TASK_DEP: [
                 resolve_task_name(task_pre_commit),
             ],
+            UP_TO_DATE: [config_changed(dict(command_base=command_base))],
         }
 
 
@@ -257,9 +301,10 @@ def task_typecheck():
             *PYTHON_SRC_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -276,8 +321,9 @@ def task_performance_profile():
             *PYTHON_TEST_FILES,
             DEV_REQUIREMENTS_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -335,9 +381,10 @@ def task_changelog():
             *PYTHON_SRC_FILES,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TARGETS: [CHANGELOG_PATH],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -352,9 +399,10 @@ def task_codespell():
             *PYTHON_ALL_FILES,
             POETRY_LOCK_PATH,
             NOXFILE_PATH,
-            DODO_PATH,
+            # DODO_PATH,
         ],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
+        UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
 
@@ -426,6 +474,7 @@ def task_tag(tag: str):
     create_changelog = "nox --session changelog -- %(tag)s"
     return {
         ACTIONS: [create_changelog, use_tag],
+        UP_TO_DATE: [config_changed(dict(create_changelog=create_changelog))],
     }
 
 

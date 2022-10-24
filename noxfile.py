@@ -230,6 +230,25 @@ def requirements(session):
     )
 
 
+def _api_docs(session):
+    """
+    Make apidoc documentation.
+    """
+    # Install from docs_src/requirements.txt that has been synced with docs
+    # requirements
+    session.install(".")
+    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
+
+    # Remove old apidocs
+    if DOCS_APIDOC_DIR_PATH.exists():
+        rmtree(DOCS_APIDOC_DIR_PATH)
+
+    # Create apidocs
+    session.run(
+        "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
+    )
+
+
 def _docs(session, auto_build: bool):
     """
     Make documentation.
@@ -241,18 +260,18 @@ def _docs(session, auto_build: bool):
     session.install(".")
     session.install("-r", str(DOCS_REQUIREMENTS_PATH))
 
-    # Remove old apidocs
-    if DOCS_APIDOC_DIR_PATH.exists():
-        rmtree(DOCS_APIDOC_DIR_PATH)
+    # # Remove old apidocs
+    # if DOCS_APIDOC_DIR_PATH.exists():
+    #     rmtree(DOCS_APIDOC_DIR_PATH)
 
-    # Remove all old docs
-    if DOCS_PATH.exists():
-        rmtree(DOCS_PATH)
+    # # Remove all old docs
+    # if DOCS_PATH.exists():
+    #     rmtree(DOCS_PATH)
 
-    # Create apidocs
-    session.run(
-        "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
-    )
+    # # Create apidocs
+    # session.run(
+    #     "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
+    # )
 
     try:
         # Create docs in ./docs folder
@@ -276,6 +295,14 @@ def _docs(session, auto_build: bool):
         # Clean up sphinx-gallery folder in ./docs_src/auto_examples
         if DOCS_AUTO_EXAMPLES_PATH.exists():
             rmtree(DOCS_AUTO_EXAMPLES_PATH)
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def apidocs(session):
+    """
+    Make apidoc documentation.
+    """
+    _api_docs(session=session)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
