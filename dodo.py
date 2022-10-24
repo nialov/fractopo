@@ -285,7 +285,6 @@ def task_build():
             TASK_DEP: [
                 resolve_task_name(task_pre_commit),
             ],
-            UP_TO_DATE: [config_changed(dict(command_base=command_base))],
         }
 
 
