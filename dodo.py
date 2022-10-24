@@ -474,7 +474,6 @@ def task_tag(tag: str):
     create_changelog = "nox --session changelog -- %(tag)s"
     return {
         ACTIONS: [create_changelog, use_tag],
-        UP_TO_DATE: [config_changed(dict(create_changelog=create_changelog))],
     }
 
 
