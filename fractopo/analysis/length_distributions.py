@@ -588,7 +588,7 @@ def plot_distribution_fits(
         x=full_length_array,
         y=full_ccm_array,
         s=3,
-        label=f"{label} (cut)",
+        # label=f"{label} (cut)",
         alpha=0.5,
         color="gray",
         marker="x",
@@ -610,7 +610,7 @@ def plot_distribution_fits(
             color="black",
             alpha=0.6,
             label="Cut-Off",
-            linewidth=1.5,
+            linewidth=3.5,
         )
         ax.text(
             truncated_length_array_min,
@@ -927,6 +927,7 @@ def plot_multi_distributions_and_fit(
     color_cycle = cycle(sns.color_palette("dark", 5))
 
     # Plot length distributions
+    included_cut_off_label = False
     for (
         name,
         truncated_length_array,
@@ -946,13 +947,16 @@ def plot_multi_distributions_and_fit(
         if len(truncated_length_array) > 0:
             # Indicate the cut-off with a dotted vertical line
             truncated_length_array_min = truncated_length_array.min()
+            cut_off_legend_kwarg = dict(label="Cut-Off(s)")
             ax.axvline(
                 truncated_length_array_min,
                 linestyle="dotted",
                 color="black",
                 alpha=0.6,
-                linewidth=1.5,
+                linewidth=3.5,
+                **(cut_off_legend_kwarg if not included_cut_off_label else dict()),
             )
+            included_cut_off_label = True
 
             # Also indicate cut-off value, embedded into plot
             ax.text(
