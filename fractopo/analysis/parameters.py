@@ -13,7 +13,7 @@ from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage import gaussian_filter
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.general import (
