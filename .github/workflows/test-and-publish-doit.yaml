@@ -20,5 +20,10 @@ jobs:
       - uses: cachix/install-nix-action@v17
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+      - name: Cache poetry cache-dir
+        uses: actions/cache@v2
+        with:
+          path: $HOME/.cache/pypoetry
+          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}
       - name: Test with doit -> nix
         run: nix develop -c doit -v 3 test_tmp_dir:python${{ matrix.python-version }}
