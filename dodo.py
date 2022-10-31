@@ -8,7 +8,6 @@ from pathlib import Path
 from time import strftime
 
 from doit import task_params
-from doit.tools import config_changed
 
 # Strings
 PACKAGE_NAME = "fractopo"
@@ -481,12 +480,13 @@ def task_test_tmp_dir():
                 f"rm -rf {python_cache_dir}",
                 f"mkdir -p {python_cache_dir}",
                 f"git clone . {python_cache_dir}",
+                f"touch {python_cache_dir_diff}",
                 f"git diff HEAD > {python_cache_dir_diff}",
                 f"""
                 cd {python_cache_dir} && \
-                        git apply {python_cache_dir_diff} && \
+                        git apply --allow-empty {python_cache_dir_diff} && \
                         nix develop --unset PATH .#{python_version} -c poetry install && \
-                        nix develop --unset PATH .#{python_version} -c poetry run pytest --collect-only
+                        nix develop --unset PATH .#{python_version} -c poetry run pytest
                  """,
             ],
         }
