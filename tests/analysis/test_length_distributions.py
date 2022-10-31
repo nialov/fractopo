@@ -247,17 +247,24 @@ def test_plot_mld_optimized(distributions):
 
 
 @pytest.mark.parametrize("using_branches", (True, False))
+@pytest.mark.parametrize("use_probability_density_function", (True, False))
 @pytest.mark.parametrize(
     "length_array,label", [*Helpers.test_describe_powerlaw_fit_params]
 )
 def test_plot_distribution_fits(
-    length_array: np.ndarray, label: str, using_branches: bool
+    length_array: np.ndarray,
+    label: str,
+    using_branches: bool,
+    use_probability_density_function: bool,
 ):
     """
     Test plot_distribution_fits.
     """
     fit, fig, ax = length_distributions.plot_distribution_fits(
-        length_array=length_array, label=label, using_branches=using_branches
+        length_array=length_array,
+        label=label,
+        using_branches=using_branches,
+        use_probability_density_function=use_probability_density_function,
     )
     assert isinstance(fit, length_distributions.SilentFit)
     assert isinstance(fig, Figure)
