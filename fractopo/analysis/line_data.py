@@ -282,6 +282,7 @@ class LineData:
     def plot_lengths(
         self,
         label: str,
+        use_probability_density_function: bool,
         fit: Optional[powerlaw.Fit] = None,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:
         """
@@ -292,6 +293,7 @@ class LineData:
             label=label,
             fit=self.automatic_fit if fit is None else fit,
             using_branches=self.using_branches,
+            use_probability_density_function=use_probability_density_function,
         )
 
     def plot_azimuth(
@@ -357,6 +359,7 @@ class LineData:
 
     def plot_azimuth_set_lengths(
         self,
+        use_probability_density_function: bool = False,
     ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
         """
         Plot azimuth set length distributions with fits.
@@ -372,6 +375,7 @@ class LineData:
                 set_lengths,
                 label=azimuth_set_name,
                 using_branches=self.using_branches,
+                use_probability_density_function=use_probability_density_function,
             )
 
             # Collect
