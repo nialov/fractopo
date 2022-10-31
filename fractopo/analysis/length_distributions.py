@@ -479,16 +479,22 @@ def plot_fit_on_ax(
     ax: Axes,
     fit: powerlaw.Fit,
     fit_distribution: Dist,
+    use_probability_density_function: bool,
 ) -> None:
     """
     Plot powerlaw model to ax.
     """
+    plot_func = "plot_ccdf" if not use_probability_density_function else "plot_pdf"
     if fit_distribution == Dist.POWERLAW:
-        fit.power_law.plot_ccdf(ax=ax, label="Powerlaw", linestyle="--", color="red")
+        getattr(fit.power_law, plot_func)(
+            ax=ax, label="Powerlaw", linestyle="--", color="red"
+        )
     elif fit_distribution == Dist.LOGNORMAL:
-        fit.lognormal.plot_ccdf(ax=ax, label="Lognormal", linestyle="--", color="lime")
+        getattr(fit.lognormal, plot_func)(
+            ax=ax, label="Lognormal", linestyle="--", color="lime"
+        )
     elif fit_distribution == Dist.EXPONENTIAL:
-        fit.exponential.plot_ccdf(
+        getattr(fit.exponential, plot_func)(
             ax=ax, label="Exponential", linestyle="--", color="blue"
         )
     else:
@@ -527,6 +533,7 @@ def plot_distribution_fits(
     length_array: np.ndarray,
     label: str,
     using_branches: bool,
+    use_probability_density_function: bool,
     cut_off: Optional[float] = None,
     fit: Optional[powerlaw.Fit] = None,
     fig: Optional[Figure] = None,
@@ -565,18 +572,33 @@ def plot_distribution_fits(
         return fit, fig, ax
 
     # Get the x, y data from fit
-    truncated_length_array, ccm_array = fit.ccdf()
-    full_length_array, full_ccm_array = fit.ccdf(original_data=True)
+    # y values are either the complementary cumulative distribution function
+    # or the probability density function
+    # Depends on use_probability_density_function boolean
+    if not use_probability_density_function:
+        # complementary cumulative distribution
+        truncated_length_array, y_array = fit.ccdf()
+        full_length_array, full_y_array = fit.ccdf(original_data=True)
+    else:
+        # probability density function
+        bin_edges, y_array = fit.pdf()
+        full_bin_edges, full_y_array = fit.pdf(original_data=True)
+        # fit.pdf returns the bin edges. These need to be transformed to
+        # centers for plotting.
+        truncated_length_array = (bin_edges[:-1] + bin_edges[1:]) / 2.0
+        full_length_array = (full_bin_edges[:-1] + full_bin_edges[1:]) / 2.0
 
+    assert len(truncated_length_array) == len(y_array)
+    assert len(full_length_array) == len(full_y_array)
     # Normalize full_ccm_array to the truncated ccm_array
-    full_ccm_array = full_ccm_array / (
-        full_ccm_array[len(full_ccm_array) - len(ccm_array)] / ccm_array.max()
+    full_y_array = full_y_array / (
+        full_y_array[len(full_y_array) - len(y_array)] / y_array.max()
     )
 
     # Plot truncated length scatter plot
     ax.scatter(
         x=truncated_length_array,
-        y=ccm_array,
+        y=y_array,
         s=25,
         label=label,
         alpha=1.0,
@@ -586,7 +608,7 @@ def plot_distribution_fits(
     # Plot full length scatter plot with different color and transparency
     ax.scatter(
         x=full_length_array,
-        y=full_ccm_array,
+        y=full_y_array,
         s=3,
         # label=f"{label} (cut)",
         alpha=0.5,
@@ -597,13 +619,18 @@ def plot_distribution_fits(
 
     # Plot the actual fits (powerlaw, exp...)
     for fit_distribution in fits_to_plot:
-        plot_fit_on_ax(ax, fit, fit_distribution)
+        plot_fit_on_ax(
+            ax,
+            fit,
+            fit_distribution,
+            use_probability_density_function=use_probability_density_function,
+        )
 
     # Plot cut-off if applicable
     plot_axvline = cut_off is None or cut_off != 0.0
     if plot_axvline:
         # Indicate cut-off if cut-off is not given as 0.0
-        truncated_length_array_min = truncated_length_array.min()
+        truncated_length_array_min = min((truncated_length_array.min(), fit.xmin))
         ax.axvline(
             truncated_length_array_min,
             linestyle="dotted",
@@ -614,8 +641,8 @@ def plot_distribution_fits(
         )
         ax.text(
             truncated_length_array_min,
-            ccm_array.min(),
-            f"{round(truncated_length_array.min(), 2)} m",
+            y_array.min(),
+            f"{round(truncated_length_array_min, 2)} m",
             rotation=90,
             horizontalalignment="right",
             fontsize="xx-large",
@@ -630,11 +657,16 @@ def plot_distribution_fits(
     )
 
     # Setup of ax appearance and axlims
-    setup_ax_for_ld(ax, using_branches=using_branches, indiv_fit=True)
+    setup_ax_for_ld(
+        ax,
+        using_branches=using_branches,
+        indiv_fit=True,
+        use_probability_density_function=use_probability_density_function,
+    )
     _setup_length_plot_axlims(
         ax=ax,
         length_array=truncated_length_array,
-        ccm_array=ccm_array,
+        ccm_array=y_array,
     )
 
     return fit, fig, ax
@@ -673,12 +705,16 @@ def setup_ax_for_ld(
     ax_for_setup: Axes,
     using_branches: bool,
     indiv_fit: bool,
+    use_probability_density_function: bool,
 ):
     """
     Configure ax for length distribution plots.
 
     :param ax_for_setup: Ax to setup.
     :param using_branches: Are the lines in the axis branches or traces.
+    :param indiv_fit: Is the plot single-scale or multi-scale.
+    :param use_probability_density_function: Whether to use complementary
+           cumulative distribution function
     """
     # LABELS
     label = "Branch Length $(m)$" if using_branches else "Trace Length $(m)$"
@@ -697,8 +733,10 @@ def setup_ax_for_ld(
     # multiscale
     ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
     prefix = "" if indiv_fit else "AN"
+    function_name = "CCM" if not use_probability_density_function else "PDF"
     ax_for_setup.set_ylabel(
-        prefix + "CCM" + ccm_unit,
+        f"{prefix}{function_name} {ccm_unit}",
+        # prefix + function_name + ccm_unit,
         **font_props,
     )
 
@@ -894,6 +932,8 @@ def plot_multi_distributions_and_fit(
     """
     # Start making plot
     fig, ax = plt.subplots(figsize=(7, 7))
+    assert isinstance(ax, Axes)
+    assert isinstance(fig, Figure)
 
     # Determine scorer name
     # If not found in SCORER_NAMES, the __name__ of the scorer function is used
@@ -1005,6 +1045,7 @@ def plot_multi_distributions_and_fit(
         ax_for_setup=ax,
         using_branches=using_branches,
         indiv_fit=False,
+        use_probability_density_function=False,
     )
     _setup_length_plot_axlims(
         ax=ax,

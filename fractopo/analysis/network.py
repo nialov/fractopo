@@ -853,17 +853,27 @@ class Network:
         )
 
     def plot_trace_lengths(
-        self, label: Optional[str] = None, fit: Optional[powerlaw.Fit] = None
+        self,
+        label: Optional[str] = None,
+        fit: Optional[powerlaw.Fit] = None,
+        use_probability_density_function: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
         """
         Plot trace length distribution with `powerlaw` fits.
         """
         label = self.name if label is None else label
-        return self.trace_data.plot_lengths(label=label, fit=fit)
+        return self.trace_data.plot_lengths(
+            label=label,
+            fit=fit,
+            use_probability_density_function=use_probability_density_function,
+        )
 
     @requires_topology
     def plot_branch_lengths(
-        self, label: Optional[str] = None, fit: Optional[powerlaw.Fit] = None
+        self,
+        label: Optional[str] = None,
+        fit: Optional[powerlaw.Fit] = None,
+        use_probability_density_function: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
         """
         Plot branch length distribution with `powerlaw` fits.
@@ -873,6 +883,7 @@ class Network:
         return self.branch_data.plot_lengths(
             label=label,
             fit=fit,
+            use_probability_density_function=use_probability_density_function,
         )
 
     def plot_trace_azimuth(
