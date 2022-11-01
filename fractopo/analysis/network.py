@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from functools import wraps
 from hashlib import sha256
 from pathlib import Path
+from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -1441,6 +1442,14 @@ class CachedNetwork(Network):
 
         Uses ``sha256`` hexdigest to hash the network data.
         """
+        logging.error(
+            dedent(
+                """
+            CachedNetwork is deprecated as joblib provided efficient disk-caching.
+            It will be removed in a future update.
+            """.strip()
+            )
+        )
         branch_gdf_empty = self.branch_gdf.empty
         node_gdf_empty = self.node_gdf.empty
         if not branch_gdf_empty or not node_gdf_empty:
