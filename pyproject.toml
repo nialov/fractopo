@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.4.1"
+version = "0.4.1.post10.dev0+256e31d"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -84,7 +84,6 @@ jupyterlab = "*"
 json5 = "*"
 nbstripout = "*"
 nox = "*"
-pre-commit = "*"
 pyinstrument = "*"
 pytest = "*"
 pytest-regressions = "==2.2.0"
