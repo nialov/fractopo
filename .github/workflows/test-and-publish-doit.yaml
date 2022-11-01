@@ -30,9 +30,9 @@ jobs:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Resolve absolute python version (debug)
@@ -44,7 +44,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install nox doit toml pre-commit
       - name: Cache .nox and .doit.db
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             .nox
@@ -70,9 +70,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
     needs: [pytest-coverage-doit]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 🐍 ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -82,7 +82,7 @@ jobs:
       - name: Install pandoc
         run: sudo apt install pandoc
       - name: Cache .nox and .doit.db
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           # We can cache .doit.db and it will be significant as
           # most doit util tasks are run here in the same github actions job
@@ -118,7 +118,7 @@ jobs:
     needs: [pytest-coverage-doit, doit]
     name: Release on GitHub
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Create incremental changelog
         run: >
           cat CHANGELOG.md
