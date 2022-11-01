@@ -28,6 +28,7 @@ from fractopo.general import (
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     GEOMETRY_COLUMN,
+    JOBLIB_CACHE,
     CC_branch,
     CE_branch,
     CI_branch,
@@ -905,6 +906,7 @@ def report_snapping_loop(loops: int, allowed_loops: int):
         )
 
 
+@JOBLIB_CACHE.cache
 def branches_and_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],

@@ -43,6 +43,7 @@ from fractopo.general import (
     CENSORING,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
+    DEFAULT_FRACTOPO_CACHE_PATH,
     NAME,
     RADIUS,
     RELATIVE_CENSORING,
@@ -68,8 +69,6 @@ from fractopo.general import (
     write_geodata,
     write_geodataframe,
 )
-
-DEFAULT_NETWORK_CACHE_PATH = Path(".fractopo_cache")
 
 
 def requires_topology(func: Callable) -> Callable:
@@ -131,6 +130,8 @@ class Network:
     :param censoring_area: Polygon(s) in ``GeoDataFrame`` that delineate(s) the
         area in which trace digitization was uncertain due to censoring caused
         by e.g. vegetation.
+    :param cache_results: Whether to use joblib memoize to disk-cache computationally
+        expensive results.
     """
 
     # Base data
@@ -181,6 +182,8 @@ class Network:
     node_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame()
 
     censoring_area: gpd.GeoDataFrame = gpd.GeoDataFrame()
+
+    cache_results: bool = True
 
     # Private caching attributes
     # ==========================
@@ -827,9 +830,9 @@ class Network:
         """
         if branches is None or nodes is None:
             branches, nodes = branches_and_nodes(
-                self.trace_gdf,
-                self.area_gdf,
-                self.snap_threshold,
+                traces=self.trace_gdf,
+                areas=self.area_gdf,
+                snap_threshold=self.snap_threshold,
                 already_clipped=self.truncate_traces,
                 # unary_size_threshold=self.unary_size_threshold,
             )
@@ -1134,6 +1137,8 @@ class Network:
         """
         assert all(isinstance(val, Polygon) for val in sampled_grid.geometry.values)
         fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+        assert isinstance(fig, Figure)
+        assert isinstance(ax, Axes)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.1)
         sampled_grid.plot(
@@ -1423,7 +1428,7 @@ class CachedNetwork(Network):
     A naive implementation of a cache for the topology of a ``Network``.
     """
 
-    network_cache_path: Path = DEFAULT_NETWORK_CACHE_PATH
+    network_cache_path: Path = DEFAULT_FRACTOPO_CACHE_PATH
     determine_branches_nodes: bool = True
     _cache_hit: bool = False
 

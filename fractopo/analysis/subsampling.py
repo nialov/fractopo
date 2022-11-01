@@ -53,6 +53,7 @@ def subsample_networks(
     ]
 
     # Gather subsamples with multiprocessing
+    # TODO: Use joblib Parallel instead?
     subsamples = general.multiprocess(
         function_to_call=create_sample,
         keyword_arguments=subsamplers,

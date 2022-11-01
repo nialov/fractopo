@@ -4,6 +4,7 @@ Contains general calculation and plotting tools.
 import json
 import logging
 import math
+import os
 import random
 from bisect import bisect
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -22,6 +23,7 @@ import pandas as pd
 import pygeos
 import sklearn.metrics as sklm
 from geopandas.sindex import PyGEOSSTRTreeIndex
+from joblib import Memory
 from matplotlib import patheffects as path_effects
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -91,6 +93,13 @@ ParameterValuesType = Dict[str, Union[float, int, str]]
 ParameterListType = List[ParameterValuesType]
 
 MINIMUM_LINE_LENGTH = 1e-18
+
+DEFAULT_FRACTOPO_CACHE_PATH = Path(".fractopo_cache")
+
+JOBLIB_CACHE = Memory(
+    DEFAULT_FRACTOPO_CACHE_PATH,
+    verbose=int(os.environ.get("JOBLIC_CACHE_VERBOSITY", 0)),
+)
 
 
 @dataclass
@@ -702,6 +711,7 @@ def point_to_xy(point: Point) -> Tuple[float, float]:
     return (x, y)
 
 
+@JOBLIB_CACHE.cache
 def determine_general_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame]
 ) -> Tuple[List[Tuple[Point, ...]], List[Tuple[Point, ...]]]:
@@ -875,6 +885,7 @@ def flatten_tuples(
     return flattened_idx_reference, flattened_tuples
 
 
+@JOBLIB_CACHE.cache
 def determine_node_junctions(
     nodes: List[Tuple[Point, ...]],
     snap_threshold: float,

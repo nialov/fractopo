@@ -170,3 +170,4 @@ docs_src/auto_examples/
 # direnv rc. it is created by nix develop
 .direnv
 .envrc
+.fractopo_cache
