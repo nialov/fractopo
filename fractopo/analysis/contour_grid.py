@@ -7,6 +7,7 @@ from typing import Dict, Optional
 import geopandas as gpd
 import numpy as np
 from geopandas.sindex import PyGEOSSTRTreeIndex
+from joblib import Parallel, delayed
 from shapely.geometry import LineString, Point, Polygon
 
 from fractopo.analysis.parameters import (
@@ -17,6 +18,7 @@ from fractopo.branches_and_nodes import branches_and_nodes
 from fractopo.general import (
     CLASS_COLUMN,
     GEOMETRY_COLUMN,
+    JOBLIB_CACHE,
     Param,
     crop_to_target_areas,
     geom_bounds,
@@ -96,12 +98,12 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
 def populate_sample_cell(
     sample_cell: Polygon,
     sample_cell_area: float,
-    traces_sindex: PyGEOSSTRTreeIndex,
     traces: gpd.GeoDataFrame,
     nodes: gpd.GeoDataFrame,
     branches: gpd.GeoDataFrame,
     snap_threshold: float,
     resolve_branches_and_nodes: bool,
+    traces_sindex: Optional[PyGEOSSTRTreeIndex] = None,
 ) -> Dict[str, float]:
     """
     Take a single grid polygon and populate it with parameters.
@@ -146,6 +148,9 @@ def populate_sample_cell(
     sample_circle = safe_buffer(centroid, np.sqrt(sample_cell_area) * 1.5)
     sample_circle_area = sample_circle.area
     assert sample_circle_area > 0
+
+    if traces_sindex is None:
+        traces_sindex = pygeos_spatial_index(traces)
 
     # Choose geometries that are either within the sample_circle or
     # intersect it
@@ -256,24 +261,39 @@ def sample_grid(
     assert isinstance(branches_reset, gpd.GeoDataFrame)
     traces, nodes, branches = traces_reset, nodes_reset, branches_reset
     # [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
-    traces_sindex = pygeos_spatial_index(traces)
+    # traces_sindex = pygeos_spatial_index(traces)
     # nodes_sindex = pygeos_spatial_index(nodes)
 
-    params_for_cells = list(
-        map(
-            lambda sample_cell: populate_sample_cell(
-                sample_cell=sample_cell,
-                sample_cell_area=sample_cell_area,
-                traces_sindex=traces_sindex,
-                traces=traces,
-                nodes=nodes,
-                branches=branches,
-                snap_threshold=snap_threshold,
-                resolve_branches_and_nodes=resolve_branches_and_nodes,
-            ),
-            grid.geometry.values,
+    # params_for_cells = list(
+    #     map(
+    #         lambda sample_cell: populate_sample_cell(
+    #             sample_cell=sample_cell,
+    #             sample_cell_area=sample_cell_area,
+    #             traces_sindex=traces_sindex,
+    #             traces=traces,
+    #             nodes=nodes,
+    #             branches=branches,
+    #             snap_threshold=snap_threshold,
+    #             resolve_branches_and_nodes=resolve_branches_and_nodes,
+    #         ),
+    #         grid.geometry.values,
+    #     )
+    # )
+    # Use all CPUs with n_jobs=-1
+    params_for_cells = Parallel(n_jobs=-1)(
+        delayed(populate_sample_cell)(
+            sample_cell=sample_cell,
+            sample_cell_area=sample_cell_area,
+            traces_sindex=None,
+            traces=traces,
+            nodes=nodes,
+            branches=branches,
+            snap_threshold=snap_threshold,
+            resolve_branches_and_nodes=resolve_branches_and_nodes,
         )
+        for sample_cell in grid.geometry.values
     )
+    assert isinstance(params_for_cells, list)
     for key in [param.value.name for param in Param]:
         assert isinstance(key, str)
         try:
@@ -285,6 +305,7 @@ def sample_grid(
     return grid
 
 
+@JOBLIB_CACHE.cache
 def run_grid_sampling(
     traces: gpd.GeoDataFrame,
     branches: gpd.GeoDataFrame,

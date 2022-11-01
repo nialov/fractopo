@@ -116,8 +116,6 @@ def task_pre_commit():
     pre-commit is the main method for formatting documentation and code.
     """
     cmds = [
-        "pre-commit install",
-        "pre-commit install --hook-type commit-msg",
         "pre-commit run --all-files",
     ]
     return {
@@ -147,7 +145,7 @@ def task_lint():
             # DODO_PATH,
         ],
         ACTIONS: [command],
-        TASK_DEP: [resolve_task_name(task_pre_commit), resolve_task_name(task_apidocs)],
+        TASK_DEP: [resolve_task_name(task_pre_commit)],
         UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
@@ -202,8 +200,6 @@ def task_ci_test():
 def task_apidocs():
     """
     Make apidoc documentation.
-
-    Done separately to allow linting of them.
     """
     command = f"nox --session apidocs"
     return {
@@ -218,6 +214,7 @@ def task_apidocs():
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_update_version),
+            resolve_task_name(task_lint),
         ],
         TARGETS: [DOCS_APIDOC_PATH],
         UP_TO_DATE: [config_changed(dict(command=command))],

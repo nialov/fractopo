@@ -459,6 +459,7 @@ class MultiLengthDistribution:
         )
 
 
+@general.JOBLIB_CACHE.cache
 def determine_fit(
     length_array: np.ndarray, cut_off: Optional[float] = None
 ) -> powerlaw.Fit:

@@ -137,9 +137,9 @@ def test_populate_sample_cell(sample_cell, traces, snap_threshold, branches):
     Test populate_sample_cell.
     """
     result = contour_grid.populate_sample_cell(
-        sample_cell,
-        sample_cell.area,
-        pygeos_spatial_index(traces),
+        sample_cell=sample_cell,
+        sample_cell_area=sample_cell.area,
+        traces_sindex=pygeos_spatial_index(traces),
         nodes=gpd.GeoDataFrame(),
         traces=traces,
         branches=branches,
