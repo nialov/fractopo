@@ -183,6 +183,10 @@ def lint(session):
     """
     existing_paths = setup_lint(session=session)
 
+    # Remove auto_examples
+    if DOCS_AUTO_EXAMPLES_PATH.exists():
+        rmtree(DOCS_AUTO_EXAMPLES_PATH)
+
     # Lint docs
     session.run(
         "rstcheck",
