@@ -1155,6 +1155,7 @@ def efficient_clip(
     return geodataframe
 
 
+@JOBLIB_CACHE.cache
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
