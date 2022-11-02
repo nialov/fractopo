@@ -576,6 +576,7 @@ def plot_distribution_fits(
     # y values are either the complementary cumulative distribution function
     # or the probability density function
     # Depends on use_probability_density_function boolean
+    cut_off_is_lower = fit.xmin < length_array.min()
     if not use_probability_density_function:
         # complementary cumulative distribution
         truncated_length_array, y_array = fit.ccdf()
@@ -583,18 +584,26 @@ def plot_distribution_fits(
     else:
         # probability density function
         bin_edges, y_array = fit.pdf()
+
+        # Use same bin_edges and y_array if xmin/cut-off is lower than
+        # smallest line length
         full_bin_edges, full_y_array = fit.pdf(original_data=True)
+
         # fit.pdf returns the bin edges. These need to be transformed to
         # centers for plotting.
         truncated_length_array = (bin_edges[:-1] + bin_edges[1:]) / 2.0
         full_length_array = (full_bin_edges[:-1] + full_bin_edges[1:]) / 2.0
 
+        # filter out zeros
+        is_zero_y = np.isclose(y_array, 0.0)
+        is_zero_full_y = np.isclose(full_y_array, 0.0)
+        truncated_length_array = truncated_length_array[~is_zero_y]
+        full_length_array = full_length_array[~is_zero_full_y]
+        y_array = y_array[~is_zero_y]
+        full_y_array = full_y_array[~is_zero_full_y]
+
     assert len(truncated_length_array) == len(y_array)
     assert len(full_length_array) == len(full_y_array)
-    # Normalize full_ccm_array to the truncated ccm_array
-    full_y_array = full_y_array / (
-        full_y_array[len(full_y_array) - len(y_array)] / y_array.max()
-    )
 
     # Plot truncated length scatter plot
     ax.scatter(
@@ -606,17 +615,23 @@ def plot_distribution_fits(
         color="black",
         marker="x",
     )
-    # Plot full length scatter plot with different color and transparency
-    ax.scatter(
-        x=full_length_array,
-        y=full_y_array,
-        s=3,
-        # label=f"{label} (cut)",
-        alpha=0.5,
-        color="gray",
-        marker="x",
-        zorder=-10,
-    )
+
+    if not cut_off_is_lower:
+        # Normalize full_ccm_array to the truncated ccm_array
+        full_y_array = full_y_array / (
+            full_y_array[len(full_y_array) - len(y_array)] / y_array.max()
+        )
+        # Plot full length scatter plot with different color and transparency
+        ax.scatter(
+            x=full_length_array,
+            y=full_y_array,
+            s=3,
+            # label=f"{label} (cut)",
+            alpha=0.5,
+            color="gray",
+            marker="x",
+            zorder=-10,
+        )
 
     # Plot the actual fits (powerlaw, exp...)
     for fit_distribution in fits_to_plot:
