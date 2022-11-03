@@ -93,12 +93,26 @@ def task_requirements():
     """
     Sync requirements from poetry.lock.
     """
-    command = "nox --session requirements"
-    return {
-        FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
-        ACTIONS: [command],
-        TARGETS: [DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH],
-    }
+    # command = "nox --session requirements"
+    cmd_list = [
+        "poetry",
+        "export",
+        "--without-hashes",
+        "--dev",
+        "{}",
+        "-o",
+        "{}",
+    ]
+    command_base = " ".join(cmd_list)
+    for requirements_path, options in zip(
+        (DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH), ("", "-E docs")
+    ):
+
+        yield {
+            FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
+            ACTIONS: [command_base.format(options, requirements_path)],
+            TARGETS: [requirements_path],
+        }
 
 
 def task_pre_commit():
@@ -133,21 +147,21 @@ def task_lint():
     }
 
 
-def task_update_version():
-    """
-    Update pyproject.toml and package/__init__.py version strings.
-    """
-    command = "nox --session update_version"
-    return {
-        FILE_DEP: [
-            *PYTHON_SRC_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            DODO_PATH,
-        ],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
-        ACTIONS: [command],
-    }
+# def task_update_version():
+#     """
+#     Update pyproject.toml and package/__init__.py version strings.
+#     """
+#     command = "nox --session update_version"
+#     return {
+#         FILE_DEP: [
+#             *PYTHON_SRC_FILES,
+#             POETRY_LOCK_PATH,
+#             NOXFILE_PATH,
+#             DODO_PATH,
+#         ],
+#         TASK_DEP: [resolve_task_name(task_pre_commit)],
+#         ACTIONS: [command],
+#     }
 
 
 # def task_ci_test():
@@ -194,7 +208,7 @@ def task_docs():
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
-            resolve_task_name(task_update_version),
+            # resolve_task_name(task_update_version),
         ],
         TARGETS: [DOCS_PATH],
     }
@@ -482,7 +496,7 @@ DOIT_CONFIG = {
         resolve_task_name(task_requirements),
         resolve_task_name(task_pre_commit),
         resolve_task_name(task_lint),
-        resolve_task_name(task_update_version),
+        # resolve_task_name(task_update_version),
         # resolve_task_name(task_ci_test),
         resolve_task_name(task_docs),
         resolve_task_name(task_notebooks),

@@ -199,35 +199,35 @@ def lint(session):
     )
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
-def requirements(session):
-    """
-    Sync poetry requirements from pyproject.toml to requirements.txt.
-    """
-    # Install poetry
-    session.install("poetry")
+# @nox.session(reuse_venv=True, **VENV_PARAMS)
+# def requirements(session):
+#     """
+#     Sync poetry requirements from pyproject.toml to requirements.txt.
+#     """
+#     # Install poetry
+#     session.install("poetry")
 
-    # Sync dev requirements
-    session.run(
-        "poetry",
-        "export",
-        "--without-hashes",
-        "--dev",
-        "-o",
-        str(DEV_REQUIREMENTS_PATH),
-    )
+#     # Sync dev requirements
+#     session.run(
+#         "poetry",
+#         "export",
+#         "--without-hashes",
+#         "--dev",
+#         "-o",
+#         str(DEV_REQUIREMENTS_PATH),
+#     )
 
-    # Sync docs requirements
-    session.run(
-        "poetry",
-        "export",
-        "--without-hashes",
-        "--dev",
-        "-E",
-        "docs",
-        "-o",
-        str(DOCS_REQUIREMENTS_PATH),
-    )
+#     # Sync docs requirements
+#     session.run(
+#         "poetry",
+#         "export",
+#         "--without-hashes",
+#         "--dev",
+#         "-E",
+#         "docs",
+#         "-o",
+#         str(DOCS_REQUIREMENTS_PATH),
+#     )
 
 
 def _docs(session, auto_build: bool):
@@ -238,7 +238,7 @@ def _docs(session, auto_build: bool):
     """
     # Install from docs_src/requirements.txt that has been synced with docs
     # requirements
-    session.install(".")
+    # session.install(".")
     session.install("-r", str(DOCS_REQUIREMENTS_PATH))
 
     # Remove old apidocs
@@ -296,17 +296,17 @@ def auto_docs(session):
     _docs(session=session, auto_build=True)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def update_version(session):
-    """
-    Update package version from git vcs.
-    """
-    # Install poetry-dynamic-versioning
-    session.install("poetry-dynamic-versioning")
+# @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+# def update_version(session):
+#     """
+#     Update package version from git vcs.
+#     """
+#     # Install poetry-dynamic-versioning
+#     session.install("poetry-dynamic-versioning")
 
-    # Run poetry-dynamic-versioning to update version tag in pyproject.toml
-    # and fractopo/__init__.py
-    session.run("poetry-dynamic-versioning")
+#     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
+#     # and fractopo/__init__.py
+#     session.run("poetry-dynamic-versioning")
 
 
 # @nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
@@ -332,8 +332,8 @@ def profile_performance(session):
     User must implement the actual performance utility.
     """
     # Install dev and pyinstrument
-    install_dev(session)
-    session.install("pyinstrument")
+    install_dev(session, extras="[profiling]")
+    # session.install("pyinstrument")
 
     # Create temporary path
     save_file = f"{session.create_tmp()}/profile_runtime.html"
@@ -375,6 +375,7 @@ def validate_citation_cff(session):
     Validate CITATION.cff.
 
     From: https://github.com/citation-file-format/citation-file-format
+    TODO: Installation is quite dirty. Replace with pre-commit or something else?
     """
     # Path to CITATION.cff
     citation_cff_path = CITATION_CFF_PATH.absolute()
@@ -473,6 +474,8 @@ def changelog(session):
 def codespell(session):
     """
     Check spelling in code.
+
+    TODO: Installation is not locked.
     """
     session.install("codespell")
     session.run("codespell", PACKAGE_NAME, str(DOCS_EXAMPLES_PATH))
