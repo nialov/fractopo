@@ -21,7 +21,7 @@ TARGETS = "targets"
 NAME = "name"
 PARAMS = "params"
 PYTHON_VERSIONS = ["3.8", "3.9", "3.10"]
-DEFAULT_PYTHON_VERSION = "3.8"
+DEFAULT_PYTHON_VERSION = "3.9"
 
 # Paths
 
@@ -109,15 +109,7 @@ def task_pre_commit():
     """
     return {
         ACTIONS: [
-            "pre-commit install",
-            "pre-commit install --hook-type commit-msg",
             "pre-commit run --all-files",
-        ],
-        FILE_DEP: [
-            *PYTHON_ALL_FILES,
-            POETRY_LOCK_PATH,
-            PRE_COMMIT_CONFIG_PATH,
-            DODO_PATH,
         ],
     }
 
@@ -158,31 +150,31 @@ def task_update_version():
     }
 
 
-def task_ci_test():
-    """
-    Test suite for continuous integration testing.
+# def task_ci_test():
+#     """
+#     Test suite for continuous integration testing.
 
-    Installs with pip, tests with pytest and checks coverage with coverage.
-    """
-    # python_version = "" if len(python) == 0 else f"-p {python}"
-    for python_version in PYTHON_VERSIONS:
-        command = f"nox --session tests_pip -p {python_version}"
-        yield {
-            NAME: python_version,
-            FILE_DEP: [
-                *PYTHON_SRC_FILES,
-                *PYTHON_TEST_FILES,
-                DEV_REQUIREMENTS_PATH,
-                DODO_PATH,
-            ],
-            TASK_DEP: [resolve_task_name(task_pre_commit)],
-            ACTIONS: [command],
-            **(
-                {TARGETS: [COVERAGE_SVG_PATH]}
-                if python_version == DEFAULT_PYTHON_VERSION
-                else dict()
-            ),
-        }
+#     Installs with pip, tests with pytest and checks coverage with coverage.
+#     """
+#     # python_version = "" if len(python) == 0 else f"-p {python}"
+#     for python_version in PYTHON_VERSIONS:
+#         command = f"nox --session tests_pip -p {python_version}"
+#         yield {
+#             NAME: python_version,
+#             FILE_DEP: [
+#                 *PYTHON_SRC_FILES,
+#                 *PYTHON_TEST_FILES,
+#                 DEV_REQUIREMENTS_PATH,
+#                 DODO_PATH,
+#             ],
+#             TASK_DEP: [resolve_task_name(task_pre_commit)],
+#             ACTIONS: [command],
+#             **(
+#                 {TARGETS: [COVERAGE_SVG_PATH]}
+#                 if python_version == DEFAULT_PYTHON_VERSION
+#                 else dict()
+#             ),
+#         }
 
 
 def task_docs():
@@ -232,17 +224,13 @@ def task_build():
 
     Runs always without strict dependencies or targets.
     """
-    # python_version = "" if len(python) == 0 else f"-p {python}"
-    for python_version in [DEFAULT_PYTHON_VERSION]:
-        # command = f"nox --session tests_pip -p {python_version}"
-        command = f"nox --session build -p {python_version}"
-        yield {
-            NAME: python_version,
-            ACTIONS: [command],
-            TASK_DEP: [
-                resolve_task_name(task_pre_commit),
-            ],
-        }
+    return {
+        ACTIONS: ["poetry build"],
+        TASK_DEP: [
+            resolve_task_name(task_pre_commit),
+            resolve_task_name(task_test_tmp_dir),
+        ],
+    }
 
 
 def task_typecheck():
@@ -470,10 +458,6 @@ def task_test_tmp_dir():
     ]:
         python_cache_dir = cache_dir / f"{PACKAGE_NAME}-{python_version}"
         python_cache_dir_diff = (python_cache_dir / "repository.diff").resolve()
-        # command = f"nox --session tests_pip -p {python_version}"
-        # TODO: Generalize volume
-        # TODO: Refactor with doit utilities for using outputs of cmds
-
         yield {
             NAME: python_version,
             ACTIONS: [
@@ -499,7 +483,7 @@ DOIT_CONFIG = {
         resolve_task_name(task_pre_commit),
         resolve_task_name(task_lint),
         resolve_task_name(task_update_version),
-        resolve_task_name(task_ci_test),
+        # resolve_task_name(task_ci_test),
         resolve_task_name(task_docs),
         resolve_task_name(task_notebooks),
         resolve_task_name(task_build),

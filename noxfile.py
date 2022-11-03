@@ -11,7 +11,7 @@ CHANGELOG_PATH = Path("CHANGELOG.md")
 CITATION_CFF_PATH = Path("CITATION.cff")
 DOCS_SRC_PATH = Path("docs_src")
 COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
-DEFAULT_PYTHON_VERSION = "3.8"
+DEFAULT_PYTHON_VERSION = "3.9"
 DEV_REQUIREMENTS_PATH = Path("requirements.txt")
 DOCS_EXAMPLES_PATH = Path("examples")
 README_PATH = Path("README.rst")
@@ -309,19 +309,19 @@ def update_version(session):
     session.run("poetry-dynamic-versioning")
 
 
-@nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
-def build(session):
-    """
-    Build package with poetry.
-    """
-    # Install poetry
-    session.install("poetry")
+# @nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
+# def build(session):
+#     """
+#     Build package with poetry.
+#     """
+#     # Install poetry
+#     session.install("poetry")
 
-    # Install dependencies to poetry
-    session.run("poetry", "install")
+#     # Install dependencies to poetry
+#     session.run("poetry", "install")
 
-    # Build
-    session.run("poetry", "build")
+#     # Build
+#     session.run("poetry", "build")
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)

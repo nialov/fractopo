@@ -8,6 +8,8 @@ version: 2
 # Need latest for Python 3.8
 build:
   image: latest
+  tools:
+    python: "3.9"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -27,6 +29,5 @@ sphinx:
 # requirements required to build your docs
 # Install with pip install .[dev] .[docs]
 python:
-  version: "3.8"
   install:
     - requirements: docs_src/requirements.txt
