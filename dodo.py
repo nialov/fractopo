@@ -107,8 +107,8 @@ def task_requirements():
     for requirements_path, options in zip(
         (DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH), ("", "-E docs")
     ):
-
         yield {
+            NAME: str(requirements_path),
             FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
             ACTIONS: [command_base.format(options, requirements_path)],
             TARGETS: [requirements_path],
@@ -474,6 +474,13 @@ def task_test_tmp_dir():
         python_cache_dir_diff = (python_cache_dir / "repository.diff").resolve()
         yield {
             NAME: python_version,
+            FILE_DEP: [
+                *PYTHON_SRC_FILES,
+                *PYTHON_TEST_FILES,
+                POETRY_LOCK_PATH,
+                PYPROJECT_PATH,
+            ],
+            TASK_DEP: [resolve_task_name(task_pre_commit)],
             ACTIONS: [
                 f"rm -rf {python_cache_dir}",
                 f"mkdir -p {python_cache_dir}",

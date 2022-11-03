@@ -77,7 +77,6 @@ mypy = {version = "*", optional = true}
 pyinstrument = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
-# TODO: copier could be installed outside the poetry environment
 copier = "*"
 doit = "*"
 hypothesis = "*"

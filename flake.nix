@@ -79,10 +79,10 @@
                 pandoc
                 poetry-wrapped
                 git
-                (doit.overrideAttrs (prev: {
-                  propagatedBuildInputs = prev.propagatedBuildInputs
-                    ++ [ python3Packages.tomli ];
-                }))
+                # (doit.overrideAttrs (prev: {
+                #   propagatedBuildInputs = prev.propagatedBuildInputs
+                #     ++ [ python3Packages.tomli ];
+                # }))
               ];
 
               envrc_contents = ''
