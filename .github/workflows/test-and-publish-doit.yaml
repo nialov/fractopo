@@ -27,7 +27,8 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}-${{ matrix.python-version }}
       - name: Test with doit -> nix
         run: |
-          nix develop -c doit -v 3 test_tmp_dir:python${{ matrix.python-version }}
+          nix develop -c poetry install
+          nix develop -c poetry run doit -v 3 test_tmp_dir:python${{ matrix.python-version }}
 
   doit:
     name: Run auxiliary doit tasks to lint and make docs & citation.
