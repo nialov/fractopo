@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.5.0 (2022-11-04)
+
+### New Features
+
+-   Implemeted caching and parallel execution of expensive functions
+    in `Network` analysis. This should speed up (repeated) runs on the
+    same datasets. This implementation is based on `joblib` which provided
+    the functionality without issue.
+
+-   (analysis): Implemented plotting length data with the Probability Density
+    Function (PDF) on the y-axis instead of Complementary Cumulative Number (CCM)
+
+### Fixes
+
+-   (analysis): Reported `CachedNetwork` deprecation
+
+Full set of changes:
+[`v0.4.1...v0.5.0`](https://github.com/nialov/fractopo/compare/v0.4.1...v0.5.0)
+
 ## v0.4.1 (2022-10-24)
 
 ### New Features

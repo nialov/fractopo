@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.4.1.post10.dev0+256e31d"
+version = "0.5.0"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -185,6 +185,7 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
 
 
 
