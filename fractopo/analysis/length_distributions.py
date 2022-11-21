@@ -1048,10 +1048,13 @@ def plot_multi_distributions_and_fit(
 
     # Plot polyfit
     y_fit = polyfit.y_fit
+
+    # Concatenate all individually truncated length data and
+    # plot the fitted y values for the lengths
     concatted_lengths = np.concatenate(truncated_length_array_all)
     ax.plot(
-        (concatted_lengths[0], concatted_lengths[-1]),
-        (y_fit[0], y_fit[-1]),
+        (concatted_lengths.max(), concatted_lengths.min()),
+        (y_fit.min(), y_fit.max()),
         label="Polyfit",
         linestyle="dashed",
     )
