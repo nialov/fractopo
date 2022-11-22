@@ -1,6 +1,7 @@
 """
 Tests for general utilites.
 """
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
 import geopandas as gpd
@@ -8,7 +9,7 @@ import numpy as np
 import pytest
 from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
-from shapely.geometry import Polygon
+from shapely.geometry import MultiLineString, Point, Polygon
 
 from fractopo import general
 from tests import Helpers
@@ -149,3 +150,30 @@ def test_azimuth_to_unit_vector(azimuth: float):
 
     assert len(result) == 2
     assert isinstance(result, np.ndarray)
+
+
+@pytest.mark.parametrize(
+    "intersection_geoms,raises",
+    [
+        # MultiLineString
+        (gpd.GeoSeries([Helpers.invalid_geom_multilinestring]), does_not_raise()),
+        # Empty geometry
+        (gpd.GeoSeries([Helpers.invalid_geom_empty]), does_not_raise()),
+        # Both above
+        (
+            gpd.GeoSeries(
+                [Helpers.invalid_geom_empty, Helpers.invalid_geom_multilinestring]
+            ),
+            does_not_raise(),
+        ),
+        # Polygon
+        (gpd.GeoSeries([(Helpers.area_1)]), pytest.raises(TypeError)),
+    ],
+)
+def test_determine_valid_intersection_points(intersection_geoms: gpd.GeoSeries, raises):
+    with raises:
+        result = general.determine_valid_intersection_points(
+            intersection_geoms=intersection_geoms
+        )
+        assert isinstance(result, list)
+        assert all(isinstance(val, Point) for val in result)
