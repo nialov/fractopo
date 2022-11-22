@@ -817,6 +817,9 @@ def determine_valid_intersection_points(
 
     Only allows Point geometries as intersections. LineString intersections
     would be possible if geometries are stacked.
+
+    :param intersection_geoms: GeoSeries of intersection (Point) geometries.
+    :return: The valid intersections (Points).
     """
     assert isinstance(intersection_geoms, gpd.GeoSeries)
     valid_interaction_points = []
@@ -830,11 +833,17 @@ def determine_valid_intersection_points(
             logging.info(
                 f"Empty geometry in determine_valid_intersection_points: {geom.wkt}"
             )
+
+        # TODO: Should these clauses error or report the invalid geometries upstream?
         elif isinstance(geom, LineString):
             logging.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
+        elif isinstance(geom, MultiLineString):
+            logging.error(
+                f"Expected geom ({geom.wkt}) not to be of type MultiLineString."
+            )
         else:
             raise TypeError(
-                "Expected Point, MultiPoint or LineString geometries"
+                "Expected (Multi)Point or (Multi)LineString geometries"
                 " in determine_valid_intersection_points."
             )
     assert all(isinstance(p, Point) for p in valid_interaction_points)
