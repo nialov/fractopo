@@ -152,22 +152,25 @@ class LengthDistribution:
         filtered_lengths = self.lengths[self.lengths > general.MINIMUM_LINE_LENGTH]
 
         # Calculate proportion for logging purposes
-        filtered_proportion = (len(self.lengths) - len(filtered_lengths)) / len(
-            self.lengths
+        filtered_proportion = (
+            ((len(self.lengths) - len(filtered_lengths)) / len(self.lengths))
+            if len(self.lengths) > 0
+            else 0.0
         )
         high_filtered = filtered_proportion > 0.1
         logging_func = logging.warning if high_filtered else logging.info
         logging_func(
             "Created LengthDistribution instance."
-            + (" High filter proportion!" if high_filtered else ""),
-            extra=dict(
-                LengthDistribution_name=self.name,
-                min_length=self.lengths.min(),
-                max_length=self.lengths.max(),
-                area_value=self.area_value,
-                using_branches=self.using_branches,
-                filtered_proportion=filtered_proportion,
-            ),
+            + (" High filter proportion!" if high_filtered else "")
+            # extra=dict(
+            #     LengthDistribution_name=self.name,
+            #     min_length=self.lengths.min() if len(self.lengths) > 0 else None,
+            #     max_length=self.lengths.max() if len(self.lengths) > 0 else None,
+            #     is_empty=len(self.lengths) == 0,
+            #     area_value=self.area_value,
+            #     using_branches=self.using_branches,
+            #     filtered_proportion=filtered_proportion,
+            # ),
         )
 
         # Set preprocessed lengths back into lengths attribute
@@ -267,7 +270,13 @@ class MultiLengthDistribution:
 
     def normalized_distributions(
         self, automatic_cut_offs: bool
-    ) -> Tuple[List[np.ndarray], List[np.ndarray], List[np.ndarray], List[np.ndarray]]:
+    ) -> Tuple[
+        List[np.ndarray],
+        List[np.ndarray],
+        List[np.ndarray],
+        List[np.ndarray],
+        List[np.ndarray],
+    ]:
         """
         Create normalized and truncated lengths and ccms.
         """
@@ -277,7 +286,8 @@ class MultiLengthDistribution:
             ccm_array_normed_all,
             full_length_array_all,
             full_ccm_array_normed_all,
-        ) = ([], [], [], [])
+            cut_offs,
+        ) = ([], [], [], [], [])
 
         # Iterate over distributions
         for idx, distribution in enumerate(self.distributions):
@@ -312,12 +322,15 @@ class MultiLengthDistribution:
             full_length_array_all.append(full_length_array)
             full_ccm_array_normed_all.append(full_ccm_array_normed)
 
+            cut_offs.append(cut_off)
+
         # Return all length arrays and all ccm arrays
         return (
             truncated_length_array_all,
             ccm_array_normed_all,
             full_length_array_all,
             full_ccm_array_normed_all,
+            cut_offs,
         )
 
     @property
@@ -342,6 +355,7 @@ class MultiLengthDistribution:
             ccm_array_normed_all,
             full_length_array_all,
             full_ccm_array_normed_all,
+            cut_offs,
         ) = self.normalized_distributions(automatic_cut_offs=automatic_cut_offs)
 
         # Concatenate
@@ -359,6 +373,7 @@ class MultiLengthDistribution:
             ccm_array_normed_all=ccm_array_normed_all,
             full_length_array_all=full_length_array_all,
             full_ccm_array_normed_all=full_ccm_array_normed_all,
+            cut_offs=cut_offs,
             names=self.names,
             polyfit=polyfit,
             using_branches=self.using_branches,
@@ -400,7 +415,7 @@ class MultiLengthDistribution:
 
         # Get all arrays of lengths and use them to define
         # lower and upper bounds for cut-offs
-        truncated_length_array_all, _, _, _ = self.normalized_distributions(
+        truncated_length_array_all, _, _, _, _ = self.normalized_distributions(
             automatic_cut_offs=False
         )
 
@@ -938,6 +953,7 @@ def plot_multi_distributions_and_fit(
     ccm_array_normed_all: List[np.ndarray],
     full_length_array_all: List[np.ndarray],
     full_ccm_array_normed_all: List[np.ndarray],
+    cut_offs: List[np.ndarray],
     names: List[str],
     polyfit: Polyfit,
     using_branches: bool,
@@ -982,6 +998,8 @@ def plot_multi_distributions_and_fit(
     # Make color cycle
     color_cycle = cycle(sns.color_palette("dark", 5))
 
+    # Cycle for cut-off label placement
+    label_cycle = cycle([True, False])
     # Plot length distributions
     included_cut_off_label = False
     for (
@@ -990,22 +1008,24 @@ def plot_multi_distributions_and_fit(
         ccm_array_normed,
         full_length_array,
         full_ccm_array,
+        cut_off,
     ) in zip(
         names,
         truncated_length_array_all,
         ccm_array_normed_all,
         full_length_array_all,
         full_ccm_array_normed_all,
+        cut_offs,
     ):
         # Get color for distribution
         point_color = next(color_cycle)
 
         if len(truncated_length_array) > 0:
             # Indicate the cut-off with a dotted vertical line
-            truncated_length_array_min = truncated_length_array.min()
+            # truncated_length_array_min = truncated_length_array.min()
             cut_off_legend_kwarg = dict(label="Cut-Off(s)")
             ax.axvline(
-                truncated_length_array_min,
+                cut_off,
                 linestyle="dotted",
                 color="black",
                 alpha=0.6,
@@ -1015,14 +1035,15 @@ def plot_multi_distributions_and_fit(
             included_cut_off_label = True
 
             # Also indicate cut-off value, embedded into plot
+            plot_low = next(label_cycle)
             ax.text(
-                truncated_length_array_min,
-                ccm_array_normed.min(),
-                f"{round(truncated_length_array.min(), 2)} m",
+                cut_off,
+                ccm_array_normed.min() if plot_low else ccm_array_normed.max(),
+                f"{round(cut_off, 2)} m",
                 rotation=90,
                 horizontalalignment="right",
                 fontsize="xx-large",
-                verticalalignment="center",
+                verticalalignment="center" if plot_low else "bottom",
             )
 
         # Plot main data, not truncated
