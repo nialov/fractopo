@@ -121,6 +121,7 @@ def test_multilengthdistribution_plot(
         ccm_array_normed_all,
         _,
         _,
+        _,
     ) = mld.normalized_distributions(
         automatic_cut_offs=automatic_cut_offs,
     )
@@ -196,6 +197,7 @@ def test_fit_to_multi_scale_lengths_fitter_comparisons(
         truncated_length_array_all,
         ccm_array_normed_all,
         # All length and ccm data ignored
+        _,
         _,
         _,
     ) = mld.normalized_distributions(automatic_cut_offs=automatic_cut_offs)
