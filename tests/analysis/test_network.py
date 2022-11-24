@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
-from pandas.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal, assert_series_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
@@ -318,6 +318,27 @@ def network_extensive_testing(
             raise ValueError("Expected 3 max returns.")
         assert isinstance(fig, Figure)
         assert isinstance(ax, (Axes, PolarAxes))
+
+        # Test different set-wise length distribution logics (sanity check only)
+        for (
+            azimuth_set_name,
+            set_lengths,
+        ) in network.trace_data.azimuth_set_length_arrays.items():
+            fit = length_distributions.determine_fit(
+                length_array=set_lengths, cut_off=None
+            )
+            description = length_distributions.describe_powerlaw_fit(
+                fit, length_array=set_lengths
+            )
+            ld = network.trace_length_distribution(azimuth_set=azimuth_set_name)
+            fit_ld = ld.automatic_fit
+            description_ld = length_distributions.describe_powerlaw_fit(
+                fit_ld, length_array=set_lengths
+            )
+            desc_srs = pd.Series(description)
+            desc_ld_srs = pd.Series(description_ld)
+            assert_series_equal(desc_srs, desc_ld_srs)
+
         plt.close("all")
 
 

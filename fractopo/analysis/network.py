@@ -1250,19 +1250,23 @@ class Network:
         """
         Create structured LengthDistribution instance.
         """
-        length_array = (
-            self.branch_length_array if using_branches else self.trace_length_array
-        )
-        set_array = (
-            self.branch_azimuth_set_array
-            if using_branches
-            else self.trace_azimuth_set_array
-        )
+        # set_array = (
+        #     self.branch_azimuth_set_array
+        #     if using_branches
+        #     else self.trace_azimuth_set_array
+        # )
         if azimuth_set is None:
-            lengths = length_array
+            lengths = (
+                self.branch_length_array if using_branches else self.trace_length_array
+            )
             name = self.name
         else:
-            lengths = length_array[set_array == azimuth_set]
+            lengths = (
+                self.branch_data.azimuth_set_length_arrays
+                if using_branches
+                else self.trace_data.azimuth_set_length_arrays
+            )[azimuth_set]
+            # lengths = length_array[set_array == azimuth_set]
             name = f"{self.name} {azimuth_set}"
         return LengthDistribution(
             lengths=lengths,
