@@ -117,14 +117,12 @@ def task_requirements():
 
 def task_pre_commit():
     """
-    Verify that pre-commit is installed, install its hooks and run them.
-
-    pre-commit is the main method for formatting documentation and code.
+    Run pre-commit.
     """
+    command = "nox --session pre_commit"
     return {
-        ACTIONS: [
-            "pre-commit run --all-files",
-        ],
+        ACTIONS: [command],
+        TASK_DEP: [resolve_task_name(task_requirements)],
     }
 
 
