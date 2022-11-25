@@ -343,23 +343,21 @@ def task_changelog():
     }
 
 
-def task_codespell():
-    """
-    Check code spelling.
-
-    TODO: Move to pre-commit
-    """
-    command = "nox --session codespell"
-    return {
-        ACTIONS: [command],
-        FILE_DEP: [
-            *PYTHON_ALL_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            DODO_PATH,
-        ],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
-    }
+# def task_codespell():
+#     """
+#     Check code spelling.
+#     """
+#     command = "nox --session codespell"
+#     return {
+#         ACTIONS: [command],
+#         FILE_DEP: [
+#             *PYTHON_ALL_FILES,
+#             POETRY_LOCK_PATH,
+#             NOXFILE_PATH,
+#             DODO_PATH,
+#         ],
+#         TASK_DEP: [resolve_task_name(task_pre_commit)],
+#     }
 
 
 def parse_tag(tag: str) -> str:
@@ -509,6 +507,5 @@ DOIT_CONFIG = {
         resolve_task_name(task_notebooks),
         resolve_task_name(task_build),
         resolve_task_name(task_citation),
-        resolve_task_name(task_codespell),
     ]
 }
