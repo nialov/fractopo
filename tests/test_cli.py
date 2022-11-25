@@ -143,7 +143,7 @@ def test_fractopo_callback(logging_level_str: str):
 
 
 @pytest.mark.parametrize(
-    "logging_level_str", ["jibberish", "", "hello?", "ERRORR", "C-C-CRITICAL"]
+    "logging_level_str", ["jibberish", "", "hello?", "E-ERROR", "C-C-CRITICAL"]
 )
 def test_fractopo_callback_error(logging_level_str: str):
     """

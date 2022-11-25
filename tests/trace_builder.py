@@ -142,7 +142,7 @@ def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
         line_generator([Point(-3, -4), Point(-3, -1)]),
         # Y-node error. Not snapped with error of 0.005
         # snap_threshold is the snapping threshold.
-        # (Distances lower than it are snapped -> shouldnt cause errors)
+        # (Distances lower than it are snapped -> should not cause errors)
         # Snap error in next trace is:
         # snap_threshold_error_multiplier * 0.5 * snap_threshold
         line_generator(

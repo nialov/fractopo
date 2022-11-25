@@ -295,7 +295,7 @@ Full set of changes:
 
 -   speed up clipping with pygeos clip implement
 
--   improve test performace
+-   improve test performance
 
 Full set of changes:
 [`v0.0.1...v0.1.0`](https://github.com/nialov/fractopo/compare/v0.0.1...v0.1.0)

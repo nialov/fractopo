@@ -1,5 +1,5 @@
 """
-Tests for general utilites.
+Tests for general utilities.
 """
 from pathlib import Path
 
