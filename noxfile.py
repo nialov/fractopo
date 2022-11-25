@@ -6,6 +6,7 @@ from shutil import rmtree
 from typing import List
 
 import nox
+import pkg_resources
 
 CHANGELOG_PATH = Path("CHANGELOG.md")
 CITATION_CFF_PATH = Path("CITATION.cff")
@@ -470,12 +471,46 @@ def changelog(session):
     assert changelog_path.exists()
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def codespell(session):
+def _parse_requirements_version(package: str) -> str:
     """
-    Check spelling in code.
+    Parse the version of a package from poetry.lock.
+    """
+    # Make sure ./requirements.txt exists
+    if not DEV_REQUIREMENTS_PATH.exists():
+        raise FileNotFoundError(f"Expected {DEV_REQUIREMENTS_PATH} to exist.")
 
-    TODO: Installation is not locked.
+    # Parse requirements
+    requirements_map = pkg_resources.parse_requirements(
+        DEV_REQUIREMENTS_PATH.read_text()
+    )
+
+    # Convert to strings
+    requirements_map_str = map(str, requirements_map)
+
+    # Filter to wanted package
+    requirements_filtered = filter(
+        lambda req: req.startswith(package), requirements_map_str
+    )
+
+    # Convert to list
+    requirements_filtered_list = list(requirements_filtered)
+
+    # Report invalid parsing results and return valid one
+    if len(requirements_filtered_list) == 0:
+        raise ValueError(f"Expected to find {package} in {DEV_REQUIREMENTS_PATH}.")
+    elif len(requirements_filtered_list) > 1:
+        raise ValueError(
+            f"Expected to find only one {package} in {DEV_REQUIREMENTS_PATH}. "
+            f"Found: {requirements_filtered_list}."
+        )
+    else:
+        return requirements_filtered_list[0]
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def pre_commit(session):
     """
-    session.install("codespell")
-    session.run("codespell", PACKAGE_NAME, str(DOCS_EXAMPLES_PATH))
+    Install pre-commit and run it.
+    """
+    session.install(_parse_requirements_version("pre-commit"))
+    session.run("pre-commit", "run", "--all-files")
