@@ -1,4 +1,4 @@
-name: test-tmp-dir
+name: ci-test
 
 on:
   # run on all pushes to any branch
@@ -8,7 +8,7 @@ on:
     branches: [master]
 
 jobs:
-  test-tmp-dir:
+  ci-test:
     name: Test and check coverage of 🐍 code
     strategy:
       matrix:
@@ -28,7 +28,7 @@ jobs:
       - name: Test with doit -> nix
         run: |
           nix develop -c poetry install
-          nix develop -c poetry run doit -v 3 test_tmp_dir:python${{ matrix.python-version }}
+          nix develop -c poetry run doit -v 3 ci_test:python${{ matrix.python-version }}
 
   doit:
     name: Run auxiliary doit tasks to lint and make docs & citation.
@@ -37,7 +37,7 @@ jobs:
         # python-version: ["39"]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
-    needs: [test-tmp-dir]
+    needs: [ci-test]
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
@@ -85,7 +85,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [test-tmp-dir, doit]
+    needs: [ci-test, doit]
     name: Release on GitHub
     steps:
       - uses: actions/checkout@v3

@@ -240,7 +240,7 @@ def task_build():
         ACTIONS: ["poetry build"],
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
-            resolve_task_name(task_test_tmp_dir),
+            resolve_task_name(task_ci_test),
         ],
     }
 
@@ -454,7 +454,7 @@ def task_test_docker():
         }
 
 
-def task_test_tmp_dir():
+def task_ci_test():
     """
     Test with nix+temporary directory.
     """
@@ -500,6 +500,7 @@ DOIT_CONFIG = {
         resolve_task_name(task_pre_commit),
         resolve_task_name(task_lint),
         # resolve_task_name(task_update_version),
+        # TODO: Should be default?
         # resolve_task_name(task_ci_test),
         resolve_task_name(task_docs),
         resolve_task_name(task_notebooks),
