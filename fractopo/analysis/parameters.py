@@ -200,13 +200,15 @@ def plot_ternary_plot(
             for count in counts_list
         ]
 
+        # Filter to X,Y,I or CC,CI,II using get_counts_func
+        get_counts_func = _get_xyi_counts if is_nodes else _get_branch_class_counts
         if one_label:
-
-            counts_sum = sum([sum(count.values()) for count in counts_list])
+            counts_sum = sum([sum(get_counts_func(count)) for count in counts_list])
             label_counts = {"n": counts_sum}
         else:
             label_counts = {
-                label: sum(count.values()) for label, count in zip(labels, counts_list)
+                label: sum(get_counts_func(count))
+                for label, count in zip(labels, counts_list)
             }
         decorate_count_ax(ax=ax, tax=tax, label_counts=label_counts, is_nodes=is_nodes)
 
