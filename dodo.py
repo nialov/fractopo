@@ -201,7 +201,7 @@ def task_apidocs():
     """
     Make apidoc documentation.
     """
-    command = f"nox --session apidocs"
+    command = "nox --session apidocs"
     return {
         ACTIONS: [command],
         FILE_DEP: [
@@ -225,7 +225,7 @@ def task_docs():
     """
     Make documentation to docs using nox.
     """
-    command = f"nox --session docs"
+    command = "nox --session docs"
     return {
         ACTIONS: [command],
         FILE_DEP: [
@@ -403,6 +403,11 @@ def task_codespell():
 
 
 def parse_tag(tag: str) -> str:
+    """
+    Parse numeric tag.
+
+    E.g. v0.0.1 -> 0.0.1
+    """
     return tag if "v" not in tag else tag[1:]
 
 

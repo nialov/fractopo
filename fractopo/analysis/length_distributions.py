@@ -117,7 +117,7 @@ def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, 
     assert len(vals) == 2
     if isinstance(vals, tuple):
         return vals
-    elif isinstance(vals, np.ndarray):
+    if isinstance(vals, np.ndarray):
         return vals[0], vals[1]
     else:
         raise TypeError(
@@ -542,7 +542,6 @@ def _setup_length_plot_axlims(
     except ValueError:
         logging.error("Failed to set up x and y limits.", exc_info=True)
         # Don't try setting if it errors
-        pass
 
 
 def plot_distribution_fits(

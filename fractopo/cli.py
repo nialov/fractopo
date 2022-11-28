@@ -80,7 +80,7 @@ def describe_results(
     V NODE
 
     """
-    error_count = sum([len(val) != 0 for val in validated[error_column].values])
+    error_count = sum(len(val) != 0 for val in validated[error_column].values)
     error_types = {
         c for c in chain(*validated[error_column].to_list()) if isinstance(c, str)
     }

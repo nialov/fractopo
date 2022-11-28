@@ -23,7 +23,7 @@ from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
 
 # Import the geometries used to create traces and target areas.
-from shapely.geometry import LineString, MultiLineString, Point
+from shapely.geometry import LineString, Point
 
 # %%
 # Traces are explicitly defined in code and plotted
@@ -187,4 +187,4 @@ if __name__ == "__main__":
         fig.savefig(output_path, bbox_inches="tight")
     except Exception:
         # Log error due to e.g. execution as jupyter notebook
-        logging.info(f"Failed to save validation_errors.svg plot.", exc_info=True)
+        logging.info("Failed to save validation_errors.svg plot.", exc_info=True)

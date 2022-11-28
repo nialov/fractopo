@@ -203,7 +203,7 @@ def plot_ternary_plot(
         # Filter to X,Y,I or CC,CI,II using get_counts_func
         get_counts_func = _get_xyi_counts if is_nodes else _get_branch_class_counts
         if one_label:
-            counts_sum = sum([sum(get_counts_func(count)) for count in counts_list])
+            counts_sum = sum(sum(get_counts_func(count)) for count in counts_list)
             label_counts = {"n": counts_sum}
         else:
             label_counts = {
@@ -700,7 +700,7 @@ def plot_parameters_plot(
             if column.value.plot_as_log:
                 height = height + height / 10
             else:
-                max_height = max([r.get_height() for r in rects])
+                max_height = max(r.get_height() for r in rects)
                 height = height + max_height / 100
             ax.text(
                 rect.get_x() + rect.get_width() / 2,

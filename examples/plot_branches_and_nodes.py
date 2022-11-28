@@ -72,8 +72,8 @@ area.boundary.plot(ax=axes[0], color="black", label="Target Area", linestyle="da
 axes[0].set_title("Traces & Target Area")
 
 # Plot the created branches and nodes
-branches_axes = branches.plot(ax=axes[1], column="Connection")
-nodes.plot(ax=axes[1], column="Class", zorder=10, legend=True)
+branches_axes = branches.plot(ax=axes[1], column="Connection", categorical=True)
+nodes.plot(ax=axes[1], column="Class", zorder=10, legend=True, categorical=True)
 axes[1].set_title("Branches & Nodes & Area")
 
 # Plot the area boundary to the other ax as well

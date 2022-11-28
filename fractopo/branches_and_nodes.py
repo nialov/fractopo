@@ -153,13 +153,13 @@ def get_branch_identities(
         # nodes_that_intersect = node_candidates.loc[inter]
         nodes_that_intersect_types = list(compress(node_candidate_types, inter))
         number_of_E_nodes = sum(
-            [inter_id == E_node for inter_id in nodes_that_intersect_types]
+            inter_id == E_node for inter_id in nodes_that_intersect_types
         )
         number_of_I_nodes = sum(
-            [inter_id == I_node for inter_id in nodes_that_intersect_types]
+            inter_id == I_node for inter_id in nodes_that_intersect_types
         )
         number_of_XY_nodes = sum(
-            [inter_id in [X_node, Y_node] for inter_id in nodes_that_intersect_types]
+            inter_id in [X_node, Y_node] for inter_id in nodes_that_intersect_types
         )
         branch_identities.append(
             determine_branch_identity(
@@ -318,7 +318,7 @@ def determine_insert_approach(
     if nearest_point_idx == 0:
         # It is the first node of linestring
         idx = nearest_point_idx + 1
-    elif nearest_point_idx == max([vals[0] for vals in trace_point_dists]):
+    elif nearest_point_idx == max(vals[0] for vals in trace_point_dists):
         # It is the last node of linestring
         idx = nearest_point_idx
     else:
@@ -340,7 +340,7 @@ def determine_insert_approach(
                 points_on_either_side, key=lambda vals: vals[1]
             )
 
-            assert sum([vals[1] == 0.0 for vals in points_on_either_side]) < 2
+            assert sum(vals[1] == 0.0 for vals in points_on_either_side) < 2
             smallest_angle_idx = points_on_either_side[0][0][0]
 
             if smallest_angle_idx > nearest_point_idx:
@@ -824,7 +824,7 @@ def safer_unary_union(
     # How many in each pair
     # part_count = int(np.ceil(trace_count / div))
 
-    assert div * sum([part.shape[0] for part in split_traces]) >= trace_count
+    assert div * sum(part.shape[0] for part in split_traces) >= trace_count
     assert all(isinstance(val, gpd.GeoSeries) for val in split_traces)
     assert isinstance(split_traces[0].iloc[0], LineString)
 
@@ -1120,7 +1120,7 @@ def node_identity(
 
     # Get intersect count
     intersecting_node_count = sum(
-        [candidate.distance(endpoint) < snap_threshold for candidate in candidates]
+        candidate.distance(endpoint) < snap_threshold for candidate in candidates
     )
 
     if intersecting_node_count == 0:

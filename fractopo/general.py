@@ -801,7 +801,7 @@ def determine_valid_intersection_points_no_vnode(
         candidate_endpoints = get_trace_endpoints(trace_candidate)
         for ce in candidate_endpoints:
             for ge in geom_endpoints:
-                for p in inter:
+                for p in inter.copy():
                     if np.isclose(ce.distance(ge), 0, atol=1e-4) and np.isclose(
                         ge.distance(p), 0, atol=1e-4
                     ):

@@ -205,11 +205,9 @@ def determine_middle_in_triangle(
         others.pop(idx)
         if (
             sum(
-                [
-                    linestring.distance(other)
-                    < snap_threshold * snap_threshold_error_multiplier
-                    for other in others
-                ]
+                linestring.distance(other)
+                < snap_threshold * snap_threshold_error_multiplier
+                for other in others
             )
             >= 2
         ):

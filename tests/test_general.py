@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
-from shapely.geometry import MultiLineString, Point, Polygon
+from shapely.geometry import Point, Polygon
 
 from fractopo import general
 from tests import Helpers
@@ -171,6 +171,9 @@ def test_azimuth_to_unit_vector(azimuth: float):
     ],
 )
 def test_determine_valid_intersection_points(intersection_geoms: gpd.GeoSeries, raises):
+    """
+    Test determine_valid_intersection_points.
+    """
     with raises:
         result = general.determine_valid_intersection_points(
             intersection_geoms=intersection_geoms
