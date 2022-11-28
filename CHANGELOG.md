@@ -1,10 +1,28 @@
 # Changelog
 
+## v0.5.1 (2022-11-28)
+
+### Fixes
+
+-   (analysis): Fixed XYI and branch ternary plot sample count to only report the
+    valid node and branch counts.
+
+-   (analysis): Fixed the cut-off vertical line to correspond to the
+    actual cut-off rather than the lowest remaining length.
+
+-   (general): Allow MultiLineStrings in `determine_valid_intersection_points`.
+
+-   (analysis): Made sure the order of lengths used in plotting the fitted y values
+    is correct in multi-scale length plots.
+
+Full set of changes:
+[`v0.5.0...v0.5.1`](https://github.com/nialov/fractopo/compare/v0.5.0...v0.5.1)
+
 ## v0.5.0 (2022-11-04)
 
 ### New Features
 
--   Implemeted caching and parallel execution of expensive functions
+-   Implemented caching and parallel execution of expensive functions
     in `Network` analysis. This should speed up (repeated) runs on the
     same datasets. This implementation is based on `joblib` which provided
     the functionality without issue.
