@@ -162,6 +162,9 @@ def notebooks(session):
 
 
 def setup_lint(session) -> List[str]:
+    """
+    Setup lint session.
+    """
     existing_paths = filter_paths_to_existing(
         Path(PACKAGE_NAME),
         TESTS_PATH,
@@ -286,6 +289,7 @@ def _docs(session, auto_build: bool):
             *(
                 [
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
+                    f"--ignore=**/.fractopo_cache/**",
                     "--watch=README.rst",
                     f"--watch={PACKAGE_NAME}/",
                     "--watch=examples/",
