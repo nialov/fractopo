@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fractopo"
-version = "0.5.0"
+version = "0.5.0.post7.dev0+0a4a29f"
 description = "Fracture Network Analysis"
 authors = ["nialov <nikolasovaskainen@gmail.com>"]
 readme = "README.rst"
@@ -158,6 +158,7 @@ src_paths = ["fractopo", "tests"]
 
 [tool.pylint.master]
 fail-under = "9.5"
+ignore = [".fractopo_cache"]
 
 [tool.pylint.report]
 output-format = "text"
