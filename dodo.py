@@ -96,37 +96,36 @@ def task_requirements():
     """
     Sync requirements from poetry.lock.
     """
-    command = "nox --session requirements"
-    return {
-        FILE_DEP: [
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            # DODO_PATH,
-        ],
-        ACTIONS: [command],
-        TARGETS: [DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH],
-        UP_TO_DATE: [config_changed(dict(command=command))],
-    }
+    # command = "nox --session requirements"
+    cmd_list = [
+        "poetry",
+        "export",
+        "--without-hashes",
+        "--dev",
+        "{}",
+        "-o",
+        "{}",
+    ]
+    command_base = " ".join(cmd_list)
+    for requirements_path, options in zip(
+        (DEV_REQUIREMENTS_PATH, DOCS_REQUIREMENTS_PATH), ("", "-E docs")
+    ):
+        yield {
+            NAME: str(requirements_path),
+            FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
+            ACTIONS: [command_base.format(options, requirements_path)],
+            TARGETS: [requirements_path],
+        }
 
 
 def task_pre_commit():
     """
-    Verify that pre-commit is installed, install its hooks and run them.
-
-    pre-commit is the main method for formatting documentation and code.
+    Run pre-commit.
     """
-    cmds = [
-        "pre-commit run --all-files",
-    ]
+    command = "nox --session pre_commit"
     return {
-        ACTIONS: cmds,
-        FILE_DEP: [
-            *PYTHON_ALL_FILES,
-            POETRY_LOCK_PATH,
-            PRE_COMMIT_CONFIG_PATH,
-            # DODO_PATH,
-        ],
-        UP_TO_DATE: [config_changed(dict(cmds=cmds))],
+        ACTIONS: [command],
+        TASK_DEP: [resolve_task_name(task_requirements)],
     }
 
 
@@ -146,24 +145,6 @@ def task_lint():
         ],
         ACTIONS: [command],
         TASK_DEP: [resolve_task_name(task_pre_commit)],
-        UP_TO_DATE: [config_changed(dict(command=command))],
-    }
-
-
-def task_update_version():
-    """
-    Update pyproject.toml and package/__init__.py version strings.
-    """
-    command = "nox --session update_version"
-    return {
-        FILE_DEP: [
-            *PYTHON_SRC_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            # DODO_PATH,
-        ],
-        TASK_DEP: [resolve_task_name(task_pre_commit)],
-        ACTIONS: [command],
         UP_TO_DATE: [config_changed(dict(command=command))],
     }
 
@@ -213,7 +194,7 @@ def task_apidocs():
         ],
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
-            resolve_task_name(task_update_version),
+            # resolve_task_name(task_update_version),
             resolve_task_name(task_lint),
         ],
         TARGETS: [DOCS_APIDOC_PATH],
@@ -238,7 +219,7 @@ def task_docs():
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
-            resolve_task_name(task_update_version),
+            # resolve_task_name(task_update_version),
             resolve_task_name(task_apidocs),
         ],
         TARGETS: [DOCS_PATH],
@@ -271,23 +252,18 @@ def task_build():
 
     Runs always without strict dependencies or targets.
     """
-    # python_version = "" if len(python) == 0 else f"-p {python}"
-    command_base = "nox --session build -p {}"
-    for python_version in [DEFAULT_PYTHON_VERSION]:
-        # command = f"nox --session tests_pip -p {python_version}"
-        command = command_base.format(python_version)
-        yield {
-            NAME: python_version,
-            ACTIONS: [command],
-            TASK_DEP: [
-                resolve_task_name(task_pre_commit),
-            ],
-        }
+    return {
+        ACTIONS: ["poetry build"],
+        TASK_DEP: [
+            resolve_task_name(task_pre_commit),
+            resolve_task_name(task_ci_test),
+        ],
+    }
 
 
 def task_typecheck():
     """
-    Typecheck ``[[ package ]]`` with ``mypy``.
+    Typecheck fractopo with ``mypy``.
     """
     command = "nox --session typecheck"
     # command = "nox --session build"
@@ -484,7 +460,7 @@ DOIT_CONFIG = {
         resolve_task_name(task_requirements),
         resolve_task_name(task_pre_commit),
         resolve_task_name(task_lint),
-        resolve_task_name(task_update_version),
+        # resolve_task_name(task_update_version),
         resolve_task_name(task_ci_test),
         resolve_task_name(task_docs),
         resolve_task_name(task_notebooks),

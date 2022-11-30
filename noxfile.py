@@ -6,6 +6,7 @@ from shutil import rmtree
 from typing import List
 
 import nox
+import pkg_resources
 
 CHANGELOG_PATH = Path("CHANGELOG.md")
 CITATION_CFF_PATH = Path("CITATION.cff")
@@ -161,6 +162,42 @@ def notebooks(session):
             execute_notebook(session=session, notebook=notebook_path)
 
 
+def _parse_requirements_version(package: str) -> str:
+    """
+    Parse the version of a package from poetry.lock.
+    """
+    # Make sure ./requirements.txt exists
+    if not DEV_REQUIREMENTS_PATH.exists():
+        raise FileNotFoundError(f"Expected {DEV_REQUIREMENTS_PATH} to exist.")
+
+    # Parse requirements
+    requirements_map = pkg_resources.parse_requirements(
+        DEV_REQUIREMENTS_PATH.read_text()
+    )
+
+    # Convert to strings
+    requirements_map_str = map(str, requirements_map)
+
+    # Filter to wanted package
+    requirements_filtered = filter(
+        lambda req: req.startswith(package), requirements_map_str
+    )
+
+    # Convert to list
+    requirements_filtered_list = list(requirements_filtered)
+
+    # Report invalid parsing results and return valid one
+    if len(requirements_filtered_list) == 0:
+        raise ValueError(f"Expected to find {package} in {DEV_REQUIREMENTS_PATH}.")
+    elif len(requirements_filtered_list) > 1:
+        raise ValueError(
+            f"Expected to find only one {package} in {DEV_REQUIREMENTS_PATH}. "
+            f"Found: {requirements_filtered_list}."
+        )
+    else:
+        return requirements_filtered_list[0]
+
+
 def setup_lint(session) -> List[str]:
     """
     Setup lint session.
@@ -206,35 +243,35 @@ def lint(session):
     )
 
 
-@nox.session(reuse_venv=True, **VENV_PARAMS)
-def requirements(session):
-    """
-    Sync poetry requirements from pyproject.toml to requirements.txt.
-    """
-    # Install poetry
-    session.install("poetry")
+# @nox.session(reuse_venv=True, **VENV_PARAMS)
+# def requirements(session):
+#     """
+#     Sync poetry requirements from pyproject.toml to requirements.txt.
+#     """
+#     # Install poetry
+#     session.install("poetry")
 
-    # Sync dev requirements
-    session.run(
-        "poetry",
-        "export",
-        "--without-hashes",
-        "--dev",
-        "-o",
-        str(DEV_REQUIREMENTS_PATH),
-    )
+#     # Sync dev requirements
+#     session.run(
+#         "poetry",
+#         "export",
+#         "--without-hashes",
+#         "--dev",
+#         "-o",
+#         str(DEV_REQUIREMENTS_PATH),
+#     )
 
-    # Sync docs requirements
-    session.run(
-        "poetry",
-        "export",
-        "--without-hashes",
-        "--dev",
-        "-E",
-        "docs",
-        "-o",
-        str(DOCS_REQUIREMENTS_PATH),
-    )
+#     # Sync docs requirements
+#     session.run(
+#         "poetry",
+#         "export",
+#         "--without-hashes",
+#         "--dev",
+#         "-E",
+#         "docs",
+#         "-o",
+#         str(DOCS_REQUIREMENTS_PATH),
+#     )
 
 
 def _api_docs(session):
@@ -243,7 +280,7 @@ def _api_docs(session):
     """
     # Install from docs_src/requirements.txt that has been synced with docs
     # requirements
-    session.install(".")
+    # session.install(".")
     session.install("-r", str(DOCS_REQUIREMENTS_PATH))
 
     # Remove old apidocs
@@ -264,21 +301,8 @@ def _docs(session, auto_build: bool):
     """
     # Install from docs_src/requirements.txt that has been synced with docs
     # requirements
-    session.install(".")
+    # session.install(".")
     session.install("-r", str(DOCS_REQUIREMENTS_PATH))
-
-    # # Remove old apidocs
-    # if DOCS_APIDOC_DIR_PATH.exists():
-    #     rmtree(DOCS_APIDOC_DIR_PATH)
-
-    # # Remove all old docs
-    # if DOCS_PATH.exists():
-    #     rmtree(DOCS_PATH)
-
-    # # Create apidocs
-    # session.run(
-    #     "sphinx-apidoc", "-o", "./docs_src/apidoc", f"./{PACKAGE_NAME}", "-e", "-f"
-    # )
 
     try:
         # Create docs in ./docs folder
@@ -331,32 +355,32 @@ def auto_docs(session):
     _docs(session=session, auto_build=True)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def update_version(session):
-    """
-    Update package version from git vcs.
-    """
-    # Install poetry-dynamic-versioning
-    session.install("poetry-dynamic-versioning")
+# @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+# def update_version(session):
+#     """
+#     Update package version from git vcs.
+#     """
+#     # Install poetry-dynamic-versioning
+#     session.install("poetry-dynamic-versioning")
 
-    # Run poetry-dynamic-versioning to update version tag in pyproject.toml
-    # and fractopo/__init__.py
-    session.run("poetry-dynamic-versioning")
+#     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
+#     # and fractopo/__init__.py
+#     session.run("poetry-dynamic-versioning")
 
 
-@nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
-def build(session):
-    """
-    Build package with poetry.
-    """
-    # Install poetry
-    session.install("poetry")
+# @nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
+# def build(session):
+#     """
+#     Build package with poetry.
+#     """
+#     # Install poetry
+#     session.install("poetry")
 
-    # Install dependencies to poetry
-    session.run("poetry", "install")
+#     # Install dependencies to poetry
+#     session.run("poetry", "install")
 
-    # Build
-    session.run("poetry", "build")
+#     # Build
+#     session.run("poetry", "build")
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
@@ -367,8 +391,7 @@ def profile_performance(session):
     User must implement the actual performance utility.
     """
     # Install dev and pyinstrument
-    install_dev(session)
-    session.install("pyinstrument")
+    install_dev(session, extras="[profiling]")
 
     # Create temporary path
     save_file = f"{session.create_tmp()}/profile_runtime.html"
@@ -410,6 +433,7 @@ def validate_citation_cff(session):
     Validate CITATION.cff.
 
     From: https://github.com/citation-file-format/citation-file-format
+    TODO: Installation is quite dirty. Replace with pre-commit or something else?
     """
     # Path to CITATION.cff
     citation_cff_path = CITATION_CFF_PATH.absolute()
@@ -502,6 +526,15 @@ def changelog(session):
     print(changelog_path.read_text(encoding=UTF8))
 
     assert changelog_path.exists()
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def pre_commit(session):
+    """
+    Install pre-commit and run it.
+    """
+    session.install(_parse_requirements_version("pre-commit"))
+    session.run("pre-commit", "run", "--all-files")
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
