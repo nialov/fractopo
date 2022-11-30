@@ -37,18 +37,16 @@ from fractopo.general import (
     read_geofile,
 )
 from fractopo.tval import trace_validation
-from fractopo.tval.trace_validators import (
+from fractopo.tval.trace_validators import (  # MultipleCrosscutValidator,
     GeomNullValidator,
     GeomTypeValidator,
     MultiJunctionValidator,
-    MultipleCrosscutValidator,
     SharpCornerValidator,
     StackedTracesValidator,
     TargetAreaSnapValidator,
     UnderlappingSnapValidator,
     VNodeValidator,
 )
-from tests import trace_builder
 from tests.sample_data.py_samples.samples import (
     results_in_false_pos_stacked_traces_list,
     results_in_false_positive_stacked_traces_list,
@@ -92,12 +90,221 @@ invalid_geom_empty = LineString()
 invalid_geom_none = None
 invalid_geom_multilinestring = MultiLineString([((0, 0), (1, 1)), ((-1, 0), (1, 0))])
 mergeable_geom_multilinestring = MultiLineString([((0, 0), (1, 1)), ((1, 1), (2, 2))])
+
+
+def trace_builder(
+    plot_figs=False, snap_threshold=0.001, snap_threshold_error_multiplier=1.1
+):
+    """
+    Create two GeoSeries of traces.
+
+    Saves plots of these traces into ./figs.
+
+    Returns a list of traces, where:
+        1. Valid traces
+        2. Invalid traces
+        3. Valid areas
+        4. Invalid areas
+
+    """
+    valid_traces = make_valid_traces()
+    valid_geoseries = gpd.GeoSeries(valid_traces)
+    valid_areas = make_valid_target_areas()
+    valid_areas_geoseries = gpd.GeoSeries(valid_areas)
+    # valid_savepath = Path("figs/valid_geoseries.png")
+
+    invalid_traces = make_invalid_traces(
+        snap_threshold, snap_threshold_error_multiplier
+    )
+    invalid_geoseries = gpd.GeoSeries(invalid_traces)
+    invalid_areas = make_invalid_target_areas()
+    invalid_areas_geoseries = gpd.GeoSeries(invalid_areas)
+    # invalid_savepath = Path("figs/invalid_geoseries.png")
+
+    # if plot_figs:
+    #     plot_geoseries(valid_geoseries, valid_areas_geoseries, valid_savepath)
+    #     plot_geoseries(invalid_geoseries, invalid_areas_geoseries, invalid_savepath)
+    return [
+        valid_geoseries,
+        invalid_geoseries,
+        valid_areas_geoseries,
+        invalid_areas_geoseries,
+    ]
+
+
+def line_generator(points: list):
+    """
+    Create a .LineString from a list of Points.
+    """
+    assert all(isinstance(point, Point) for point in points)
+    linestring = LineString(points)
+    return linestring
+
+
+def multi_line_generator(point_lists: list):
+    """
+    Create a MultiLineString from a list of list of Points.
+    """
+    line_list = []
+    for point_list in point_lists:
+        assert all(isinstance(point, Point) for point in point_list)
+        line_list.append(LineString(point_list))
+    multilinestring = MultiLineString(line_list)
+    return multilinestring
+
+
+def make_valid_traces() -> List[LineString]:
+    """
+    Make bunch of valid traces.
+    """
+    traces = [
+        line_generator([Point(-1, 1), Point(3, 1)]),
+        line_generator([Point(-2, 0), Point(0, 0)]),
+        line_generator([Point(-1, 4), Point(-1, -2)]),
+        line_generator([Point(-2, -2), Point(2, -2)]),
+        line_generator([Point(1, 0), Point(1, -3)]),
+        line_generator([Point(2, 0), Point(-2, 4)]),
+        line_generator([Point(-3, 2), Point(3, 2)]),
+        line_generator([Point(2, 4), Point(2, 2)]),
+        # Next is in target area 2
+        # Overlaps on right end, and snaps on left
+        line_generator([Point(-3, -4), Point(4, -4)]),
+    ]
+    return traces
+
+
+def make_valid_target_areas():
+    """
+    Make valid target areas.
+    """
+    areas = [
+        box(-3, -3, 3, 4),
+        # Polygon([(-3, 4), (3, 4), (3, -3), (-3, -3)]),
+        box(-3, -5, 3, -3.5),
+        # Polygon([(-3, -3.5), (3, -3.5), (3, -5), (-3, -5)]),
+    ]
+    return areas
+
+
+def make_invalid_traces(snap_threshold, snap_threshold_error_multiplier):
+    """
+    Make invalid traces.
+    """
+    traces = [
+        # Horizontal (triple junction)
+        line_generator([Point(-2, 0), Point(2, 0)]),
+        # Vertical (triple junction)
+        line_generator([Point(0, -2), Point(0, 4)]),
+        # Crosses two above to form a triple junction
+        line_generator([Point(1, -1), Point(-1, 1)]),
+        # Triple junction with non-identical cross-points but within
+        # snap threshold (next 3 traces):
+        line_generator([Point(0, -3), Point(2, -3)]),
+        line_generator([Point(1, -4), Point(1, -2)]),
+        line_generator([Point(2, -4), Point(0.5, -2.50001)]),
+        # V-node
+        line_generator([Point(1, 2), Point(0, 4)]),
+        # Intersects next trace three times
+        line_generator([Point(-4, -3), Point(-2, -3), Point(-4, -2), Point(-2, -1)]),
+        # Straight line which is intersected twice by same line
+        line_generator([Point(-3, -4), Point(-3, -1)]),
+        # Y-node error. Not snapped with error of 0.005
+        # snap_threshold is the snapping threshold.
+        # (Distances lower than it are snapped -> shouldnt cause errors)
+        # Snap error in next trace is:
+        # snap_threshold_error_multiplier * 0.5 * snap_threshold
+        line_generator(
+            [
+                Point(2, 1),
+                Point(0 + snap_threshold * 0.95 * snap_threshold_error_multiplier, 1),
+            ]
+        ),
+        # Geometry type is multilinestring but can be merged
+        multi_line_generator([(Point(4, -4), Point(4, 0)), (Point(4, 0), Point(4, 4))]),
+        # Geometry type is multilinestring but cannot be merged
+        multi_line_generator(
+            [(Point(3, -4), Point(3, -1)), (Point(3, 0), Point(3, 4))]
+        ),
+        # Y-node right next to X-node -> triple junction (next 3):
+        line_generator([Point(-2, 4), Point(-3, 4)]),
+        line_generator([Point(-2.5, 3.5), Point(-3.5, 4.5)]),
+        line_generator([Point(-3.5, 3.5), Point(-2.5, 4.5)]),
+        # Overlapping snap. Should be caught by MultiJunctionValidator
+        line_generator([Point(-2, 2), Point(-4, 2)]),
+        line_generator(
+            [
+                Point(-3, 1),
+                Point(-3, 2 + snap_threshold * 0.5 * snap_threshold_error_multiplier),
+            ]
+        ),
+        # Target area underlapping traces (next 2)
+        line_generator(
+            [
+                Point(-6, 4 - snap_threshold * snap_threshold_error_multiplier * 0.95),
+                Point(-6, 2),
+            ]
+        ),
+        line_generator(
+            [
+                Point(-6, -5 + snap_threshold * snap_threshold_error_multiplier * 0.95),
+                Point(-6, -2),
+            ]
+        ),
+        # Partially overlapping traces
+        line_generator([Point(6, -4), Point(6, 4)]),
+        line_generator(
+            [
+                Point(6, -4),
+                Point(6, -3),
+            ]
+        ),
+        # Overlapping within buffer distance
+        line_generator([Point(7, -4), Point(7, 4)]),
+        line_generator(
+            [
+                Point(7 + snap_threshold * 0.5, -3.5),
+                Point(7 + snap_threshold * 0.5, -3),
+            ]
+        ),
+        # Triangle intersection
+        line_generator(
+            [
+                Point(0, -7),
+                Point(0, -5),
+            ]
+        ),
+        line_generator(
+            [
+                Point(-1, -7),
+                Point(0 + snap_threshold, -6),
+                Point(-1, -5),
+            ]
+        ),
+    ]
+    return traces
+
+
+def make_invalid_target_areas():
+    """
+    Make invalid target areas for invalid traces.
+    """
+    # Two target areas, both contain a trace that underlaps
+    areas = [
+        box(-8, 0, -5, 4),
+        # Polygon([(-8, 4), (-5, 4), (-5, 0), (-8, 0)]),
+        box(-8, -5, -5, -1),
+        # Polygon([(-8, -1), (-5, -1), (-5, -5), (-8, -5)]),
+    ]
+    return areas
+
+
 (
     valid_traces,
     invalid_traces,
     valid_areas_geoseries,
     invalid_areas_geoseries,
-) = trace_builder.main(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
+) = trace_builder(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
+
 valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
 invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
 
@@ -257,7 +464,8 @@ traces_geosrs = gpd.GeoSeries(
         ),
     ]
 )
-areas_geosrs = gpd.GeoSeries([Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])])
+# areas_geosrs = gpd.GeoSeries([Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])])
+areas_geosrs = gpd.GeoSeries([box(-5, -5, 5, 5)])
 
 nice_traces = gpd.GeoSeries(
     [
@@ -347,8 +555,9 @@ node_frame = gpd.GeoDataFrame(
     {"geometry": [point_1, point_2, point_3], "Class": ["X", "Y", "I"]}
 )
 node_frame["c"] = node_frame["Class"]
-area_1 = Polygon([(0, 0), (1, 1), (1, 0)])
-area_frame = gpd.GeoDataFrame({"geometry": [area_1]})
+# area_1 = Polygon([(0, 0), (1, 1), (1, 0)])
+area_1 = Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
+# area_frame = gpd.GeoDataFrame({"geometry": [area_1]})
 
 # sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
 sample_trace_data = Path("tests/sample_data/KB11/KB11_traces.geojson")
@@ -633,11 +842,11 @@ test_validation_params = [
     ),
     (
         gpd.GeoDataFrame(
-            geometry=trace_builder.make_invalid_traces(
+            geometry=make_invalid_traces(
                 snap_threshold=0.01, snap_threshold_error_multiplier=1.1
             )
         ),  # traces
-        gpd.GeoDataFrame(geometry=trace_builder.make_invalid_target_areas()),  # area
+        gpd.GeoDataFrame(geometry=make_invalid_target_areas()),  # area
         "invalid_traces",  # name
         True,  # auto_fix
         None,  # assume_errors
@@ -646,14 +855,15 @@ test_validation_params = [
         gpd.GeoDataFrame(geometry=[LineString([(0, 0), (0, 1)])]),  # traces
         gpd.GeoDataFrame(
             geometry=[
-                Polygon(
-                    [
-                        Point(-1, -1),
-                        Point(-1, 1.011),
-                        Point(1, 1.011),
-                        Point(1, -1),
-                    ]
-                )
+                box(-1, -1, 1, 1.011)
+                # Polygon(
+                #     [
+                #         Point(-1, -1),
+                #         Point(-1, 1.011),
+                #         Point(1, 1.011),
+                #         Point(1, -1),
+                #     ]
+                # )
             ]
         ),  # area
         "TargetAreaSnapValidator error",  # name
@@ -666,22 +876,24 @@ test_validation_params = [
         ),  # traces
         gpd.GeoDataFrame(
             geometry=[
-                Polygon(
-                    [
-                        Point(-1, -1),
-                        Point(-1, 1.011),
-                        Point(1, 1.011),
-                        Point(1, -1),
-                    ]
-                ),
-                Polygon(
-                    [
-                        Point(2, 2),
-                        Point(2, 6.011),
-                        Point(6, 6.011),
-                        Point(6, 2),
-                    ]
-                ),
+                box(-1, -1, 1, 1.011),
+                # Polygon(
+                #     [
+                #         Point(-1, -1),
+                #         Point(-1, 1.011),
+                #         Point(1, 1.011),
+                #         Point(1, -1),
+                #     ]
+                # ),
+                box(2, 2, 6, 6.011),
+                # Polygon(
+                #     [
+                #         Point(2, 2),
+                #         Point(2, 6.011),
+                #         Point(6, 6.011),
+                #         Point(6, 2),
+                #     ]
+                # ),
             ]
         ),  # area
         "TargetAreaSnapValidator error",  # name
@@ -696,22 +908,24 @@ test_validation_params = [
             geometry=[
                 MultiPolygon(
                     [
-                        Polygon(
-                            [
-                                Point(-1, -1),
-                                Point(-1, 1.011),
-                                Point(1, 1.011),
-                                Point(1, -1),
-                            ]
-                        ),
-                        Polygon(
-                            [
-                                Point(2, 2),
-                                Point(2, 6.011),
-                                Point(6, 6.011),
-                                Point(6, 2),
-                            ]
-                        ),
+                        box(-1, -1, 1, 1.011),
+                        # Polygon(
+                        #     [
+                        #         Point(-1, -1),
+                        #         Point(-1, 1.011),
+                        #         Point(1, 1.011),
+                        #         Point(1, -1),
+                        #     ]
+                        # ),
+                        box(2, 2, 6, 6.011),
+                        # Polygon(
+                        #     [
+                        #         Point(2, 2),
+                        #         Point(2, 6.011),
+                        #         Point(6, 6.011),
+                        #         Point(6, 2),
+                        #     ]
+                        # ),
                     ]
                 )
             ]
@@ -763,8 +977,10 @@ test_testtargetareasnapvalidator_validation_method = [
             geometry=[
                 MultiPolygon(
                     [
-                        Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
-                        Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                        box(0, 0, 1, 1),
+                        # Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                        box(10, 10, 11, 11),
+                        # Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
                     ]
                 )
             ]
@@ -780,8 +996,10 @@ test_testtargetareasnapvalidator_validation_method = [
             geometry=[
                 MultiPolygon(
                     [
-                        Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
-                        Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                        box(0, 0, 1, 1),
+                        # Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                        box(10, 10, 11, 11),
+                        # Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
                     ]
                 )
             ]
@@ -795,8 +1013,10 @@ test_testtargetareasnapvalidator_validation_method = [
         LineString([(0.5, 0), (0.5, 0.5)]),  # geom: LineString,
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
-                Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
+                box(0, 0, 1, 1),
+                # Polygon([(0, 0), (0, 1), (1, 1), (1, 0)]),
+                box(10, 10, 11, 11),
+                # Polygon([(10, 10), (10, 11), (11, 11), (11, 10)]),
             ]
         ),  # area:gpd.GeoDataFrame
         0.01,  # snap_threshold: float,
@@ -807,7 +1027,10 @@ test_testtargetareasnapvalidator_validation_method = [
     (
         LineString([(10, 0), (4.991, 0)]),  # geom: LineString,
         gpd.GeoDataFrame(
-            geometry=[Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])]
+            geometry=[
+                # Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])
+                box(-5, -5, 5, 5),
+            ]
         ),  # area:gpd.GeoDataFrame
         0.01,  # snap_threshold: float,
         1.1,  # snap_threshold_error_multiplier: float,
@@ -817,7 +1040,10 @@ test_testtargetareasnapvalidator_validation_method = [
     (
         LineString([(10, 0), (5.011, 0)]),  # geom: LineString,
         gpd.GeoDataFrame(
-            geometry=[Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])]
+            geometry=[
+                box(-5, -5, 5, 5),
+                # Polygon([(5, 5), (-5, 5), (-5, -5), (5, -5)])
+            ]
         ),  # area:gpd.GeoDataFrame
         0.01,  # snap_threshold: float,
         1.1,  # snap_threshold_error_multiplier: float,
@@ -978,7 +1204,8 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                box(-5, -5, 5, 5),
+                # Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -995,7 +1222,8 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                box(-5, -5, 5, 5),
+                # Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -1010,7 +1238,8 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                # Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                box(-5, -5, 5, 5),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -1025,7 +1254,8 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                # Polygon([(-5, 5), (5, 5), (5, -5), (-5, -5)]),
+                box(-5, -5, 5, 5),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -1041,8 +1271,10 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
-                Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
+                box(-1, -1, 1, 1),
+                # Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
+                box(9, -1, 11, 1),
+                # Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -1058,8 +1290,10 @@ test_determine_boundary_intersecting_lines_params = [
         ),  # line_gdf
         gpd.GeoDataFrame(
             geometry=[
-                Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
-                Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
+                box(-1, -1, 1, 1),
+                # Polygon([(-1, -1), (1, -1), (1, 1), (-1, 1)]),
+                box(9, -1, 11, 1),
+                # Polygon([(9, -1), (11, -1), (11, 1), (9, 1)]),
             ]
         ),  # area_gdf
         0.01,  # snap_threshold
@@ -1078,7 +1312,10 @@ test_network_circular_target_area_params = [
             ]
         ),  # trace_gdf
         gpd.GeoDataFrame(
-            geometry=[Polygon([(-5, -5), (-5, 5), (5, 5), (5, -5)])]
+            geometry=[
+                # Polygon([(-5, -5), (-5, 5), (5, 5), (5, -5)]),
+                box(-5, -5, 5, 5),
+            ]
         ),  # area_gdf
         "circular_target_area_param_test",  # name
     )
@@ -1446,7 +1683,12 @@ def generate_known_params(error, false_positive):
         areas = [gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns]
     except (ValueError, AttributeError):
         areas = [
-            gpd.GeoDataFrame(geometry=[Polygon([(0, 0), (1, 1), (1, 0)])])
+            gpd.GeoDataFrame(
+                geometry=[
+                    Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
+                    # box(0,0,1,1)
+                ]
+            )
             for _ in knowns
         ]
     assert len(knowns) == len(areas) == len(amounts)

@@ -14,7 +14,6 @@ from shapely.geometry import LineString, MultiLineString, Point, box
 import tests
 from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import CONNECTION_COLUMN, EE_branch
-from tests import trace_builder
 from tests.sample_data.py_samples import samples
 
 # Import trace_validator
@@ -135,7 +134,7 @@ def test_crop_to_target_area(keep_column_data: bool):
         invalid_geoseries,
         valid_areas_geoseries,
         invalid_areas_geoseries,
-    ) = trace_builder.main(snap_threshold=tests.snap_threshold)
+    ) = tests.trace_builder(snap_threshold=tests.snap_threshold)
     valid_result = general.crop_to_target_areas(
         valid_geoseries,
         valid_areas_geoseries,
