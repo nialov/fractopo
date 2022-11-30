@@ -15,7 +15,6 @@ from matplotlib.figure import Figure
 
 import tests
 from fractopo.analysis import length_distributions
-from tests import Helpers
 
 
 @given(
@@ -31,7 +30,7 @@ def test_determine_fit(length_array: np.ndarray, cut_off: float):
     assert isinstance(fit, powerlaw.Fit)
 
 
-@pytest.mark.parametrize("lengths,label", Helpers.test_describe_powerlaw_fit_params)
+@pytest.mark.parametrize("lengths,label", tests.test_describe_powerlaw_fit_params)
 def test_describe_powerlaw_fit(lengths, label):
     """
     Test describe_powerlaw_fit.
@@ -43,7 +42,7 @@ def test_describe_powerlaw_fit(lengths, label):
     assert isinstance(result, dict)
 
 
-@pytest.mark.parametrize("lengths,_", Helpers.test_describe_powerlaw_fit_params)
+@pytest.mark.parametrize("lengths,_", tests.test_describe_powerlaw_fit_params)
 def test_all_fit_attributes_dict(lengths, _):
     """
     Test describe_powerlaw_fit.
@@ -251,7 +250,7 @@ def test_plot_mld_optimized(distributions):
 @pytest.mark.parametrize("using_branches", (True, False))
 @pytest.mark.parametrize("use_probability_density_function", (True, False))
 @pytest.mark.parametrize(
-    "length_array,label", [*Helpers.test_describe_powerlaw_fit_params]
+    "length_array,label", [*tests.test_describe_powerlaw_fit_params]
 )
 def test_plot_distribution_fits(
     length_array: np.ndarray,

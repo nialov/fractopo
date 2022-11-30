@@ -14,6 +14,7 @@ from matplotlib.figure import Figure
 from shapely.geometry import MultiLineString
 from shapely.prepared import PreparedGeometry
 
+import tests
 from fractopo.analysis.relationships import (
     determine_crosscut_abutting_relationships,
     determine_intersects,
@@ -21,13 +22,12 @@ from fractopo.analysis.relationships import (
     plot_crosscut_abutting_relationships_plot,
 )
 from fractopo.general import prepare_geometry_traces
-from tests import Helpers
 
 
 @pytest.mark.parametrize(
     "trace_series_two_sets, set_array, set_names_two_sets,"
     "node_series_xy, buffer_value, assumed_intersections",
-    Helpers.test_determine_nodes_intersecting_sets_params,
+    tests.test_determine_nodes_intersecting_sets_params,
 )
 def test_determine_nodes_intersecting_sets(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
@@ -55,7 +55,7 @@ def test_determine_nodes_intersecting_sets(
 
 @pytest.mark.parametrize(
     "trace_series",
-    Helpers.test_prepare_geometry_traces_params,
+    tests.test_prepare_geometry_traces_params,
 )
 def test_prepare_geometry_traces(trace_series: gpd.GeoSeries):
     """
@@ -72,7 +72,7 @@ def test_prepare_geometry_traces(trace_series: gpd.GeoSeries):
 @pytest.mark.parametrize(
     "trace_series_two_sets, set_names_two_sets,"
     "node_series_xy_intersects, node_types_xy_intersects, buffer_value",
-    Helpers.test_determine_intersects_params,
+    tests.test_determine_intersects_params,
 )
 def test_determine_intersects(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
@@ -103,7 +103,7 @@ def test_determine_intersects(
 
 @pytest.mark.parametrize(
     "trace_series, node_series, node_types, set_array, set_names, buffer_value, label",
-    Helpers.test_determine_crosscut_abutting_relationships_params,
+    tests.test_determine_crosscut_abutting_relationships_params,
 )
 def test_determine_crosscut_abutting_relationships(
     trace_series: gpd.GeoSeries,
@@ -142,7 +142,7 @@ def test_plot_crosscut_abutting_relationships_plot():
     """
     Test plot_crosscut_abutting_relationships_plot.
     """
-    params = Helpers.test_determine_crosscut_abutting_relationships_params[0]
+    params = tests.test_determine_crosscut_abutting_relationships_params[0]
     relations_df = determine_crosscut_abutting_relationships(*params)
     set_array = params[3]
     set_names = params[4]

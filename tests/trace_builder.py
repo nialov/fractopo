@@ -27,7 +27,7 @@ def main(plot_figs=False, snap_threshold=0.001, snap_threshold_error_multiplier=
     valid_geoseries = gpd.GeoSeries(valid_traces)
     valid_areas = make_valid_target_areas()
     valid_areas_geoseries = gpd.GeoSeries(valid_areas)
-    valid_savepath = Path("figs/valid_geoseries.png")
+    # valid_savepath = Path("figs/valid_geoseries.png")
 
     invalid_traces = make_invalid_traces(
         snap_threshold, snap_threshold_error_multiplier
@@ -35,11 +35,11 @@ def main(plot_figs=False, snap_threshold=0.001, snap_threshold_error_multiplier=
     invalid_geoseries = gpd.GeoSeries(invalid_traces)
     invalid_areas = make_invalid_target_areas()
     invalid_areas_geoseries = gpd.GeoSeries(invalid_areas)
-    invalid_savepath = Path("figs/invalid_geoseries.png")
+    # invalid_savepath = Path("figs/invalid_geoseries.png")
 
-    if plot_figs:
-        plot_geoseries(valid_geoseries, valid_areas_geoseries, valid_savepath)
-        plot_geoseries(invalid_geoseries, invalid_areas_geoseries, invalid_savepath)
+    # if plot_figs:
+    #     plot_geoseries(valid_geoseries, valid_areas_geoseries, valid_savepath)
+    #     plot_geoseries(invalid_geoseries, invalid_areas_geoseries, invalid_savepath)
     return [
         valid_geoseries,
         invalid_geoseries,
@@ -69,22 +69,22 @@ def multi_line_generator(point_lists: list):
     return multilinestring
 
 
-def plot_geoseries(
-    geoseries: gpd.GeoSeries, area_geoseries: gpd.GeoSeries, savepath: Path
-):
-    """
-    Plot trace geoseries.
-    """
-    fig, ax = plt.subplots()
-    geoseries.plot(ax=ax)
-    area_geoseries.plot(ax=ax, edgecolor="red", facecolor="none", linewidth=2)
-    plt.xlim(-8, 8)
-    plt.ylim(-8, 8)
-    plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(base=1.0))
-    plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(base=1.0))
+# def plot_geoseries(
+#     geoseries: gpd.GeoSeries, area_geoseries: gpd.GeoSeries, savepath: Path
+# ):
+#     """
+#     Plot trace geoseries.
+#     """
+#     fig, ax = plt.subplots()
+#     geoseries.plot(ax=ax)
+#     area_geoseries.plot(ax=ax, edgecolor="red", facecolor="none", linewidth=2)
+#     plt.xlim(-8, 8)
+#     plt.ylim(-8, 8)
+#     plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(base=1.0))
+#     plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(base=1.0))
 
-    plt.grid()
-    fig.savefig(savepath)
+#     plt.grid()
+#     fig.savefig(savepath)
 
 
 def make_valid_traces() -> List[LineString]:
@@ -228,5 +228,5 @@ def make_invalid_target_areas():
     return areas
 
 
-if __name__ == "__main__":
-    main(plot_figs=True)
+# if __name__ == "__main__":
+#     main(plot_figs=True)

@@ -5,16 +5,16 @@ import geopandas as gpd
 import pytest
 from shapely.geometry import LineString
 
+import tests
 from fractopo import general
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import TargetAreaSnapValidator, VNodeValidator
-from tests import Helpers
 from tests.sample_data.py_samples.samples import results_in_multijunction_list_of_ls
 
 
 @pytest.mark.parametrize(
     "endpoint_nodes, snap_threshold,snap_threshold_error_multiplier,assumed_result",
-    Helpers.test_determine_v_nodes_params,
+    tests.test_determine_v_nodes_params,
 )
 def test_determine_v_nodes(
     endpoint_nodes, snap_threshold, snap_threshold_error_multiplier, assumed_result
@@ -69,7 +69,7 @@ class TestTargetAreaSnapValidator:
         "geom,area,snap_threshold,"
         "snap_threshold_error_multiplier,area_edge_snap_multiplier,"
         "assume_result",
-        Helpers.test_testtargetareasnapvalidator_validation_method,
+        tests.test_testtargetareasnapvalidator_validation_method,
     )
     def test_validation_method(
         geom: LineString,

@@ -11,12 +11,12 @@ from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
 from shapely.geometry import Point, Polygon
 
+import tests
 from fractopo import general
-from tests import Helpers
 
 
 @pytest.mark.parametrize(
-    "first,second,same,from_first,is_none", Helpers.test_match_crs_params
+    "first,second,same,from_first,is_none", tests.test_match_crs_params
 )
 def test_match_crs(first, second, same: bool, from_first: bool, is_none: bool):
     """
@@ -53,7 +53,7 @@ def test_is_azimuth_close(first, second, tolerance, halved):
 
 @pytest.mark.parametrize(
     "nodes,snap_threshold,snap_threshold_error_multiplier,error_threshold",
-    Helpers.test_determine_node_junctions_params,
+    tests.test_determine_node_junctions_params,
 )
 def test_determine_node_junctions(
     nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
@@ -68,7 +68,7 @@ def test_determine_node_junctions(
     return result
 
 
-@pytest.mark.parametrize("geoseries", Helpers.test_bounding_polygon_params)
+@pytest.mark.parametrize("geoseries", tests.test_bounding_polygon_params)
 def test_bounding_polygon(geoseries):
     """
     Test bounding_polygon with pytest params.
@@ -120,7 +120,7 @@ def test_dissolve_multi_part_traces(file_regression):
 
 @pytest.mark.parametrize(
     "line_gdf,area_gdf,snap_threshold,assumed_result_inter,assumed_result_cuts",
-    Helpers.test_determine_boundary_intersecting_lines_params,
+    tests.test_determine_boundary_intersecting_lines_params,
 )
 def test_determine_boundary_intersecting_lines(
     line_gdf, area_gdf, snap_threshold, assumed_result_inter, assumed_result_cuts
@@ -156,18 +156,18 @@ def test_azimuth_to_unit_vector(azimuth: float):
     "intersection_geoms,raises",
     [
         # MultiLineString
-        (gpd.GeoSeries([Helpers.invalid_geom_multilinestring]), does_not_raise()),
+        (gpd.GeoSeries([tests.invalid_geom_multilinestring]), does_not_raise()),
         # Empty geometry
-        (gpd.GeoSeries([Helpers.invalid_geom_empty]), does_not_raise()),
+        (gpd.GeoSeries([tests.invalid_geom_empty]), does_not_raise()),
         # Both above
         (
             gpd.GeoSeries(
-                [Helpers.invalid_geom_empty, Helpers.invalid_geom_multilinestring]
+                [tests.invalid_geom_empty, tests.invalid_geom_multilinestring]
             ),
             does_not_raise(),
         ),
         # Polygon
-        (gpd.GeoSeries([(Helpers.area_1)]), pytest.raises(TypeError)),
+        (gpd.GeoSeries([(tests.area_1)]), pytest.raises(TypeError)),
     ],
 )
 def test_determine_valid_intersection_points(intersection_geoms: gpd.GeoSeries, raises):

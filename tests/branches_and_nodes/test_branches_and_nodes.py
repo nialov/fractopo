@@ -11,9 +11,10 @@ from hypothesis import given
 from shapely import wkt
 from shapely.geometry import LineString, MultiLineString, Point, box
 
+import tests
 from fractopo import branches_and_nodes, general
 from fractopo.branches_and_nodes import CONNECTION_COLUMN, EE_branch
-from tests import Helpers, trace_builder
+from tests import trace_builder
 from tests.sample_data.py_samples import samples
 
 # Import trace_validator
@@ -44,16 +45,16 @@ def test_determine_branch_identity(
         assert result == branches_and_nodes.Error_branch
 
 
-def check_gdf_contents(obtained_filename, expected_filename):
-    """
-    Check that two GeoDataFrames have exactly matching contents.
-    """
-    assert Path(obtained_filename).exists() and Path(expected_filename).exists()
-    obtained_gdf = gpd.read_file(Path(obtained_filename))
-    expected_gdf = gpd.read_file(Path(expected_filename))
-    for idxrow1, idxrow2 in zip(obtained_gdf.iterrows(), expected_gdf.iterrows()):
-        assert obtained_gdf.crs == expected_gdf.crs
-        assert all(idxrow1 == idxrow2)
+# def check_gdf_contents(obtained_filename, expected_filename):
+#     """
+#     Check that two GeoDataFrames have exactly matching contents.
+#     """
+#     assert Path(obtained_filename).exists() and Path(expected_filename).exists()
+#     obtained_gdf = gpd.read_file(Path(obtained_filename))
+#     expected_gdf = gpd.read_file(Path(expected_filename))
+#     for idxrow1, idxrow2 in zip(obtained_gdf.iterrows(), expected_gdf.iterrows()):
+#         assert obtained_gdf.crs == expected_gdf.crs
+#         assert all(idxrow1 == idxrow2)
 
 
 def test_snap_traces_simple():
@@ -85,7 +86,7 @@ def test_snap_traces_simple():
 
 @pytest.mark.parametrize(
     "linestring, point, snap_threshold, assumed_result",
-    Helpers.test_insert_point_to_linestring_params,
+    tests.test_insert_point_to_linestring_params,
 )
 def test_insert_point_to_linestring(linestring, point, snap_threshold, assumed_result):
     """
@@ -107,13 +108,13 @@ def test_nice_traces():
     """
     Test snap_traces with nice trace.
     """
-    nice_traces = Helpers.get_nice_traces()
+    nice_traces = tests.get_nice_traces()
     nice_traces_list = [
         trace for trace in nice_traces.geometry.values if isinstance(trace, LineString)
     ]
     assert nice_traces.shape[0] == len(nice_traces_list)
     snapped_traces, _ = branches_and_nodes.snap_traces(
-        nice_traces_list, Helpers.snap_threshold
+        nice_traces_list, tests.snap_threshold
     )
     assert len(nice_traces) == len(snapped_traces)
     for geom in snapped_traces:
@@ -134,26 +135,27 @@ def test_crop_to_target_area(keep_column_data: bool):
         invalid_geoseries,
         valid_areas_geoseries,
         invalid_areas_geoseries,
-    ) = trace_builder.main(snap_threshold=Helpers.snap_threshold)
+    ) = trace_builder.main(snap_threshold=tests.snap_threshold)
     valid_result = general.crop_to_target_areas(
         valid_geoseries,
         valid_areas_geoseries,
         keep_column_data=keep_column_data,
     )
+    result = None
     try:
-        _ = general.crop_to_target_areas(
+        result = general.crop_to_target_areas(
             invalid_geoseries,
             invalid_areas_geoseries,
             keep_column_data=keep_column_data,
         )
-        assert False
     except TypeError:
         pass
+    assert result is None
     assert isinstance(valid_result, (gpd.GeoDataFrame, gpd.GeoSeries))
     assert valid_geoseries.geometry.length.mean() > valid_result.geometry.length.mean()
 
 
-@given(Helpers.triple_tuples)
+@given(tests.triple_tuples)
 def test_angle_to_point(triple_tuples):
     """
     Test angle_to_point.
@@ -195,16 +197,16 @@ def test_with_known_snapping_error_data():
     linestrings = [ls for ls in linestrings_loaded if isinstance(ls, LineString)]
     assert len(linestrings_loaded) == len(linestrings)
     result, any_changed_applied = branches_and_nodes.snap_traces(
-        linestrings, Helpers.snap_threshold
+        linestrings, tests.snap_threshold
     )
     count = 0
     while any_changed_applied:
         result, any_changed_applied = branches_and_nodes.snap_traces(
-            result, Helpers.snap_threshold
+            result, tests.snap_threshold
         )
         count += 1
         if count > 10:
-            raise RecursionError()
+            raise RecursionError("Expected count to stay under 11.")
 
     for ls in result:
         assert ls.is_simple
@@ -218,7 +220,7 @@ def test_with_known_mls_error():
     linestrings = samples.mls_from_these_linestrings_list
     target_area = [box(*MultiLineString(linestrings).bounds)]
     branches, nodes = branches_and_nodes.branches_and_nodes(
-        gpd.GeoSeries(linestrings), gpd.GeoSeries(target_area), Helpers.snap_threshold
+        gpd.GeoSeries(linestrings), gpd.GeoSeries(target_area), tests.snap_threshold
     )
     for branch in branches.geometry:
         assert EE_branch not in str(branches[CONNECTION_COLUMN])
@@ -232,7 +234,7 @@ def test_with_known_mls_error():
 
 @pytest.mark.parametrize(
     "trace_endpoints,another,snap_threshold,assumed_result",
-    Helpers.test_snap_trace_to_another_params,
+    tests.test_snap_trace_to_another_params,
 )
 def test_snap_trace_to_another(
     trace_endpoints: List[Point],
@@ -251,7 +253,7 @@ def test_snap_trace_to_another(
 
 @pytest.mark.parametrize(
     "traces,areas,snap_threshold,allowed_loops,already_clipped",
-    Helpers.test_branches_and_nodes_regression_params,
+    tests.test_branches_and_nodes_regression_params,
 )
 def test_branches_and_nodes_regression(
     traces, areas, snap_threshold, allowed_loops, already_clipped, data_regression
@@ -273,8 +275,8 @@ def test_branches_and_nodes_troubling():
     """
     Test branches and nodes with known troubling data.
     """
-    traces = Helpers.troubling_traces
-    areas = Helpers.sample_areas
+    traces = tests.troubling_traces
+    areas = tests.sample_areas
     snap_threshold = 0.001
     branches, nodes = branches_and_nodes.branches_and_nodes(
         traces, areas, snap_threshold, allowed_loops=10, already_clipped=False
@@ -285,7 +287,7 @@ def test_branches_and_nodes_troubling():
 
 @pytest.mark.parametrize(
     "trace,trace_candidates,snap_threshold,intersects_idx",
-    Helpers.test_simple_snap_params,
+    tests.test_simple_snap_params,
 )
 def test_simple_snap(trace, trace_candidates, snap_threshold, intersects_idx):
     """
@@ -301,7 +303,7 @@ def test_simple_snap(trace, trace_candidates, snap_threshold, intersects_idx):
 
 @pytest.mark.parametrize(
     "idx,trace,snap_threshold,traces,intersects_idx",
-    Helpers.test_snap_trace_simple_params,
+    tests.test_snap_trace_simple_params,
 )
 def test_snap_trace_simple(
     idx,
@@ -323,7 +325,7 @@ def test_snap_trace_simple(
 
 
 @pytest.mark.parametrize(
-    "traces_geosrs,snap_threshold,size_threshold", Helpers.test_safer_unary_union_params
+    "traces_geosrs,snap_threshold,size_threshold", tests.test_safer_unary_union_params
 )
 def test_safer_unary_union(traces_geosrs, snap_threshold, size_threshold):
     """
@@ -341,7 +343,7 @@ def test_safer_unary_union(traces_geosrs, snap_threshold, size_threshold):
 
 
 @pytest.mark.parametrize(
-    "loops,allowed_loops,will_error", Helpers.test_report_snapping_loop_params
+    "loops,allowed_loops,will_error", tests.test_report_snapping_loop_params
 )
 def test_report_snapping_loop(loops, allowed_loops, will_error):
     """

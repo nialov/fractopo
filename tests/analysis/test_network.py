@@ -17,11 +17,11 @@ from pandas.testing import assert_frame_equal, assert_series_equal
 from shapely.geometry import MultiPolygon, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
+import tests
 from fractopo.analysis import length_distributions
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import CachedNetwork, Network
 from fractopo.general import SetRangeTuple, read_geofile
-from tests import Helpers
 
 
 def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
@@ -69,8 +69,8 @@ def test_azimuth_set_relationships_regression(
     """
     azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
     relations_df: pd.DataFrame = Network(
-        Helpers.kb7_traces,  # type: ignore
-        Helpers.kb7_area,  # type: ignore
+        tests.kb7_traces,  # type: ignore
+        tests.kb7_area,  # type: ignore
         name="kb7",
         determine_branches_nodes=True,
         azimuth_set_ranges=azimuth_set_ranges,
@@ -96,8 +96,8 @@ def test_length_set_relationships_regression(num_regression):
     )
     trace_length_set_names: Tuple[str, ...] = ("a", "b", "c")
     relations_df: pd.DataFrame = Network(
-        Helpers.kb7_traces,  # type: ignore
-        Helpers.kb7_area,  # type: ignore
+        tests.kb7_traces,  # type: ignore
+        tests.kb7_area,  # type: ignore
         name="kb7",
         determine_branches_nodes=True,
         trace_length_set_names=trace_length_set_names,
@@ -122,7 +122,7 @@ def test_length_set_relationships_regression(num_regression):
     circular_target_area,
     try_export_of_data,
     """,
-    Helpers.test_network_params,
+    tests.test_network_params,
 )
 def test_network(
     traces,
@@ -348,8 +348,8 @@ def test_network_kb11_manual():
 
     Returns the Network.
     """
-    trace_gdf = Helpers.kb11_traces
-    area_gdf = Helpers.kb11_area
+    trace_gdf = tests.kb11_traces
+    area_gdf = tests.kb11_area
     network = Network(
         trace_gdf=trace_gdf,
         area_gdf=area_gdf,
@@ -364,7 +364,7 @@ def test_network_kb11_manual():
 
 @pytest.mark.parametrize(
     "trace_gdf,area_gdf,name",
-    Helpers.test_network_circular_target_area_params,
+    tests.test_network_circular_target_area_params,
 )
 def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression):
     """
@@ -424,8 +424,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
 @pytest.mark.parametrize(
     "trace_gdf,area_gdf,network_name,snap_threshold",
     [
-        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001),
-        (Helpers.kb11_traces, Helpers.kb11_area, "kb11", 0.001),
+        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001),
+        (tests.kb11_traces, tests.kb11_area, "kb11", 0.001),
     ],
 )
 @pytest.mark.parametrize(
@@ -502,10 +502,10 @@ def test_network_topology_reassignment(
         "truncate_traces,circular_target_area"
     ),
     [
-        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, True, True),
-        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, False, False),
-        (Helpers.kb7_traces, Helpers.kb7_area, "kb7", 0.001, True, False),
-        (Helpers.kb11_traces, Helpers.kb11_area, "kb11", 0.001, True, False),
+        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, True, True),
+        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, False, False),
+        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, True, False),
+        (tests.kb11_traces, tests.kb11_area, "kb11", 0.001, True, False),
     ],
 )
 def test_cached_network(
