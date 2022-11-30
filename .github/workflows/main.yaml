@@ -42,7 +42,7 @@ jobs:
       - name: Test with doit -> nix
         run: |
           nix develop -c poetry install
-          nix develop -c poetry run doit -v 3 ci_test:python${{ matrix.python-version }}
+          nix develop -c poetry run doit -v 3 ci_test:${{ matrix.python-version }}
 
   auxiliary:
     name: Run auxiliary doit tasks to lint and make docs & citation.
