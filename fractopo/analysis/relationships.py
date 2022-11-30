@@ -277,12 +277,10 @@ def determine_intersects(
         # node = row.geometry
         # c = row.c
 
-        l1 = first_set_prep.intersects(
-            node.buffer(buffer_value)
-        )  # Checks if node intersects set 1 traces.
-        l2 = second_set_prep.intersects(
-            node.buffer(buffer_value)
-        )  # Checks if node intersects set 2 traces.
+        # Checks if node intersects set 1 traces.
+        l1 = first_set_prep.intersects(node.buffer(buffer_value))
+        # Checks if node intersects set 2 traces.
+        l2 = second_set_prep.intersects(node.buffer(buffer_value))
 
         if (l1 is False) and (l2 is False):  # DEBUGGING
             raise ValueError(
