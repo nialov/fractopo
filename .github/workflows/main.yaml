@@ -6,6 +6,8 @@ on:
     paths:
       - "**.py"
       - "**.rst"
+      - "**.nix"
+      - "**.lock"
       - "pyproject.toml"
       - "poetry.lock"
       - ".pre-commit-config.yaml"
