@@ -113,7 +113,10 @@ def tests_pip(session):
         session.run("coverage-badge", "-f", "-o", str(COVERAGE_SVG_PATH))
 
     # Test that entrypoint works.
-    session.run(PACKAGE_NAME.replace("_", "-"), "--help")
+    # Test only runs if PACKAGE_NAME/__main__.py exists
+    if (Path(PACKAGE_NAME) / "__main__.py").exists():
+        # session.run(PACKAGE_NAME.replace("_", "-"), "--help")
+        session.run("python", "-m", PACKAGE_NAME, "--help")
 
 
 def resolve_session_posargs(session):
