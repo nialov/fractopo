@@ -323,7 +323,7 @@ name = "coverage"
 version = "6.5.0"
 description = "Code coverage measurement for Python"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.extras]
@@ -1634,6 +1634,18 @@ pyyaml = "*"
 dev = ["tox", "restructuredtext-lint", "pre-commit", "pillow", "pandas", "numpy", "matplotlib"]
 
 [[package]]
+name = "pytest-testmon"
+version = "1.4.2"
+description = "selects tests affected by changed files and methods"
+category = "dev"
+optional = false
+python-versions = "<3.12,>=3.7"
+
+[package.dependencies]
+coverage = ">=6,<7"
+pytest = ">=5,<8"
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -2327,7 +2339,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.12"
-content-hash = "86f660debb33ed87da2851c83d0644beefa0aa9332aa7f0663c9c67b56131c21"
+content-hash = "c76a647cad572f417222987664e95e876cb9277e1abdb613d7f57b2f6498c565"
 
 [metadata.files]
 alabaster = []
@@ -2761,6 +2773,9 @@ pyrsistent = []
 pytest = []
 pytest-datadir = []
 pytest-regressions = []
+pytest-testmon = [
+    {file = "pytest-testmon-1.4.2.tar.gz", hash = "sha256:ded616d115916db18a6cfa575aea89efdb1158c8febe77df4b45cd6bb61bd1fc"},
+]
 python-dateutil = []
 python-ternary = []
 pytz = [

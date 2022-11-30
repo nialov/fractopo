@@ -171,3 +171,4 @@ docs_src/auto_examples/
 .direnv
 .envrc
 .fractopo_cache
+.testmondata
