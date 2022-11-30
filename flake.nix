@@ -10,20 +10,26 @@
     let
       # Create function to generate the poetry-included shell with single
       # input: pkgs
-      poetry-wrapped-generate = { pkgs, pythons, poetry ? pkgs.poetry }:
+      wrapPoetry = { pkgs, pythons }:
         let
           inherit (pkgs) lib;
           # The wanted python interpreters are set here. E.g. if you want to
           # add Python 3.7, add 'python37'.
-          # pythons = with pkgs; [ python38 python39 python310 ];
+          pythonPkgs = lib.forEach pythons (python: pkgs."${python}");
+          # inherit pythons;
 
-          # The paths to site-packages are extracted and joined with a colon
-          site-packages = lib.concatStringsSep ":"
-            (lib.forEach pythons (python: "${python}/${python.sitePackages}"));
+          # The paths to site-packages are extracted and joined with a colon.
+          sitePackages = lib.concatStringsSep ":" (lib.forEach pythonPkgs
+            (python: "${python}/${python.sitePackages}"));
 
-          # The paths to interpreters are extracted and joined with a colon
+          # The paths to interpreters are extracted and joined with a colon.
           interpreters = lib.concatStringsSep ":"
-            (lib.forEach pythons (python: "${python}/bin"));
+            (lib.forEach pythonPkgs (python: "${python}/bin"));
+
+          # Use latest poetry version from nixpkgs.
+          # The poetry dev shell might use another Python interpreter.
+          # That is set explicitly in the shellHook.
+          inherit (pkgs) poetry;
 
           # Create a script with the filename poetry so that all "poetry"
           # prefixed commands run the same. E.g. you can use 'poetry run'
@@ -41,132 +47,107 @@
           export CURL_CA_BUNDLE=$CERT
           export LD_LIBRARY_PATH=$CLIB:$ZLIB
 
-          export PYTHONPATH=${site-packages}
+          export PYTHONPATH=${sitePackages}
           export PATH=${interpreters}:$PATH
           ${pkgs.execline}/bin/exec -a "$0" "${poetry}/bin/poetry" "$@"
         '';
       # Define the actual development shell that contains the now wrapped
       # poetry executable 'poetry-wrapped'
-      # mkshell = pkgs:
+      makeDevShellWithPoetry =
+        { pkgs, pythons, defaultPython, devShellPackages }:
+        pkgs.mkShell {
+          # The development environment can contain any tools from nixpkgs
+          # alongside poetry Here we add e.g. pre-commit and pandoc
+          # packages = with pkgs; [ pre-commit pandoc wrappedPoetry ];
+          packages = devShellPackages;
 
+          envrc_contents = ''
+            use flake
+          '';
+
+          # Define a shellHook that is called every time that development shell
+          # is entered. It installs pre-commit hooks and prints a message about
+          # how to install python dependencies with poetry. Lastly, it
+          # generates an '.envrc' file for use with 'direnv' which I recommend
+          # using for easy usage of the development shell
+          shellHook = let
+
+            defaultPythonPkg = pkgs.${defaultPython};
+            # Install pre-commit hooks
+            installPrecommit = ''
+              [[ -a .pre-commit-config.yaml ]] && \
+                echo "Installing pre-commit hooks"; pre-commit install '';
+            # Report how to install poetry packages
+            reportPoetry = ''
+              ${pkgs.pastel}/bin/pastel paint -n green "
+              Run poetry install to install environment from poetry.lock
+              "
+            '';
+            # Generate .envrc if it does not exist
+            createEnvrc = ''
+              [[ ! -a .envrc ]] && echo -n "$envrc_contents" > .envrc
+            '';
+            # Set poetry to use specific Python interpreter
+            setPoetryEnv = ''
+              poetry env use ${defaultPythonPkg.interpreter}
+            '';
+          in ''
+            ${installPrecommit}
+            ${setPoetryEnv}
+            ${reportPoetry}
+            ${createEnvrc}
+          '';
+        };
       # Use flake-utils to declare the development shell for each system nix
       # supports e.g. x86_64-linux and x86_64-darwin (but no guarantees are
       # given that it works except for x86_64-linux, which I use).
     in flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ]
     (system:
       let
-        pkgs = nixpkgs.legacyPackages."${system}";
-        # Pass pkgs input to poetry-wrapped-generate function which then
-        # returns the poetry-wrapped package.
-        # poetry-wrapped = poetry-wrapped-generate {
-        #   inherit pkgs;
-        #   pythons = with pkgs; [ python39 ];
-        #   poetry = pkgs.python39Packages.poetry;
-        # };
+        # Initialize nixpkgs for system
+        pkgs = import nixpkgs { inherit system; };
+
+        # Choose Python interpreters to include in all devShells
+        pythons = [ "python38" "python39" "python310" ];
+
+        # Choose default Python interpreter to use with poetry
+        defaultPython = "python39";
+
+        # wrappedPoetry is also included as a flake output package
+        wrappedPoetry = wrapPoetry { inherit pkgs pythons; };
+
+        # Any packages from nixpkgs can be added here
+        devShellPackages = with pkgs; [ pre-commit pandoc wrappedPoetry ];
+
+        # Generate devShells for wanted Pythons
+        devShells = builtins.foldl' (x: y: (pkgs.lib.recursiveUpdate x y)) { }
+          (pkgs.lib.forEach pythons (python: {
+            "${python}" = makeDevShellWithPoetry {
+              inherit pkgs pythons devShellPackages;
+              defaultPython = python;
+            };
+          }));
+
+        # Add default devShell
+        devShellsWithDefault = pkgs.lib.recursiveUpdate devShells {
+          default = devShells."${defaultPython}";
+        };
+        wrappedPoetryChecks = let
+          mkCheck = python:
+            let wrappedPoetry = wrapPoetry { inherit pkgs pythons; };
+            in pkgs.runCommand "test-poetry-wrapped" { } ''
+              ${wrappedPoetry}/bin/poetry --help
+              ${wrappedPoetry}/bin/poetry init -n
+              ${wrappedPoetry}/bin/poetry check
+              mkdir $out
+            '';
+        in builtins.foldl' (x: y: (pkgs.lib.recursiveUpdate x y)) { }
+        (pkgs.lib.forEach [ defaultPython ]
+          (python: { "${python}" = mkCheck python; }));
       in {
-        devShells = let
-          mkPoetryShell = pythonv:
-            let
-              poetry-wrapped = poetry-wrapped-generate {
-                inherit pkgs;
-                pythons = [ pythonv ];
-              };
-            in pkgs.mkShell {
-              # The development environment can contain any tools from nixpkgs
-              # alongside poetry Here we add e.g. pre-commit and pandoc
-              packages = with pkgs; [
-                pre-commit
-                pandoc
-                poetry-wrapped
-                git
-                # (doit.overrideAttrs (prev: {
-                #   propagatedBuildInputs = prev.propagatedBuildInputs
-                #     ++ [ python3Packages.tomli ];
-                # }))
-              ];
-
-              envrc_contents = ''
-                use flake
-              '';
-
-              # Define a shellHook that is called every time that development shell
-              # is entered. It installs pre-commit hooks and prints a message about
-              # how to install python dependencies with poetry. Lastly, it
-              # generates an '.envrc' file for use with 'direnv' which I recommend
-              # using for easy usage of the development shell
-              shellHook = ''
-                [[ -a .pre-commit-config.yaml ]] && \
-                  echo "Installing pre-commit hooks"; pre-commit install
-                [[ ! -a .envrc ]] && echo -n "$envrc_contents" > .envrc
-                ${poetry-wrapped}/bin/poetry env use ${pythonv.interpreter}
-                ${pkgs.pastel}/bin/pastel paint -n green "
-                Run poetry install to install environment from poetry.lock
-                "
-              '';
-            };
-          checks = let
-            mkCheck = pythonv:
-              let
-                poetry-wrapped = poetry-wrapped-generate {
-                  inherit pkgs;
-                  pythons = [ pythonv ];
-                };
-              in {
-                test-poetry-wrapped =
-                  pkgs.runCommand "test-poetry-wrapped" { } ''
-                    ${poetry-wrapped}/bin/poetry --help
-                    ${poetry-wrapped}/bin/poetry init -n
-                    ${poetry-wrapped}/bin/poetry check
-                    mkdir $out
-                  '';
-              };
-          in {
-            python38 = mkCheck pkgs.python38;
-            python39 = mkCheck pkgs.python39;
-            python310 = mkCheck pkgs.python310;
-
-          };
-        in {
-          python38 = mkPoetryShell pkgs.python38;
-          python39 = mkPoetryShell pkgs.python39;
-          python310 = mkPoetryShell pkgs.python310;
-          default = self.devShells."${system}".python39;
-        };
-        packages = let
-          genImg = pythonv:
-            let
-              poetry-wrapped = poetry-wrapped-generate {
-                inherit pkgs;
-                # Do not need to specify poetry version as interpreter is explicitly set
-                inherit (pkgs) poetry;
-                # TODO: No need for multiple pythons
-                pythons = [ pythonv ];
-              };
-              script = pkgs.writeShellScriptBin "test-script" ''
-                ${poetry-wrapped}/bin/poetry check && \
-                    ${poetry-wrapped}/bin/poetry env use ${pythonv.interpreter} && \
-                    ${poetry-wrapped}/bin/poetry install && \
-                    ${poetry-wrapped}/bin/poetry run pytest --collect-only
-              '';
-            in pkgs.dockerTools.streamLayeredImage {
-              name = "layered-image";
-              tag = "latest";
-              extraCommands = ''
-                cp -r ${./.} ./src/
-                chmod 777 ./src
-              '';
-              config = {
-                Cmd = [ "${script}/bin/test-script" ];
-                WorkingDir = "/src";
-                Env = [ "POETRY_CACHE_DIR=/poetry-cache" ];
-              };
-              # contents = with pkgs; [ pkgs.hello pkgs.bash pkgs.coreutils curl ];
-            };
-        in {
-          # python37-fractopo-test = genImg pkgs.python37;
-          python38-fractopo-test = genImg pkgs.python38;
-          python39-fractopo-test = genImg pkgs.python39;
-          python310-fractopo-test = genImg pkgs.python310;
-        };
+        checks = wrappedPoetryChecks;
+        packages.poetry-wrapped = wrappedPoetry;
+        packages.default = wrappedPoetry;
+        devShells = devShellsWithDefault;
       });
 }
