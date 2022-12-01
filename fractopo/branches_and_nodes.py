@@ -946,11 +946,13 @@ def branches_and_nodes(
     areas_geosrs: gpd.GeoSeries = areas.geometry
 
     # Collect into lists
-    areas_list = [
-        poly
+    areas_lists_of_polygons = [
+        [poly] if isinstance(poly, Polygon) else list(poly.geoms)
         for poly in areas_geosrs.geometry.values
         if isinstance(poly, (Polygon, MultiPolygon))
     ]
+    areas_list = list(chain(*areas_lists_of_polygons))
+    assert all(isinstance(poly, Polygon) for poly in areas_list), areas_list
 
     # Collect into lists
     traces_list = [

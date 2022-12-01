@@ -260,26 +260,6 @@ def sample_grid(
     assert isinstance(nodes_reset, gpd.GeoDataFrame)
     assert isinstance(branches_reset, gpd.GeoDataFrame)
     traces, nodes, branches = traces_reset, nodes_reset, branches_reset
-    # [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
-    # traces_sindex = pygeos_spatial_index(traces)
-    # nodes_sindex = pygeos_spatial_index(nodes)
-
-    # params_for_cells = list(
-    #     map(
-    #         lambda sample_cell: populate_sample_cell(
-    #             sample_cell=sample_cell,
-    #             sample_cell_area=sample_cell_area,
-    #             traces_sindex=traces_sindex,
-    #             traces=traces,
-    #             nodes=nodes,
-    #             branches=branches,
-    #             snap_threshold=snap_threshold,
-    #             resolve_branches_and_nodes=resolve_branches_and_nodes,
-    #         ),
-    #         grid.geometry.values,
-    #     )
-    # )
-    # Use all CPUs with n_jobs=-1
     params_for_cells = Parallel(n_jobs=-1)(
         delayed(populate_sample_cell)(
             sample_cell=sample_cell,

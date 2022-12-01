@@ -1227,7 +1227,8 @@ def crop_to_target_areas(
     else:
         candidate_traces = traces
 
-    if keep_column_data:
+    # TODO: Remove environment check
+    if keep_column_data or os.environ.get("USE_PYGEOS") == "0":
         assert all(area_geom.is_valid for area_geom in areas.geometry.values)
         assert all(not area_geom.is_empty for area_geom in areas.geometry.values)
         # geopandas.clip keeps the column data
@@ -1320,23 +1321,27 @@ def dissolve_multi_part_traces(
     """
     # Get MultiLineString rows
     mls_bools = [isinstance(trace, MultiLineString) for trace in traces.geometry.values]
-    mls_traces = traces.loc[
-        [isinstance(trace, MultiLineString) for trace in traces.geometry.values]
-    ]
+
     # If no MultiLineString geoms -> return original
-    if mls_traces.shape[0] == 0:
+    if sum(mls_bools) == 0:
         return traces
+
+    # Only MultiLineStrings
+    mls_traces = traces.loc[mls_bools]
 
     # Gather LineString geoms
     ls_traces = traces.loc[[not val for val in mls_bools]]
 
+    as_linestrings_list = [mls_to_ls([geom]) for geom in mls_traces.geometry.values]
+
+    if isinstance(traces, gpd.GeoSeries):
+        return gpd.GeoSeries(
+            [*list(chain(*as_linestrings_list)), *ls_traces.geometry.to_list()],
+            crs=traces.crs,
+        )
+
     # Dissolve MultiLineString geoms but keep same row data
     dissolved_rows = []
-
-    as_linestrings_list = [mls_to_ls([geom]) for geom in mls_traces.geometry.values]
-    if isinstance(traces, gpd.GeoSeries):
-        return gpd.GeoSeries(list(chain(*as_linestrings_list)), crs=traces.crs)
-
     for (_, row), as_linestrings in zip(mls_traces.iterrows(), as_linestrings_list):
         # as_linestrings = mls_to_ls([row.geometry])
         if len(as_linestrings) == 0:
