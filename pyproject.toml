@@ -38,7 +38,7 @@ fractopo = "fractopo.cli:app"
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 click = "*"
-geopandas = "~0.11.1"
+geopandas = "~0.12.0"
 joblib = "^1.2.0"
 matplotlib = "*"
 numpy = "*"
@@ -50,7 +50,7 @@ rich = "^11.0.0"
 scikit-learn = "*"
 scipy = "^1.9.1"
 seaborn = "*"
-shapely = "~1.8.0"
+shapely = "2.0rc1"
 typer = "^0.4"
 
 # Extras

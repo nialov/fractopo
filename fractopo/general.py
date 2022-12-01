@@ -737,10 +737,10 @@ def determine_general_nodes(
     except TypeError:
         spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
-        if not isinstance(geom, LineString):
+        if not isinstance(geom, LineString) or geom.is_empty:
 
             # Intersections and endpoints are not defined for
-            # MultiLineStrings
+            # MultiLineStrings or empty LineStrings
             intersect_nodes.append(())
             endpoint_nodes.append(())
             continue

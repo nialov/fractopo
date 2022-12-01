@@ -126,8 +126,8 @@ class Validation:
                 or len(spatial_index) == 0
             ):
                 logging.warning(
-                    "Expected sindex property to be of type: PyGEOSSTRTreeIndex \n"
-                    "and non-empty."
+                    "Expected sindex property to be of type: PyGEOSSTRTreeIndex"
+                    " and non-empty."
                 )
                 self._spatial_index = None
                 return self._spatial_index

@@ -1,10 +1,14 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+import os
 from functools import lru_cache
 from pathlib import Path
 from traceback import print_tb
 from typing import List
+
+# Make GeoPandas use shapely 2.0 instead of pygeos
+os.environ["USE_PYGEOS"] = "0"
 
 import geopandas as gpd
 import numpy as np
@@ -12,6 +16,7 @@ import pandas as pd
 import pytest
 from click.testing import Result
 from hypothesis.strategies import floats, integers, tuples
+from shapely.errors import GEOSException
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -1681,7 +1686,7 @@ def generate_known_params(error, false_positive):
     ]
     try:
         areas = [gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns]
-    except (ValueError, AttributeError):
+    except (ValueError, AttributeError, GEOSException):
         areas = [
             gpd.GeoDataFrame(
                 geometry=[

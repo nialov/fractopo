@@ -4,7 +4,11 @@ fractopo.
 Fracture Network Analysis
 """
 import logging
+import os
 import warnings
+
+# Make GeoPandas use shapely 2.0 instead of pygeos
+os.environ["USE_PYGEOS"] = "0"
 
 warnings.filterwarnings(
     action="ignore",
