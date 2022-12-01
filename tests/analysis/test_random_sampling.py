@@ -10,7 +10,7 @@ from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 from fractopo.general import Error_branch
 
 
-def test_network_random_sampler_manual():
+def _test_network_random_sampler_manual():
     """
     Test NetworkRandomSampler sampling manually.
     """
@@ -57,6 +57,13 @@ def test_network_random_sampler_manual():
             sum(network.branch_types == Error_branch) / len(network.branch_types) < 0.01
         )
     return circle_samples
+
+
+def test_network_random_sampler_manual():
+    """
+    Test NetworkRandomSampler sampling manually.
+    """
+    _test_network_random_sampler_manual()
 
 
 @pytest.mark.parametrize(

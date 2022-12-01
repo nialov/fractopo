@@ -56,8 +56,7 @@ nodes = gpd.GeoDataFrame(
 )
 
 
-@pytest.mark.parametrize("cell_width", [CELL_WIDTH, 0.15, 0.25, 0.5])
-def test_create_grid(cell_width: float):
+def _test_create_grid(cell_width: float):
     """
     Test create_grid.
     """
@@ -73,12 +72,20 @@ def test_create_grid(cell_width: float):
     return grid
 
 
+@pytest.mark.parametrize("cell_width", [CELL_WIDTH, 0.15, 0.25, 0.5])
+def test_create_grid(cell_width: float):
+    """
+    Test create_grid.
+    """
+    _test_create_grid(cell_width=cell_width)
+
+
 @pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
 def test_sample_grid(snap_threshold: float):
     """
     Test sampling a grid.
     """
-    grid = test_create_grid(cell_width=CELL_WIDTH)
+    grid = _test_create_grid(cell_width=CELL_WIDTH)
     grid_with_topo = contour_grid.sample_grid(
         grid,
         BRANCHES,

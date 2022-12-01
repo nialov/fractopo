@@ -58,7 +58,7 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
     validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
         Validation.ERROR_COLUMN
     ].astype(str)
-    return validated_gdf
+    # return validated_gdf
 
 
 @pytest.mark.parametrize(

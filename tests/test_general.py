@@ -1,5 +1,5 @@
 """
-Tests for general utilites.
+Tests for general utilities.
 """
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
@@ -65,7 +65,6 @@ def test_determine_node_junctions(
         nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
     )
     assert isinstance(result, set)
-    return result
 
 
 @pytest.mark.parametrize("geoseries", tests.test_bounding_polygon_params)

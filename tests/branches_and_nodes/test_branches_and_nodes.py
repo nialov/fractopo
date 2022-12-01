@@ -121,7 +121,7 @@ def test_nice_traces():
         assert isinstance(geom, LineString)
         assert geom.is_valid
         assert geom.is_simple
-    return nice_traces, snapped_traces
+    # return nice_traces, snapped_traces
 
 
 @pytest.mark.parametrize("keep_column_data", [True, False])

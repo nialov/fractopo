@@ -342,7 +342,7 @@ def network_extensive_testing(
         plt.close("all")
 
 
-def test_network_kb11_manual():
+def _test_network_kb11_manual():
     """
     Test Network analysis with KB11 data.
 
@@ -360,6 +360,15 @@ def test_network_kb11_manual():
         circular_target_area=False,
     )
     return network
+
+
+def test_network_kb11_manual():
+    """
+    Test Network analysis with KB11 data.
+
+    Returns the Network.
+    """
+    _test_network_kb11_manual()
 
 
 @pytest.mark.parametrize(
