@@ -19,7 +19,10 @@
     "type": "LineString"
    },
    "id": "0",
-   "properties": {},
+   "properties": {
+    "desc": "triangle at s",
+    "fid text": "this is 1"
+   },
    "type": "Feature"
   },
   {
@@ -37,7 +40,10 @@
     "type": "LineString"
    },
    "id": "1",
-   "properties": {},
+   "properties": {
+    "desc": "sw edge",
+    "fid text": "this is 2"
+   },
    "type": "Feature"
   },
   {
@@ -55,7 +61,10 @@
     "type": "LineString"
    },
    "id": "2",
-   "properties": {},
+   "properties": {
+    "desc": "ends",
+    "fid text": "this is 3"
+   },
    "type": "Feature"
   },
   {
@@ -73,7 +82,10 @@
     "type": "LineString"
    },
    "id": "3",
-   "properties": {},
+   "properties": {
+    "desc": "over",
+    "fid text": "this is 4"
+   },
    "type": "Feature"
   },
   {
@@ -91,7 +103,10 @@
     "type": "LineString"
    },
    "id": "4",
-   "properties": {},
+   "properties": {
+    "desc": "r triangle at e",
+    "fid text": "this is 5"
+   },
    "type": "Feature"
   },
   {
@@ -109,7 +124,10 @@
     "type": "LineString"
    },
    "id": "5",
-   "properties": {},
+   "properties": {
+    "desc": "r triangle at e",
+    "fid text": "this is 5"
+   },
    "type": "Feature"
   },
   {
@@ -131,7 +149,10 @@
     "type": "LineString"
    },
    "id": "6",
-   "properties": {},
+   "properties": {
+    "desc": "M at e",
+    "fid text": "6"
+   },
    "type": "Feature"
   },
   {
@@ -153,7 +174,10 @@
     "type": "LineString"
    },
    "id": "7",
-   "properties": {},
+   "properties": {
+    "desc": "M at e",
+    "fid text": "6"
+   },
    "type": "Feature"
   }
  ],

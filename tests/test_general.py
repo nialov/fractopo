@@ -95,6 +95,7 @@ def test_crop_to_target_areas(keep_column_data: bool, file_regression):
     cropped_traces = general.crop_to_target_areas(
         traces=trace_data,
         areas=area_data,
+        # TODO: keep_column_data is deprecated when pygeos is deprecated
         keep_column_data=keep_column_data,
     )
     assert isinstance(cropped_traces, gpd.GeoDataFrame)
