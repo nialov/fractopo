@@ -7,15 +7,15 @@ import geopandas as gpd
 import pytest
 from typer.testing import CliRunner as TyperCliRunner
 
+import tests
 from fractopo import cli
 from fractopo.tval.trace_validation import Validation
-from tests import Helpers, click_error_print
 
 typer_cli_runner = TyperCliRunner()
 
 
 @pytest.mark.parametrize(
-    "trace_path, area_path, auto_fix", Helpers.test_tracevalidate_params
+    "trace_path, area_path, auto_fix", tests.test_tracevalidate_params
 )
 @pytest.mark.parametrize("snap_threshold", [0.01, 0.001])
 def test_tracevalidate_typer(
@@ -44,7 +44,7 @@ def test_tracevalidate_typer(
     ]
     result = clirunner.invoke(cli.app, cli_args)
     # Check that exit code is 0 (i.e. ran successfully.)
-    click_error_print(result)
+    tests.click_error_print(result)
     # Checks if output is saved
     assert output_file.exists()
     output_gdf = gpd.read_file(output_file)
@@ -66,7 +66,7 @@ def test_make_output_dir(tmp_path):
     assert output_dir.is_dir()
 
 
-@pytest.mark.parametrize("args", Helpers.test_tracevalidate_only_area_params)
+@pytest.mark.parametrize("args", tests.test_tracevalidate_only_area_params)
 def test_tracevalidate_only_area(args, tmp_path):
     """
     Test tracevalidate script with --only-area-validation.
@@ -75,7 +75,7 @@ def test_tracevalidate_only_area(args, tmp_path):
     clirunner = TyperCliRunner()
     result = clirunner.invoke(cli.app, ["tracevalidate"] + args + outputs_cmds)
     # Check that exit code is 0 (i.e. ran successfully.)
-    click_error_print(result)
+    tests.click_error_print(result)
 
     assert Path(outputs_cmds[1]).exists()
     assert Validation.ERROR_COLUMN in gpd.read_file(outputs_cmds[1]).columns
@@ -84,8 +84,8 @@ def test_tracevalidate_only_area(args, tmp_path):
 @pytest.mark.parametrize(
     "traces_path,area_path,determine_branches_nodes",
     [
-        (Helpers.kb7_trace_50_path, Helpers.kb7_area_path, True),
-        (Helpers.kb7_trace_50_path, Helpers.kb7_area_path, False),
+        (tests.kb7_trace_50_path, tests.kb7_area_path, True),
+        (tests.kb7_trace_50_path, tests.kb7_area_path, False),
     ],
 )
 def test_fractopo_network_cli(
@@ -107,7 +107,7 @@ def test_fractopo_network_cli(
         + ([] if determine_branches_nodes else ["--no-determine-branches-nodes"]),
     )
 
-    click_error_print(result)
+    tests.click_error_print(result)
 
     output_files = list(tmp_path.glob("*"))
     output_files_names = [path.name for path in output_files]
@@ -139,7 +139,7 @@ def test_fractopo_callback(logging_level_str: str):
             "info",
         ],
     )
-    click_error_print(result=result)
+    tests.click_error_print(result=result)
 
 
 @pytest.mark.parametrize(
@@ -158,4 +158,4 @@ def test_fractopo_callback_error(logging_level_str: str):
                 "info",
             ],
         )
-        click_error_print(result=result)
+        tests.click_error_print(result=result)

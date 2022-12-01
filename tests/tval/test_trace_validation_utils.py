@@ -5,13 +5,13 @@ import pytest
 from shapely.geometry import LineString
 
 import fractopo.tval.trace_validation_utils as trace_validation_utils
-from tests import Helpers
+import tests
 
 
 @pytest.mark.parametrize(
     "linestring,multilinestring,snap_threshold,snap_threshold_error_multiplier,"
     "overlap_detection_multiplier,assume_result",
-    Helpers.test_segment_within_buffer_params,
+    tests.test_segment_within_buffer_params,
 )
 def test_segment_within_buffer(
     linestring,
@@ -37,7 +37,7 @@ def test_segment_within_buffer(
 
 @pytest.mark.parametrize(
     "linestring,threshold_length,assume_result_size",
-    Helpers.test_segmentize_linestring_params,
+    tests.test_segmentize_linestring_params,
 )
 def test_segmentize_linestring(linestring, threshold_length, assume_result_size):
     """
@@ -52,7 +52,7 @@ def test_segmentize_linestring(linestring, threshold_length, assume_result_size)
 @pytest.mark.parametrize(
     "trace,splitter_trace,snap_threshold,"
     "triangle_error_snap_multiplier,assumed_result",
-    Helpers.test_split_to_determine_triangle_errors_params,
+    tests.test_split_to_determine_triangle_errors_params,
 )
 def test_split_to_determine_triangle_errors(
     trace,
@@ -76,7 +76,7 @@ def test_split_to_determine_triangle_errors(
 
 @pytest.mark.parametrize(
     "segments,snap_threshold," "snap_threshold_error_multiplier,assumed_result",
-    Helpers.test_determine_middle_in_triangle_params,
+    tests.test_determine_middle_in_triangle_params,
 )
 def test_determine_middle_in_triangle(
     segments, snap_threshold, snap_threshold_error_multiplier, assumed_result

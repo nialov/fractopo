@@ -331,7 +331,7 @@ name = "coverage"
 version = "6.5.0"
 description = "Code coverage measurement for Python"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.extras]
@@ -2370,7 +2370,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.12"
-content-hash = "61242333251a71840e9501da2f6e4d95bc49028534f5f74927bd75e81a12a40c"
+content-hash = "6360d79e3eef1dd60f2ca0fd694d7fec616a7e09d19a88bf44cbad63b1bc2711"
 
 [metadata.files]
 alabaster = []

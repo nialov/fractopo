@@ -10,7 +10,6 @@ from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 import tests
 from fractopo.analysis import parameters
-from tests import Helpers
 
 # import os
 
@@ -23,7 +22,7 @@ from tests import Helpers
 # See:
 #     """,
 # )
-@pytest.mark.parametrize("node_counts_list,labels", Helpers.test_plot_xyi_plot_params)
+@pytest.mark.parametrize("node_counts_list,labels", tests.test_plot_xyi_plot_params)
 def test_plot_xyi_plot(node_counts_list, labels):
     """
     Test plotting xyi.
@@ -38,7 +37,7 @@ def test_plot_xyi_plot(node_counts_list, labels):
 
 
 @pytest.mark.parametrize(
-    "branch_counts_list,labels,colors", Helpers.test_plot_branch_plot_params
+    "branch_counts_list,labels,colors", tests.test_plot_branch_plot_params
 )
 def test_plot_branch_plot(branch_counts_list, labels, colors):
     """
@@ -55,7 +54,7 @@ def test_plot_branch_plot(branch_counts_list, labels, colors):
 
 @pytest.mark.parametrize(
     "trace_length_array,node_counts,area,branches_defined,correct_mauldon,branch_length_array",
-    Helpers.test_determine_topology_parameters_params,
+    tests.test_determine_topology_parameters_params,
 )
 def test_determine_topology_parameters(
     trace_length_array,
@@ -84,7 +83,7 @@ def test_determine_topology_parameters(
 
 
 @pytest.mark.parametrize(
-    "topology_parameters_list, labels, colors", Helpers.test_plot_topology_params
+    "topology_parameters_list, labels, colors", tests.test_plot_topology_params
 )
 def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     """

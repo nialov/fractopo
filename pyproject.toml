@@ -89,6 +89,7 @@ pyinstrument = "*"
 pytest = "*"
 pytest-regressions = "==2.2.0"
 toml = "*"
+coverage = "^6.5.0"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]

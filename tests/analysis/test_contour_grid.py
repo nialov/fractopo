@@ -19,7 +19,6 @@ from fractopo.general import (
     Param,
     pygeos_spatial_index,
 )
-from tests import Helpers
 
 CELL_WIDTH = 0.10
 BRANCHES = gpd.GeoDataFrame(
@@ -91,7 +90,7 @@ def test_sample_grid(snap_threshold: float):
 
 
 @pytest.mark.parametrize(
-    "traces,areas,snap_threshold,name", Helpers.test_network_contour_grid_params
+    "traces,areas,snap_threshold,name", tests.test_network_contour_grid_params
 )
 def test_network_contour_grid(
     traces, areas, snap_threshold, name, dataframe_regression

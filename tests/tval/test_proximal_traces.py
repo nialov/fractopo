@@ -6,14 +6,14 @@ from typing import Union
 import geopandas as gpd
 import pytest
 
+import tests
 from fractopo.general import read_geofile
 from fractopo.tval import proximal_traces
-from tests import Helpers
 
 
 @pytest.mark.parametrize(
     "traces,buffer_value,azimuth_tolerance",
-    Helpers.test_determine_proximal_traces_params,
+    tests.test_determine_proximal_traces_params,
 )
 def test_determine_proximal_traces(
     traces: Union[gpd.GeoDataFrame, gpd.GeoSeries], buffer_value, azimuth_tolerance
@@ -32,7 +32,7 @@ def test_determine_proximal_traces_regression(file_regression):
     """
     Test determine_proximal_traces with regression.
     """
-    traces = read_geofile(Helpers.sample_trace_100_data)
+    traces = read_geofile(tests.sample_trace_100_data)
     traces.reset_index(drop=True, inplace=True)
     assert isinstance(traces, gpd.GeoDataFrame) and len(traces) > 0
     buffer_value = 1

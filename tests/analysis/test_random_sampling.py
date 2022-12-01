@@ -4,18 +4,18 @@ Tests for NetworkRandomSampler.
 import numpy as np
 import pytest
 
+import tests
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 from fractopo.general import Error_branch
-from tests import Helpers
 
 
 def test_network_random_sampler_manual():
     """
     Test NetworkRandomSampler sampling manually.
     """
-    trace_gdf = Helpers.geta_1_traces
-    area_gdf = Helpers.geta_1_1_area
+    trace_gdf = tests.geta_1_traces
+    area_gdf = tests.geta_1_1_area
     min_radius = 10
     snap_threshold = 0.001
     samples = 1
@@ -65,7 +65,7 @@ def test_network_random_sampler_manual():
 )
 @pytest.mark.parametrize(
     "trace_gdf,area_gdf,min_radius,snap_threshold,samples,random_choice",
-    Helpers.test_network_random_sampler_params,
+    tests.test_network_random_sampler_params,
 )
 def test_network_random_sampler(
     trace_gdf,
