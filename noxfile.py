@@ -462,7 +462,7 @@ def validate_citation_cff(session):
     session.chdir(str(citation_file_format_dir))
 
     # install the validation dependencies in user space
-    session.install("ruamel.yaml", "jsonschema")
+    session.install("ruamel.yaml==0.17.21", "jsonschema==4.16.0")
 
     # run the validator on your CITATION.cff
     session.run(
@@ -545,5 +545,5 @@ def codespell(session):
     """
     Check spelling in code.
     """
-    session.install("codespell")
+    session.install(_parse_requirements_version("codespell"))
     session.run("codespell", PACKAGE_NAME, str(DOCS_EXAMPLES_PATH))
