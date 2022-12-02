@@ -129,10 +129,11 @@ def task_requirements():
     ):
         yield {
             NAME: str(requirements_path),
-            FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
+            FILE_DEP: [POETRY_LOCK_PATH],
             TASK_DEP: [resolve_task_name(task_lock_check)],
             ACTIONS: [command_base.format(options, requirements_path)],
             TARGETS: [requirements_path],
+            UP_TO_DATE: [config_changed(dict(command_base=command_base))],
         }
 
 
@@ -272,10 +273,6 @@ def task_build():
     """
     return {
         ACTIONS: ["poetry build"],
-        TASK_DEP: [
-            resolve_task_name(task_pre_commit),
-            resolve_task_name(task_ci_test),
-        ],
     }
 
 
