@@ -135,4 +135,3 @@ are referred to multiple sources:
    :caption: Module documentation
 
    apidoc/fractopo
-
