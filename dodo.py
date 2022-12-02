@@ -334,7 +334,7 @@ def update_citation():
 
     # Write back to CITATION.cff including newline at end
     with CITATION_CFF_PATH.open("w", newline="\n", encoding=UTF8) as openfile:
-        openfile.write("\n".join(new_lines))
+        openfile.write("\n".join(new_lines) + "\n")
 
 
 def task_citation():

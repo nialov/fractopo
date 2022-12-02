@@ -65,11 +65,6 @@ def execute_notebook(session, notebook: Path):
         "nbstripout",
         str(notebook),
     )
-    # Strip output
-    session.run(
-        "nbstripout",
-        str(notebook),
-    )
 
 
 def install_dev(session, extras: str = ""):
