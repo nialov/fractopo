@@ -92,6 +92,23 @@ def resolve_task_name(func) -> str:
     return func.__name__.replace("task_", "")
 
 
+def task_lock_check():
+    """
+    Check that poetry.lock is up to date with pyproject.toml.
+    """
+    # command = "nox --session requirements"
+    cmd_list = [
+        "poetry",
+        "lock",
+        "--check",
+    ]
+    cmd = " ".join(cmd_list)
+    return {
+        FILE_DEP: [POETRY_LOCK_PATH, PYPROJECT_PATH],
+        ACTIONS: [cmd],
+    }
+
+
 def task_requirements():
     """
     Sync requirements from poetry.lock.
@@ -113,6 +130,7 @@ def task_requirements():
         yield {
             NAME: str(requirements_path),
             FILE_DEP: [POETRY_LOCK_PATH, NOXFILE_PATH, DODO_PATH],
+            TASK_DEP: [resolve_task_name(task_lock_check)],
             ACTIONS: [command_base.format(options, requirements_path)],
             TARGETS: [requirements_path],
         }
