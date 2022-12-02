@@ -75,6 +75,7 @@
             defaultPythonPkg = pkgs.${defaultPython};
             # Install pre-commit hooks
             installPrecommit = ''
+              export PRE_COMMIT_HOME=$(pwd)/.pre-commit-cache
               [[ -a .pre-commit-config.yaml ]] && \
                 echo "Installing pre-commit hooks"; pre-commit install '';
             # Report how to install poetry packages

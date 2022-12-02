@@ -504,7 +504,12 @@ def pre_commit(session):
     Install pre-commit and run it.
     """
     session.install(_parse_requirements_version("pre-commit"))
-    session.run("pre-commit", "run", "--all-files")
+    session.run(
+        "pre-commit",
+        "run",
+        "--all-files",
+        env={"PRE_COMMIT_HOME": session.cache_dir / ".pre-commit-cache"},
+    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)

@@ -172,3 +172,4 @@ docs_src/auto_examples/
 .envrc
 .fractopo_cache
 .testmondata
+.pre-commit-cache

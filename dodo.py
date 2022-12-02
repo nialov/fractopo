@@ -469,6 +469,16 @@ def task_tag(tag: str):
     }
 
 
+def task_git_clean():
+    """
+    Clean all vcs untracked files with git.
+    """
+    cmd = "git clean -f -x -d"
+    return {
+        ACTIONS: [cmd],
+    }
+
+
 # Define default tasks
 DOIT_CONFIG = {
     "default_tasks": [
