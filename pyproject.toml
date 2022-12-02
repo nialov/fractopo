@@ -90,6 +90,7 @@ pytest = "*"
 pytest-regressions = "==2.2.0"
 toml = "*"
 coverage = "^6.5.0"
+codespell = "^2.2.2"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
@@ -108,6 +109,8 @@ lint = [
     "markupsafe",
 ]
 typecheck = ["mypy"]
+
+[tool.poetry.group.dev.dependencies]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
