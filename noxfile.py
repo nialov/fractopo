@@ -241,37 +241,6 @@ def lint(session):
     )
 
 
-# @nox.session(reuse_venv=True, **VENV_PARAMS)
-# def requirements(session):
-#     """
-#     Sync poetry requirements from pyproject.toml to requirements.txt.
-#     """
-#     # Install poetry
-#     session.install("poetry")
-
-#     # Sync dev requirements
-#     session.run(
-#         "poetry",
-#         "export",
-#         "--without-hashes",
-#         "--dev",
-#         "-o",
-#         str(DEV_REQUIREMENTS_PATH),
-#     )
-
-#     # Sync docs requirements
-#     session.run(
-#         "poetry",
-#         "export",
-#         "--without-hashes",
-#         "--dev",
-#         "-E",
-#         "docs",
-#         "-o",
-#         str(DOCS_REQUIREMENTS_PATH),
-#     )
-
-
 def _api_docs(session):
     """
     Make apidoc documentation.
