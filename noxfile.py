@@ -358,34 +358,6 @@ def auto_docs(session):
     _docs(session=session, auto_build=True)
 
 
-# @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-# def update_version(session):
-#     """
-#     Update package version from git vcs.
-#     """
-#     # Install poetry-dynamic-versioning
-#     session.install("poetry-dynamic-versioning")
-
-#     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
-#     # and fractopo/__init__.py
-#     session.run("poetry-dynamic-versioning")
-
-
-# @nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
-# def build(session):
-#     """
-#     Build package with poetry.
-#     """
-#     # Install poetry
-#     session.install("poetry")
-
-#     # Install dependencies to poetry
-#     session.run("poetry", "install")
-
-#     # Build
-#     session.run("poetry", "build")
-
-
 @nox.session(reuse_venv=True, **VENV_PARAMS)
 def profile_performance(session):
     """
