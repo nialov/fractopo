@@ -1,10 +1,11 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+import logging
 from functools import lru_cache
 from pathlib import Path
 from traceback import print_tb
-from typing import List
+from typing import Any, List
 
 import geopandas as gpd
 import numpy as np
@@ -12,6 +13,7 @@ import pandas as pd
 import pytest
 from click.testing import Result
 from hypothesis.strategies import floats, integers, tuples
+from shapely import wkt
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -20,7 +22,6 @@ from shapely.geometry import (
     Polygon,
     box,
 )
-from shapely.wkt import loads
 
 from fractopo import general
 from fractopo.analysis import length_distributions, parameters
@@ -805,7 +806,7 @@ test__validate_params = [
         [],  # current_errors
         True,  # allow_fix
         [
-            loads("LINESTRING (0 0, 1 1, 2 2)"),
+            wkt.loads("LINESTRING (0 0, 1 1, 2 2)"),
             [],
             False,
         ],  # assumed_result
@@ -2160,3 +2161,15 @@ def test_plot_azimuth_plot_params():
             "red",
         ),
     ]
+
+
+def round_geometry_coordinates(geom: Any) -> Any:
+    """
+    Round shapely geometry coordinates using wkt.dumps and wkt.loads.
+    """
+    rounded = geom
+    try:
+        rounded = wkt.loads(wkt.dumps(geom, rounding_precision=6))
+    except ValueError:
+        logging.error(f"Expected for wkt to be able to parse geom: {geom}")
+    return rounded
