@@ -474,7 +474,7 @@ def plot_crosscut_abutting_relationships_plot(
                         f"Set {row.sets[0]} abuts to set {row.sets[1]}",
                         f"Set {row.sets[1]} abuts to set {row.sets[0]}",
                     ),
-                    framealpha=1,
+                    framealpha=0.6,
                     loc="upper center",
                     edgecolor="black",
                     prop={"family": "DejaVu Sans"},
