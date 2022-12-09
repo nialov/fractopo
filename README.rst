@@ -4,7 +4,11 @@ fractopo
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
 ``fractopo`` is a Python module that contains tools for validating and
-analysing lineament and fracture trace maps (fracture networks).
+analysing lineament and fracture trace maps (fracture networks). It is
+targeted at structural geologists working on the characterization of
+bedrock fractures from outcrops and through remote sensing. As it is a
+``Python`` library, the use of ``fractopo`` requires prior (``Python``)
+programming knowledge.
 
 .. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
@@ -268,6 +272,13 @@ To cite this software:
    provided ``DOI``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
    ``v0.2.6``. See the ``zenodo`` page of ``fractopo`` for the ``DOI`` of each
    version: https://doi.org/10.5281/zenodo.5517485
+
+Support
+-------
+
+For issues of any kind: please create a GitHub issue here!
+Alternatively, you can contact the main developer by email at
+``<nikolasovaskainen@gmail.com>``.
 
 Development
 -----------

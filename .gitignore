@@ -1,23 +1,40 @@
-.mypy_cache
-.ipynb_checkpoints/
-dev/
-trace_validator.egg-info
-.tox
+# Cython debug symbols
+# direnv cache
+# direnv rc. it is created by nix develop
+# doit cache
 **/__pycache__
-hypothesis
-.coverage
-.hypothesis
-.vim
-.esri.gz
-*.rej
-.hypogpd/
-docs/
-fractopo.egg-info/
-readme.html
-tests/profile_runtime.html
-venv/
 *.html
 *.pickle
+*.rej
+.coverage
+.direnv
+.doit.db
+.envrc
+.esri.gz
+.fractopo_cache
+.hypogpd/
+.hypothesis
+.ipynb_checkpoints/
+.mypy_cache
+.pre-commit-cache
+.testmondata
+.tox
+.vim
+KB11_area_outputs
+cython_debug/
+dev/
+docs/
+docs_src/auto_examples/
+fractopo.egg-info/
+hypothesis
+network_profile.py
+paper/media/
+paper/paper.jats
+paper/paper.pdf
+readme.html
+tests/profile_runtime.html
+trace_validator.egg-info
+venv/
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs
@@ -158,18 +175,3 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
-
-# Cython debug symbols
-cython_debug/
-network_profile.py
-KB11_area_outputs
-docs_src/auto_examples/
-# doit cache
-.doit.db
-# direnv cache
-# direnv rc. it is created by nix develop
-.direnv
-.envrc
-.fractopo_cache
-.testmondata
-.pre-commit-cache
