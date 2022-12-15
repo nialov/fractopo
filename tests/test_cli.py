@@ -129,12 +129,12 @@ def test_fractopo_network_cli(
 )
 def test_fractopo_callback(logging_level_str: str):
     """
-    Test .
+    Test fractopo_callback.
     """
     result = typer_cli_runner.invoke(
         cli.app,
         [
-            "--logging-level",
+            "--log-level",
             logging_level_str,
             "info",
         ],
@@ -147,13 +147,13 @@ def test_fractopo_callback(logging_level_str: str):
 )
 def test_fractopo_callback_error(logging_level_str: str):
     """
-    Test .
+    Test fractopo_callback with invalid cli options.
     """
-    with pytest.raises(Exception):
+    with pytest.raises(SystemExit):
         result = typer_cli_runner.invoke(
             cli.app,
             [
-                "--logging-level",
+                "--log-level",
                 logging_level_str,
                 "info",
             ],

@@ -42,6 +42,8 @@ from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
 
+log = logging.getLogger(__name__)
+
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
     "color": "white",
@@ -830,17 +832,15 @@ def determine_valid_intersection_points(
         elif isinstance(geom, MultiPoint):
             valid_interaction_points.extend(list(geom.geoms))
         elif geom.is_empty:
-            logging.info(
+            log.info(
                 f"Empty geometry in determine_valid_intersection_points: {geom.wkt}"
             )
 
         # TODO: Should these clauses error or report the invalid geometries upstream?
         elif isinstance(geom, LineString):
-            logging.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
+            log.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
         elif isinstance(geom, MultiLineString):
-            logging.error(
-                f"Expected geom ({geom.wkt}) not to be of type MultiLineString."
-            )
+            log.error(f"Expected geom ({geom.wkt}) not to be of type MultiLineString.")
         else:
             raise TypeError(
                 "Expected (Multi)Point or (Multi)LineString geometries"
@@ -865,7 +865,7 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
     elif isinstance(intersection, MultiPoint):
         collect_points = list(intersection.geoms)
     else:
-        logging.error(f"Expected Point or empty intersection, got: {intersection}")
+        log.error(f"Expected Point or empty intersection, got: {intersection}")
     return collect_points
 
 
@@ -1239,11 +1239,11 @@ def crop_to_target_areas(
     assert hasattr(clipped_traces, "geometry")
     assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
 
-    # Debug logging for traces smaller than MINIMUM_LINE_LENGTH
+    # Debug log for traces smaller than MINIMUM_LINE_LENGTH
     sum_smaller_than_minimum = sum(clipped_traces.geometry.length < MINIMUM_LINE_LENGTH)
     if sum_smaller_than_minimum > 0:
         # Log if found
-        logging.info(
+        log.info(
             "Traces smaller than MINIMUM_LINE_LENGTH found after crop.",
             extra=dict(
                 MINIMUM_LINE_LENGTH=MINIMUM_LINE_LENGTH,
@@ -1275,7 +1275,7 @@ def crop_to_target_areas(
     clipped_and_dissolved_traces = clipped_and_dissolved_traces.loc[
         clipped_and_dissolved_traces.geometry.length > MINIMUM_LINE_LENGTH
     ]
-    logging.info(
+    log.info(
         "Filtered out small traces with MINIMUM_LINE_LENGTH.",
         extra=dict(
             MINIMUM_LINE_LENGTH=MINIMUM_LINE_LENGTH,
@@ -1784,7 +1784,7 @@ def multiprocess(
             except Exception as exc:
 
                 # Catch and log critical failures
-                logging.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
+                log.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
                 collect_results.append(
                     ProcessResult(identifier=identifier, error=True, result=exc)
                 )
@@ -1820,13 +1820,13 @@ def silent_output(name: str):
             with redirect_stderr(tmp_io_stderr):
                 yield
 
-    # Report stdout and stderr to logging.info
+    # Report stdout and stderr to log.info
     finally:
         tmp_io_stdout_value = tmp_io_stdout.getvalue()
         tmp_io_stderr_value = tmp_io_stderr.getvalue()
         # Do not log without output
         if len(tmp_io_stdout_value) + len(tmp_io_stderr_value) > 5:
-            logging.info(
+            log.info(
                 "silent_output output stdout and stderr.",
                 extra=dict(
                     func_name=name,
@@ -1869,7 +1869,7 @@ def convert_list_columns(gdf: gpd.GeoDataFrame, allow: bool = True) -> gpd.GeoDa
                     "`list`-type data and `allow` is set to `False`.\n"
                     "Either set allow to True or fix the data."
                 )
-            logging.info(f"Converting {column} from list to str.")
+            log.info(f"Converting {column} from list to str.")
             gdf[column] = [str(tuple(item)) for item in column_data.values]
     return gdf
 
@@ -1993,17 +1993,17 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
     try:
         geodataframe.to_file(results_dir / f"{name}.gpkg", driver="GPKG")
     except Exception:
-        logging.error(error_base.format(name, "GeoPackage"), exc_info=True)
+        log.error(error_base.format(name, "GeoPackage"), exc_info=True)
     try:
         geodataframe.to_file(results_dir / f"{name}.geojson", driver="GeoJSON")
     except Exception:
-        logging.error(error_base.format(name, "GeoJSON"), exc_info=True)
+        log.error(error_base.format(name, "GeoJSON"), exc_info=True)
     try:
         shp_dir = results_dir / f"{name}_as_shp"
         shp_dir.mkdir(exist_ok=False)
         geodataframe.to_file(shp_dir / f"{name}.shp")
     except Exception:
-        logging.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
+        log.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
 
 
 def sanitize_name(name: str) -> str:

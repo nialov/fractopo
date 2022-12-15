@@ -20,6 +20,8 @@ from sklearn.linear_model import LinearRegression
 
 from fractopo import general
 
+log = logging.getLogger(__name__)
+
 ALPHA = "alpha"
 EXPONENT = "exponent"
 CUT_OFF = "cut-off"
@@ -87,7 +89,7 @@ class SilentFit(powerlaw.Fit):
         Get attribute with silent output.
 
         Also wraps all callables (~instance methods) with silent_output. The
-        stdout and stderr is reported with logging.info so it is not lost.
+        stdout and stderr is reported with log.info so it is not lost.
         """
         with general.silent_output("__getattribute__"):
             attribute = super().__getattribute__(name)
@@ -151,15 +153,15 @@ class LengthDistribution:
         # Lengths lower than the value can cause runtime issues.
         filtered_lengths = self.lengths[self.lengths > general.MINIMUM_LINE_LENGTH]
 
-        # Calculate proportion for logging purposes
+        # Calculate proportion for log purposes
         filtered_proportion = (
             ((len(self.lengths) - len(filtered_lengths)) / len(self.lengths))
             if len(self.lengths) > 0
             else 0.0
         )
         high_filtered = filtered_proportion > 0.1
-        logging_func = logging.warning if high_filtered else logging.info
-        logging_func(
+        log_func = log.warning if high_filtered else log.info
+        log_func(
             "Created LengthDistribution instance."
             + (" High filter proportion!" if high_filtered else "")
             # extra=dict(
@@ -540,7 +542,7 @@ def _setup_length_plot_axlims(
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
     except ValueError:
-        logging.error("Failed to set up x and y limits.", exc_info=True)
+        log.error("Failed to set up x and y limits.", exc_info=True)
         # Don't try setting if it errors
 
 
@@ -580,7 +582,7 @@ def plot_distribution_fits(
     assert fit is not None
 
     if len(length_array) == 0:
-        logging.error(
+        log.error(
             "Empty length array passed into plot_distribution_fits. "
             "Fit and plot will be invalid."
         )
@@ -928,7 +930,7 @@ def fit_to_multi_scale_lengths(
     assert len(fit_vals) == 2
 
     m_value, constant = fit_vals
-    logging.info(
+    log.info(
         "Fitted with fitter.",
         extra=dict(fitter=fitter, m_value=m_value, constant=constant),
     )
@@ -971,7 +973,7 @@ def plot_multi_distributions_and_fit(
     try:
         scorer_str = SCORER_NAMES[polyfit.scorer]
     except KeyError:
-        logging.warning(
+        log.warning(
             "Expected to find name string for polyfit scorer: "
             f"{polyfit.scorer} in SCORER_NAMES."
         )

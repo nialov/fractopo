@@ -31,6 +31,8 @@ from fractopo.general import (
     Y_node,
 )
 
+log = logging.getLogger(__name__)
+
 
 def determine_node_type_counts(
     node_types: np.ndarray, branches_defined: bool
@@ -739,20 +741,20 @@ def plot_set_count(
     """
     fig, ax = plt.subplots(figsize=(7, 7))
 
-    logging_info = dict(set_counts=set_counts, label=label)
+    log_info = dict(set_counts=set_counts, label=label)
 
     # Handle case with 0 values for all keys in set_counts dict.
     if all(value == 0 for value in set_counts.values()):
-        logging.warning(
+        log.warning(
             "set_counts with only 0 values passed into plot_set_count.",
-            extra=logging_info,
+            extra=log_info,
         )
         return fig, ax
 
     # Report creation.
-    logging.info(
+    log.info(
         "Creating pie plot for set counts.",
-        extra=logging_info,
+        extra=log_info,
     )
 
     # Create the plot

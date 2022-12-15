@@ -17,6 +17,8 @@ from fractopo.general import (
     within_bounds,
 )
 
+log = logging.getLogger(__name__)
+
 
 def segment_within_buffer(
     linestring: LineString,
@@ -130,7 +132,7 @@ def split_to_determine_triangle_errors(
         segments = split(trace, splitter_trace)
     except (ValueError, TypeError):
         trace_intersection = trace.intersection(splitter_trace)
-        logging.info(
+        log.info(
             "Failed to split trace with splitter_trace.",
             extra=dict(
                 trace=trace.wkt,
@@ -154,7 +156,7 @@ def split_to_determine_triangle_errors(
 
             # Check that case follows expectation... (no overlap)
             assert not trace.overlaps(splitter_trace)
-            logging.info(
+            log.info(
                 "Failed to split but intersection was a single point.",
                 extra=dict(
                     trace_intersection_wkt=trace_intersection.wkt,
@@ -225,7 +227,7 @@ def determine_trace_candidates(
     Determine potentially intersecting traces with spatial index.
     """
     if spatial_index is None:
-        logging.error("Expected spatial_index not be None.")
+        log.error("Expected spatial_index not be None.")
         return gpd.GeoSeries()
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
     assert isinstance(spatial_index, PyGEOSSTRTreeIndex)
@@ -260,14 +262,12 @@ def is_underlapping(
             ):
                 # Dangling end, overlapping
                 return False
-    logging_prints = {
+    log_prints = {
         "geom": geom,
         "trace": trace,
         "endpoint": endpoint,
         "snap_threshold": snap_threshold,
         "snap_threshold_error_multiplier": snap_threshold_error_multiplier,
     }
-    logging.error(
-        f"Expected is_underlapping to be resolvable.\nvalues:{logging_prints}"
-    )
+    log.error(f"Expected is_underlapping to be resolvable.\nvalues:{log_prints}")
     return None

@@ -71,6 +71,8 @@ from fractopo.general import (
     write_geodataframe,
 )
 
+log = logging.getLogger(__name__)
+
 
 def requires_topology(func: Callable) -> Callable:
     """
@@ -277,7 +279,7 @@ class Network:
 
         empty_branches_and_nodes = self.branch_gdf.empty and self.node_gdf.empty
         if self.determine_branches_nodes and empty_branches_and_nodes:
-            logging.info(
+            log.info(
                 "Determining branches and nodes.",
                 extra=dict(
                     empty_branches_and_nodes=empty_branches_and_nodes,
@@ -286,7 +288,7 @@ class Network:
             )
             self.assign_branches_nodes()
         elif not empty_branches_and_nodes:
-            logging.info(
+            log.info(
                 "Found branch_gdf and node_gdf in inputs. Using them.",
                 extra=dict(
                     empty_branches_and_nodes=empty_branches_and_nodes,
@@ -296,9 +298,9 @@ class Network:
             self.assign_branches_nodes(branches=self.branch_gdf, nodes=self.node_gdf)
             self.topology_determined = True
 
-        logging.info(
+        log.info(
             "Created and initialized Network instance.",
-            # Network has .name attribute which will overwrite logging
+            # Network has .name attribute which will overwrite log
             # attribute!!!
             extra={f"network_{key}": value for key, value in self.__dict__.items()},
         )
@@ -357,7 +359,7 @@ class Network:
 
         WARNING: Mostly untested.
         """
-        logging.warning(
+        log.warning(
             "Method Network.reset_length_data is mostly untested. Use with"
             "caution. It is safer to recreate the Network instance.",
             extra=dict(network_name=self.name),
@@ -1235,7 +1237,7 @@ class Network:
                 f"{self.name}_{topo_type}.geojson" if topo_name is None else topo_name
             )
             write_geodata(gdf=gdf, path=topo_path, allow_list_column_transform=False)
-            logging.info(
+            log.info(
                 "Wrote topological data to disk.",
                 extra=dict(
                     network_name=self.name,
@@ -1446,7 +1448,7 @@ class CachedNetwork(Network):
 
         Uses ``sha256`` hexdigest to hash the network data.
         """
-        logging.error(
+        log.error(
             dedent(
                 """
             CachedNetwork is deprecated as joblib provided efficient disk-caching.
@@ -1458,7 +1460,7 @@ class CachedNetwork(Network):
         node_gdf_empty = self.node_gdf.empty
         if not branch_gdf_empty or not node_gdf_empty:
             error = "Do not pass branch and node GeoDataFrames to CachedNetwork."
-            logging.error(
+            log.error(
                 error,
                 extra=dict(
                     branch_gdf_empty=branch_gdf_empty,
@@ -1471,7 +1473,7 @@ class CachedNetwork(Network):
             error = (
                 "CachedNetwork has no utility if branches and nodes are not determined."
             )
-            logging.error(
+            log.error(
                 error,
                 extra=dict(
                     determine_branches_nodes=self.determine_branches_nodes,
@@ -1498,7 +1500,7 @@ class CachedNetwork(Network):
         except Exception:
 
             # Log the exception
-            logging.error(
+            log.error(
                 "Failed to sha256 hash trace and area GeoDataFrames."
                 " If this error persists using the regular ``Network``"
                 " instance is recommended.",
@@ -1518,7 +1520,7 @@ class CachedNetwork(Network):
             # Cache hit -> Load branch and node data
             self.branch_gdf = read_geofile(branch_path)
             self.node_gdf = read_geofile(node_path)
-            logging.info(
+            log.info(
                 "Hit cache for branch and node data. Loading.",
                 extra=dict(
                     network_name=self.name, branch_path=branch_path, node_path=node_path
@@ -1531,7 +1533,7 @@ class CachedNetwork(Network):
                 self.branch_gdf.crs != self.trace_gdf.crs
                 or self.node_gdf.crs != self.trace_gdf.crs
             ):
-                logging.info(
+                log.info(
                     "Cache loaded branches and nodes did not have same crs as traces.",
                     extra=dict(
                         branch_gdf_crs=self.branch_gdf.crs,
@@ -1545,7 +1547,7 @@ class CachedNetwork(Network):
             assert self.branch_gdf.crs == self.trace_gdf.crs
             assert self.node_gdf.crs == self.trace_gdf.crs
         else:
-            logging.info(
+            log.info(
                 "No cache hit for branch and node data. Determining.",
                 extra=dict(network_name=self.name),
             )
@@ -1562,7 +1564,7 @@ class CachedNetwork(Network):
             write_geodata(
                 gdf=self.node_gdf, path=node_path, allow_list_column_transform=False
             )
-            logging.info(
+            log.info(
                 "Caching determined branches and nodes.",
                 extra=dict(
                     network_name=self.name, branch_path=branch_path, node_path=node_path

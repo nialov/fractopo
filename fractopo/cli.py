@@ -28,6 +28,8 @@ from fractopo.general import read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
+log = logging.getLogger(__name__)
+
 app = Typer()
 # Use minimum console width of 80
 CONSOLE = Console(width=min([80, Console().width]))
@@ -39,10 +41,10 @@ AREA_FILE_HELP = "Path to target area data that delineates trace data."
 
 
 @unique
-class LoggingLevel(Enum):
+class LogLevel(Enum):
 
     """
-    Enums for logging levels.
+    Enums for log levels.
     """
 
     DEBUG = "DEBUG"
@@ -78,7 +80,6 @@ def describe_results(
     Out of 1 traces, 1 were invalid.
     There were 1 error types. These were:
     V NODE
-
     """
     error_count = sum(len(val) != 0 for val in validated[error_column].values)
     error_types = {
@@ -252,14 +253,14 @@ to make sure your arguments are correct.
 
 @app.callback()
 def fractopo_callback(
-    logging_level: LoggingLevel = typer.Option(LoggingLevel.WARNING.value),
+    log_level: LogLevel = typer.Option(LogLevel.WARNING.value),
 ):
     """
     Use fractopo command-line utilities.
     """
-    logging_level_int = int(getattr(logging, logging_level.value))
-    logging.info("Setting up logging with basicConfig.")
-    logging.basicConfig(level=logging_level_int, force=True)
+    log_level_int = int(getattr(logging, log_level.value))
+    log.info("Setting up log with basicConfig.")
+    logging.basicConfig(level=log_level_int, force=True)
 
 
 @app.command()
@@ -317,7 +318,7 @@ def tracevalidate(
             "Expected trace and area files to be readable as GeoDataFrames."
         )
 
-    logging.info(f"Validating traces: {trace_file} area: {area_file}.")
+    log.info(f"Validating traces: {trace_file} area: {area_file}.")
     # Get input crs
     input_crs = traces.crs
 

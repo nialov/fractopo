@@ -82,7 +82,9 @@ def click_error_print(result: Result):
     # print(err_class, err)
     print_tb(tb)
     print(result.output)
-    raise Exception(result.exception)
+    # raise Exception(result.exception)
+    assert result.exception is not None
+    raise result.exception
 
 
 valid_geom = LineString(((0, 0), (1, 1)))
