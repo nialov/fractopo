@@ -919,7 +919,6 @@ def determine_node_junctions(
     ...     nodes, snap_threshold, snap_threshold_error_multiplier, error_threshold
     ... )
     {0, 1, 3}
-
     """
     if len(nodes) == 0:
         return set()
@@ -1039,7 +1038,7 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
 
 def compare_unit_vector_orientation(
     vec_1: np.ndarray, vec_2: np.ndarray, threshold_angle: float
-):
+) -> bool:
     """
     If vec_1 and vec_2 are too different in orientation, will return False.
     """
