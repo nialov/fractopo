@@ -1440,6 +1440,9 @@ def spatial_index_intersection(
 ) -> List[int]:
     """
     Type-checked spatial index intersection.
+
+    TODO: Maybe use spatial_index.quary_bulk for faster execution?
+    TODO: Maybe use a predicate (e.g., "contains") to specify operation?
     """
     if spatial_index is None:
         return []
@@ -1566,6 +1569,8 @@ def determine_boundary_intersecting_lines(
         target_area_bounds = geom_bounds(target_area)
         assert len(target_area_bounds) == 4 and isinstance(target_area_bounds, tuple)
         min_x, min_y, max_x, max_y = target_area_bounds
+        # TODO: Use spatial_index.quary_bulk for faster execution?
+        # TODO: Use a predicate (e.g., "contains") to specify operation?
         intersection = spatial_index.intersection(
             extend_bounds(
                 min_x=min_x,

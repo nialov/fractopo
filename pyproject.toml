@@ -90,6 +90,7 @@ pytest = "*"
 pytest-regressions = "==2.2.0"
 toml = "*"
 coverage = "^6.5.0"
+codespell = "^2.2.2"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
@@ -172,4 +173,7 @@ warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
 
-
+[tool.codespell]
+ignore_words_list = [
+    "theses"
+]

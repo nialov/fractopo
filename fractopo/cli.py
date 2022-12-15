@@ -16,6 +16,7 @@ import fiona
 import geopandas as gpd
 import pandas as pd
 import pygeos
+import shapely
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -586,6 +587,7 @@ def info():
         fractopo_version=__version__,
         geopandas_version=gpd.__version__,
         pygeos_version=pygeos.__version__,
+        shapely_version=shapely.__version__,
         package_location=str(Path(__file__).parent.absolute()),
         python_location=str(Path(sys.executable).absolute()),
     )

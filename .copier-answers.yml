@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: '4483535'
+_commit: df2320b
 _src_path: https://github.com/nialov/nialov-py-template.git
 classifier: 'Topic :: Scientific/Engineering :: GIS'
 description: Fracture Network Analysis
@@ -9,4 +9,3 @@ github_account: nialov
 keyword: data
 package: fractopo
 year: 2020
-

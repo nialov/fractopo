@@ -87,10 +87,10 @@ def test_crop_to_target_areas(keep_column_data: bool, file_regression):
     Also does regression testing with known right data.
     """
     trace_data = general.read_geofile(
-        Path("tests/sample_data/mls_crop_samples/traces.gpkg")
+        Path("tests/sample_data/mls_crop_samples/traces.geojson")
     )
     area_data = general.read_geofile(
-        Path("tests/sample_data/mls_crop_samples/mls_area.gpkg")
+        Path("tests/sample_data/mls_crop_samples/mls_area.geojson")
     )
     cropped_traces = general.crop_to_target_areas(
         traces=trace_data,
@@ -110,7 +110,7 @@ def test_dissolve_multi_part_traces(file_regression):
     Dissolve should copy all attribute data to new dissolved LineStrings.
     """
     trace_data = general.read_geofile(
-        Path("tests/sample_data/mls_crop_samples/mls_traces.gpkg")
+        Path("tests/sample_data/mls_crop_samples/mls_traces.geojson")
     )
     dissolved_traces = general.dissolve_multi_part_traces(trace_data)
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)

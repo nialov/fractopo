@@ -3,10 +3,23 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixpkgs-copier.url =
+      "github:nialov/nixpkgs?rev=334c000bbbc51894a3b02e05375eae36ac03e137";
+    poetry2nix-copier.url =
+      "github:nialov/poetry2nix?rev=6711fdb5da87574d250218c20bcd808949db6da0";
     flake-utils.url = "github:numtide/flake-utils";
+    copier-src = {
+      url =
+        # "github:copier-org/copier/precommix?rev=51a5bd9878ad036c69ef7e4ae8b0f313bdf180ec";
+        "github:copier-org/copier?rev=51a5bd9878ad036c69ef7e4ae8b0f313bdf180ec";
+      # TODO: copier flake requires specific nixpkgs entries
+      # See: https://github.com/copier-org/copier/blob/51a5bd9878ad036c69ef7e4ae8b0f313bdf180ec/flake.nix
+      inputs.nixpkgs.follows = "nixpkgs-copier";
+      inputs.poetry2nix.follows = "poetry2nix-copier";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, copier-src, ... }:
     let
       # Create function to generate the poetry-included shell with single
       # input: pkgs
@@ -75,6 +88,7 @@
             defaultPythonPkg = pkgs.${defaultPython};
             # Install pre-commit hooks
             installPrecommit = ''
+              export PRE_COMMIT_HOME=$(pwd)/.pre-commit-cache
               [[ -a .pre-commit-config.yaml ]] && \
                 echo "Installing pre-commit hooks"; pre-commit install '';
             # Report how to install poetry packages
@@ -105,7 +119,12 @@
     (system:
       let
         # Initialize nixpkgs for system
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          # Add copier overlay to provide copier package
+          overlays =
+            [ (_: _: { copier = copier-src.packages."${system}".default; }) ];
+        };
 
         # Choose Python interpreters to include in all devShells
         pythons = [ "python38" "python39" "python310" ];
@@ -116,8 +135,25 @@
         # wrappedPoetry is also included as a flake output package
         wrappedPoetry = wrapPoetry { inherit pkgs pythons; };
 
+        # copier (copier --help) does not work without git in its PATH
+        wrappedCopier = pkgs.symlinkJoin {
+          name = "wrapped-copier";
+          paths = [ pkgs.copier ];
+          buildInputs = [ pkgs.makeWrapper ];
+          postBuild = let gitPath = with pkgs; lib.makeBinPath [ git ];
+          in ''
+            wrapProgram $out/bin/copier \
+              --prefix PATH : ${gitPath}
+          '';
+        };
+
         # Any packages from nixpkgs can be added here
-        devShellPackages = with pkgs; [ pre-commit pandoc wrappedPoetry ];
+        devShellPackages = with pkgs; [
+          pre-commit
+          pandoc
+          wrappedPoetry
+          wrappedCopier
+        ];
 
         # Generate devShells for wanted Pythons
         devShells = builtins.foldl' (x: y: (pkgs.lib.recursiveUpdate x y)) { }
@@ -132,21 +168,24 @@
         devShellsWithDefault = pkgs.lib.recursiveUpdate devShells {
           default = devShells."${defaultPython}";
         };
-        wrappedPoetryChecks = let
-          mkCheck = python:
-            let wrappedPoetry = wrapPoetry { inherit pkgs pythons; };
-            in pkgs.runCommand "test-poetry-wrapped" { } ''
-              ${wrappedPoetry}/bin/poetry --help
-              ${wrappedPoetry}/bin/poetry init -n
-              ${wrappedPoetry}/bin/poetry check
-              mkdir $out
-            '';
-        in builtins.foldl' (x: y: (pkgs.lib.recursiveUpdate x y)) { }
-        (pkgs.lib.forEach [ defaultPython ]
-          (python: { "${python}" = mkCheck python; }));
+        wrappedPoetryCheck =
+          # let
+          #   mkCheck = python:
+          let wrappedPoetry = wrapPoetry { inherit pkgs pythons; };
+          in pkgs.runCommand "test-poetry-wrapped" { } ''
+            ${wrappedPoetry}/bin/poetry --help
+            ${wrappedPoetry}/bin/poetry init -n
+            ${wrappedPoetry}/bin/poetry check
+            mkdir $out
+          '';
+        copierCheck = pkgs.runCommand "test-copier" { } ''
+          ${wrappedCopier}/bin/copier --help
+          mkdir $out
+        '';
       in {
-        checks = wrappedPoetryChecks;
+        checks = { inherit wrappedPoetryCheck copierCheck; };
         packages.poetry-wrapped = wrappedPoetry;
+        packages.copier = wrappedCopier;
         packages.default = wrappedPoetry;
         devShells = devShellsWithDefault;
       });

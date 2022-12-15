@@ -60,16 +60,6 @@ def execute_notebook(session, notebook: Path):
         "--execute",
         str(notebook),
     )
-    # Strip output
-    session.run(
-        "nbstripout",
-        str(notebook),
-    )
-    # Strip output
-    session.run(
-        "nbstripout",
-        str(notebook),
-    )
 
 
 def install_dev(session, extras: str = ""):
@@ -230,6 +220,10 @@ def lint(session):
     if DOCS_AUTO_EXAMPLES_PATH.exists():
         rmtree(DOCS_AUTO_EXAMPLES_PATH)
 
+    # Remove auto_examples
+    if DOCS_AUTO_EXAMPLES_PATH.exists():
+        rmtree(DOCS_AUTO_EXAMPLES_PATH)
+
     # Lint docs
     session.run(
         "rstcheck",
@@ -244,37 +238,6 @@ def lint(session):
         "pylint",
         *existing_paths,
     )
-
-
-# @nox.session(reuse_venv=True, **VENV_PARAMS)
-# def requirements(session):
-#     """
-#     Sync poetry requirements from pyproject.toml to requirements.txt.
-#     """
-#     # Install poetry
-#     session.install("poetry")
-
-#     # Sync dev requirements
-#     session.run(
-#         "poetry",
-#         "export",
-#         "--without-hashes",
-#         "--dev",
-#         "-o",
-#         str(DEV_REQUIREMENTS_PATH),
-#     )
-
-#     # Sync docs requirements
-#     session.run(
-#         "poetry",
-#         "export",
-#         "--without-hashes",
-#         "--dev",
-#         "-E",
-#         "docs",
-#         "-o",
-#         str(DOCS_REQUIREMENTS_PATH),
-#     )
 
 
 def _api_docs(session):
@@ -341,6 +304,14 @@ def apidocs(session):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def apidocs(session):
+    """
+    Make apidoc documentation.
+    """
+    _api_docs(session=session)
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def docs(session):
     """
     Make documentation.
@@ -356,34 +327,6 @@ def auto_docs(session):
     Make documentation and start sphinx-autobuild service.
     """
     _docs(session=session, auto_build=True)
-
-
-# @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-# def update_version(session):
-#     """
-#     Update package version from git vcs.
-#     """
-#     # Install poetry-dynamic-versioning
-#     session.install("poetry-dynamic-versioning")
-
-#     # Run poetry-dynamic-versioning to update version tag in pyproject.toml
-#     # and fractopo/__init__.py
-#     session.run("poetry-dynamic-versioning")
-
-
-# @nox.session(reuse_venv=True, python=PYTHON_VERSIONS, **VENV_PARAMS)
-# def build(session):
-#     """
-#     Build package with poetry.
-#     """
-#     # Install poetry
-#     session.install("poetry")
-
-#     # Install dependencies to poetry
-#     session.run("poetry", "install")
-
-#     # Build
-#     session.run("poetry", "build")
 
 
 @nox.session(reuse_venv=True, **VENV_PARAMS)
@@ -462,7 +405,7 @@ def validate_citation_cff(session):
     session.chdir(str(citation_file_format_dir))
 
     # install the validation dependencies in user space
-    session.install("ruamel.yaml", "jsonschema")
+    session.install("ruamel.yaml==0.17.21", "jsonschema==4.16.0")
 
     # run the validator on your CITATION.cff
     session.run(
@@ -537,7 +480,26 @@ def pre_commit(session):
     Install pre-commit and run it.
     """
     session.install(_parse_requirements_version("pre-commit"))
-    session.run("pre-commit", "run", "--all-files")
+    session.run(
+        "pre-commit",
+        "run",
+        "--all-files",
+        env={"PRE_COMMIT_HOME": session.cache_dir / ".pre-commit-cache"},
+    )
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
+def pre_commit(session):
+    """
+    Install pre-commit and run it.
+    """
+    session.install(_parse_requirements_version("pre-commit"))
+    session.run(
+        "pre-commit",
+        "run",
+        "--all-files",
+        env={"PRE_COMMIT_HOME": session.cache_dir / ".pre-commit-cache"},
+    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
@@ -545,5 +507,5 @@ def codespell(session):
     """
     Check spelling in code.
     """
-    session.install("codespell")
+    session.install(_parse_requirements_version("codespell"))
     session.run("codespell", PACKAGE_NAME, str(DOCS_EXAMPLES_PATH))

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "mls_area",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3067" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -0.959587274290628, 0.461736887360275 ], [ -0.177128116938951, 0.446259673258813 ], [ -0.216680997420464, -0.263972484952709 ], [ -1.009458297506449, -0.258813413585555 ], [ -0.959587274290628, 0.461736887360275 ] ] ] } }
+]
+}
