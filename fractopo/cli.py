@@ -8,8 +8,7 @@ import time
 from enum import Enum, unique
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Type, Union
-from warnings import warn
+from typing import Dict, Optional, Tuple, Type
 
 import click
 import fiona
@@ -30,9 +29,12 @@ from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapV
 
 log = logging.getLogger(__name__)
 
-app = Typer()
+# Initialize typer command-line app object
+APP = Typer()
+
 # Use minimum console width of 80
 CONSOLE = Console(width=min([80, Console().width]))
+
 SNAP_THRESHOLD_HELP = (
     "Distance threshold used to estimate whether e.g. a trace abuts in another."
 )
@@ -68,7 +70,7 @@ def get_click_path_args(exists=True, **kwargs):
 
 
 def describe_results(
-    validated: gpd.GeoDataFrame, error_column: str, console: Console = Console()
+    validated: gpd.GeoDataFrame, error_column: str, console: Console = CONSOLE
 ):
     """
     Describe validation results to stdout.
@@ -130,128 +132,7 @@ def rich_table_from_parameters(parameters: Dict[str, float]) -> Table:
     return param_table
 
 
-@click.command()
-@click.argument("trace_file", **get_click_path_args())  # type: ignore
-@click.argument("area_file", **get_click_path_args())  # type: ignore
-@click.option(
-    "output_path",
-    "--output",
-    **get_click_path_args(exists=False, writable=True),
-    default=None,
-)  # type: ignore
-@click.option("allow_fix", "--fix", is_flag=True, help="Allow automatic fixing.")
-@click.option(
-    "summary", "--summary", is_flag=True, help="Print summary of validation results"
-)
-@click.option("snap_threshold", "--snap-threshold", type=float, default=0.01)
-@click.option(
-    "only_area_validation", "--only-area-validation", is_flag=True, default=False
-)
-@click.option("allow_empty_area", "--no-empty-area", is_flag=True, default=True)
-def tracevalidate_click(
-    trace_file: str,
-    area_file: str,
-    allow_fix: bool,
-    summary: bool,
-    snap_threshold: float,
-    output_path: Union[Path, None],
-    only_area_validation: bool,
-    allow_empty_area: bool,
-):
-    """
-    Validate trace data delineated by target area data.
-
-    If allow_fix is True, some automatic fixing will be done to e.g. convert
-    MultiLineStrings to LineStrings.
-    """
-    warn(
-        """
-'tracevalidate' entrypoint is deprecated.
-Use:
-'fractopo tracevalidate'
-entrypoint instead i.e. if your command was:
-
-tracevalidate traces.gpkg area.gpkg --fix
-
-the new version will be:
-
-fractopo tracevalidate traces.gpkg area.gpkg --allow-fix
-
-Note also that --fix was changed to --allow-fix and it is by default True.
-
-Run
-
-fractopo tracevalidate --help
-
-to make sure your arguments are correct.
-""",
-        DeprecationWarning,
-    )
-    trace_path = Path(trace_file)
-    area_path = Path(area_file)
-
-    # Resolve output_path if not explicitly given
-    if output_path is None:
-        output_dir = make_output_dir(trace_path)
-        output_path = (
-            trace_path.parent
-            / output_dir
-            / f"{trace_path.stem}_validated{trace_path.suffix}"
-        )
-    print(f"Validating with snap threshold of {snap_threshold}.")
-
-    # Assert that read files result in GeoDataFrames
-    traces: gpd.GeoDataFrame = read_geofile(trace_path)
-    areas: gpd.GeoDataFrame = read_geofile(area_path)
-    if not all(isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)):
-        raise TypeError(
-            "Expected trace and area data to be resolvable as GeoDataFrames."
-        )
-
-    # Get input crs
-    input_crs = traces.crs
-
-    # Validate
-    validation = Validation(
-        traces,
-        areas,
-        trace_path.stem,
-        allow_fix,
-        SNAP_THRESHOLD=snap_threshold,
-    )
-    if only_area_validation:
-        choose_validators: Optional[Tuple[Type[TargetAreaSnapValidator]]] = (
-            TargetAreaSnapValidator,
-        )
-    else:
-        choose_validators = None
-    validated_trace = validation.run_validation(
-        choose_validators=choose_validators, allow_empty_area=allow_empty_area
-    )
-
-    # Set same crs as input if input had crs
-    if input_crs is not None:
-        validated_trace.crs = input_crs
-
-    # Get input driver to use as save driver
-    with fiona.open(trace_path) as open_trace_file:
-        assert open_trace_file is not None
-        save_driver = open_trace_file.driver
-
-    # Remove file if one exists at output_path
-    if Path(output_path).exists():
-        Path(output_path).unlink()
-
-    # Change validation_error column to type: `string` and consequently save
-    # the GeoDataFrame.
-    validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
-        output_path, driver=save_driver
-    )
-    if summary:
-        describe_results(validated_trace, validation.ERROR_COLUMN)
-
-
-@app.callback()
+@APP.callback()
 def fractopo_callback(
     log_level: LogLevel = typer.Option(LogLevel.WARNING.value),
 ):
@@ -263,7 +144,7 @@ def fractopo_callback(
     logging.basicConfig(level=log_level_int, force=True)
 
 
-@app.command()
+@APP.command()
 def tracevalidate(
     trace_file: Path = typer.Argument(
         ...,
@@ -308,8 +189,6 @@ def tracevalidate(
     If allow_fix is True, some automatic fixing will be done to e.g. convert
     MultiLineStrings to LineStrings.
     """
-    console = Console()
-
     # Assert that read files result in GeoDataFrames
     traces: gpd.GeoDataFrame = read_geofile(trace_file)
     areas: gpd.GeoDataFrame = read_geofile(area_file)
@@ -331,13 +210,13 @@ def tracevalidate(
         SNAP_THRESHOLD=snap_threshold,
     )
     if only_area_validation:
-        console.print(Text.assemble(("Only performing area validation.", "yellow")))
+        CONSOLE.print(Text.assemble(("Only performing area validation.", "yellow")))
         choose_validators: Optional[Tuple[Type[TargetAreaSnapValidator]]] = (
             TargetAreaSnapValidator,
         )
     else:
         choose_validators = None
-    console.print(
+    CONSOLE.print(
         Text.assemble("Performing validation of ", (trace_file.name, "blue"), ".")
     )
     validated_trace = validation.run_validation(
@@ -361,7 +240,7 @@ def tracevalidate(
             / output_dir
             / f"{trace_file.stem}_validated{trace_file.suffix}"
         )
-        console.print(
+        CONSOLE.print(
             Text.assemble(
                 (
                     f"Generated output directory at {output_dir}"
@@ -375,7 +254,7 @@ def tracevalidate(
 
     # Remove file if one exists at output_path
     if output_path.exists():
-        console.print(
+        CONSOLE.print(
             Text.assemble(("Overwriting old file at given output path.", "yellow"))
         )
         output_path.unlink()
@@ -387,10 +266,10 @@ def tracevalidate(
         output_path, driver=save_driver
     )
     if summary:
-        describe_results(validated_trace, validation.ERROR_COLUMN, console=console)
+        describe_results(validated_trace, validation.ERROR_COLUMN, console=CONSOLE)
 
 
-@app.command()
+@APP.command()
 def network(
     trace_file: Path = typer.Argument(
         ..., exists=True, dir_okay=False, help=TRACE_FILE_HELP
@@ -431,9 +310,8 @@ def network(
     Analyze the geometry and topology of trace network.
     """
     network_name = name if name is not None else area_file.stem
-    console = Console()
 
-    console.print(
+    CONSOLE.print(
         Text.assemble(
             "Performing network analysis of ", (network_name, "bold green"), "."
         )
@@ -465,7 +343,7 @@ def network(
     )
     if determine_branches_nodes:
         # Save branches and nodes
-        console.print(
+        CONSOLE.print(
             Text.assemble(
                 "Saving branches to ",
                 (str(branches_output_path), "bold green"),
@@ -480,7 +358,7 @@ def network(
     base_parameters = network.parameters
 
     # Print pretty table of basic network parameters
-    console.print(rich_table_from_parameters(base_parameters))
+    CONSOLE.print(rich_table_from_parameters(base_parameters))
 
     parameters = (
         network.numerical_network_description()
@@ -490,7 +368,7 @@ def network(
 
     pd.DataFrame([parameters]).to_csv(parameters_output_path)
 
-    console.print(
+    CONSOLE.print(
         Text.assemble(
             "Saving network parameter csv to path:\n",
             (str(parameters_output_path), "bold green"),
@@ -578,7 +456,7 @@ def default_network_output_paths(
     )
 
 
-@app.command()
+@APP.command()
 def info():
     """
     Print out information about fractopo installation and python environment.

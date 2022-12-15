@@ -42,7 +42,7 @@ def test_tracevalidate_typer(
         # should be valid for both 0.01 and 0.001
         str(snap_threshold),
     ]
-    result = clirunner.invoke(cli.app, cli_args)
+    result = clirunner.invoke(cli.APP, cli_args)
     # Check that exit code is 0 (i.e. ran successfully.)
     tests.click_error_print(result)
     # Checks if output is saved
@@ -73,7 +73,7 @@ def test_tracevalidate_only_area(args, tmp_path):
     """
     outputs_cmds = ["--output", str(tmp_path / "output_traces")]
     clirunner = TyperCliRunner()
-    result = clirunner.invoke(cli.app, ["tracevalidate"] + args + outputs_cmds)
+    result = clirunner.invoke(cli.APP, ["tracevalidate"] + args + outputs_cmds)
     # Check that exit code is 0 (i.e. ran successfully.)
     tests.click_error_print(result)
 
@@ -96,7 +96,7 @@ def test_fractopo_network_cli(
     """
     tmp_path.mkdir(exist_ok=True)
     result = typer_cli_runner.invoke(
-        cli.app,
+        cli.APP,
         [
             "network",
             str(traces_path),
@@ -132,7 +132,7 @@ def test_fractopo_callback(logging_level_str: str):
     Test fractopo_callback.
     """
     result = typer_cli_runner.invoke(
-        cli.app,
+        cli.APP,
         [
             "--log-level",
             logging_level_str,
@@ -151,7 +151,7 @@ def test_fractopo_callback_error(logging_level_str: str):
     """
     with pytest.raises(SystemExit):
         result = typer_cli_runner.invoke(
-            cli.app,
+            cli.APP,
             [
                 "--log-level",
                 logging_level_str,
