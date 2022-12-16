@@ -47,6 +47,6 @@ repos:
       - id: check-added-large-files
         args: ["--maxkb=50000"]
   - repo: https://github.com/nialov/citation-file-format
-    rev: 3b56d59236ef02a4b1363b6d89fb012fda992ce5
+    rev: 1b5af8e280fca562ecabe4c3cae85f9318c03771
     hooks:
       - id: validate-citation-file-format
