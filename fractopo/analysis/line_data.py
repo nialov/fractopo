@@ -286,6 +286,7 @@ class LineData:
         label: str,
         use_probability_density_function: bool,
         fit: Optional[powerlaw.Fit] = None,
+        plain: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:
         """
         Plot length data with powerlaw fit.
@@ -296,6 +297,7 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
             using_branches=self.using_branches,
             use_probability_density_function=use_probability_density_function,
+            plain=plain,
         )
 
     def plot_azimuth(

@@ -863,6 +863,7 @@ class Network:
         label: Optional[str] = None,
         fit: Optional[powerlaw.Fit] = None,
         use_probability_density_function: bool = False,
+        plain: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
         """
         Plot trace length distribution with `powerlaw` fits.
@@ -872,6 +873,7 @@ class Network:
             label=label,
             fit=fit,
             use_probability_density_function=use_probability_density_function,
+            plain=plain,
         )
 
     @requires_topology
@@ -880,6 +882,7 @@ class Network:
         label: Optional[str] = None,
         fit: Optional[powerlaw.Fit] = None,
         use_probability_density_function: bool = False,
+        plain: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
         """
         Plot branch length distribution with `powerlaw` fits.
