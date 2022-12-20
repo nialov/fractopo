@@ -15,13 +15,13 @@ from example_networks import kb11_network
 # Plotting a ternary plot of fracture network node counts
 # -----------------------------------------------------------
 
-fig, ax, tax = kb11_network.plot_xyi()
+xyi_fig, xyi_ax, xyi_tax = kb11_network.plot_xyi()
 
 # %%
 # Plotting a ternary plot of fracture network branch counts
 # ------------------------------------------------------------
 
-fig, ax, tax = kb11_network.plot_branch()
+branch_fig, branch_ax, branch_tax = kb11_network.plot_branch()
 
 # %%
 # Numerical data is accessible

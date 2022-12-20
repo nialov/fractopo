@@ -16,14 +16,14 @@ from example_networks import kb11_network
 # -----------------------------------------------------------
 
 # Rose plot of network trace orientations
-azimuth_bins, fix, ax = kb11_network.plot_trace_azimuth()
+azimuth_bins, fig, ax = kb11_network.plot_trace_azimuth()
 
 # %%
 # Plotting a rose plot of fracture network branch orientations
 # ------------------------------------------------------------
 
 # Rose plot of network branch orientations
-azimuth_bins, fix, ax = kb11_network.plot_branch_azimuth()
+kb11_network.plot_branch_azimuth()
 
 # %%
 # Numerical data is accessible with methods and class properties
