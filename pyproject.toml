@@ -109,6 +109,9 @@ lint = [
 ]
 typecheck = ["mypy"]
 
+[tool.poetry.group.dev.dependencies]
+cogapp = "^3.3.0"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -176,3 +179,7 @@ ignore_missing_imports = true
 ignore_words_list = [
     "theses"
 ]
+
+[tool.pyright]
+include = ["fractopo"]
+verboseOutput = true
