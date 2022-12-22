@@ -9,7 +9,6 @@ import nox
 import pkg_resources
 
 CHANGELOG_PATH = Path("CHANGELOG.md")
-CITATION_CFF_PATH = Path("CITATION.cff")
 DOCS_SRC_PATH = Path("docs_src")
 COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
 DEFAULT_PYTHON_VERSION = "3.8"
@@ -374,57 +373,14 @@ def typecheck(session):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def validate_citation_cff(session):
-    """
-    Validate CITATION.cff.
-
-    From: https://github.com/citation-file-format/citation-file-format
-    TODO: Installation is quite dirty. Replace with pre-commit or something else?
-    """
-    # Path to CITATION.cff
-    citation_cff_path = CITATION_CFF_PATH.absolute()
-
-    # create temporary directory and chdir there
-    tmp_dir = session.create_tmp()
-    session.chdir(tmp_dir)
-
-    # Remove existing dir
-    citation_file_format_dir = Path("citation-file-format")
-    if citation_file_format_dir.exists():
-        rmtree(citation_file_format_dir)
-
-    # clone this repository and chdir into the repo
-    session.run(
-        "git",
-        "clone",
-        "https://github.com/citation-file-format/citation-file-format.git",
-        "--depth",
-        "1",
-        external=True,
-    )
-    session.chdir(str(citation_file_format_dir))
-
-    # install the validation dependencies in user space
-    session.install("ruamel.yaml==0.17.21", "jsonschema==4.16.0")
-
-    # run the validator on your CITATION.cff
-    session.run(
-        "python3",
-        str(Path("examples/validator.py")),
-        "-s",
-        "schema.json",
-        "-d",
-        str(citation_cff_path),
-    )
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def changelog(session):
     """
     Create CHANGELOG.md.
     """
     version = resolve_session_posargs(session=session)
     assert isinstance(version, str)
+    if len(version) == 0:
+        raise ValueError(f"Expected passed version/tag to not be empty.")
 
     # Path to changelog.md
     changelog_path = CHANGELOG_PATH.absolute()

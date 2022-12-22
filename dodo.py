@@ -3,6 +3,7 @@ doit tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
+import os
 import re
 from pathlib import Path
 from time import strftime
@@ -31,6 +32,12 @@ DEFAULT_PYTHON_VERSION = "3.8"
 DOCS_SRC_PATH = Path("docs_src")
 DOCS_PATH = Path("docs")
 DOCS_EXAMPLES_PATH = Path("examples")
+FRACTOPO_WORKFLOW_VISUALISATION_SCRIPT = (
+    DOCS_EXAMPLES_PATH / "fractopo_workflow_visualisation.py"
+)
+FRACTOPO_WORKFLOW_VISUALISATION_PLOT = (
+    DOCS_SRC_PATH / "imgs/fractopo_workflow_visualisation.jpg"
+)
 DOCS_REQUIREMENTS_PATH = Path("docs_src/requirements.txt")
 NOTEBOOKS_PATH = DOCS_SRC_PATH / "notebooks"
 COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
@@ -245,6 +252,19 @@ def task_apidocs():
     }
 
 
+def task_cog():
+    """
+    Use cogapp to template documentation.
+    """
+    docs_index = DOCS_SRC_PATH / "index.rst"
+    command = f"cog -c -r {docs_index}"
+    return {
+        ACTIONS: [command],
+        FILE_DEP: [README_PATH, POETRY_LOCK_PATH, docs_index],
+        UP_TO_DATE: [config_changed(dict(command=command))],
+    }
+
+
 def task_docs():
     """
     Make documentation to docs using nox.
@@ -264,6 +284,7 @@ def task_docs():
             resolve_task_name(task_lint),
             # resolve_task_name(task_update_version),
             resolve_task_name(task_apidocs),
+            resolve_task_name(task_cog),
         ],
         TARGETS: [DOCS_PATH],
         UP_TO_DATE: [config_changed(dict(command=command))],
@@ -361,44 +382,6 @@ def update_citation():
         openfile.write("\n".join(new_lines) + "\n")
 
 
-def task_citation():
-    """
-    Sync CITATION.cff.
-    """
-    # Command used to validate CITATION.cff
-    command = "nox --session validate_citation_cff"
-    return {
-        ACTIONS: [update_citation, command],
-        FILE_DEP: [
-            *PYTHON_SRC_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            # DODO_PATH,
-        ],
-        TARGETS: [CITATION_CFF_PATH],
-    }
-
-
-def task_changelog():
-    """
-    Generate changelog.
-
-    Currently only ran when task_tag is called.
-    """
-    command = "nox --session changelog"
-    return {
-        ACTIONS: [update_citation, command],
-        FILE_DEP: [
-            *PYTHON_SRC_FILES,
-            POETRY_LOCK_PATH,
-            NOXFILE_PATH,
-            # DODO_PATH,
-        ],
-        TARGETS: [CHANGELOG_PATH],
-        UP_TO_DATE: [config_changed(dict(command=command))],
-    }
-
-
 def task_codespell():
     """
     Check code spelling.
@@ -428,7 +411,7 @@ def parse_tag(tag: str) -> str:
 
 def use_tag(tag: str):
     """
-    Setup new tag in
+    Use tag as version number in files.
     """
     assert len(tag) != 0
     tag = parse_tag(tag)
@@ -489,7 +472,7 @@ def task_tag(tag: str):
     # Create changelog with 'tag' as latest version
     create_changelog = "nox --session changelog -- %(tag)s"
     return {
-        ACTIONS: [create_changelog, use_tag],
+        ACTIONS: [create_changelog, update_citation, use_tag],
     }
 
 
@@ -504,14 +487,23 @@ def task_git_clean():
     }
 
 
-def task_git_clean():
+def task_create_workflow_visualisation():
     """
-    Clean all vcs untracked files with git.
+    Create ``fractopo`` workflow visualisation.
     """
-    cmd = "git clean -f -f -x -d"
-
+    commands = [
+        f"python {FRACTOPO_WORKFLOW_VISUALISATION_SCRIPT} {FRACTOPO_WORKFLOW_VISUALISATION_PLOT} ",
+    ]
     return {
-        ACTIONS: [cmd],
+        ACTIONS: commands,
+        FILE_DEP: [
+            *PYTHON_ALL_FILES,
+            POETRY_LOCK_PATH,
+            FRACTOPO_WORKFLOW_VISUALISATION_SCRIPT,
+        ],
+        TASK_DEP: [resolve_task_name(task_requirements)],
+        UP_TO_DATE: [config_changed(dict(commands=commands))],
+        TARGETS: [FRACTOPO_WORKFLOW_VISUALISATION_PLOT],
     }
 
 
@@ -526,7 +518,6 @@ DOIT_CONFIG = {
         resolve_task_name(task_docs),
         resolve_task_name(task_notebooks),
         resolve_task_name(task_build),
-        resolve_task_name(task_citation),
         resolve_task_name(task_codespell),
     ]
 }
