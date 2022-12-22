@@ -100,7 +100,7 @@ DEFAULT_FRACTOPO_CACHE_PATH = Path(".fractopo_cache")
 
 JOBLIB_CACHE = Memory(
     DEFAULT_FRACTOPO_CACHE_PATH,
-    verbose=int(os.environ.get("JOBLIC_CACHE_VERBOSITY", 0)),
+    verbose=int(os.environ.get("JOBLIB_CACHE_VERBOSITY", 0)),
 )
 
 
