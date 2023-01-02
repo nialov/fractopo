@@ -1,7 +1,7 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
+|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo|
 
 ``fractopo`` is a Python library that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks). It is
@@ -471,8 +471,10 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish-doit/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish-doit.yaml?query=branch%3Amaster
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/CI/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
+.. |Conda Test| image:: https://github.com/nialov/fractopo/workflows/conda/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
