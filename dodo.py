@@ -3,7 +3,6 @@ doit tasks.
 
 Most tasks employ nox to create a virtual session for testing.
 """
-import os
 import re
 from pathlib import Path
 from time import strftime

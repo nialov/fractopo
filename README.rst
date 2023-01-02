@@ -18,7 +18,7 @@ programming knowledge.
 
    Overview of fractopo
 
-.. figure:: ./imgs/fractopo-visualizations.png
+.. figure:: /docs_src/imgs/fractopo-visualizations.png
    :alt: Data visualization
 
    Visualization of ``fractopo`` data. ``fractopo`` analyses the trace
@@ -362,6 +362,8 @@ Development
 
 -  **Breaking changes are possible and expected.**
 
+-  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
+
 Development dependencies for ``fractopo`` include:
 
 -  ``poetry``
@@ -460,7 +462,7 @@ Big thanks to all maintainers of the above packages!
 License
 ~~~~~~~
 
-Copyright © 2020-2022, Nikolas Ovaskainen.
+Copyright © 2020-2023, Nikolas Ovaskainen.
 
 -----
 

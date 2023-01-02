@@ -1,13 +1,12 @@
 .. Readme is included with cogapp
+.. It fixes relative links to image files in the repository
 .. [[[cog
    import cog
    from pathlib import Path
 
-   readme = Path("README.rst")
    cog.outl("")
-   cog.outl("Documentation")
-   cog.outl("=============")
-   for line in readme.read_text().splitlines()[2:]:
+   readme = Path("README.rst")
+   for line in readme.read_text().splitlines():
 
       if "figure::" in line:
          line = line.replace("docs_src/", "")
@@ -18,8 +17,8 @@
       cog.outl(line)
    ]]]
 
-Documentation
-=============
+fractopo
+========
 
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
@@ -36,7 +35,7 @@ programming knowledge.
 
    Overview of fractopo
 
-.. figure:: ./imgs/fractopo-visualizations.png
+.. figure:: /imgs/fractopo-visualizations.png
    :alt: Data visualization
 
    Visualization of ``fractopo`` data. ``fractopo`` analyses the trace
@@ -366,6 +365,8 @@ Development
 
 -  **Breaking changes are possible and expected.**
 
+-  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
+
 Development dependencies for ``fractopo`` include:
 
 -  ``poetry``
@@ -464,7 +465,7 @@ Big thanks to all maintainers of the above packages!
 License
 ~~~~~~~
 
-Copyright © 2020-2022, Nikolas Ovaskainen.
+Copyright © 2020-2023, Nikolas Ovaskainen.
 
 -----
 
@@ -480,7 +481,7 @@ Copyright © 2020-2022, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 4d3d87ffc17f550282784c845a98c46e)
+.. [[[end]]] (checksum: efb57d2e1f6cb393464713dcce232b4f)
 
 .. toctree::
    :hidden:
@@ -492,10 +493,12 @@ Copyright © 2020-2022, Nikolas Ovaskainen.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Analyzing trace data
+   :caption: Notebooks
    :hidden:
 
    notebooks/fractopo_network_1
+   notebooks/fractopo_validation_1
+   notebooks/fractopo_validation_2
 
 .. toctree::
    :maxdepth: 1
@@ -503,6 +506,14 @@ Copyright © 2020-2022, Nikolas Ovaskainen.
    :hidden:
 
    auto_examples/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Advanced
+   :hidden:
+
+   validation/basics
+   validation/errors
 
 .. toctree::
    :maxdepth: 1
