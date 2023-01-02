@@ -31,8 +31,6 @@ bedrock fractures from outcrops and through remote sensing. As it is a
 programming knowledge.
 
 
-
-
 .. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
 
@@ -135,33 +133,19 @@ Multi-scale length distributions                          `Multi-scale`_
 ========================================================  ======================
 
 .. _Validation 1:
-
 .. _Validation 2:
-
 .. _Visualizing:
-
 .. _Network:
-
 .. _Topological:
-
 .. _Length-distributions:
-
 .. _Orientation 1:
-
 .. _Orientation 2:
-
 .. _Proportions:
-
 .. _Relationships 1:
-
 .. _Relationships 2:
-
 .. _Parameters:
-
 .. _Contour-grids:
-
 .. _Multi-scale:
-
 
 Input data
 ~~~~~~~~~~
@@ -486,7 +470,6 @@ Copyright © 2020-2022, Nikolas Ovaskainen.
 
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
-
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish-doit/badge.svg
@@ -497,7 +480,7 @@ Copyright © 2020-2022, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: e040ec919f57f62932a5a163143c1a71)
+.. [[[end]]] (checksum: 4d3d87ffc17f550282784c845a98c46e)
 
 .. toctree::
    :hidden:
