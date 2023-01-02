@@ -481,7 +481,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: efb57d2e1f6cb393464713dcce232b4f)
+.. [[[end]]] (checksum: 4d0603408e7429f9660c0976a5d7ac14)
 
 .. toctree::
    :hidden:
