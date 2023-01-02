@@ -3,12 +3,12 @@ fractopo
 
 |Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo|
 
-``fractopo`` is a Python library that contains tools for validating and
-analysing lineament and fracture trace maps (fracture networks). It is
-targeted at structural geologists working on the characterization of
-bedrock fractures from outcrops and through remote sensing. As it is a
-``Python`` library, the use of ``fractopo`` requires prior (``Python``)
-programming knowledge.
+``fractopo`` is a Python library/application that contains tools for
+validating and analysing lineament and fracture trace maps (fracture
+networks). It is targeted at structural geologists working on the
+characterization of bedrock fractures from outcrops and through remote
+sensing. As it is a ``Python`` library, the use of ``fractopo`` requires
+prior (``Python``) programming knowledge.
 
 -  `Full Documentation is hosted on Read the Docs
    <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
@@ -21,7 +21,7 @@ programming knowledge.
 .. figure:: /docs_src/imgs/fractopo-visualizations.png
    :alt: Data visualization
 
-   Visualization of ``fractopo`` data. ``fractopo`` analyses the trace
+   Visualisation of ``fractopo`` data. ``fractopo`` analyses the trace
    data that can e.g. be digitized from drone orthophotographs
    (=fractures) or from digital elevation models (=lineaments). The
    displayed branches and nodes are extracted with ``fractopo``.

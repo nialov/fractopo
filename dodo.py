@@ -253,19 +253,6 @@ def task_apidocs():
     }
 
 
-def task_cog():
-    """
-    Use cogapp to template documentation.
-    """
-    docs_index = DOCS_SRC_PATH / "index.rst"
-    command = f"cog -c -r {docs_index}"
-    return {
-        ACTIONS: [command],
-        FILE_DEP: [README_PATH, POETRY_LOCK_PATH, docs_index, README_SCRIPT_PATH],
-        UP_TO_DATE: [config_changed(dict(command=command))],
-    }
-
-
 def task_docs():
     """
     Make documentation to docs using nox.
@@ -285,7 +272,6 @@ def task_docs():
             resolve_task_name(task_lint),
             # resolve_task_name(task_update_version),
             resolve_task_name(task_apidocs),
-            resolve_task_name(task_cog),
         ],
         TARGETS: [DOCS_PATH],
         UP_TO_DATE: [config_changed(dict(command=command))],

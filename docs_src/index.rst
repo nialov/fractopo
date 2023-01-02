@@ -1,21 +1,32 @@
 .. Readme is included with cogapp
 .. It fixes relative links to image files in the repository
 .. [[[cog
-   from scripts.cog_copy_readme import main
-   main()
+   from pathlib import Path
+
+   import cog
+
+   SKIP_CONDITIONS = ["full documentation is hosted", "fractopo.readthedocs"]
+   cog.outl("")
+   readme = Path("README.rst")
+   for line in readme.read_text().splitlines():
+       if any(condition in line.lower() for condition in SKIP_CONDITIONS):
+           continue
+       if "figure::" in line:
+           line = line.replace("docs_src/", "")
+       cog.outl(line)
    ]]]
 
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
+|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo|
 
-``fractopo`` is a Python library that contains tools for validating and
-analysing lineament and fracture trace maps (fracture networks). It is
-targeted at structural geologists working on the characterization of
-bedrock fractures from outcrops and through remote sensing. As it is a
-``Python`` library, the use of ``fractopo`` requires prior (``Python``)
-programming knowledge.
+``fractopo`` is a Python library/application that contains tools for
+validating and analysing lineament and fracture trace maps (fracture
+networks). It is targeted at structural geologists working on the
+characterization of bedrock fractures from outcrops and through remote
+sensing. As it is a ``Python`` library, the use of ``fractopo`` requires
+prior (``Python``) programming knowledge.
 
 
 .. figure:: https://git.io/JBRuK
@@ -26,7 +37,7 @@ programming knowledge.
 .. figure:: /imgs/fractopo-visualizations.png
    :alt: Data visualization
 
-   Visualization of ``fractopo`` data. ``fractopo`` analyses the trace
+   Visualisation of ``fractopo`` data. ``fractopo`` analyses the trace
    data that can e.g. be digitized from drone orthophotographs
    (=fractures) or from digital elevation models (=lineaments). The
    displayed branches and nodes are extracted with ``fractopo``.
@@ -461,15 +472,17 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/test-and-publish-doit/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/test-and-publish-doit.yaml?query=branch%3Amaster
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/CI/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
+.. |Conda Test| image:: https://github.com/nialov/fractopo/workflows/conda/badge.svg
+   :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
 .. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
    :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: da1c83a87f91634c65d02cd4e1575827)
+.. [[[end]]] (checksum: f78b3d5cba7141f512f18f27e4d356db)
 
 .. toctree::
    :hidden:
