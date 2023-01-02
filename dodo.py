@@ -61,6 +61,8 @@ POETRY_LOCK_PATH = Path("poetry.lock")
 NOXFILE_PATH = Path("noxfile.py")
 PACKAGE_INIT_PATH = Path(PACKAGE_NAME) / "__init__.py"
 DODO_PATH = Path("dodo.py")
+SCRIPTS_PATH = Path("scripts/")
+README_SCRIPT_PATH = SCRIPTS_PATH / "cog_copy_readme.py"
 
 ## Tests
 TESTS_PATH = Path("tests")
@@ -259,7 +261,7 @@ def task_cog():
     command = f"cog -c -r {docs_index}"
     return {
         ACTIONS: [command],
-        FILE_DEP: [README_PATH, POETRY_LOCK_PATH, docs_index],
+        FILE_DEP: [README_PATH, POETRY_LOCK_PATH, docs_index, README_SCRIPT_PATH],
         UP_TO_DATE: [config_changed(dict(command=command))],
     }
 

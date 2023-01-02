@@ -1,20 +1,8 @@
 .. Readme is included with cogapp
 .. It fixes relative links to image files in the repository
 .. [[[cog
-   import cog
-   from pathlib import Path
-
-   cog.outl("")
-   readme = Path("README.rst")
-   for line in readme.read_text().splitlines():
-
-      if "figure::" in line:
-         line = line.replace("docs_src/", "")
-      if "full documentation is hosted" in line.lower():
-         continue
-      if "fractopo.readthedocs" in line.lower():
-         continue
-      cog.outl(line)
+   from scripts.cog_copy_readme import main
+   main()
    ]]]
 
 fractopo
@@ -22,7 +10,7 @@ fractopo
 
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
-``fractopo`` is a Python module that contains tools for validating and
+``fractopo`` is a Python library that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks). It is
 targeted at structural geologists working on the characterization of
 bedrock fractures from outcrops and through remote sensing. As it is a
@@ -481,7 +469,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 4d0603408e7429f9660c0976a5d7ac14)
+.. [[[end]]] (checksum: da1c83a87f91634c65d02cd4e1575827)
 
 .. toctree::
    :hidden:

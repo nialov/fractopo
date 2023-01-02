@@ -3,7 +3,7 @@ fractopo
 
 |Documentation Status| |PyPI Status| |CI Test| |Coverage| |Binder| |Zenodo|
 
-``fractopo`` is a Python module that contains tools for validating and
+``fractopo`` is a Python library that contains tools for validating and
 analysing lineament and fracture trace maps (fracture networks). It is
 targeted at structural geologists working on the characterization of
 bedrock fractures from outcrops and through remote sensing. As it is a
