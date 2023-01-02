@@ -12,6 +12,11 @@ on:
   # run only on master pull requests
   pull_request:
     branches: [master]
+    paths:
+      # Only run on changes to source or test python files and environment.yml
+      - "fractopo/**.py"
+      - "tests/**.py"
+      - "environment.yml"
   # also run periodically
   schedule:
     - cron: "41 7 * * 5"
@@ -58,7 +63,7 @@ jobs:
         run: |
           # Test package import
           python -c 'import fractopo'
-          # Test entrypoint
+          # Test module entrypoint
           python -m fractopo --help
           # Run unittests with pytest
           pytest -v
