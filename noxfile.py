@@ -219,10 +219,6 @@ def lint(session):
     if DOCS_AUTO_EXAMPLES_PATH.exists():
         rmtree(DOCS_AUTO_EXAMPLES_PATH)
 
-    # Remove auto_examples
-    if DOCS_AUTO_EXAMPLES_PATH.exists():
-        rmtree(DOCS_AUTO_EXAMPLES_PATH)
-
     # Lint docs
     session.run(
         "rstcheck",
@@ -428,20 +424,6 @@ def changelog(session):
     print(changelog_path.read_text(encoding=UTF8))
 
     assert changelog_path.exists()
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def pre_commit(session):
-    """
-    Install pre-commit and run it.
-    """
-    session.install(_parse_requirements_version("pre-commit"))
-    session.run(
-        "pre-commit",
-        "run",
-        "--all-files",
-        env={"PRE_COMMIT_HOME": session.cache_dir / ".pre-commit-cache"},
-    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)

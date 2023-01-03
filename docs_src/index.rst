@@ -5,12 +5,14 @@
 
    import cog
 
+   # Add conditions here if needed
    SKIP_CONDITIONS = ["full documentation is hosted", "fractopo.readthedocs"]
    cog.outl("")
    readme = Path("README.rst")
    for line in readme.read_text().splitlines():
        if any(condition in line.lower() for condition in SKIP_CONDITIONS):
            continue
+       # Make sure this functionality fits the project documentation structure
        if "figure::" in line:
            line = line.replace("docs_src/", "")
        cog.outl(line)
