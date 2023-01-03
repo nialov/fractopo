@@ -1219,6 +1219,17 @@ sphinx = ">=1.8"
 traitlets = ">=5"
 
 [[package]]
+name = "nbstripout"
+version = "0.6.1"
+description = "Strips outputs from Jupyter and IPython notebooks"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+nbformat = "*"
+
+[[package]]
 name = "nest-asyncio"
 version = "1.5.6"
 description = "Patch asyncio to allow nested event loops"
@@ -2405,7 +2416,7 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.12"
-content-hash = "c6d00fe6ed229386655d498c2b95602cbf6429bc877289e6148fa3c24d773353"
+content-hash = "4f4f15558358e6aee290423338d48b162c8ffbdf858a24fce8bc0297c8ae3d3f"
 
 [metadata.files]
 alabaster = [
@@ -3206,6 +3217,10 @@ nbformat = [
 nbsphinx = [
     {file = "nbsphinx-0.8.10-py3-none-any.whl", hash = "sha256:6076fba58020420927899362579f12779a43091eb238f414519ec25b4a8cfc96"},
     {file = "nbsphinx-0.8.10.tar.gz", hash = "sha256:a8d68046f8aab916e2940b9b3819bd3ef9ddce868aa38845ea366645cabb6254"},
+]
+nbstripout = [
+    {file = "nbstripout-0.6.1-py2.py3-none-any.whl", hash = "sha256:5ff6eb0debbcd656c4a64db8e082a24fabcfc753a9e8c9f6d786971e8f29e110"},
+    {file = "nbstripout-0.6.1.tar.gz", hash = "sha256:9065bcdd1488b386e4f3c081ffc1d48f4513a2f8d8bf4d0d9a28208c5dafe9d3"},
 ]
 nest-asyncio = [
     {file = "nest_asyncio-1.5.6-py3-none-any.whl", hash = "sha256:b9a953fb40dceaa587d109609098db21900182b16440652454a146cffb06e8b8"},

@@ -152,6 +152,7 @@ def notebooks(session):
         if notebook_path.exists():
             # Might have been removed by .ipynb_checkpoints rmtree!
             execute_notebook(session=session, notebook=notebook_path)
+            session.run("nbstripout", str(notebook_path))
 
 
 def _parse_requirements_version(package: str) -> str:
