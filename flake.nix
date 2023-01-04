@@ -122,8 +122,16 @@
         pkgs = import nixpkgs {
           inherit system;
           # Add copier overlay to provide copier package
-          overlays =
-            [ (_: _: { copier = copier-src.packages."${system}".default; }) ];
+          overlays = [
+            (_: _: {
+              copier = copier-src.packages."${system}".default;
+              fractopo = pkgs.python3Packages.callPackage ./. { };
+              # TODO: Fails on python38 with nix build
+              # fractopo-38 = pkgs.python38Packages.callPackage ./. { };
+              fractopo-39 = pkgs.python39Packages.callPackage ./. { };
+              fractopo-310 = pkgs.python310Packages.callPackage ./. { };
+            })
+          ];
         };
 
         # Choose Python interpreters to include in all devShells
@@ -182,11 +190,24 @@
           ${wrappedCopier}/bin/copier --help
           mkdir $out
         '';
+        fractopo-image = let inherit (self.packages."${system}") fractopo;
+        in pkgs.dockerTools.buildLayeredImage {
+          name = "fractopo";
+          tag = "latest";
+          config.Cmd = [ "${fractopo}/bin/fractopo" ];
+          contents = [ fractopo ];
+
+        };
       in {
         checks = { inherit wrappedPoetryCheck copierCheck; };
         packages.poetry-wrapped = wrappedPoetry;
         packages.copier = wrappedCopier;
-        packages.default = wrappedPoetry;
+        packages.fractopo = pkgs.fractopo;
+        # packages.fractopo-38 = pkgs.fractopo-38;
+        packages.fractopo-39 = pkgs.fractopo-39;
+        packages.fractopo-310 = pkgs.fractopo-310;
+        packages.fractopo-image = fractopo-image;
+        packages.default = self.packages.fractopo;
         devShells = devShellsWithDefault;
       });
 }

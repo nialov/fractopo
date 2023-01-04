@@ -1,0 +1,45 @@
+name: nix
+
+on:
+  # run on all pushes to any branch
+  push:
+    paths:
+      - "**.py"
+      - "**.rst"
+      - "**.nix"
+      - "**.lock"
+      - "pyproject.toml"
+      - "poetry.lock"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/*.yaml"
+      # Ignore small changes to documentation files
+      # (ReadTheDocs will build based on new README anyway.)
+      - "!README.rst"
+      - "!CHANGELOG.md"
+  # run only on master pull requests
+  pull_request:
+    branches: [master]
+  # also run periodically
+  schedule:
+    - cron: "41 7 * * 5"
+
+jobs:
+  build:
+    name: Build fractopo with nix
+    strategy:
+      matrix:
+        # TODO: Fails on 38 for now
+        python-version: ["39", "310"]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v17
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Build with nix to ./fractopo-cli
+        run: |
+          nix -Lv build .#fractopo-${{ python-version }} --show-trace --out-link fractopo-cli
+      - name: Test built fractopo cli entrypoint
+        run: |
+          fractopo-cli/bin/fractopo --help
