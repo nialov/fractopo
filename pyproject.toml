@@ -28,7 +28,7 @@ classifiers = [
 include = ["CHANGELOG.md"]
 
 [tool.poetry.scripts]
-fractopo = "fractopo.cli:app"
+fractopo = "fractopo.__main__:APP"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/nialov/fractopo/issues"
