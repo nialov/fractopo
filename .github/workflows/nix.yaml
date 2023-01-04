@@ -39,7 +39,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Build with nix to ./fractopo-cli
         run: |
-          nix -Lv build .#fractopo-${{ python-version }} --show-trace --out-link fractopo-cli
+          nix -Lv build .#fractopo-${{ matrix.python-version }} --show-trace --out-link fractopo-cli
       - name: Test built fractopo cli entrypoint
         run: |
           fractopo-cli/bin/fractopo --help
