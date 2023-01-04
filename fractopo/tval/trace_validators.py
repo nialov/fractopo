@@ -31,6 +31,8 @@ from fractopo.tval.trace_validation_utils import (
     split_to_determine_triangle_errors,
 )
 
+log = logging.getLogger(__name__)
+
 
 class BaseValidator:
 
@@ -501,13 +503,13 @@ class TargetAreaSnapValidator(BaseValidator):
 
         # More than 1 shouldn't intersect one endpoint
         if len(endpoint_segments) != 1:
-            logging.warning("Expected only one segment to be close to endpoint.")
+            log.warning("Expected only one segment to be close to endpoint.")
             return False
         endpoint_segment = endpoint_segments[0]
 
         # Make sure result of split is LineString
         if not isinstance(endpoint_segment, LineString):
-            logging.warning("Expected endpoint_segment to be of type LineString.")
+            log.warning("Expected endpoint_segment to be of type LineString.")
             return False
 
         # If the LineString intersects polygon boundary -> not a candidate

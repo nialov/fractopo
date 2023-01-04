@@ -27,6 +27,8 @@ from fractopo.general import (
     spatial_index_intersection,
 )
 
+log = logging.getLogger(__name__)
+
 
 def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
@@ -305,7 +307,7 @@ def run_grid_sampling(
     it must always be set to be to a non-default value.
     """
     if traces.empty:
-        logging.warning("Empty GeoDataFrame passed to run_grid_sampling.")
+        log.warning("Empty GeoDataFrame passed to run_grid_sampling.")
         return gpd.GeoDataFrame()
     if precursor_grid is not None:
         if not isinstance(precursor_grid, gpd.GeoDataFrame):

@@ -20,6 +20,8 @@ from sklearn.linear_model import LinearRegression
 
 from fractopo import general
 
+log = logging.getLogger(__name__)
+
 ALPHA = "alpha"
 EXPONENT = "exponent"
 CUT_OFF = "cut-off"
@@ -87,7 +89,7 @@ class SilentFit(powerlaw.Fit):
         Get attribute with silent output.
 
         Also wraps all callables (~instance methods) with silent_output. The
-        stdout and stderr is reported with logging.info so it is not lost.
+        stdout and stderr is reported with log.info so it is not lost.
         """
         with general.silent_output("__getattribute__"):
             attribute = super().__getattribute__(name)
@@ -151,15 +153,15 @@ class LengthDistribution:
         # Lengths lower than the value can cause runtime issues.
         filtered_lengths = self.lengths[self.lengths > general.MINIMUM_LINE_LENGTH]
 
-        # Calculate proportion for logging purposes
+        # Calculate proportion for log purposes
         filtered_proportion = (
             ((len(self.lengths) - len(filtered_lengths)) / len(self.lengths))
             if len(self.lengths) > 0
             else 0.0
         )
         high_filtered = filtered_proportion > 0.1
-        logging_func = logging.warning if high_filtered else logging.info
-        logging_func(
+        log_func = log.warning if high_filtered else log.info
+        log_func(
             "Created LengthDistribution instance."
             + (" High filter proportion!" if high_filtered else "")
             # extra=dict(
@@ -540,7 +542,7 @@ def _setup_length_plot_axlims(
         ax.set_xlim(left, right)
         ax.set_ylim(bottom, top)
     except ValueError:
-        logging.error("Failed to set up x and y limits.", exc_info=True)
+        log.error("Failed to set up x and y limits.", exc_info=True)
         # Don't try setting if it errors
 
 
@@ -554,6 +556,7 @@ def plot_distribution_fits(
     fig: Optional[Figure] = None,
     ax: Optional[Axes] = None,
     fits_to_plot: Tuple[Dist, ...] = (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW),
+    plain: bool = False,
 ) -> Tuple[powerlaw.Fit, Figure, Axes]:
     """
     Plot length distribution and `powerlaw` fits.
@@ -580,7 +583,7 @@ def plot_distribution_fits(
     assert fit is not None
 
     if len(length_array) == 0:
-        logging.error(
+        log.error(
             "Empty length array passed into plot_distribution_fits. "
             "Fit and plot will be invalid."
         )
@@ -658,7 +661,7 @@ def plot_distribution_fits(
 
     # Plot cut-off if applicable
     plot_axvline = cut_off is None or cut_off != 0.0
-    if plot_axvline:
+    if plot_axvline and not plain:
         # Indicate cut-off if cut-off is not given as 0.0
         truncated_length_array_min = min((truncated_length_array.min(), fit.xmin))
         ax.axvline(
@@ -681,10 +684,11 @@ def plot_distribution_fits(
     # Set title with exponent
     rounded_exponent = round(calculate_exponent(fit.alpha), 3)
     target = "Branches" if using_branches else "Traces"
-    ax.set_title(
-        f"{label}\nPower-law Exponent ({target}) = ${rounded_exponent}$",
-        fontdict=dict(fontsize="xx-large"),
-    )
+    if not plain:
+        ax.set_title(
+            f"{label}\nPower-law Exponent ({target}) = ${rounded_exponent}$",
+            fontdict=dict(fontsize="xx-large"),
+        )
 
     # Setup of ax appearance and axlims
     setup_ax_for_ld(
@@ -692,6 +696,7 @@ def plot_distribution_fits(
         using_branches=using_branches,
         indiv_fit=True,
         use_probability_density_function=use_probability_density_function,
+        plain=plain,
     )
     _setup_length_plot_axlims(
         ax=ax,
@@ -702,16 +707,16 @@ def plot_distribution_fits(
     return fit, fig, ax
 
 
-def setup_length_dist_legend(ax_for_setup: Axes):
+def setup_length_dist_legend(ax: Axes):
     """
     Set up legend for length distribution plots.
 
     Used for both single and multi distribution plots.
     """
     # Setup legend
-    handles, labels = ax_for_setup.get_legend_handles_labels()
+    handles, labels = ax.get_legend_handles_labels()
     labels = [fill(label, 16) for label in labels]
-    lgnd = ax_for_setup.legend(
+    lgnd = ax.legend(
         handles,
         labels,
         loc="upper right",
@@ -732,19 +737,21 @@ def setup_length_dist_legend(ax_for_setup: Axes):
 
 
 def setup_ax_for_ld(
-    ax_for_setup: Axes,
+    ax: Axes,
     using_branches: bool,
     indiv_fit: bool,
     use_probability_density_function: bool,
+    plain: bool = False,
 ):
     """
     Configure ax for length distribution plots.
 
-    :param ax_for_setup: Ax to setup.
+    :param ax: Ax to setup.
     :param using_branches: Are the lines in the axis branches or traces.
     :param indiv_fit: Is the plot single-scale or multi-scale.
     :param use_probability_density_function: Whether to use complementary
            cumulative distribution function
+    :param plain: Should the stylizing be kept to a minimum.
     """
     # LABELS
     label = "Branch Length $(m)$" if using_branches else "Trace Length $(m)$"
@@ -754,40 +761,43 @@ def setup_ax_for_ld(
         style="italic",
         fontweight="bold",
     )
-    ax_for_setup.set_xlabel(
+    ax.set_xlabel(
         label,
         labelpad=14,
         **font_props,
-    )
+    ) if not plain else None
     # Individual powerlaw fits are not normalized to area because they aren't
     # multiscale
     ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
     prefix = "" if indiv_fit else "AN"
     function_name = "CCM" if not use_probability_density_function else "PDF"
-    ax_for_setup.set_ylabel(
+    ax.set_ylabel(
         f"{prefix}{function_name} {ccm_unit}",
         # prefix + function_name + ccm_unit,
         **font_props,
-    )
+    ) if not plain else None
 
     # Setup x and y axis ticks and their labels
-    plt.xticks(color="black", fontsize="x-large")
-    plt.yticks(color="black", fontsize="x-large")
-    plt.tick_params(axis="both", width=1.2)
+    # plt.xticks(color="black", fontsize="x-large")
+    # plt.yticks(color="black", fontsize="x-large")
+    # plt.tick_params(axis="both", width=1.2)
+    ax.set_xticks(ax.get_xticks(), color="black", fontsize="x-large")
+    ax.set_yticks(ax.get_yticks(), color="black", fontsize="x-large")
+    ax.tick_params(axis="both", width=1.2)
 
     # Setup legend
-    setup_length_dist_legend(ax_for_setup=ax_for_setup)
+    setup_length_dist_legend(ax=ax) if not plain else None
 
     # Setup grid
-    ax_for_setup.grid(zorder=-10, color="black", alpha=0.25)
+    ax.grid(zorder=-10, color="black", alpha=0.25)
 
     # Change x and y scales to logarithmic
-    ax_for_setup.set_xscale("log")
-    ax_for_setup.set_yscale("log")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
 
     # Set facecolor depending on using_branches
     # facecolor = "oldlace" if using_branches else "gray"
-    # ax_for_setup.set_facecolor(facecolor)
+    # ax.set_facecolor(facecolor)
 
 
 def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
@@ -928,7 +938,7 @@ def fit_to_multi_scale_lengths(
     assert len(fit_vals) == 2
 
     m_value, constant = fit_vals
-    logging.info(
+    log.info(
         "Fitted with fitter.",
         extra=dict(fitter=fitter, m_value=m_value, constant=constant),
     )
@@ -971,7 +981,7 @@ def plot_multi_distributions_and_fit(
     try:
         scorer_str = SCORER_NAMES[polyfit.scorer]
     except KeyError:
-        logging.warning(
+        log.warning(
             "Expected to find name string for polyfit scorer: "
             f"{polyfit.scorer} in SCORER_NAMES."
         )
@@ -1081,7 +1091,7 @@ def plot_multi_distributions_and_fit(
 
     # Setup axes
     setup_ax_for_ld(
-        ax_for_setup=ax,
+        ax=ax,
         using_branches=using_branches,
         indiv_fit=False,
         use_probability_density_function=False,
@@ -1093,7 +1103,7 @@ def plot_multi_distributions_and_fit(
     )
 
     # Add legend
-    # setup_length_dist_legend(ax_for_setup=ax)
+    # setup_length_dist_legend(ax=ax)
 
     return fig, ax
 

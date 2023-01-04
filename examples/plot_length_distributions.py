@@ -36,7 +36,7 @@ plt.show()
 # %%
 
 # Log-log plot of network branch length distribution
-fit, fig, ax = kb11_network.plot_branch_lengths()
+kb11_network.plot_branch_lengths()
 plt.tight_layout()
 plt.show()
 
@@ -45,7 +45,7 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Log-log plot of network trace length distribution
-fit, fig, ax = kb11_network.plot_trace_lengths(use_probability_density_function=True)
+kb11_network.plot_trace_lengths(use_probability_density_function=True)
 
 # Use matplotlib helpers to make sure plot fits in the gallery webpage!
 # (Not required.)
@@ -55,7 +55,7 @@ plt.show()
 # %%
 
 # Log-log plot of network branch length distribution
-fit, fig, ax = kb11_network.plot_branch_lengths(use_probability_density_function=True)
+kb11_network.plot_branch_lengths(use_probability_density_function=True)
 plt.tight_layout()
 plt.show()
 

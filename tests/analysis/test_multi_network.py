@@ -150,7 +150,7 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
         tmp_path.mkdir(exist_ok=True)
         plot_path = tmp_path / f"{plot_func}.png"
         fig.savefig(plot_path, bbox_inches="tight")
-        logging.info(f"Saved {plot_func} plot to {plot_path.absolute()}.")
+        print(f"Saved {plot_func} plot to {plot_path.absolute()}.")
 
 
 @pytest.mark.parametrize(
@@ -187,7 +187,7 @@ def test_multinetwork_methods(
 
     for name, fig in zip(mlds, figs):
         output_path = general.save_fig(fig=fig, results_dir=tmp_path, name=name)
-        logging.info(f"Saved plot to {output_path}.")
+        # logging.info(f"Saved plot to {output_path}.")
 
     assert isinstance(mlds, dict)
     assert isinstance(polyfits, list)

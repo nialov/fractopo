@@ -87,7 +87,9 @@ jobs:
         # (more efficient for github.com at least)
         run: |
           nix develop -c poetry install
-          nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs citation build
+          nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs build
+          # Check that no files have changed
+          git diff --exit-code
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
         if: >

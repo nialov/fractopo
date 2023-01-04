@@ -1,6 +1,7 @@
 """
 Anisotropy of connectivity determination utilities.
 """
+import logging
 from typing import Tuple
 
 import matplotlib
@@ -8,6 +9,8 @@ import numpy as np
 from matplotlib import patches
 from matplotlib import pyplot as plt
 from scipy.interpolate import CubicSpline
+
+log = logging.getLogger(__name__)
 
 
 def determine_anisotropy_classification(branch_classification: str) -> int:

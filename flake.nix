@@ -137,7 +137,7 @@
 
         # copier (copier --help) does not work without git in its PATH
         wrappedCopier = pkgs.symlinkJoin {
-          name = "wrapped-copier";
+          name = "copier";
           paths = [ pkgs.copier ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = let gitPath = with pkgs; lib.makeBinPath [ git ];

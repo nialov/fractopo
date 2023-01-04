@@ -51,6 +51,8 @@ from fractopo.general import (
     spatial_index_intersection,
 )
 
+log = logging.getLogger(__name__)
+
 UNARY_ERROR_SIZE_THRESHOLD = 100
 
 
@@ -76,7 +78,7 @@ def determine_branch_identity(
     """
     branch_type = Error_branch
     if number_of_i_nodes + number_of_e_nodes + number_of_xy_nodes != 2:
-        logging.error("Did not find 2 EXYI-nodes that intersected branch endpoints.\n")
+        log.error("Did not find 2 EXYI-nodes that intersected branch endpoints.\n")
         branch_type = Error_branch
     elif number_of_i_nodes == 2:
         branch_type = II_branch
@@ -91,7 +93,7 @@ def determine_branch_identity(
     elif number_of_e_nodes == 1 and number_of_i_nodes == 1:
         branch_type = IE_branch
     else:
-        logging.error("Unknown error in determine_branch_identity")
+        log.error("Unknown error in determine_branch_identity")
         branch_type = EE_branch
     return branch_type
 
@@ -262,12 +264,12 @@ def insert_point_to_linestring(
     assert isinstance(trace, LineString)
     assert isinstance(point, Point)
     if trace.has_z:
-        logging.warning("Trace contains z-coordinates. These will be lost.")
+        log.warning("Trace contains z-coordinates. These will be lost.")
     if point.has_z:
-        logging.warning("Point contains z-coordinates. These will be lost.")
+        log.warning("Point contains z-coordinates. These will be lost.")
 
     if any(point.intersects(Point(xy)) for xy in trace.coords):
-        logging.error(
+        log.error(
             "Point already matches a coordinate point in trace.\n"
             f"point: {point.wkt}, trace: {trace.wkt}\n"
             "Returning original trace without changes."
@@ -300,7 +302,7 @@ def insert_point_to_linestring(
     assert new_trace.is_valid
     # assert new_trace.is_simple
     if not new_trace.is_simple:
-        logging.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
+        log.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
     return new_trace
 
 
@@ -527,8 +529,8 @@ def snap_trace_simple(
 
     # Debugging
     if final_allowed_loop and was_simple_snapped:
-        logging.error("In final_allowed_loop and still snapping:")
-        logging.error(f"{traces, trace}")
+        log.error("In final_allowed_loop and still snapping:")
+        log.error(f"{traces, trace}")
 
     # Return trace and information if it was changed
     return trace, was_simple_snapped
@@ -586,7 +588,7 @@ def snap_others_to_trace(
 
     if trace in list(trace_candidates):
         error = "Found trace in trace_candidates."
-        logging.error(
+        log.error(
             error,
             extra=dict(trace_wkt=trace.wkt, trace_candidates_len=len(trace_candidates)),
         )
@@ -623,8 +625,8 @@ def snap_others_to_trace(
 
     # Debugging
     if final_allowed_loop and was_snapped:
-        logging.error("In final_allowed_loop and still snapping:")
-        logging.error(f"{traces, endpoints}")
+        log.error("In final_allowed_loop and still snapping:")
+        log.error(f"{traces, endpoints}")
 
     # Return trace and information if it was changed
     return trace, was_snapped
@@ -712,7 +714,7 @@ def simple_snap(
             )
             if endpoint.wkt in replace_endpoint:
                 error = "Found endpoint in replace_endpoint dict."
-                logging.error(
+                log.error(
                     error,
                     extra=(
                         dict(
@@ -764,7 +766,7 @@ def filter_non_unique_traces(
     assert isinstance(unique_traces, gpd.GeoSeries)
 
     filter_count = len(traces) - len(unique_traces)
-    logging.info(
+    log.info(
         f"Filtered out {filter_count} traces.",
         extra=dict(traces_len=len(traces), unique_traces_len=len(unique_traces)),
     )
@@ -810,7 +812,7 @@ def safer_unary_union(
     # Debugging, fail safely
     if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
 
-        logging.critical(
+        log.critical(
             "Expected size_threshold to be higher than 100. Union might be impossible."
         )
 
@@ -891,9 +893,9 @@ def report_snapping_loop(loops: int, allowed_loops: int):
     """
     Report snapping looping.
     """
-    logging.info(f"Loop :{ loops }")
+    log.info(f"Loop :{ loops }")
     if loops >= 10:
-        logging.warning(
+        log.warning(
             f"{loops} loops have passed without resolved snapped"
             " traces_geosrs. Snapped traces_geosrs might not"
             " possibly be resolved."
@@ -925,7 +927,7 @@ def branches_and_nodes(
     Therefore cannot test if there are more branches than traces because
     there might be less due to this issue.
     """
-    logging.info(
+    log.info(
         "Starting determination of branches and nodes.",
         extra=dict(
             len_traces=len(traces),
@@ -1022,7 +1024,7 @@ def branches_and_nodes(
     if len(branches_all) < len(traces_geosrs):
 
         # unary_union can fail with too large datasets
-        logging.critical(
+        log.critical(
             "Expected more branches than traces. Possible unary_union failure."
         )
 
@@ -1133,15 +1135,13 @@ def node_identity(
         node_type = X_node
     elif intersecting_node_count == 1:
         # Unresolvable
-        logging.error(
+        log.error(
             f"Expected 0, 2 or 3 intersects. V-node or similar error at {endpoint.wkt}."
         )
         node_type = I_node
     else:
         # Unresolvable
-        logging.error(
-            f"Expected 0, 2 or 3 intersects. Multijunction at {endpoint.wkt}."
-        )
+        log.error(f"Expected 0, 2 or 3 intersects. Multijunction at {endpoint.wkt}.")
         node_type = X_node
     return node_type
 

@@ -9,7 +9,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
@@ -150,7 +149,7 @@ def plot_azimuth_ax(
     bin_locs: np.ndarray,
     bin_heights: np.ndarray,
     bar_color: str,
-    ax: PolarAxes,  # type: ignore
+    ax: PolarAxes,
     axial: bool = True,
 ):
     """
@@ -256,7 +255,7 @@ def _create_azimuth_set_text(
 
 
 def decorate_azimuth_ax(
-    ax: Axes,
+    ax: PolarAxes,
     label: str,
     length_array: np.ndarray,
     set_array: np.ndarray,
@@ -336,6 +335,8 @@ def plot_azimuth_plot(
     """
     azimuth_bins = determine_azimuth_bins(azimuth_array, length_array, axial=axial)
     fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))
+    assert isinstance(ax, PolarAxes)
+    assert isinstance(fig, Figure)
     ax = plot_azimuth_ax(
         bin_heights=azimuth_bins.bin_heights,
         bin_locs=azimuth_bins.bin_locs,

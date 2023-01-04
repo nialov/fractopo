@@ -46,3 +46,13 @@ repos:
       - id: end-of-file-fixer
       - id: check-added-large-files
         args: ["--maxkb=50000"]
+  - repo: https://github.com/nialov/citation-file-format
+    rev: 1b5af8e280fca562ecabe4c3cae85f9318c03771
+    hooks:
+      - id: validate-citation-file-format
+  - repo: https://github.com/nialov/cog
+    rev: 6d73562c5cb38753bd94414a6e7612b263bc278d
+    hooks:
+      - id: cog
+        files: "(docs_src/index.rst)"
+        always_run: false

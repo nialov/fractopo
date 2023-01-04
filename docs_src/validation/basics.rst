@@ -1,5 +1,5 @@
-Basics of validating fracture trace data
-========================================
+Validating fracture trace data
+==============================
 
 Prerequisites
 -------------

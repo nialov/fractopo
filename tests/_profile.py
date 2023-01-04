@@ -1,7 +1,6 @@
 """
 Script for profiling ``fractopo`` performance.
 """
-import logging
 from pathlib import Path
 
 import click
@@ -28,9 +27,10 @@ def perf_profile(
     Profile ``fractopo`` performance.
     """
     if not all(path.exists() for path in (SAMPLE_TRACES_PATH, SAMPLE_AREA_PATH)):
-        logging.error(f"Current path: {Path.cwd().resolve()}")
         raise FileNotFoundError(
-            "Expected sample to exist at:" f" {(SAMPLE_TRACES_PATH, SAMPLE_AREA_PATH)}"
+            "Expected sample to exist at:"
+            f" {(SAMPLE_TRACES_PATH, SAMPLE_AREA_PATH)}"
+            f"\nCurrent path: {Path.cwd().resolve()}"
         )
 
     traces = read_geofile(SAMPLE_TRACES_PATH)

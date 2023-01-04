@@ -23,6 +23,8 @@ from fractopo.general import (
     prepare_geometry_traces,
 )
 
+log = logging.getLogger(__name__)
+
 
 def determine_crosscut_abutting_relationships(
     trace_series: gpd.GeoSeries,
@@ -95,7 +97,7 @@ def determine_crosscut_abutting_relationships(
         )
 
         if any(series.shape[0] == 0 for series in trace_series_two_sets):
-            logging.warning("Expected first_set and second_set to both contain traces.")
+            log.warning("Expected first_set and second_set to both contain traces.")
             return relations_df
         set_names_two_sets = (first_set, second_set)
         # determine_nodes_intersecting_sets returns a boolean array
@@ -248,7 +250,7 @@ def determine_intersects(
     intersectframe = pd.DataFrame(columns=["node", "nodeclass", "sets", "error"])
     if len(node_series_xy_intersects) == 0:
         # No intersections between sets
-        logging.debug("No intersections between sets.")
+        log.debug("No intersections between sets.")
         return intersectframe
 
     first_set, second_set = (
@@ -418,7 +420,7 @@ def plot_crosscut_abutting_relationships_plot(
     # set_column = "set"
     cols = relations_df.shape[0]
     if cols == 0:
-        logging.warning("Expected relations_df to have rows. Returning empty lists.")
+        log.warning("Expected relations_df to have rows. Returning empty lists.")
         return [], []
     if cols == 2:
         cols = 1

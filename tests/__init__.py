@@ -87,7 +87,9 @@ def click_error_print(result: Result):
     # print(err_class, err)
     print_tb(tb)
     print(result.output)
-    raise Exception(result.exception)
+    # raise Exception(result.exception)
+    assert result.exception is not None
+    raise result.exception
 
 
 valid_geom = LineString(((0, 0), (1, 1)))
@@ -309,7 +311,11 @@ def make_invalid_target_areas():
     invalid_traces,
     valid_areas_geoseries,
     invalid_areas_geoseries,
-) = trace_builder(False, SNAP_THRESHOLD, SNAP_THRESHOLD_ERROR_MULTIPLIER)
+) = trace_builder(
+    plot_figs=False,
+    snap_threshold=SNAP_THRESHOLD,
+    snap_threshold_error_multiplier=SNAP_THRESHOLD_ERROR_MULTIPLIER,
+)
 
 valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
 invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
@@ -2177,4 +2183,5 @@ def round_geometry_coordinates(geom: Any) -> Any:
         rounded = wkt.loads(wkt.dumps(geom, rounding_precision=6))
     except ValueError:
         logging.error(f"Expected for wkt to be able to parse geom: {geom}")
+        raise
     return rounded

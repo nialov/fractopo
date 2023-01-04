@@ -9,7 +9,6 @@ import nox
 import pkg_resources
 
 CHANGELOG_PATH = Path("CHANGELOG.md")
-CITATION_CFF_PATH = Path("CITATION.cff")
 DOCS_SRC_PATH = Path("docs_src")
 COVERAGE_SVG_PATH = DOCS_SRC_PATH / Path("imgs/coverage.svg")
 DEFAULT_PYTHON_VERSION = "3.8"
@@ -153,6 +152,7 @@ def notebooks(session):
         if notebook_path.exists():
             # Might have been removed by .ipynb_checkpoints rmtree!
             execute_notebook(session=session, notebook=notebook_path)
+            session.run("nbstripout", str(notebook_path))
 
 
 def _parse_requirements_version(package: str) -> str:
@@ -215,10 +215,6 @@ def lint(session):
     Lint python files, notebooks and docs_src.
     """
     existing_paths = setup_lint(session=session)
-
-    # Remove auto_examples
-    if DOCS_AUTO_EXAMPLES_PATH.exists():
-        rmtree(DOCS_AUTO_EXAMPLES_PATH)
 
     # Remove auto_examples
     if DOCS_AUTO_EXAMPLES_PATH.exists():
@@ -374,57 +370,14 @@ def typecheck(session):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def validate_citation_cff(session):
-    """
-    Validate CITATION.cff.
-
-    From: https://github.com/citation-file-format/citation-file-format
-    TODO: Installation is quite dirty. Replace with pre-commit or something else?
-    """
-    # Path to CITATION.cff
-    citation_cff_path = CITATION_CFF_PATH.absolute()
-
-    # create temporary directory and chdir there
-    tmp_dir = session.create_tmp()
-    session.chdir(tmp_dir)
-
-    # Remove existing dir
-    citation_file_format_dir = Path("citation-file-format")
-    if citation_file_format_dir.exists():
-        rmtree(citation_file_format_dir)
-
-    # clone this repository and chdir into the repo
-    session.run(
-        "git",
-        "clone",
-        "https://github.com/citation-file-format/citation-file-format.git",
-        "--depth",
-        "1",
-        external=True,
-    )
-    session.chdir(str(citation_file_format_dir))
-
-    # install the validation dependencies in user space
-    session.install("ruamel.yaml==0.17.21", "jsonschema==4.16.0")
-
-    # run the validator on your CITATION.cff
-    session.run(
-        "python3",
-        str(Path("examples/validator.py")),
-        "-s",
-        "schema.json",
-        "-d",
-        str(citation_cff_path),
-    )
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
 def changelog(session):
     """
     Create CHANGELOG.md.
     """
     version = resolve_session_posargs(session=session)
     assert isinstance(version, str)
+    if len(version) == 0:
+        raise ValueError(f"Expected passed version/tag to not be empty.")
 
     # Path to changelog.md
     changelog_path = CHANGELOG_PATH.absolute()
@@ -472,20 +425,6 @@ def changelog(session):
     print(changelog_path.read_text(encoding=UTF8))
 
     assert changelog_path.exists()
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def pre_commit(session):
-    """
-    Install pre-commit and run it.
-    """
-    session.install(_parse_requirements_version("pre-commit"))
-    session.run(
-        "pre-commit",
-        "run",
-        "--all-files",
-        env={"PRE_COMMIT_HOME": session.cache_dir / ".pre-commit-cache"},
-    )
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)

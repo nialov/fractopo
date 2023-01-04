@@ -25,6 +25,8 @@ from fractopo.general import (
     raise_determination_error,
 )
 
+log = logging.getLogger(__name__)
+
 
 def _column_array_property(
     column: Col,
@@ -71,7 +73,7 @@ class LineData:
         Overwrite __getattr__ to warn about accessing _line_gdf.
         """
         if __name == "_line_gdf":
-            logging.error(
+            log.error(
                 "Output line_gdf might not have all column attributes defined.\n"
                 "Use LineData attributes instead of getting the GeoDataFrame."
             )
@@ -185,7 +187,7 @@ class LineData:
         Array of trace or branch length set ids.
         """
         if len(self.length_set_names) == 0 or len(self.length_set_ranges) == 0:
-            logging.error("Expected length_set_names and _ranges to be non-empty.")
+            log.error("Expected length_set_names and _ranges to be non-empty.")
             raise_determination_error(
                 "length_set_array",
                 determine_target="length set attributes",
@@ -284,6 +286,7 @@ class LineData:
         label: str,
         use_probability_density_function: bool,
         fit: Optional[powerlaw.Fit] = None,
+        plain: bool = False,
     ) -> Tuple[powerlaw.Fit, Figure, Axes]:
         """
         Plot length data with powerlaw fit.
@@ -294,6 +297,7 @@ class LineData:
             fit=self.automatic_fit if fit is None else fit,
             using_branches=self.using_branches,
             use_probability_density_function=use_probability_density_function,
+            plain=plain,
         )
 
     def plot_azimuth(

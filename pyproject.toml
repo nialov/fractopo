@@ -28,7 +28,6 @@ classifiers = [
 include = ["CHANGELOG.md"]
 
 [tool.poetry.scripts]
-tracevalidate = "fractopo.cli:tracevalidate_click"
 fractopo = "fractopo.cli:app"
 
 [tool.poetry.urls]
@@ -76,21 +75,22 @@ mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
 # TODO: copier could be installed outside the poetry environment
+codespell = "^2.2.2"
+cogapp = "^3.3.0"
 copier = "*"
+coverage = "^6.5.0"
 doit = "*"
 hypothesis = "*"
 ipython = "*"
-jupyterlab = "*"
 json5 = "*"
-nbstripout = "*"
+jupyterlab = "*"
+nbstripout = "^0.6.1"
 nox = "*"
 pre-commit = "*"
 pyinstrument = "*"
 pytest = "*"
 pytest-regressions = "==2.2.0"
 toml = "*"
-coverage = "^6.5.0"
-codespell = "^2.2.2"
 
 [tool.poetry.extras]
 coverage = ["coverage", "coverage-badge"]
@@ -177,3 +177,7 @@ ignore_missing_imports = true
 ignore_words_list = [
     "theses"
 ]
+
+[tool.pyright]
+include = ["fractopo"]
+verboseOutput = true

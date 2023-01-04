@@ -25,6 +25,8 @@ from fractopo.tval.trace_validators import (
     ValidatorClass,
 )
 
+log = logging.getLogger(__name__)
+
 
 @dataclass
 class Validation:
@@ -125,9 +127,9 @@ class Validation:
                 not isinstance(spatial_index, PyGEOSSTRTreeIndex)
                 or len(spatial_index) == 0
             ):
-                logging.warning(
-                    "Expected sindex property to be of type: PyGEOSSTRTreeIndex"
-                    " and non-empty."
+                log.warning(
+                    "Expected sindex property to be of type: PyGEOSSTRTreeIndex \n"
+                    "and non-empty."
                 )
                 self._spatial_index = None
                 return self._spatial_index
@@ -178,7 +180,7 @@ class Validation:
         """
         for err_col in (self.ERROR_COLUMN, self.ERROR_COLUMN_TRUNC):
             if err_col in self.traces.columns:
-                logging.info(
+                log.info(
                     "Dropping existing validation columns from traces GeoDataFrame."
                 )
                 traces = self.traces.drop(columns=err_col)
@@ -199,7 +201,7 @@ class Validation:
 
         # Check if target area is completely void of traces
         if not allow_empty_area and is_empty_area(area=self.area, traces=self.traces):
-            logging.error(f"No traces within target area with name: {self.name}.")
+            log.error(f"No traces within target area with name: {self.name}.")
             empty_gdf: gpd.GeoDataFrame = self.traces.copy()
             return empty_gdf
 
@@ -316,7 +318,7 @@ class Validation:
             # already a error string in current_errors for e.g. MultiLineString
             # or empty geom rows.
             if isinstance(geom, MultiLineString):
-                logging.debug("MultiLineString geometry with validator ls only.")
+                log.debug("MultiLineString geometry with validator ls only.")
             return geom, current_errors, True
         if (
             not validator.validation_method(geom=geom, **kwargs)

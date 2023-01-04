@@ -20,6 +20,8 @@ from fractopo.general import (
     safe_buffer,
 )
 
+log = logging.getLogger(__name__)
+
 
 @unique
 class RandomChoice(Enum):
@@ -227,7 +229,7 @@ class NetworkRandomSampler:
                 truncate_traces=True,
             )
         except ValueError:
-            logging.error(
+            log.error(
                 "Error occurred during creation of random_network_sample.",
                 exc_info=True,
                 extra=dict(

@@ -13,6 +13,8 @@ from fractopo import general
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
 
+log = logging.getLogger(__name__)
+
 
 def create_sample(
     sampler: NetworkRandomSampler,
@@ -74,7 +76,7 @@ def gather_subsample_descriptions(
     for subsample in subsample_results:
         random_sample_description = subsample.result
         if not isinstance(random_sample_description, dict):
-            logging.error(
+            log.error(
                 "Expected result random_sample_description to be a dict.",
                 extra=dict(
                     random_sample_description_type=type(random_sample_description),
@@ -245,7 +247,7 @@ def aggregate_chosen(
         try:
             aggregated = aggregator(values=column_values, weights=area_values)
         except Exception:
-            logging.info(
+            log.info(
                 "Could not aggregate column. Falling back to fallback_aggregation.",
                 extra=dict(
                     current_column=column, aggregator=aggregator, columns=columns
