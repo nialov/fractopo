@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from functools import wraps
 from io import StringIO
-from itertools import accumulate, chain, zip_longest
+from itertools import accumulate, chain, compress, zip_longest
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overload
 
@@ -798,17 +798,32 @@ def determine_valid_intersection_points_no_vnode(
     TODO: Refactor.
     """
     inter = determine_valid_intersection_points(trace_candidates.intersection(geom))
+    if len(inter) == 0:
+        return inter
     geom_endpoints = get_trace_endpoints(geom)
+    p_to_keep = [True] * len(inter)
     for trace_candidate in trace_candidates.geometry.values:
         candidate_endpoints = get_trace_endpoints(trace_candidate)
+        # import IPython
+
+        # IPython.embed()
         for ce in candidate_endpoints:
             for ge in geom_endpoints:
-                for p in inter.copy():
-                    if np.isclose(ce.distance(ge), 0, atol=1e-4) and np.isclose(
-                        ge.distance(p), 0, atol=1e-4
-                    ):
-                        inter.remove(p)
-    return inter
+                candidate_endpoint_is_close_to_geom_endpoint = np.isclose(
+                    ce.distance(ge), 0, atol=1e-4
+                )
+                if not candidate_endpoint_is_close_to_geom_endpoint:
+                    continue
+                for idx, p in enumerate(inter):
+                    if not p_to_keep[idx]:
+                        continue
+                    if np.isclose(ge.distance(p), 0, atol=1e-4):
+                        p_to_keep[idx] = False
+                        # inter.remove(p)
+                        # p_to_remove.add(idx)
+
+    inter_filtered = list(compress(inter, selectors=p_to_keep))
+    return inter_filtered
 
 
 def determine_valid_intersection_points(
