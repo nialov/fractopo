@@ -27,10 +27,9 @@ def create_sample(
     # as is default for multiprocessing
     seed()
     random_sample = sampler.random_network_sample()
-    name = NetworkRandomSampler.name
     if random_sample.network_maybe is None:
         log.error(
-            f"Failed to subsample with sampler {name}",
+            f"Failed to subsample with sampler {sampler.name}",
         )
         return None
     try:
@@ -38,7 +37,7 @@ def create_sample(
     except Exception:
         # TODO: Add Network info?
         log.error(
-            f"Failed to get numerical_network_description with {name}",
+            f"Failed to get numerical_network_description from sampler{sampler.name}",
             exc_info=True,
         )
         result = None
