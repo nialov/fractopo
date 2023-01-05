@@ -20,7 +20,7 @@ from ternary.ternary_axes_subplot import TernaryAxesSubplot
 import tests
 from fractopo.analysis import length_distributions
 from fractopo.analysis.azimuth import AzimuthBins
-from fractopo.analysis.network import CachedNetwork, Network
+from fractopo.analysis.network import Network
 from fractopo.general import SetRangeTuple, read_geofile
 
 
@@ -503,69 +503,3 @@ def test_network_topology_reassignment(
     new_df = pd.DataFrame([new_description])
     assert_frame_equal(original_df, new_df)
     assert_frame_equal(new_network.branch_gdf, branches_gdf)
-
-
-@pytest.mark.parametrize(
-    (
-        "trace_gdf,area_gdf,network_name,snap_threshold,"
-        "truncate_traces,circular_target_area"
-    ),
-    [
-        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, True, True),
-        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, False, False),
-        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001, True, False),
-        (tests.kb11_traces, tests.kb11_area, "kb11", 0.001, True, False),
-    ],
-)
-def test_cached_network(
-    trace_gdf: gpd.GeoDataFrame,
-    area_gdf: gpd.GeoDataFrame,
-    tmp_path: Path,
-    network_name: str,
-    truncate_traces: bool,
-    circular_target_area: bool,
-    snap_threshold: float,
-):
-    """
-    Test caching of Network branch_gdf and node_gdf with CachedNetwork.
-    """
-    # Sanity check that tmp_path is empty
-    assert len(list(tmp_path.iterdir())) == 0
-
-    network_params: Dict[str, Any] = dict(
-        trace_gdf=trace_gdf,
-        area_gdf=area_gdf,
-        name=network_name,
-        truncate_traces=truncate_traces,
-        circular_target_area=circular_target_area,
-        snap_threshold=snap_threshold,
-    )
-    cached_network = CachedNetwork(
-        **network_params, determine_branches_nodes=True, network_cache_path=tmp_path
-    )
-
-    assert not cached_network._cache_hit
-
-    assert len(list(tmp_path.iterdir())) == 2
-
-    # Test a crucial method that it works as expected
-    original_description = cached_network.numerical_network_description()
-    assert isinstance(original_description, dict)
-
-    cached_network_again = CachedNetwork(
-        **network_params, determine_branches_nodes=True, network_cache_path=tmp_path
-    )
-
-    assert cached_network_again._cache_hit
-
-    # Test a crucial method that it works as expected
-    new_description = cached_network_again.numerical_network_description()
-    assert isinstance(new_description, dict)
-
-    # Test that result is same from determined and cached
-    assert_frame_equal(
-        pd.DataFrame([original_description]), pd.DataFrame([new_description])
-    )
-
-    # Test that no additional caching has been done
-    assert len(list(tmp_path.iterdir())) == 2

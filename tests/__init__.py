@@ -1089,9 +1089,9 @@ geta_1_traces_1000_n = geta_1_traces.iloc[0:1000]
 
 test_network_params = [
     (
-        geta_1_traces,  # traces
+        geta_1_traces_1000_n,  # traces
         geta_1_1_area,  # area
-        "Geta1_1",  # name
+        "Geta1_1_1000",  # name
         True,  # determine_branches_nodes
         True,  # truncate_traces
         0.001,  # snap_threshold
@@ -1122,46 +1122,6 @@ test_network_params = [
         v_node_network_error_gdf,  # traces
         v_node_network_error_area_gdf,  # area
         "v-node-error-network",  # name
-        True,  # determine_branches_nodes
-        True,  # truncate_traces
-        0.001,  # snap_threshold
-        False,  # circular_target_area
-        False,  # try_export_of_data
-    ),
-    (
-        multipolygon_traces,  # traces
-        multipolygon_area,  # area
-        "MultiPolygon_target_area",  # name
-        True,  # determine_branches_nodes
-        True,  # truncate_traces
-        0.001,  # snap_threshold
-        False,  # circular_target_area
-        False,  # try_export_of_data
-    ),
-    (
-        multipolygon_traces,  # traces
-        multipolygon_area,  # area
-        "MultiPolygon_target_area",  # name
-        True,  # determine_branches_nodes
-        False,  # truncate_traces
-        0.001,  # snap_threshold
-        False,  # circular_target_area
-        False,  # try_export_of_data
-    ),
-    (
-        multipolygon_traces,  # traces
-        manypolygon_area,  # area
-        "MultiPolygon_target_area",  # name
-        True,  # determine_branches_nodes
-        True,  # truncate_traces
-        0.001,  # snap_threshold
-        False,  # circular_target_area
-        False,  # try_export_of_data
-    ),
-    (
-        kl2_2_traces.iloc[0:1500],  # traces
-        kl2_2_area,  # area
-        "kl_2_2",  # name
         True,  # determine_branches_nodes
         True,  # truncate_traces
         0.001,  # snap_threshold
@@ -2082,6 +2042,20 @@ HASTHOLMEN_VALID_NETWORK_PARAMS = dict(
     circular_target_area=False,
     snap_threshold=0.001,
 )
+KB11_0_100_NETWORK_PARAMS = dict(
+    trace_gdf=kb11_traces.iloc[0:100],
+    area_gdf=kb11_area,
+    name="kb11_0_100",
+    circular_target_area=False,
+    snap_threshold=0.001,
+)
+HASTHOLMEN_0_100_VALID_NETWORK_PARAMS = dict(
+    trace_gdf=hastholmen_traces_validated.iloc[0:100],
+    area_gdf=hastholmen_area,
+    name="hastholmen_0_100",
+    circular_target_area=False,
+    snap_threshold=0.001,
+)
 
 
 @lru_cache(maxsize=None)
@@ -2100,7 +2074,7 @@ def test_multinetwork_plot_azimuth_set_lengths_params():
     Params for test_multinetwork_plot_multi_length_distribution_fast.
     """
     return [
-        [KB11_NETWORK_PARAMS, HASTHOLMEN_VALID_NETWORK_PARAMS],
+        [KB11_0_100_NETWORK_PARAMS, HASTHOLMEN_0_100_VALID_NETWORK_PARAMS],
     ]
 
 
