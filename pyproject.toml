@@ -177,7 +177,3 @@ ignore_missing_imports = true
 ignore_words_list = [
     "theses"
 ]
-
-[tool.pyright]
-include = ["fractopo"]
-verboseOutput = true
