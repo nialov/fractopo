@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from fractopo.analysis import length_distributions, parameters, subsampling
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import RandomChoice
-from fractopo.general import NAME, ProcessResult, SetRangeTuple
+from fractopo.general import NAME, Number, SetRangeTuple
 
 
 class MultiNetwork(NamedTuple):
@@ -33,7 +33,7 @@ class MultiNetwork(NamedTuple):
         min_radii: Union[float, Dict[str, float]],
         random_choice: RandomChoice = RandomChoice.radius,
         samples: int = 1,
-    ) -> List[ProcessResult]:
+    ) -> List[Optional[Dict[str, Union[Number, str]]]]:
         """
         Subsample all ``Networks`` in ``MultiNetwork``.
 
@@ -43,8 +43,7 @@ class MultiNetwork(NamedTuple):
         :param random_choice: Whether to use radius or area
             as the random choice parameter.
         :param samples: How many subsamples to conduct per network.
-        :returns: Subsamples and information (``ProcessResult``) on whether
-            subsampling succeeded for network.
+        :returns: Subsamples
         """
         return subsampling.subsample_networks(
             networks=self.networks,

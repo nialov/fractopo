@@ -7,6 +7,7 @@ from itertools import compress, groupby
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
+from joblib import Parallel, delayed
 from numpy.random import seed
 
 from fractopo import general
@@ -26,9 +27,22 @@ def create_sample(
     # as is default for multiprocessing
     seed()
     random_sample = sampler.random_network_sample()
+    name = NetworkRandomSampler.name
     if random_sample.network_maybe is None:
+        log.error(
+            f"Failed to subsample with sampler {name}",
+        )
         return None
-    return random_sample.network_maybe.numerical_network_description()
+    try:
+        result = random_sample.network_maybe.numerical_network_description()
+    except Exception:
+        # TODO: Add Network info?
+        log.error(
+            f"Failed to get numerical_network_description with {name}",
+            exc_info=True,
+        )
+        result = None
+    return result
 
 
 def subsample_networks(
@@ -36,7 +50,7 @@ def subsample_networks(
     min_radii: Union[float, Dict[str, float]],
     random_choice: RandomChoice = RandomChoice.radius,
     samples: int = 1,
-) -> List[general.ProcessResult]:
+) -> List[Optional[Dict[str, Union[general.Number, str]]]]:
     """
     Subsample given Sequence of Networks.
     """
@@ -52,41 +66,49 @@ def subsample_networks(
             random_choice=random_choice,
         )
         for network in networks
-    ]
+    ] * samples
 
     # Gather subsamples with multiprocessing
     # TODO: Use joblib Parallel instead?
-    subsamples = general.multiprocess(
-        function_to_call=create_sample,
-        keyword_arguments=subsamplers,
-        arguments_identifier=lambda sampler: sampler.name,
-        repeats=samples - 1,
+    # subsamples = general.multiprocess(
+    #     function_to_call=create_sample,
+    #     keyword_arguments=subsamplers,
+    #     arguments_identifier=lambda sampler: sampler.name,
+    #     repeats=samples - 1,
+    # )
+    subsamples = Parallel(n_jobs=-1)(
+        delayed(create_sample)(sampler=sampler) for sampler in subsamplers
     )
+    assert isinstance(subsamples, list)
 
     return subsamples
 
 
 def gather_subsample_descriptions(
-    subsample_results: List[general.ProcessResult],
+    subsample_results: List[Optional[Dict[str, Union[general.Number, str]]]],
 ) -> List[Dict[str, Union[general.Number, str]]]:
     """
     Gather results from a list of subsampling ProcessResults.
     """
     descriptions = []
-    for subsample in subsample_results:
-        random_sample_description = subsample.result
+    n_results = len(subsample_results)
+    for random_sample_description in subsample_results:
+        if random_sample_description is None:
+            log.warning("Discarding None subsample.")
+            continue
         if not isinstance(random_sample_description, dict):
             log.error(
                 "Expected result random_sample_description to be a dict.",
                 extra=dict(
                     random_sample_description_type=type(random_sample_description),
                     random_sample_description=random_sample_description,
-                    subsample=subsample,
                 ),
             )
             continue
 
         descriptions.append(random_sample_description)
+    n_actual_results = len(descriptions)
+    logging.info(f"Out of {n_results}, {n_actual_results} were succesfull subsamples.")
     return descriptions
 
 
