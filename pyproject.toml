@@ -28,7 +28,7 @@ classifiers = [
 include = ["CHANGELOG.md"]
 
 [tool.poetry.scripts]
-fractopo = "fractopo.cli:app"
+fractopo = "fractopo.__main__:APP"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/nialov/fractopo/issues"
@@ -37,20 +37,20 @@ fractopo = "fractopo.cli:app"
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 click = "*"
-geopandas = "~0.12.0"
-joblib = "^1.2.0"
+geopandas = ">=0.12.0,<1.0.0"
+joblib = ">=1.2.0,<2.0.0"
 matplotlib = "*"
 numpy = "*"
-pandas = "~1.3"
+pandas = ">=1.3,<2.0.0"
 powerlaw = "*"
-pygeos = "^0.14"
+pygeos = ">=0.13.0,<1.0.0"
 python-ternary = "*"
-rich = "^11.0.0"
+rich = ">=11.0.0"
 scikit-learn = "*"
-scipy = "^1.9.1"
+scipy = ">=1.9.1,<2.0.0"
 seaborn = "*"
-shapely = ">=2.0"
-typer = "^0.4"
+shapely = ">=2.0.0,<3.0.0"
+typer = ">=0.4,<1.0.0"
 
 # Extras
 # Coverage
