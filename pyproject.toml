@@ -144,7 +144,7 @@ src_paths = ["fractopo", "tests"]
 
 [tool.pylint.master]
 fail-under = "9.5"
-ignore = [".fractopo_cache"]
+ignore = [".fractopo_cache", "examples"]
 
 [tool.pylint.report]
 output-format = "text"

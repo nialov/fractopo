@@ -227,30 +227,6 @@ def task_apidocs():
     }
 
 
-def task_apidocs():
-    """
-    Make apidoc documentation.
-    """
-    command = "nox --session apidocs"
-    return {
-        ACTIONS: [command],
-        FILE_DEP: [
-            *PYTHON_ALL_FILES,
-            *DOCS_FILES,
-            DOCS_REQUIREMENTS_PATH,
-            NOXFILE_PATH,
-            # DODO_PATH,
-        ],
-        TASK_DEP: [
-            resolve_task_name(task_pre_commit),
-            # resolve_task_name(task_update_version),
-            resolve_task_name(task_lint),
-        ],
-        TARGETS: [DOCS_APIDOC_PATH],
-        UP_TO_DATE: [config_changed(dict(command=command))],
-    }
-
-
 def task_docs():
     """
     Make documentation to docs using nox.

@@ -38,6 +38,9 @@ axes_flat: Sequence[Axes] = axes.flatten()
 
 
 def label_gen():
+    """
+    Generate labels.
+    """
     for label in ("A.", "B.", "C.", "D.", "E.", "F."):
         yield label
 

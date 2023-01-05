@@ -585,14 +585,10 @@ multipolygon_traces = read_geofile(
     )
 )
 multipolygon_area = read_geofile(
-    Path(
-        "tests/sample_data/multipolygon_traces_area/" "multipolygon_target_area.geojson"
-    )
+    Path("tests/sample_data/multipolygon_traces_area/multipolygon_target_area.geojson")
 )
 manypolygon_area = read_geofile(
-    Path(
-        "tests/sample_data/multipolygon_traces_area/" "many_polygon_target_area.geojson"
-    )
+    Path("tests/sample_data/multipolygon_traces_area/many_polygon_target_area.geojson")
 )
 assert isinstance(kb11_traces, gpd.GeoDataFrame)
 assert isinstance(kb11_area, gpd.GeoDataFrame)

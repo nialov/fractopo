@@ -121,11 +121,10 @@ def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, 
         return vals
     if isinstance(vals, np.ndarray):
         return vals[0], vals[1]
-    else:
-        raise TypeError(
-            "Expected np.polyfit results to be a tuple or an array."
-            f" Got {vals} with type: {type(vals)}."
-        )
+    raise TypeError(
+        "Expected np.polyfit results to be a tuple or an array."
+        f" Got {vals} with type: {type(vals)}."
+    )
 
 
 @dataclass
@@ -164,15 +163,6 @@ class LengthDistribution:
         log_func(
             "Created LengthDistribution instance."
             + (" High filter proportion!" if high_filtered else "")
-            # extra=dict(
-            #     LengthDistribution_name=self.name,
-            #     min_length=self.lengths.min() if len(self.lengths) > 0 else None,
-            #     max_length=self.lengths.max() if len(self.lengths) > 0 else None,
-            #     is_empty=len(self.lengths) == 0,
-            #     area_value=self.area_value,
-            #     using_branches=self.using_branches,
-            #     filtered_proportion=filtered_proportion,
-            # ),
         )
 
         # Set preprocessed lengths back into lengths attribute

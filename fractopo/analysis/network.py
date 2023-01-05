@@ -889,6 +889,7 @@ class Network:
             label=label,
             fit=fit,
             use_probability_density_function=use_probability_density_function,
+            plain=plain,
         )
 
     def plot_trace_azimuth(

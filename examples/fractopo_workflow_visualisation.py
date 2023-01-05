@@ -19,6 +19,10 @@ from fractopo.analysis.network import Network, assign_branch_and_node_colors
 
 
 def close_fig(func: Callable):
+    """
+    Wrap function to close any ``matplotlib`` plots after call.
+    """
+
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
         plt.close()
@@ -141,6 +145,9 @@ def add_plot_image_to_ax(figure: Figure, ax: Axes):
 
 
 def arrow_annotation(ax: Axes, start: Tuple[float, float], end: Tuple[float, float]):
+    """
+    Annotate ax with arrow.
+    """
     ax.annotate(
         "",
         xy=end,
