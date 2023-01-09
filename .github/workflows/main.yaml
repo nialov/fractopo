@@ -56,7 +56,8 @@ jobs:
           && matrix.platform == 'ubuntu-latest'
         run: |
           nix develop -c poetry run doit -v 3 -n 2 auxiliary
-          # Check that no files have changed
+          # Check that no files have changed (ignore coverage.svg)
+          git restore docs_src/imgs/coverage.svg
           git diff --exit-code
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
