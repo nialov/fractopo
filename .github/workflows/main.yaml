@@ -24,8 +24,8 @@ on:
     - cron: "41 7 * * 5"
 
 jobs:
-  pytest-with-coverage:
-    name: Test and check coverage of 🐍 code
+  ci:
+    name: Test, check coverage of 🐍 code and run auxiliary tasks on Python 3.8
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
@@ -36,6 +36,10 @@ jobs:
       - uses: cachix/install-nix-action@v17
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@v12
+        with:
+          name: fractopo
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Cache poetry cache-dir
         uses: actions/cache@v3
         with:
@@ -45,64 +49,87 @@ jobs:
         run: |
           nix develop -c poetry install
           nix develop -c poetry run doit -v 3 ci_test:${{ matrix.python-version }}
-
-  auxiliary:
-    name: Run auxiliary doit tasks to lint and make docs & citation.
-    strategy:
-      matrix:
-        platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
-    needs: [pytest-with-coverage]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v17
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Cache poetry cache-dir
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}-${{ hashFiles('flake.nix') }}
-      - name: Cache .nox and .doit.db
-        uses: actions/cache@v3
-        with:
-          # We can cache .doit.db and it will be significant as
-          # most doit util tasks are run here in the same github actions job
-          path: |
-            .nox
-            .doit.db
-          key: "\
-            ${{ runner.os }}-\
-            ${{ env.pythonLocation }}-\
-            nox-\
-            ${{ hashFiles('noxfile.py') }}-\
-            ${{ hashFiles('poetry.lock') }}-\
-            ${{ hashFiles('flake.lock') }}-\
-            ${{ hashFiles('flake.nix') }}-\
-            "
-      - name: Run commands
+      - name: Run auxiliary tasks on Python 3.8
+        if: >
+          matrix.python-version == '3.8'
+          && matrix.platform == 'ubuntu-latest'
         # These could be better parallelized with a matrix
         # but as some tasks are dependent on others it is
         # (probably) more efficient to run all here
         # (more efficient for github.com at least)
         run: |
-          nix develop -c poetry install
           nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs build
           # Check that no files have changed
           git diff --exit-code
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
         # Publish to PyPI on tagged commit pushes on master
+        # TODO: Currently does not depend that all python-version builds succeed!
         if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
+          && matrix.python-version == '3.8'
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.PYPI_PASSWORD }}
 
+  # auxiliary:
+  #   name: Run auxiliary doit tasks to lint and make docs & citation.
+  #   strategy:
+  #     matrix:
+  #       platform: [ubuntu-latest]
+  #   runs-on: ${{ matrix.platform }}
+  #   needs: [pytest-with-coverage]
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: cachix/install-nix-action@v17
+  #       with:
+  #         nix_path: nixpkgs=channel:nixos-unstable
+  #     - name: Cache poetry cache-dir
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.cache/pypoetry
+  #         key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}-${{ hashFiles('flake.nix') }}
+  #     - name: Cache .nox and .doit.db
+  #       uses: actions/cache@v3
+  #       with:
+  #         # We can cache .doit.db and it will be significant as
+  #         # most doit util tasks are run here in the same github actions job
+  #         path: |
+  #           .nox
+  #           .doit.db
+  #         key: "\
+  #           ${{ runner.os }}-\
+  #           ${{ env.pythonLocation }}-\
+  #           nox-\
+  #           ${{ hashFiles('noxfile.py') }}-\
+  #           ${{ hashFiles('poetry.lock') }}-\
+  #           ${{ hashFiles('flake.lock') }}-\
+  #           ${{ hashFiles('flake.nix') }}-\
+  #           "
+  #     - name: Run commands
+  #       # These could be better parallelized with a matrix
+  #       # but as some tasks are dependent on others it is
+  #       # (probably) more efficient to run all here
+  #       # (more efficient for github.com at least)
+  #       run: |
+  #         nix develop -c poetry install
+  #         nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs build
+  #         # Check that no files have changed
+  #         git diff --exit-code
+  #     - name: Publish distribution 📦 to PyPI on tagged commit pushes
+  #       # Publish to PyPI on tagged commit pushes on master
+  #       if: >
+  #         github.event_name == 'push'
+  #         && startsWith(github.ref, 'refs/tags')
+  #       uses: pypa/gh-action-pypi-publish@master
+  #       with:
+  #         user: __token__
+  #         password: ${{ secrets.PYPI_PASSWORD }}
+
   release:
     runs-on: ubuntu-latest
-    needs: [pytest-with-coverage, auxiliary]
+    needs: [ci]
     name: Release on GitHub
     steps:
       - uses: actions/checkout@v3
