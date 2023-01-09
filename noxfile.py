@@ -182,13 +182,12 @@ def _parse_requirements_version(package: str) -> str:
     # Report invalid parsing results and return valid one
     if len(requirements_filtered_list) == 0:
         raise ValueError(f"Expected to find {package} in {DEV_REQUIREMENTS_PATH}.")
-    elif len(requirements_filtered_list) > 1:
+    if len(requirements_filtered_list) > 1:
         raise ValueError(
             f"Expected to find only one {package} in {DEV_REQUIREMENTS_PATH}. "
             f"Found: {requirements_filtered_list}."
         )
-    else:
-        return requirements_filtered_list[0]
+    return requirements_filtered_list[0]
 
 
 def setup_lint(session) -> List[str]:
@@ -275,7 +274,7 @@ def _docs(session, auto_build: bool):
             *(
                 [
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
-                    f"--ignore=**/.fractopo_cache/**",
+                    "--ignore=**/.fractopo_cache/**",
                     "--watch=README.rst",
                     f"--watch={PACKAGE_NAME}/",
                     "--watch=examples/",
@@ -289,14 +288,6 @@ def _docs(session, auto_build: bool):
         # Clean up sphinx-gallery folder in ./docs_src/auto_examples
         if DOCS_AUTO_EXAMPLES_PATH.exists():
             rmtree(DOCS_AUTO_EXAMPLES_PATH)
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def apidocs(session):
-    """
-    Make apidoc documentation.
-    """
-    _api_docs(session=session)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
@@ -377,7 +368,7 @@ def changelog(session):
     version = resolve_session_posargs(session=session)
     assert isinstance(version, str)
     if len(version) == 0:
-        raise ValueError(f"Expected passed version/tag to not be empty.")
+        raise ValueError("Expected passed version/tag to not be empty.")
 
     # Path to changelog.md
     changelog_path = CHANGELOG_PATH.absolute()

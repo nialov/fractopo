@@ -4,9 +4,7 @@ Analyse and plot trace map data with Network.
 import logging
 from dataclasses import dataclass, field
 from functools import wraps
-from hashlib import sha256
 from pathlib import Path
-from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -44,7 +42,6 @@ from fractopo.general import (
     CENSORING,
     CLASS_COLUMN,
     CONNECTION_COLUMN,
-    DEFAULT_FRACTOPO_CACHE_PATH,
     NAME,
     RADIUS,
     RELATIVE_CENSORING,
@@ -62,7 +59,6 @@ from fractopo.general import (
     numpy_to_python_type,
     pygeos_spatial_index,
     raise_determination_error,
-    read_geofile,
     sanitize_name,
     save_fig,
     spatial_index_intersection,
@@ -893,6 +889,7 @@ class Network:
             label=label,
             fit=fit,
             use_probability_density_function=use_probability_density_function,
+            plain=plain,
         )
 
     def plot_trace_azimuth(
@@ -1429,149 +1426,3 @@ class Network:
             save_fig(
                 fig=fig, results_dir=export_path, name="connections_per_branch_contour"
             )
-
-
-@dataclass
-class CachedNetwork(Network):
-
-    """
-    A naive implementation of a cache for the topology of a ``Network``.
-    """
-
-    network_cache_path: Path = DEFAULT_FRACTOPO_CACHE_PATH
-    determine_branches_nodes: bool = True
-    _cache_hit: bool = False
-
-    def __post_init__(self):
-        """
-        Overload ``__post_init__`` to handle caching.
-
-        Handle caching by loading branch and node data from
-        ``network_cache_path`` if they exist there.
-
-        Uses ``sha256`` hexdigest to hash the network data.
-        """
-        log.error(
-            dedent(
-                """
-            CachedNetwork is deprecated as joblib provided efficient disk-caching.
-            It will be removed in a future update.
-            """.strip()
-            )
-        )
-        branch_gdf_empty = self.branch_gdf.empty
-        node_gdf_empty = self.node_gdf.empty
-        if not branch_gdf_empty or not node_gdf_empty:
-            error = "Do not pass branch and node GeoDataFrames to CachedNetwork."
-            log.error(
-                error,
-                extra=dict(
-                    branch_gdf_empty=branch_gdf_empty,
-                    node_gdf_empty=node_gdf_empty,
-                    network_name=self.name,
-                ),
-            )
-            raise ValueError(error)
-        if not self.determine_branches_nodes:
-            error = (
-                "CachedNetwork has no utility if branches and nodes are not determined."
-            )
-            log.error(
-                error,
-                extra=dict(
-                    determine_branches_nodes=self.determine_branches_nodes,
-                    network_name=self.name,
-                ),
-            )
-            raise ValueError(error)
-
-        try:
-            # Combine jsons of trace_gdf and area_gdf + other relevant network
-            # data
-            network_data_as_string = (
-                str(self.trace_gdf.to_json(sort_keys=True))
-                + str(self.area_gdf.to_json(sort_keys=True))
-                + str(self.circular_target_area)
-                + str(self.snap_threshold)
-            )
-
-            # Encode the string to bytes
-            encoded = network_data_as_string.encode()
-
-            # Create sha256 hexdigest of the bytes
-            sha256_hexdigest = sha256(encoded).hexdigest()
-        except Exception:
-
-            # Log the exception
-            log.error(
-                "Failed to sha256 hash trace and area GeoDataFrames."
-                " If this error persists using the regular ``Network``"
-                " instance is recommended.",
-                exc_info=True,
-            )
-            # If hashing cannot be done no caching can be done
-            raise
-            # Continue with regular Network initialization
-
-            # return super().__post_init__()
-
-        branch_path = self.network_cache_path / f"{sha256_hexdigest}_branches.geojson"
-        node_path = self.network_cache_path / f"{sha256_hexdigest}_nodes.geojson"
-
-        if branch_path.exists() and node_path.exists():
-            self._cache_hit = True
-            # Cache hit -> Load branch and node data
-            self.branch_gdf = read_geofile(branch_path)
-            self.node_gdf = read_geofile(node_path)
-            log.info(
-                "Hit cache for branch and node data. Loading.",
-                extra=dict(
-                    network_name=self.name, branch_path=branch_path, node_path=node_path
-                ),
-            )
-
-            # CRS should be the same. It is set here explicitly to confirm
-            # that.
-            if (
-                self.branch_gdf.crs != self.trace_gdf.crs
-                or self.node_gdf.crs != self.trace_gdf.crs
-            ):
-                log.info(
-                    "Cache loaded branches and nodes did not have same crs as traces.",
-                    extra=dict(
-                        branch_gdf_crs=self.branch_gdf.crs,
-                        node_gdf_crs=self.node_gdf.crs,
-                        trace_gdf_crs=self.trace_gdf.crs,
-                        network_name=self.name,
-                    ),
-                )
-                self.branch_gdf.crs = self.trace_gdf.crs
-                self.node_gdf.crs = self.trace_gdf.crs
-            assert self.branch_gdf.crs == self.trace_gdf.crs
-            assert self.node_gdf.crs == self.trace_gdf.crs
-        else:
-            log.info(
-                "No cache hit for branch and node data. Determining.",
-                extra=dict(network_name=self.name),
-            )
-            # No cache hit, determine branches and nodes
-            self.assign_branches_nodes()
-
-            # Create cache directory
-            self.network_cache_path.mkdir(exist_ok=True)
-
-            # Cache the determined branches and nodes
-            write_geodata(
-                gdf=self.branch_gdf, path=branch_path, allow_list_column_transform=False
-            )
-            write_geodata(
-                gdf=self.node_gdf, path=node_path, allow_list_column_transform=False
-            )
-            log.info(
-                "Caching determined branches and nodes.",
-                extra=dict(
-                    network_name=self.name, branch_path=branch_path, node_path=node_path
-                ),
-            )
-        # Continue with normal Network initialization
-        super().__post_init__()

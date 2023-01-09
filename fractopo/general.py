@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from functools import wraps
 from io import StringIO
-from itertools import accumulate, chain, zip_longest
+from itertools import accumulate, chain, compress, zip_longest
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overload
 
@@ -794,21 +794,55 @@ def determine_valid_intersection_points_no_vnode(
     V-node intersections are validated by looking at the endpoints. If V-nodes
     were kept as intersection points the VNodeValidator could not find V-node
     errors.
-
-    TODO: Refactor.
     """
+    # Determine intersections between candidate LineStrings and the geom LineString
     inter = determine_valid_intersection_points(trace_candidates.intersection(geom))
+
+    # If empty, exit
+    if len(inter) == 0:
+        return inter
+
+    # Get endpoints of the geom LineString
     geom_endpoints = get_trace_endpoints(geom)
+
+    # Upkeep a boolean list of which indexes (i.e., valid intersection points)
+    # to keep
+    # This will be used to compress `inter` before returning
+    p_to_keep = [True] * len(inter)
+
+    # Iterate over the trace candidates
     for trace_candidate in trace_candidates.geometry.values:
         candidate_endpoints = get_trace_endpoints(trace_candidate)
         for ce in candidate_endpoints:
             for ge in geom_endpoints:
-                for p in inter.copy():
-                    if np.isclose(ce.distance(ge), 0, atol=1e-4) and np.isclose(
-                        ge.distance(p), 0, atol=1e-4
-                    ):
-                        inter.remove(p)
-    return inter
+
+                # First check: is the candidate endpoint close to the geom endpoint
+                candidate_endpoint_is_close_to_geom_endpoint = np.isclose(
+                    ce.distance(ge), 0, atol=1e-4
+                )
+                # If not, keep it in `inter`
+                if not candidate_endpoint_is_close_to_geom_endpoint:
+                    continue
+
+                # Enumerate over the valid intersection points
+                for idx, p in enumerate(inter):
+
+                    # If the current valid intersection point is already set
+                    # for removal, continue the loop to the next
+                    if not p_to_keep[idx]:
+                        continue
+                    # Second check: is the `geom` LineString endpoint close to
+                    # the intersection point `p`. If yes, mark the intersection
+                    # point for removal from `interl`
+                    if np.isclose(ge.distance(p), 0, atol=1e-4):
+                        p_to_keep[idx] = False
+                        # inter.remove(p)
+                        # p_to_remove.add(idx)
+
+    # Remove the marked intersection points from `inter` based on the boolean
+    # list `p_to_keep`
+    inter_filtered = list(compress(inter, selectors=p_to_keep))
+    return inter_filtered
 
 
 def determine_valid_intersection_points(
