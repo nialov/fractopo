@@ -18,6 +18,9 @@
       inputs.poetry2nix.follows = "poetry2nix-copier";
     };
   };
+  nixConfig.extra-substituters = [ "https://fractopo.cachix.org" ];
+  nixConfig.extra-trusted-public-keys =
+    [ "fractopo.cachix.org-1:Eo5bn5VTQSp4J3+XQnGYlq4dH/2ibKjxrs5n9qKl9Ms=" ];
 
   outputs = { self, nixpkgs, flake-utils, copier-src, ... }:
     let
