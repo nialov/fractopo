@@ -118,34 +118,41 @@
     in flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ]
     (system:
       let
-        fractopoOverlay = final: prev: {
-          fractopo = prev.python3Packages.callPackage ./. { };
-          # TODO: Fails on python38 with nix build
-          pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
-            (python-final: _: {
-              fractopo = python-final.callPackage ./. { };
-              # cviz = python-final.callPackage cvizPkg { };
-              # sphinx-design = python-final.callPackage ././packages/sphinx-design { };
-              # sphinxcontrib-mermaid =
-              #   python-final.callPackage ././packages/sphinxcontrib-mermaid { };
-              # # ...
-              # pre-commit-hook-ensure-sops =
-              #   python-final.callPackage ././packages/pre-commit-hook-ensure-sops { };
-              # kr-cli = python-final.callPackage ././packages/kr-cli { };
-              # synonym-cli = python-final.callPackage ././packages/synonym-cli { };
-              # gazpacho = python-final.callPackage ././packages/gazpacho { };
-            })
-          ];
-          python3 = let
-            self = prev.python3.override {
-              inherit self;
-              packageOverrides =
-                prev.lib.composeManyExtensions final.pythonPackagesOverlays;
-            };
-          in self;
+        fractopoOverlay = final: prev:
+          let
+            overridePython = python:
+              let
+                self = prev."${python}".override {
+                  inherit self;
+                  packageOverrides =
+                    prev.lib.composeManyExtensions final.pythonPackagesOverlays;
+                };
+              in self;
+          in {
+            # TODO: Fails on python38 with nix build
+            pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
+              (python-final: _: {
+                fractopo = python-final.callPackage ./. { };
+                # cviz = python-final.callPackage cvizPkg { };
+                # sphinx-design = python-final.callPackage ././packages/sphinx-design { };
+                # sphinxcontrib-mermaid =
+                #   python-final.callPackage ././packages/sphinxcontrib-mermaid { };
+                # # ...
+                # pre-commit-hook-ensure-sops =
+                #   python-final.callPackage ././packages/pre-commit-hook-ensure-sops { };
+                # kr-cli = python-final.callPackage ././packages/kr-cli { };
+                # synonym-cli = python-final.callPackage ././packages/synonym-cli { };
+                # gazpacho = python-final.callPackage ././packages/gazpacho { };
+              })
+            ];
+            python3 = overridePython "python3";
+            python39 = overridePython "python39";
+            python310 = overridePython "python310";
 
-          python3Packages = final.python3.pkgs;
-        };
+            python3Packages = final.python3.pkgs;
+            python39Packages = final.python39.pkgs;
+            python310Packages = final.python310.pkgs;
+          };
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
           inherit system;
