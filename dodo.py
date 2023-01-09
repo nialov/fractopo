@@ -483,7 +483,7 @@ def task_auxiliary():
             resolve_task_name(task_docs),
             resolve_task_name(task_build),
         ],
-        ACTIONS: [(_print, ("Finished auxiliary run succesfully.",))],
+        ACTIONS: [(_print, ("Finished auxiliary run successfully.",))],
     }
 
 
