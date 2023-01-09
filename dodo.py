@@ -468,6 +468,20 @@ def task_create_workflow_visualisation():
     }
 
 
+def task_auxiliary():
+    """
+    Run auxiliary tasks i.e., build docs and lint codebase with pylint.
+    """
+    return {
+        TASK_DEP: [
+            resolve_task_name(task_pre_commit),
+            resolve_task_name(task_lint),
+            resolve_task_name(task_docs),
+            resolve_task_name(task_build),
+        ]
+    }
+
+
 # Define default tasks
 DOIT_CONFIG = {
     "default_tasks": [

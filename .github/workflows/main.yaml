@@ -53,12 +53,8 @@ jobs:
         if: >
           matrix.python-version == '3.8'
           && matrix.platform == 'ubuntu-latest'
-        # These could be better parallelized with a matrix
-        # but as some tasks are dependent on others it is
-        # (probably) more efficient to run all here
-        # (more efficient for github.com at least)
         run: |
-          nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs build
+          nix develop -c poetry run doit -v 3 -n 2 auxiliary
           # Check that no files have changed
           git diff --exit-code
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
