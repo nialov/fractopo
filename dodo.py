@@ -472,13 +472,18 @@ def task_auxiliary():
     """
     Run auxiliary tasks i.e., build docs and lint codebase with pylint.
     """
+
+    def _print(*args):
+        print(*args)
+
     return {
         TASK_DEP: [
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
             resolve_task_name(task_docs),
             resolve_task_name(task_build),
-        ]
+        ],
+        ACTIONS: [(_print, ("Finished auxiliary run succesfully.",))],
     }
 
 
