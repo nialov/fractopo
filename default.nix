@@ -1,10 +1,7 @@
-{ buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, jinja2
-, cachecontrol, defusedxml, entrypoints, lazy-object-proxy, lxml
-, python-telegram-bot, pytimeparse, pyyaml, requests, schedule, selenium, six
-, psutil, sh, pytest, pylint, mock, pytest-mock, freezegun, git, jq, poetry2nix
-, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich, scikit-learn
-, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis, fetchPypi
-, mpmath, poetry
+{ buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, pytest
+, poetry2nix, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich
+, scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
+, fetchPypi, mpmath, poetry
 # , gpgme, isPy38
 }:
 
