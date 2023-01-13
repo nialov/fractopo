@@ -36,7 +36,7 @@ APP = Typer()
 CONSOLE = Console(width=min([80, Console().width]))
 
 SNAP_THRESHOLD_HELP = (
-    "Distance threshold used to estimate whether e.g. a trace abuts in another."
+    "Distance threshold used to estimate whether e.g. a trace abuts another."
 )
 TRACE_FILE_HELP = "Path to lineament or fracture trace data."
 AREA_FILE_HELP = "Path to target area data that delineates trace data."
@@ -171,7 +171,7 @@ def tracevalidate(
     summary: bool = typer.Option(True, help="Print summary of validation results."),
     snap_threshold: float = typer.Option(
         0.001,
-        help="Distance threshold used to estimate whether e.g. a trace abuts in another.",
+        help="Distance threshold used to estimate whether e.g. a trace abuts another.",
     ),
     output: Optional[Path] = typer.Option(
         None, help="Where to save validated output trace data."

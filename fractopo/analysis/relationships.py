@@ -133,12 +133,12 @@ def determine_crosscut_abutting_relationships(
                 if item[0][1] == (
                     first_set,
                     second_set,
-                ):  # it's set s abutting in set second_set
+                ):  # it's set s abutting set second_set
                     y_count = value
                 elif item[0][1] == (
                     second_set,
                     first_set,
-                ):  # it's set second_set abutting in set s
+                ):  # it's set second_set abutting set s
                     y_reverse_count = value
                 else:
                     raise ValueError(
@@ -473,8 +473,8 @@ def plot_crosscut_abutting_relationships_plot(
                     bars,
                     (
                         f"Sets {row.sets[0]} and {row.sets[1]} cross-cut",
-                        f"Set {row.sets[0]} abuts to set {row.sets[1]}",
-                        f"Set {row.sets[1]} abuts to set {row.sets[0]}",
+                        f"Set {row.sets[0]} abuts set {row.sets[1]}",
+                        f"Set {row.sets[1]} abuts set {row.sets[0]}",
                     ),
                     framealpha=0.6,
                     loc="upper center",
