@@ -7,8 +7,8 @@ fractopo
 validating and analysing lineament and fracture trace maps (fracture
 networks). It is targeted at structural geologists working on the
 characterization of bedrock fractures from outcrops and through remote
-sensing. As it is a ``Python`` library, the use of ``fractopo`` requires
-prior (``Python``) programming knowledge.
+sensing. As it is a Python library, the use of ``fractopo`` requires
+prior (Python) programming knowledge.
 
 -  `Full Documentation is hosted on Read the Docs
    <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
@@ -30,11 +30,11 @@ Installation
 ------------
 
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
-operating systems. For ``Windows`` install using ``(ana)conda``.
+operating systems. For Windows and MacOS install using `(ana)conda <#conda>`__.
 
-For ``pip`` and ``poetry``: Omit --dev or [dev] for regular
+For ``pip`` and ``poetry``: Omit ``--dev`` or ``[dev]`` for regular
 installation. Keep if you want to test/develop or otherwise install all
-development python dependencies.
+development Python dependencies.
 
 conda
 ~~~~~
@@ -43,7 +43,7 @@ conda
 
 .. code:: bash
 
-   # Create new environment for fractopo (recommended)
+   # Create new environment for fractopo (recommended but optional)
    conda env create fractopo-env
    conda activate fractopo-env
    # Available on conda-forge channel
@@ -142,6 +142,8 @@ Multi-scale length distributions                          `Multi-scale`_
    https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Contour-Grids
 .. _Multi-scale:
    https://fractopo.readthedocs.io/en/latest/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
+
+For a short tutorial on use of ``fractopo`` continue reading:
 
 Input data
 ~~~~~~~~~~
@@ -309,7 +311,7 @@ Support
 
 For issues of any kind: please create a GitHub issue here!
 Alternatively, you can contact the main developer by email at
-``<nikolasovaskainen@gmail.com>``.
+nikolasovaskainen@gmail.com.
 
 References
 ----------
@@ -342,7 +344,7 @@ are referred to multiple sources:
 -  `Alstott et al.
    2014 <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0085777>`__
 
-   -  Length distribution modelling using the Python 3 powerlaw
+   -  Length distribution modelling using the Python 3 ``powerlaw``
       package which ``fractopo`` uses
    -  `powerlaw GitHub <https://github.com/jeffalstott/powerlaw>`__
 

@@ -36,6 +36,7 @@ release = imported_package.__version__  # type: ignore
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",

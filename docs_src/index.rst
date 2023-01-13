@@ -15,6 +15,7 @@
        # Make sure this functionality fits the project documentation structure
        if "figure::" in line:
            line = line.replace("docs_src/", "")
+       line = line.replace("</CONTRIBUTING>" , "</CONTRIBUTING.html>")
        cog.outl(line)
    ]]]
 
@@ -27,8 +28,8 @@ fractopo
 validating and analysing lineament and fracture trace maps (fracture
 networks). It is targeted at structural geologists working on the
 characterization of bedrock fractures from outcrops and through remote
-sensing. As it is a ``Python`` library, the use of ``fractopo`` requires
-prior (``Python``) programming knowledge.
+sensing. As it is a Python library, the use of ``fractopo`` requires
+prior (Python) programming knowledge.
 
 
 .. figure:: https://git.io/JBRuK
@@ -48,11 +49,11 @@ Installation
 ------------
 
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
-operating systems. For ``Windows`` install using ``(ana)conda``.
+operating systems. For Windows and MacOS install using `(ana)conda <#conda>`__.
 
-For ``pip`` and ``poetry``: Omit --dev or [dev] for regular
+For ``pip`` and ``poetry``: Omit ``--dev`` or ``[dev]`` for regular
 installation. Keep if you want to test/develop or otherwise install all
-development python dependencies.
+development Python dependencies.
 
 conda
 ~~~~~
@@ -61,7 +62,7 @@ conda
 
 .. code:: bash
 
-   # Create new environment for fractopo (recommended)
+   # Create new environment for fractopo (recommended but optional)
    conda env create fractopo-env
    conda activate fractopo-env
    # Available on conda-forge channel
@@ -146,6 +147,8 @@ Multi-scale length distributions                          `Multi-scale`_
 .. _Parameters:
 .. _Contour-grids:
 .. _Multi-scale:
+
+For a short tutorial on use of ``fractopo`` continue reading:
 
 Input data
 ~~~~~~~~~~
@@ -313,7 +316,7 @@ Support
 
 For issues of any kind: please create a GitHub issue here!
 Alternatively, you can contact the main developer by email at
-``<nikolasovaskainen@gmail.com>``.
+nikolasovaskainen@gmail.com.
 
 References
 ----------
@@ -346,7 +349,7 @@ are referred to multiple sources:
 -  `Alstott et al.
    2014 <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0085777>`__
 
-   -  Length distribution modelling using the Python 3 powerlaw
+   -  Length distribution modelling using the Python 3 ``powerlaw``
       package which ``fractopo`` uses
    -  `powerlaw GitHub <https://github.com/jeffalstott/powerlaw>`__
 
@@ -366,7 +369,7 @@ Development
 
 -  **Breaking changes are possible and expected.**
 
--  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
+-  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING.html>`__
 
 Development dependencies for ``fractopo`` include:
 
@@ -484,7 +487,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: f78b3d5cba7141f512f18f27e4d356db)
+.. [[[end]]] (checksum: 69e3aedd52c16feb0a48b087f7da9c8b)
 
 .. toctree::
    :hidden:
@@ -517,6 +520,13 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
 
    validation/basics
    validation/errors
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development
+   :hidden:
+
+   CONTRIBUTING
 
 .. toctree::
    :maxdepth: 1
