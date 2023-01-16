@@ -82,7 +82,7 @@ let
 
 in buildPythonPackage {
   pname = "fractopo";
-  version = "0.5.1";
+  version = "0.5.2";
   src = poetry2nix.cleanPythonSources { src = ./.; };
   format = "pyproject";
 
