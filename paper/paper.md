@@ -65,22 +65,22 @@ with its associated digitization boundary to `fractopo` based on which a number
 of analysis results in the form of `matplotlib`/`seaborn`
 [@hunter_matplotlib_2007; @waskom_seaborn_2021] plots and as numerical data in
 the form of `numpy` arrays and `pandas` dataframes can be generated. The
-results include e.g. rose plots of the orientation of the traces
-[@sanderson_making_2020], power-law length distribution analysis of the lengths
-of traces [@bonnet_scaling_2001; @alstott_powerlaw_2014], cross-cutting and
-abutting relationships between predefined trace sets, fracture intensities
-[@sanderson_use_2015] and topological ternary plots
-[@manzocchi_connectivity_2002; @sanderson_use_2015] (\autoref{fig:montage}).
-The package bears much similarity, and is inspired by, `NetworkGT`
-[@nyberg_networkgt_2018] which first provided a workflow for analysis of
-fracture trace data, including the determination of topological branches and
-nodes. However, the tight integration of `NetworkGT` with `QGIS` causes the
-package to be less friendly to development as it restricts the use of
-`NetworkGT` strictly inside `QGIS` (or alternatively `ArcGIS`, but with the now
-deprecated version of `NetworkGT`). In contrast, `fractopo`, can be used
-anywhere with either the `conda`, `pip` or `nix` package managers as well as
-containing features absent from `NetworkGT`, such as the determination of
-cross-cutting relationships between groups of fractures.
+results (\autoref{fig:montage}) include e.g. rose plots of the orientation of
+the traces [@sanderson_making_2020], power-law length distribution analysis of
+the lengths of traces [@bonnet_scaling_2001; @alstott_powerlaw_2014],
+cross-cutting and abutting relationships between predefined trace sets,
+fracture intensities [@sanderson_use_2015] and topological ternary plots
+[@manzocchi_connectivity_2002; @sanderson_use_2015]. The package bears much
+similarity, and is inspired by, `NetworkGT` [@nyberg_networkgt_2018] which
+first provided a workflow for analysis of fracture trace data, including the
+determination of topological branches and nodes. However, the tight integration
+of `NetworkGT` with `QGIS` causes the package to be less friendly to
+development as it restricts the use of `NetworkGT` strictly inside `QGIS` (or
+alternatively `ArcGIS`, but with the now deprecated version of `NetworkGT`). In
+contrast, `fractopo`, can be used anywhere with either the `conda`, `pip` or
+`nix` package managers as well as containing features absent from `NetworkGT`,
+such as the determination of cross-cutting relationships between groups of
+fractures.
 
 ![General workflow illustration of the data that `fractopo` takes and the
 available results.\label{fig:diagram}](figs/fractopo_2d_diagram.png)
