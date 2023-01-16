@@ -61,6 +61,7 @@ POETRY_LOCK_PATH = Path("poetry.lock")
 NOXFILE_PATH = Path("noxfile.py")
 PACKAGE_INIT_PATH = Path(PACKAGE_NAME) / "__init__.py"
 DODO_PATH = Path("dodo.py")
+DEFAULT_NIX_PATH = Path("default.nix")
 
 ## Tests
 TESTS_PATH = Path("tests")
@@ -71,6 +72,7 @@ VERSION_PATHS = [
     f"{PACKAGE_NAME}/__init__.py",
     CITATION_CFF_PATH,
     PYPROJECT_PATH,
+    DEFAULT_NIX_PATH,
 ]
 CHANGELOG_PATH = Path("CHANGELOG.md")
 
