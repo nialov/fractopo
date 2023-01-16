@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.5.2 (2023-01-16)
+
+### New Features
+
+-   Add `plain` keyword argument to output less visualized rose and
+    length plots.
+
+### Fixes
+
+-   Deprecated `CachedNetwork`.
+
+-   Fixed typos in code.
+
+### Build
+
+-   Restructured continous integration and build structure.
+
+    -   E.g. optimized *auxiliary* task runs on GitHub Actions and added
+        a binary cache for runs.
+
+### Docs
+
+-   Added `./paper` directory with a manuscript describing `fractopo`.
+
+Full set of changes:
+[`v0.5.1...v0.5.2`](https://github.com/nialov/fractopo/compare/v0.5.1...v0.5.2)
+
 ## v0.5.1 (2022-11-28)
 
 ### Fixes
