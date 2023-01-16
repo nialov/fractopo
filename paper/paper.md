@@ -3,7 +3,9 @@ title: 'fractopo: A Python package for fracture network analysis'
 tags:
   - Python
   - geology
-  - geographic information systems
+  - structural geology
+  - fracture network
+  - GIS
 authors:
   - name: Nikolas Ovaskainen
     orcid: 0000-0003-1562-0280
