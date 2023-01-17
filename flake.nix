@@ -136,25 +136,17 @@
             pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
               (python-final: _: {
                 fractopo = python-final.callPackage ./. { };
-                # cviz = python-final.callPackage cvizPkg { };
-                # sphinx-design = python-final.callPackage ././packages/sphinx-design { };
-                # sphinxcontrib-mermaid =
-                #   python-final.callPackage ././packages/sphinxcontrib-mermaid { };
-                # # ...
-                # pre-commit-hook-ensure-sops =
-                #   python-final.callPackage ././packages/pre-commit-hook-ensure-sops { };
-                # kr-cli = python-final.callPackage ././packages/kr-cli { };
-                # synonym-cli = python-final.callPackage ././packages/synonym-cli { };
-                # gazpacho = python-final.callPackage ././packages/gazpacho { };
               })
             ];
             python3 = overridePython "python3";
             python39 = overridePython "python39";
             python310 = overridePython "python310";
+            python311 = overridePython "python311";
 
             python3Packages = final.python3.pkgs;
             python39Packages = final.python39.pkgs;
             python310Packages = final.python310.pkgs;
+            python311Packages = final.python311.pkgs;
           };
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
@@ -167,7 +159,7 @@
         };
 
         # Choose Python interpreters to include in all devShells
-        pythons = [ "python38" "python39" "python310" ];
+        pythons = [ "python38" "python39" "python310" "python311" ];
 
         # Choose default Python interpreter to use with poetry
         defaultPython = "python38";
@@ -238,6 +230,7 @@
         # packages.fractopo-38 = pkgs.fractopo-38;
         packages.fractopo-39 = pkgs.python39Packages.fractopo;
         packages.fractopo-310 = pkgs.python310Packages.fractopo;
+        packages.fractopo-311 = pkgs.python311Packages.fractopo;
         packages.fractopo-image = fractopo-image;
         packages.default = self.packages.fractopo;
         devShells = devShellsWithDefault;

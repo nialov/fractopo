@@ -26,7 +26,7 @@ NOTEBOOKS = [
 ]
 NOXFILE_PATH = Path("noxfile.py")
 PACKAGE_NAME = "fractopo"
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10"]
+PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 TESTS_PATH = Path("tests")
 UTF8 = "utf-8"
 

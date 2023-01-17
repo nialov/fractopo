@@ -22,7 +22,7 @@ TARGETS = "targets"
 NAME = "name"
 PARAMS = "params"
 UP_TO_DATE = "uptodate"
-PYTHON_VERSIONS = ["3.8", "3.9", "3.10"]
+PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 DEFAULT_PYTHON_VERSION = "3.8"
 
 # Paths
