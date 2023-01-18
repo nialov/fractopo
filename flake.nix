@@ -134,19 +134,21 @@
           in {
             # TODO: Fails on python38 with nix build
             pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
-              (python-final: _: {
+              (python-final: python-prev: {
                 fractopo = python-final.callPackage ./. { };
+                # pygeos = python-prev.pygeos.overrideAttrs
+                #   (finalAttrs: prevAttrs: { patches = [ ]; });
               })
             ];
             python3 = overridePython "python3";
             python39 = overridePython "python39";
             python310 = overridePython "python310";
-            python311 = overridePython "python311";
+            # python311 = overridePython "python311";
 
             python3Packages = final.python3.pkgs;
             python39Packages = final.python39.pkgs;
             python310Packages = final.python310.pkgs;
-            python311Packages = final.python311.pkgs;
+            # python311Packages = final.python311.pkgs;
           };
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
@@ -180,12 +182,9 @@
         };
 
         # Any packages from nixpkgs can be added here
-        devShellPackages = with pkgs; [
-          pre-commit
-          pandoc
-          wrappedPoetry
-          wrappedCopier
-        ];
+        devShellPackages = with pkgs;
+          [ pre-commit pandoc wrappedPoetry wrappedCopier ]
+          ++ lib.forEach pythons (p: pkgs."${p}");
 
         # Generate devShells for wanted Pythons
         devShells = builtins.foldl' (x: y: (pkgs.lib.recursiveUpdate x y)) { }
@@ -230,7 +229,7 @@
         # packages.fractopo-38 = pkgs.fractopo-38;
         packages.fractopo-39 = pkgs.python39Packages.fractopo;
         packages.fractopo-310 = pkgs.python310Packages.fractopo;
-        packages.fractopo-311 = pkgs.python311Packages.fractopo;
+        # packages.fractopo-311 = pkgs.python311Packages.fractopo;
         packages.fractopo-image = fractopo-image;
         packages.default = self.packages.fractopo;
         devShells = devShellsWithDefault;
