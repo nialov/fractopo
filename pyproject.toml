@@ -89,7 +89,7 @@ nox = "*"
 pre-commit = "*"
 pyinstrument = "*"
 pytest = "*"
-pytest-regressions = "==2.2.0"
+pytest-regressions = ">=2.2.0,<3.0.0"
 toml = "*"
 
 [tool.poetry.extras]

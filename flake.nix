@@ -136,8 +136,9 @@
             pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
               (python-final: python-prev: {
                 fractopo = python-final.callPackage ./. { };
-                # pygeos = python-prev.pygeos.overrideAttrs
-                #   (finalAttrs: prevAttrs: { patches = [ ]; });
+                # TODO: Remove when nixpkgs gets updated upstream with fix
+                pygeos = python-prev.pygeos.overrideAttrs
+                  (finalAttrs: prevAttrs: { patches = [ ]; });
               })
             ];
             python3 = overridePython "python3";
