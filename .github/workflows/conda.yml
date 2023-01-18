@@ -11,7 +11,7 @@ on:
       - "environment.yml"
   # run only on master pull requests
   pull_request:
-    branches: [master]
+    # branches: [master]
     paths:
       # Only run on changes to source or test python files and environment.yml
       - "fractopo/**.py"

@@ -1,7 +1,6 @@
 name: nix
 
 on:
-  # run on all pushes to any branch
   push:
     paths:
       - "**.py"
@@ -16,9 +15,9 @@ on:
       # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"
       - "!CHANGELOG.md"
-  # run only on master pull requests
-  pull_request:
     branches: [master]
+  pull_request:
+
   # also run periodically
   schedule:
     - cron: "41 7 * * 5"

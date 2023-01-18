@@ -1,7 +1,8 @@
 name: CI
 
 on:
-  # run on all pushes to any branch
+  # run on pushed to master only
+  # make pull request to run jobs for other branches
   push:
     paths:
       - "**.py"
@@ -16,9 +17,10 @@ on:
       # (ReadTheDocs will build based on new README anyway.)
       - "!README.rst"
       - "!CHANGELOG.md"
-  # run only on master pull requests
-  pull_request:
     branches: [master]
+  # run on all pull requests
+  pull_request:
+
   # also run periodically
   schedule:
     - cron: "41 7 * * 5"
