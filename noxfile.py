@@ -271,6 +271,7 @@ def _docs(session, auto_build: bool):
             "sphinx-build" if not auto_build else "sphinx-autobuild",
             str(DOCS_SRC_PATH),
             str(DOCS_PATH),
+            "-vvv",
             *(
                 [
                     f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
