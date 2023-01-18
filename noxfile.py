@@ -3,7 +3,7 @@ Nox test suite.
 """
 from pathlib import Path
 from shutil import rmtree
-from typing import List
+from typing import List, Literal
 
 import nox
 import pkg_resources
@@ -239,11 +239,6 @@ def _api_docs(session):
     """
     Make apidoc documentation.
     """
-    # Install from docs_src/requirements.txt that has been synced with docs
-    # requirements
-    # session.install(".")
-    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
-
     # Remove old apidocs
     if DOCS_APIDOC_DIR_PATH.exists():
         rmtree(DOCS_APIDOC_DIR_PATH)
@@ -260,28 +255,26 @@ def _docs(session, auto_build: bool):
 
     Installation mimics readthedocs install.
     """
-    # Install from docs_src/requirements.txt that has been synced with docs
-    # requirements
-    # session.install(".")
-    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
 
+    auto_build_args = (
+        [
+            f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
+            "--ignore=**/.fractopo_cache/**",
+            "--watch=README.rst",
+            f"--watch={PACKAGE_NAME}/",
+            "--watch=examples/",
+        ]
+        if auto_build
+        else []
+    )
     try:
         # Create docs in ./docs folder
         session.run(
             "sphinx-build" if not auto_build else "sphinx-autobuild",
             str(DOCS_SRC_PATH),
             str(DOCS_PATH),
-            *(
-                [
-                    f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
-                    "--ignore=**/.fractopo_cache/**",
-                    "--watch=README.rst",
-                    f"--watch={PACKAGE_NAME}/",
-                    "--watch=examples/",
-                ]
-                if auto_build
-                else []
-            ),
+            *auto_build_args,
+            "-vvv",
         )
 
     finally:
@@ -291,21 +284,28 @@ def _docs(session, auto_build: bool):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def apidocs(session):
-    """
-    Make apidoc documentation.
-    """
-    _api_docs(session=session)
-
-
-@nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)
-def docs(session):
+def docs(
+    session: nox.Session,
+):
     """
     Make documentation.
 
     Installation mimics readthedocs install.
     """
-    _docs(session=session, auto_build=False)
+    operation: str = resolve_session_posargs(session=session)
+    if len(operation) == 0:
+        operation = "docs"
+    operations = {"api_docs", "docs"}
+    if operation not in operations:
+        raise ValueError(f"Expected {operation} to be one of {operations}.")
+    session.log(f"Running operation {operation} in session docs.")
+    # Install from docs_src/requirements.txt that has been synced with docs
+    # requirements
+    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
+    if operation == "api_docs":
+        _api_docs(session=session)
+    else:
+        _docs(session=session, auto_build=False)
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION, reuse_venv=True, **VENV_PARAMS)

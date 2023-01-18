@@ -209,7 +209,7 @@ def task_apidocs():
     """
     Make apidoc documentation.
     """
-    command = "nox --session apidocs"
+    command = "nox --session docs -- api_docs"
     return {
         ACTIONS: [command],
         FILE_DEP: [

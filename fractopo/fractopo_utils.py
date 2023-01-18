@@ -31,10 +31,9 @@ class LineMerge:
         """
         Conditionally merge two LineStrings (first and second).
 
-        Merge occurs if:
-            1. Their endpoints are within buffer_value of each other.
-            2. Their total orientations are within tolerance (degrees) of each
-               other.
+        Merge occurs if 1) their endpoints are within buffer_value of each
+        other and 2) their total orientations are within tolerance (degrees) of
+        each other.
 
         Merges by joining their coordinates. The endpoint
         (that is within buffer_value of endpoint of first) of the second

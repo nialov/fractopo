@@ -297,10 +297,7 @@ def counts_to_point(
     """
     Create ternary point from node_counts.
 
-    The order is important:
-
-      -  For nodes: X, I, Y.
-      -  For branches: CC, II, CI.
+    The order is important: for nodes: X, I, Y and for branches: CC, II, CI.
     """
     if is_nodes:
         # xcount, ycount, icount = _get_xyi_counts(node_counts)
