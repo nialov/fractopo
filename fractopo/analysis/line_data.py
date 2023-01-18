@@ -2,7 +2,7 @@
 Trace and branch data analysis with LineData class abstraction.
 """
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import geopandas as gpd
@@ -64,7 +64,7 @@ class LineData:
     length_set_ranges: SetRangeTuple = ()
     length_set_names: Tuple[str, ...] = ()
 
-    area_boundary_intersects: np.ndarray = np.array([])
+    area_boundary_intersects: np.ndarray = field(default_factory=lambda: np.array([]))
 
     _automatic_fit: Optional[powerlaw.Fit] = None
 

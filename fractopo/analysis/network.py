@@ -177,10 +177,10 @@ class Network:
 
     # Branches and nodes
     # ==================
-    branch_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame()
-    node_gdf: gpd.GeoDataFrame = gpd.GeoDataFrame()
+    branch_gdf: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
+    node_gdf: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
 
-    censoring_area: gpd.GeoDataFrame = gpd.GeoDataFrame()
+    censoring_area: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
 
     cache_results: bool = True
 
