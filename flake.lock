@@ -154,6 +154,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-old-shapely": {
+      "locked": {
+        "lastModified": 1663804487,
+        "narHash": "sha256-e7yTgpEeWscQLxE+mA2n5+YZCQILE7IuE0Tai2z7YUg=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2b6c72e17306cb57b97ab1e26bb4c7a42ba1e430",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "2b6c72e17306cb57b97ab1e26bb4c7a42ba1e430",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1673796341,
@@ -210,6 +226,7 @@
         "flake-utils": "flake-utils_3",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-copier": "nixpkgs-copier",
+        "nixpkgs-old-shapely": "nixpkgs-old-shapely",
         "poetry2nix-copier": "poetry2nix-copier"
       }
     }
