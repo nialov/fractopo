@@ -37,20 +37,13 @@ fig.tight_layout(h_pad=1.5)
 axes_flat: Sequence[Axes] = axes.flatten()
 
 
-def label_gen():
-    """
-    Generate labels.
-    """
-    for label in ("A.", "B.", "C.", "D.", "E.", "F."):
-        yield label
-
-
-labeler = label_gen()
 for ax in axes_flat:
     ax.set_xlim(-6, 6)
     ax.set_ylim(-6, 6)
     ax.axis("off")
-    ax.text(x=-5, y=5, s=next(labeler), fontsize="x-large", fontweight="bold")
+    # ax.text(x=-5, y=5, s=next(labeler), fontsize="x-large", fontweight="bold")
+
+default_text_kwargs = dict(ha="center", fontdict=dict(size="small"))
 
 # Axis 1: MULTI JUNCTION
 
@@ -67,7 +60,10 @@ errors_1 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
 traces_1.plot(ax=axis_1, color="black")
 errors_1.plot(ax=axis_1, marker="X", color="red", zorder=10)
 axis_1.text(
-    x=0, y=-7, s="More than two traces intersect" "\n" "on the same point.", ha="center"
+    x=0,
+    y=-7,
+    s="More than two traces intersect\non the same point.",
+    **default_text_kwargs,
 )
 
 # Axis 2: MULTI JUNCTION
@@ -90,7 +86,7 @@ axis_2.annotate(
     fontsize="small",
 )
 # axis_2.set_title("Trace overlaps another trace.")
-axis_2.text(x=0, y=-7, s="Trace overlaps another trace.", ha="center")
+axis_2.text(x=0, y=-7, s="Trace overlaps another trace.", **default_text_kwargs)
 
 # Axis 3: V NODE
 
@@ -106,7 +102,12 @@ errors_3 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
 traces_3.plot(ax=axis_3, color="black")
 errors_3.plot(ax=axis_3, marker="X", color="red", zorder=10)
 # axis_3.set_title("Two traces end in a\nV-node formation.")
-axis_3.text(x=0, y=-7, s="Two traces end in a\nV-node formation.", ha="center")
+axis_3.text(
+    x=0,
+    y=-7,
+    s="Two traces end in a\nV-node formation.",
+    **default_text_kwargs,
+)
 
 # Axis 4: MULTIPLE CROSSCUTS
 
@@ -126,7 +127,10 @@ traces_4.plot(ax=axis_4, color="black")
 errors_4.plot(ax=axis_4, marker="X", color="red", zorder=10)
 # axis_4.set_title("Two traces cross each\nother more than two times.")
 axis_4.text(
-    x=0, y=-7, s="Two traces cross each\nother more than two times.", ha="center"
+    x=0,
+    y=-7,
+    s="Two traces cross each\nother more than two times.",
+    **default_text_kwargs,
 )
 
 # Axis 5: OVERLAPPING
@@ -147,7 +151,12 @@ errors_5 = gpd.GeoDataFrame(geometry=[intersections])
 traces_5.plot(ax=axis_5, color="black")
 errors_5.plot(ax=axis_5, color="red", zorder=10)
 # axis_5.set_title("Two traces cross each\nother more than two times.")
-axis_5.text(x=0, y=-7, s="Two traces overlap.", ha="center")
+axis_5.text(
+    x=0,
+    y=-7,
+    s="Two traces overlap.",
+    **default_text_kwargs,
+)
 axis_5.annotate(
     "Trace continues\n along the other trace.",
     xy=(0.0, 0.0),
@@ -169,7 +178,12 @@ traces_6 = gpd.GeoDataFrame(
 
 traces_6.plot(ax=axis_6, color="red")
 # axis_6.set_title("Two traces cross each\nother more than two times.")
-axis_6.text(x=0, y=-7, s="Trace is not sub-linear.", ha="center")
+axis_6.text(
+    x=0,
+    y=-7,
+    s="Trace is not sub-linear.",
+    **default_text_kwargs,
+)
 # axis_6.annotate(
 #     "Trace continues\n along the other trace.",
 #     xy=(0.0, 0.0),
@@ -179,15 +193,16 @@ axis_6.text(x=0, y=-7, s="Trace is not sub-linear.", ha="center")
 #     fontsize="small",
 # )
 
-plt.subplots_adjust(wspace=0.01)
+plt.subplots_adjust(wspace=0.11, hspace=-0.31)
 
 if __name__ == "__main__":
     # Save plot for usage outside sphinx
     # This section can be ignored if looking at the documentation
     # in ReadTheDocs
+    output_name = "validation_errors.png"
     try:
-        output_path = Path(__file__).parent / "validation_errors.svg"
+        output_path = Path(__file__).parent / output_name
         fig.savefig(output_path, bbox_inches="tight")
     except Exception:
         # Log error due to e.g. execution as jupyter notebook
-        logging.info("Failed to save validation_errors.svg plot.", exc_info=True)
+        logging.info(f"Failed to save {output_name} plot.", exc_info=True)

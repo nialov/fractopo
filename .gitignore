@@ -175,3 +175,4 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+examples/validation_errors.png
