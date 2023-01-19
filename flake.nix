@@ -5,6 +5,7 @@
     nixpkgs.url = "nixpkgs/nixos-unstable";
     nixpkgs-copier.url =
       "github:nialov/nixpkgs?rev=334c000bbbc51894a3b02e05375eae36ac03e137";
+    # TODO: Can use 'nixpkgs' input when the python packages are more stable
     nixpkgs-fractopo.url =
       "github:NixOS/nixpkgs/a115bb9bd56831941be3776c8a94005867f316a7";
     poetry2nix-copier.url =

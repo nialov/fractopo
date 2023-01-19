@@ -127,7 +127,6 @@ in buildPythonPackage {
     pandas
     powerlaw
     pygeos
-    # pygeosFixed
     python-ternary
     rich
     scikit-learn
