@@ -154,19 +154,19 @@
         "type": "github"
       }
     },
-    "nixpkgs-old-shapely": {
+    "nixpkgs-fractopo": {
       "locked": {
-        "lastModified": 1663804487,
-        "narHash": "sha256-e7yTgpEeWscQLxE+mA2n5+YZCQILE7IuE0Tai2z7YUg=",
-        "owner": "nixos",
+        "lastModified": 1669542132,
+        "narHash": "sha256-DRlg++NJAwPh8io3ExBJdNW7Djs3plVI5jgYQ+iXAZQ=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2b6c72e17306cb57b97ab1e26bb4c7a42ba1e430",
+        "rev": "a115bb9bd56831941be3776c8a94005867f316a7",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2b6c72e17306cb57b97ab1e26bb4c7a42ba1e430",
+        "rev": "a115bb9bd56831941be3776c8a94005867f316a7",
         "type": "github"
       }
     },
@@ -226,7 +226,7 @@
         "flake-utils": "flake-utils_3",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-copier": "nixpkgs-copier",
-        "nixpkgs-old-shapely": "nixpkgs-old-shapely",
+        "nixpkgs-fractopo": "nixpkgs-fractopo",
         "poetry2nix-copier": "poetry2nix-copier"
       }
     }

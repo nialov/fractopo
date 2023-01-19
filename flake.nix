@@ -5,8 +5,8 @@
     nixpkgs.url = "nixpkgs/nixos-unstable";
     nixpkgs-copier.url =
       "github:nialov/nixpkgs?rev=334c000bbbc51894a3b02e05375eae36ac03e137";
-    nixpkgs-old-shapely.url =
-      "github:nixos/nixpkgs?rev=2b6c72e17306cb57b97ab1e26bb4c7a42ba1e430";
+    nixpkgs-fractopo.url =
+      "github:NixOS/nixpkgs/a115bb9bd56831941be3776c8a94005867f316a7";
     poetry2nix-copier.url =
       "github:nialov/poetry2nix?rev=6711fdb5da87574d250218c20bcd808949db6da0";
     flake-utils.url = "github:numtide/flake-utils";
@@ -139,13 +139,11 @@
               (python-final: python-prev: {
                 fractopo = python-final.callPackage ./. { };
                 # TODO: Remove when nixpkgs gets updated upstream with fix
-                pygeos = python-prev.pygeos.overrideAttrs
-                  (finalAttrs: prevAttrs: { patches = [ ]; });
                 # shapely =
-                #   inputs.nixpkgs-old-shapely.legacyPackages."${system}".python3Packages.shapely;
+                #   inputs.nixpkgs-fractopo.legacyPackages."${system}".python3Packages.shapely;
                 # TODO: Only required as long as shapely 2.0 is not supported
-                inherit (inputs.nixpkgs-old-shapely.legacyPackages."${system}".python3Packages)
-                  shapely;
+                # inherit (inputs.nixpkgs-fractopo.legacyPackages."${system}".python3Packages)
+                #   shapely;
               })
             ];
             python3 = overridePython "python3";
@@ -163,9 +161,13 @@
           inherit system;
           # Add copier overlay to provide copier package
           overlays = [
-            fractopoOverlay
             (_: prev: { copier = copier-src.packages."${system}".default; })
           ];
+        };
+        pkgsFractopo = import inputs.nixpkgs-fractopo {
+          inherit system;
+          # Add copier overlay to provide copier package
+          overlays = [ fractopoOverlay ];
         };
 
         # Choose Python interpreters to include in all devShells
@@ -233,11 +235,11 @@
         checks = { inherit wrappedPoetryCheck copierCheck; };
         packages.poetry-wrapped = wrappedPoetry;
         packages.copier = wrappedCopier;
-        packages.fractopo = pkgs.python3Packages.fractopo;
-        # packages.fractopo-38 = pkgs.fractopo-38;
-        packages.fractopo-39 = pkgs.python39Packages.fractopo;
-        packages.fractopo-310 = pkgs.python310Packages.fractopo;
-        # packages.fractopo-311 = pkgs.python311Packages.fractopo;
+        packages.fractopo = pkgsFractopo.python3Packages.fractopo;
+        # packages.fractopo-38 = pkgsFractopo.fractopo-38;
+        packages.fractopo-39 = pkgsFractopo.python39Packages.fractopo;
+        packages.fractopo-310 = pkgsFractopo.python310Packages.fractopo;
+        # packages.fractopo-311 = pkgsFractopo.python311Packages.fractopo;
         packages.fractopo-image = fractopo-image;
         packages.default = self.packages.fractopo;
         devShells = devShellsWithDefault;

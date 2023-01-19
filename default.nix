@@ -79,6 +79,8 @@ let
   #   # })
   # else
   #   gpgme;
+  # pygeosFixed =
+  #   pygeos.overrideAttrs (finalAttrs: prevAttrs: { patches = [ ]; });
 
 in buildPythonPackage {
   pname = "fractopo";
@@ -125,6 +127,7 @@ in buildPythonPackage {
     pandas
     powerlaw
     pygeos
+    # pygeosFixed
     python-ternary
     rich
     scikit-learn
