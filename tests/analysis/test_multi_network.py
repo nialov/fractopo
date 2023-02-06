@@ -138,7 +138,6 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
     multi_network = MultiNetwork(tuple(networks))
 
     for plot_func in ("plot_xyi", "plot_branch"):
-
         fig, ax, tax = getattr(multi_network, plot_func)()
 
         assert isinstance(fig, Figure)

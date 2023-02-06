@@ -373,7 +373,6 @@ class LineData:
 
         # Iterate over azimuth set names and corresponding length arrays
         for azimuth_set_name, set_lengths in self.azimuth_set_length_arrays.items():
-
             # Create plot for each set length array
             fit, fig, ax = length_distributions.plot_distribution_fits(
                 set_lengths,

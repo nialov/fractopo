@@ -740,7 +740,6 @@ def determine_general_nodes(
         spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
         if not isinstance(geom, LineString):
-
             # Intersections and endpoints are not defined for
             # MultiLineStrings
             intersect_nodes.append(())
@@ -815,7 +814,6 @@ def determine_valid_intersection_points_no_vnode(
         candidate_endpoints = get_trace_endpoints(trace_candidate)
         for ce in candidate_endpoints:
             for ge in geom_endpoints:
-
                 # First check: is the candidate endpoint close to the geom endpoint
                 candidate_endpoint_is_close_to_geom_endpoint = np.isclose(
                     ce.distance(ge), 0, atol=1e-4
@@ -826,7 +824,6 @@ def determine_valid_intersection_points_no_vnode(
 
                 # Enumerate over the valid intersection points
                 for idx, p in enumerate(inter):
-
                     # If the current valid intersection point is already set
                     # for removal, continue the loop to the next
                     if not p_to_keep[idx]:
@@ -987,7 +984,6 @@ def determine_node_junctions(
 
         # Iterate over the actual Points of the current trace
         for _, point in enumerate(points):
-
             # Get node candidates from spatial index
             node_candidates_idx = spatial_index_intersection(
                 nodes_geoseries_sindex,
@@ -1789,7 +1785,6 @@ def multiprocess(
 
     # multiprocessing!
     with ProcessPoolExecutor() as executor:
-
         keyword_arguments = list(keyword_arguments) * (repeats + 1)
 
         # Iterate over invalids. submit as tasks
@@ -1801,11 +1796,9 @@ def multiprocess(
         # Collect all tasks as they complete
         # Will not be in same order as submitted
         for future in as_completed(futures):
-
             identifier = arguments_identifier(futures[future])
             # If execution critically fails it will be caught and logged
             try:
-
                 # Get result from Future
                 # This will throw an error (if it happened in process)
                 result = future.result()
@@ -1815,7 +1808,6 @@ def multiprocess(
                     ProcessResult(identifier=identifier, result=result, error=False)
                 )
             except Exception as exc:
-
                 # Catch and log critical failures
                 log.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
                 collect_results.append(
@@ -2018,7 +2010,6 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
             # print(f"Dropping column: {column}")
             geodataframe.drop(columns=[column], inplace=True)
         if column.lower() == fid_col:
-
             # Remove fid columns
             # print(f"Dropping column: {column} due to case-insensitive match to fid.")
             geodataframe.drop(columns=[column], inplace=True)

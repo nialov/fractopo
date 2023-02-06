@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 with TemporaryDirectory() as tmp_dir:
-
     fig_output_path = Path(tmp_dir) / "fractopo_workflow_visualisation.jpg"
     fractopo_workflow_visualisation.main(output_path=fig_output_path)
 

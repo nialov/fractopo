@@ -324,13 +324,11 @@ def determine_insert_approach(
         # It is the last node of linestring
         idx = nearest_point_idx
     else:
-
         if nearest_point.distance(point) < snap_threshold:
             # Replace instead of insert
             insert = False
             idx = nearest_point_idx
         else:
-
             # It is in the middle of the linestring
             points_on_either_side = [
                 (vals, angle_to_point(point, nearest_point, vals[1]))
@@ -681,7 +679,6 @@ def simple_snap(
 
         # Check both trace endpoints
         for endpoint in trace_endpoints:
-
             # Check for already existing snap
             if any(endpoint.intersects(coord_point) for coord_point in coord_points):
                 # Already snapped
@@ -811,7 +808,6 @@ def safer_unary_union(
 
     # Debugging, fail safely
     if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
-
         log.critical(
             "Expected size_threshold to be higher than 100. Union might be impossible."
         )
@@ -869,7 +865,6 @@ def part_unary_union(
 
     # Iterate over list of split trace GeoSeries
     for part in split_traces:
-
         # Do unary_union to part
         part_union = part.unary_union
 
@@ -1020,7 +1015,6 @@ def branches_and_nodes(
 
     # Report and error possibly unary_union failure
     if len(branches_all) < len(traces_geosrs):
-
         # unary_union can fail with too large datasets
         log.critical(
             "Expected more branches than traces. Possible unary_union failure."
@@ -1186,7 +1180,6 @@ def node_identities_from_branches(
     collected_nodes: Dict[str, Tuple[Point, str]] = dict()
 
     for idx, endpoint in enumerate(all_endpoints):
-
         # Do not resolve nodes that have already been resolved
         if endpoint.wkt in collected_nodes:
             continue

@@ -188,14 +188,12 @@ def plot_ternary_plot(
     # If only one set of counts is give, we are only plotting a single ternary
     # point
     if len(counts_list) == 1:
-
         # Call plotter with single point
         plotter(counts=counts_list[0], label=labels[0], tax=tax, color=colors[0])
 
         # Decorate plot
         decorator(ax, tax, counts=counts_list[0])
     else:
-
         # Gather points from tuples of counts
         points = [
             counts_to_point(counts=count, scale=100, is_nodes=is_nodes)

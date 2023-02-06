@@ -283,16 +283,13 @@ class MultiLengthDistribution:
 
         # Iterate over distributions
         for idx, distribution in enumerate(self.distributions):
-
             # Default cut_off is a static value to reduce errors
             # due to very low decimal numbers
             cut_off = general.MINIMUM_LINE_LENGTH
             if automatic_cut_offs:
-
                 # Use automatic cut off determined by powerlaw
                 cut_off = distribution.automatic_fit.xmin
             elif self.cut_offs is not None:
-
                 # Use manual cut offs given as inputs
                 cut_off = self.cut_offs[idx]
 
@@ -1104,13 +1101,11 @@ def _optimize_cut_offs(
     fitter: Callable[[np.ndarray, np.ndarray], Tuple[float, float]],
     scorer: Callable[[np.ndarray, np.ndarray], float],
 ) -> Tuple[Polyfit, List[float]]:
-
     # Each length and associated ccm must be collected
     cut_length_arrays, cut_ccm_arrays, proportions = [], [], []
 
     # Iterate over given distributions and cut-offs
     for dist, cut_off in zip(distributions, cut_offs):
-
         # Use LengthDistribution.apply_cut_off to get truncated and normalized
         # length and ccm data
         cut_lengths, cut_ccm = dist.generate_distributions(cut_off=cut_off)
@@ -1205,7 +1200,6 @@ def sorted_lengths_and_ccm(
     )
 
     if area_value is not None:
-
         # Normalize with area
         ccm = ccm / area_value
 

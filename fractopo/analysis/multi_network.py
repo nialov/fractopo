@@ -88,7 +88,6 @@ class MultiNetwork(NamedTuple):
 
         # Iterate over the networks
         for network in self.networks:
-
             # Name is either the network name or if categorizing by set,
             # the set name
             # Only one LengthDistribution is collected if not using the set,
@@ -98,7 +97,6 @@ class MultiNetwork(NamedTuple):
             # Collect length distributions (for each set)
             network_distributions = dict()
             for name in names:
-
                 # Label the LengthDistribution with either just network name
                 # or with the name and the azimuth set
                 azimuth_set = name if using_azimuth_sets else None

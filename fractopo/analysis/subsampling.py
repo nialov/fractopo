@@ -221,7 +221,6 @@ def random_sample_of_circles(
 
     # Iterate over the DataFrameGroupBy dataframe groups
     for idx, group in enumerate(grouped.values()):
-
         # Skip if not chosen base circle previously
         if idx not in which_idxs:
             continue

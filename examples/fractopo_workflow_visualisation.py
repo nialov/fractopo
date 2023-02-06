@@ -162,7 +162,6 @@ def arrow_annotation(ax: Axes, start: Tuple[float, float], end: Tuple[float, flo
 
 
 def main(output_path: Optional[Path] = None):
-
     # Initialize figure with 3x3 grid
     figure, axes = plt.subplots(3, 3, figsize=(9, 9))
     assert isinstance(figure, Figure)

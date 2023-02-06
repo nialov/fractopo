@@ -28,7 +28,6 @@ assert len(colors) == len(kb11_network.azimuth_set_names)
 for azimuth_set, set_range, color in zip(
     kb11_network.azimuth_set_names, kb11_network.azimuth_set_ranges, colors
 ):
-
     trace_gdf_set = kb11_network.trace_gdf.loc[
         kb11_network.trace_gdf["azimuth_set"] == azimuth_set
     ]

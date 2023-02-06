@@ -199,7 +199,6 @@ def test_network(
     data_regression.check(network_attributes)
 
     if determine_branches_nodes and network.branch_gdf.shape[0] < 500:
-
         sorted_branch_gdf = network.branch_gdf.sort_index()
         assert isinstance(sorted_branch_gdf, gpd.GeoDataFrame)
         # Do not check massive branch counts
@@ -418,7 +417,6 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         (network_circular.trace_gdf, network_circular.branch_gdf),
         ("Trace", "Branch"),
     ):
-
         assert all(isinstance(val, str) for val in boundary_intersect_count)
         assert all(isinstance(val, int) for val in boundary_intersect_count.values())
         assert sum(boundary_intersect_count.values()) == gdf.shape[0]

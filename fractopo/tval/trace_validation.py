@@ -208,7 +208,6 @@ class Validation:
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
         for idx, geom in enumerate(self.traces.geometry.values):
-
             # Collect errors from each validator for each geom
             current_errors: List[str] = []
 
@@ -221,7 +220,6 @@ class Validation:
             # validation loop
             for validator in validators:
                 if ignore_geom:
-
                     # Break out of validation loop. See above comments
                     break
 

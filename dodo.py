@@ -387,7 +387,6 @@ def use_tag(tag: str):
         # Collect new lines
         new_lines = []
         for line in path.read_text(UTF8).splitlines():
-
             # Substitute lines with new tag if they match pattern
             substituted = re.sub(VERSION_PATTERN, r"\g<1>" + tag + r'"', line)
 

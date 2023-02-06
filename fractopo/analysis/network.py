@@ -693,9 +693,7 @@ class Network:
         intersects. Intersection detection based on snap_threshold.
         """
         if self._trace_intersects_target_area_boundary is None:
-
             if self.circular_target_area:
-
                 (
                     intersecting_lines,
                     cuts_through_lines,
@@ -1232,7 +1230,6 @@ class Network:
             ("branches", "nodes"),
             (self.branch_gdf, self.node_gdf),
         ):
-
             topo_path = output_dir_path / (
                 f"{self.name}_{topo_type}.geojson" if topo_name is None else topo_name
             )

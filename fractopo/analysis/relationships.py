@@ -90,7 +90,6 @@ def determine_crosscut_abutting_relationships(
 
     set_combinations = combinations(set_names, 2)
     for first_set, second_set in set_combinations:
-
         trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries] = (
             trace_series.loc[set_array == first_set],  # type: ignore
             trace_series.loc[set_array == second_set],  # type: ignore
