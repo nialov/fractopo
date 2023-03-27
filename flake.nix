@@ -242,7 +242,7 @@
         packages.fractopo-310 = pkgsFractopo.python310Packages.fractopo;
         # packages.fractopo-311 = pkgsFractopo.python311Packages.fractopo;
         packages.fractopo-image = fractopo-image;
-        packages.default = self.packages.fractopo;
+        packages.default = self.packages."${system}".fractopo;
         devShells = devShellsWithDefault;
         overlays.default = fractopoOverlay;
       });
