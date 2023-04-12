@@ -27,7 +27,7 @@ from joblib import Memory
 from matplotlib import patheffects as path_effects
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from shapely import prepared
+from shapely import prepared, wkb
 from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
@@ -1735,8 +1735,8 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
     >>> point_to_point_unit_vector(point, other_point)
     array([0.70710678, 0.70710678])
     """
-    x1, y1 = tuple(*point.coords)
-    x2, y2 = tuple(*other_point.coords)
+    x1, y1 = point.x, point.y
+    x2, y2 = other_point.x, other_point.y
     if any(np.isnan([x1, y1, x2, y2])):
         raise ValueError(
             f"Expected no nan values in point_to_point_unit_vector: {x1, y1, x2, y2}"
@@ -2028,6 +2028,45 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
         geodataframe.to_file(shp_dir / f"{name}.shp")
     except Exception:
         log.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
+
+
+def check_for_z_coordinates(geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]) -> bool:
+    """
+    Check if geopandas data contains Z-coordinates.
+    """
+    return any(geom.has_z for geom in geodata.geometry.values if hasattr(geom, "has_z"))
+
+
+def remove_z_coordinates_from_geodata(
+    geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
+    """
+    Remove Z-coordinates from geometries in geopandasgeodata.
+    """
+    geodata_without_z = geodata.copy()
+    geodata_without_z_geometries = geodata_without_z.geometry.apply(
+        remove_z_coordinates
+    )
+    if isinstance(geodata_without_z, gpd.GeoDataFrame):
+        geodata_without_z["geometry"] = geodata_without_z_geometries
+    else:
+        geodata_without_z = geodata_without_z_geometries
+
+    assert isinstance(geodata_without_z, (gpd.GeoDataFrame, gpd.GeoSeries))
+    return geodata_without_z
+
+
+def remove_z_coordinates(geometry: Union[BaseGeometry, BaseMultipartGeometry]) -> Any:
+    """
+    Remove z-coordinates from a geometry.
+
+    A ``shapely`` geometry should be provided. Output will always be the same
+    type of geometry with the z-coordinates removed.
+
+    :param geometry: Shapely geometry
+    :return: Shapely geometry with the same geometry type
+    """
+    return wkb.loads(wkb.dumps(geometry, output_dimension=2))
 
 
 def sanitize_name(name: str) -> str:

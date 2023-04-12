@@ -40,6 +40,7 @@ from fractopo.general import (
     II_branch,
     X_node,
     Y_node,
+    check_for_z_coordinates,
     crop_to_target_areas,
     geom_bounds,
     get_trace_coord_points,
@@ -48,6 +49,7 @@ from fractopo.general import (
     numpy_to_python_type,
     point_to_point_unit_vector,
     pygeos_spatial_index,
+    remove_z_coordinates_from_geodata,
     spatial_index_intersection,
 )
 
@@ -291,7 +293,9 @@ def insert_point_to_linestring(
     t_coords = list(trace.coords)
     if not insert:
         t_coords.pop(idx)
-    t_coords.insert(idx, tuple(*point.coords))
+    t_coords.insert(idx, (point.x, point.y)) if not point.has_z else t_coords.insert(
+        idx, (point.x, point.y, point.z)
+    )
     # Closest points might not actually be the points which in between the
     # point is added. Have to use project and interpolate (?)
     # print(t_coords)
@@ -750,7 +754,7 @@ def filter_non_unique_traces(
     traces_set = set()
     idxs_to_keep = []
     for idx, geom in enumerate(traces.geometry.values):
-        assert isinstance(geom, LineString)
+        assert isinstance(geom, LineString), geom
 
         # Use a less strict coordinate precision when finding duplicates
         geom_wkt = dumps(geom, rounding_precision=int(-math.log10(snap_threshold)))
@@ -933,6 +937,15 @@ def branches_and_nodes(
         ),
     )
     traces_geosrs: gpd.GeoSeries = traces.geometry
+    if check_for_z_coordinates(geodata=traces_geosrs):
+        log.info(
+            "Removing z-coordinates from trace data before branch and node determination."
+        )
+        traces_without_z_coords = remove_z_coordinates_from_geodata(
+            geodata=traces_geosrs
+        )
+        assert isinstance(traces_without_z_coords, gpd.GeoSeries)
+        traces_geosrs = traces_without_z_coords
 
     # Filter out traces that are not unique by wkt
     # unary_union will fail to take them into account any way
@@ -951,7 +964,9 @@ def branches_and_nodes(
 
     # Collect into lists
     traces_list = [
-        trace for trace in traces.geometry.values if isinstance(trace, LineString)
+        trace
+        for trace in traces_geosrs.geometry.values
+        if isinstance(trace, LineString)
     ]
 
     # Snapping occurs multiple times due to possible side effects of each snap

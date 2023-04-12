@@ -7,13 +7,19 @@ the traces for further analysis (``fractopo.analysis.network.Network``).
 import logging
 from dataclasses import dataclass
 from itertools import chain
+from textwrap import dedent
 from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import LineString, MultiLineString, Point
 
-from fractopo.general import determine_general_nodes, is_empty_area
+from fractopo.general import (
+    check_for_z_coordinates,
+    determine_general_nodes,
+    is_empty_area,
+    remove_z_coordinates_from_geodata,
+)
 from fractopo.tval import trace_validators
 from fractopo.tval.trace_validation_utils import determine_trace_candidates
 from fractopo.tval.trace_validators import (
@@ -74,9 +80,17 @@ class Validation:
             else self.ERROR_COLUMN[0 : len(self.ERROR_COLUMN)]
         )
 
-        # Validate trace and area inputs
-        # for geom in self.area.geometry.values:
-        #     if not isinstance(geom, Polygon)
+        if check_for_z_coordinates(geodata=self.traces):
+            log.warning(
+                dedent(
+                    """
+                Traces inputted into Validation contain Z-coordinates. They
+                will be removed from the input traces and subsuquently from all
+                outputs.
+                """
+                ).strip()
+            )
+            self.traces = remove_z_coordinates_from_geodata(geodata=self.traces)
 
     def set_general_nodes(self):
         """

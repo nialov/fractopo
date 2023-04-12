@@ -5,6 +5,7 @@ import logging
 from dataclasses import dataclass, field
 from functools import wraps
 from pathlib import Path
+from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
@@ -53,12 +54,14 @@ from fractopo.general import (
     assign_branch_and_node_colors,
     bool_arrays_sum,
     calc_circle_radius,
+    check_for_z_coordinates,
     crop_to_target_areas,
     determine_boundary_intersecting_lines,
     focus_plot_to_bounds,
     numpy_to_python_type,
     pygeos_spatial_index,
     raise_determination_error,
+    remove_z_coordinates_from_geodata,
     sanitize_name,
     save_fig,
     spatial_index_intersection,
@@ -182,7 +185,10 @@ class Network:
 
     censoring_area: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
 
+    # Misc
+    # ==================
     cache_results: bool = True
+    remove_z_coordinates_from_inputs: bool = True
 
     # Private caching attributes
     # ==========================
@@ -243,6 +249,32 @@ class Network:
         # Copy geodataframes instead of using pointers
         # Traces
         self.trace_gdf = self.trace_gdf.copy()
+        has_z_coordinates = check_for_z_coordinates(geodata=self.trace_gdf)
+        if has_z_coordinates:
+            log.warning(
+                dedent(
+                    """
+                Traces inputted into Network contain Z-coordinates.
+                They might not be correct in output geometries
+                and might cause unexpected errors.
+                """
+                ).strip()
+            )
+            if self.remove_z_coordinates_from_inputs:
+                log.warning(
+                    dedent(
+                        """
+                    Z-coordinates will be removed from the input traces and
+                    subsuquently from all outputs because Network input
+                    remove_z_coordinates_from_geodata is True.
+                    """
+                    ).strip()
+                )
+                trace_gdf_without_z_coords = remove_z_coordinates_from_geodata(
+                    geodata=self.trace_gdf
+                )
+                assert isinstance(trace_gdf_without_z_coords, gpd.GeoDataFrame)
+                self.trace_gdf = trace_gdf_without_z_coords
         # Area
         self.area_gdf = self.area_gdf.copy()
         # Branches

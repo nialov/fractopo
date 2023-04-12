@@ -81,8 +81,16 @@ def segment_within_buffer(
             segmentize_linestring(ls, snap_threshold * overlap_detection_multiplier)
         )
     for start, end in all_segments:
-        if within_bounds(*start, min_x, min_y, max_x, max_y) and within_bounds(
-            *end, min_x, min_y, max_x, max_y
+        if within_bounds(
+            x=start[0], y=start[1], min_x=min_x, min_y=min_y, max_x=max_x, max_y=max_y
+        ) and within_bounds(
+            x=end[0],
+            y=end[1],
+            min_x=min_x,
+            min_y=min_y,
+            max_x=max_x,
+            max_y=max_y
+            # *end, min_x, min_y, max_x, max_y
         ):
             ls = LineString([start, end])
             if ls.length > snap_threshold * overlap_detection_multiplier and ls.within(
