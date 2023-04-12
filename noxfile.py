@@ -252,10 +252,7 @@ def _api_docs(session):
 def _docs(session, auto_build: bool):
     """
     Make documentation.
-
-    Installation mimics readthedocs install.
     """
-
     auto_build_args = (
         [
             f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
@@ -313,6 +310,7 @@ def auto_docs(session):
     """
     Make documentation and start sphinx-autobuild service.
     """
+    session.install("-r", str(DOCS_REQUIREMENTS_PATH))
     _docs(session=session, auto_build=True)
 
 

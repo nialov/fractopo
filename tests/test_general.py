@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
-from shapely.geometry import Point, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 import tests
 from fractopo import general
@@ -179,3 +179,25 @@ def test_determine_valid_intersection_points(intersection_geoms: gpd.GeoSeries, 
         )
         assert isinstance(result, list)
         assert all(isinstance(val, Point) for val in result)
+
+
+@pytest.mark.parametrize(
+    "geodata",
+    [
+        gpd.GeoSeries([LineString([(0, 0, 0), (1, 1, 1)])]),
+        gpd.GeoSeries(
+            [
+                LineString([(0, 0, 0), (1, 1, 1)]),
+                LineString([(10, 10, 10), (20, 20, 20)]),
+            ]
+        ),
+        gpd.GeoSeries([LineString([(0, 0), (1, 1)])]),
+    ],
+)
+def test_total_bounds(geodata):
+    """
+    Test total_bounds.
+    """
+    result = general.total_bounds(geodata=geodata)
+    assert isinstance(result, tuple)
+    assert len(result) == 4

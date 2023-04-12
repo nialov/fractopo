@@ -69,7 +69,7 @@ def test_azimuth_set_relationships_regression(
     """
     azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
     relations_df: pd.DataFrame = Network(
-        tests.kb7_traces,  # type: ignore
+        tests.kb7_traces_50,  # type: ignore
         tests.kb7_area,  # type: ignore
         name="kb7",
         determine_branches_nodes=True,
@@ -96,7 +96,7 @@ def test_length_set_relationships_regression(num_regression):
     )
     trace_length_set_names: Tuple[str, ...] = ("a", "b", "c")
     relations_df: pd.DataFrame = Network(
-        tests.kb7_traces,  # type: ignore
+        tests.kb7_traces_50,  # type: ignore
         tests.kb7_area,  # type: ignore
         name="kb7",
         determine_branches_nodes=True,
@@ -121,6 +121,7 @@ def test_length_set_relationships_regression(num_regression):
     snap_threshold,
     circular_target_area,
     try_export_of_data,
+    remove_z_coordinates_from_inputs,
     """,
     tests.test_network_params,
 )
@@ -133,6 +134,7 @@ def test_network(
     snap_threshold,
     circular_target_area,
     try_export_of_data,
+    remove_z_coordinates_from_inputs,
     file_regression,
     data_regression,
     tmp_path,
@@ -154,6 +156,7 @@ def test_network(
         trace_length_set_ranges=((0.1, 1), (1, 2)),
         branch_length_set_ranges=((0.1, 1), (1, 2)),
         circular_target_area=circular_target_area,
+        remove_z_coordinates_from_inputs=remove_z_coordinates_from_inputs,
     )
 
     assert area.shape[0] == len(network.representative_points())
@@ -431,7 +434,7 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
 @pytest.mark.parametrize(
     "trace_gdf,area_gdf,network_name,snap_threshold",
     [
-        (tests.kb7_traces, tests.kb7_area, "kb7", 0.001),
+        (tests.kb7_traces_50, tests.kb7_area, "kb7", 0.001),
         (tests.kb11_traces, tests.kb11_area, "kb11", 0.001),
     ],
 )

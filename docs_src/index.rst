@@ -520,6 +520,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
 
    validation/basics
    validation/errors
+   misc
 
 .. toctree::
    :maxdepth: 1
