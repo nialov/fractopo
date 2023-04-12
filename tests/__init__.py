@@ -337,106 +337,11 @@ geta_lidar_inf_valid_area = read_geofile(
 )
 
 
-# def random_data_column(iterable):
-#     """
-#     Make random data column contents.
-#     """
-#     return ["aaa" for _ in iterable]
-
-
-# geoms are all LineStrings and no errors
-
-
-# def valid_gdf_get():
-#     """
-#     Get valid gdf.
-#     """
-#     return gpd.GeoDataFrame(
-#         {
-#             GEOMETRY_COLUMN: valid_traces,
-#             ERROR_COLUMN: valid_error_srs,
-#             "random_col": random_data_column(valid_traces),
-#             "random_col2": random_data_column(valid_traces),
-#             "random_col3": random_data_column(valid_traces),
-#             "random_col4": random_data_column(valid_traces),
-#         }
-#     )
-
-
-# def invalid_gdf_get():
-#     """
-#     Get invalid gdf.
-#     """
-#     return gpd.GeoDataFrame(
-#         {
-#             GEOMETRY_COLUMN: invalid_traces,
-#             ERROR_COLUMN: invalid_error_srs,
-#             "random_col": random_data_column(invalid_traces),
-#         }
-#     )
-
-
-# def invalid_gdf_null_get():
-#     """
-#     Get gdf with None and empty geometries.
-#     """
-#     return gpd.GeoDataFrame(
-#         {
-#             GEOMETRY_COLUMN: [None, LineString()],
-#             ERROR_COLUMN: [[], []],
-#             "random_col": random_data_column(range(2)),
-#         }
-#     )
-
-
-# def valid_area_gdf_get():
-#     """
-#     Get a valid area gdf.
-#     """
-#     return gpd.GeoDataFrame({GEOMETRY_COLUMN: valid_areas_geoseries})
-
-
-# def invalid_area_gdf_get():
-#     """
-#     Get an invalid area gdf.
-#     """
-#     return gpd.GeoDataFrame({GEOMETRY_COLUMN: invalid_areas_geoseries})
-
-
 faulty_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
 faulty_error_srs[0] = np.nan
 faulty_error_srs[1] = "this cannot be transformed to list?"
 faulty_error_srs[2] = (1, 2, 3, "hello?")
 faulty_error_srs[5] = 5.12315235
-
-
-# def valid_gdf_with_faulty_error_col_get():
-#     """
-#     Get valid gdf with faulty error column.
-#     """
-#     return gpd.GeoDataFrame(
-#         {
-#             GEOMETRY_COLUMN: valid_traces,
-#             ERROR_COLUMN: faulty_error_srs,
-#             "random_col": random_data_column(valid_traces),
-#         }
-#     )
-
-
-# def iterate_validators():
-#     """
-#     Iterate over validators.
-#     """
-#     for validator in (
-#         GeomNullValidator,
-#         GeomTypeValidator,
-#         MultiJunctionValidator,
-#         VNodeValidator,
-#         MultipleCrosscutValidator,
-#         UnderlappingSnapValidator,
-#         TargetAreaSnapValidator,
-#     ):
-#         yield validator
 
 
 nice_integer_coordinates = integers(-10, 10)
@@ -495,20 +400,6 @@ def get_nice_traces():
     Get nice traces GeoSeries.
     """
     return nice_traces.copy()
-
-
-# def get_traces_geosrs():
-#     """
-#     Get traces GeoSeries.
-#     """
-#     return traces_geosrs.copy()
-
-
-# def get_areas_geosrs():
-#     """
-#     Get areas GeoSeries.
-#     """
-#     return areas_geosrs.copy()
 
 
 def get_geosrs_identicals():
@@ -597,7 +488,15 @@ kb7_trace_100_path = Path("tests/sample_data/KB7/KB7_tulkinta_100.geojson")
 kb7_trace_50_path = Path("tests/sample_data/KB7/KB7_tulkinta_50.geojson")
 kb7_area_path = Path("tests/sample_data/KB7/KB7_tulkinta_alue.geojson")
 
-kb7_traces = read_geofile(kb7_trace_50_path)
+kb7_traces_50 = read_geofile(kb7_trace_50_path)
+kb7_traces_50_z = kb7_traces_50.copy()
+kb7_traces_50_z.update(
+    {
+        "geometry": kb7_traces_50.geometry.apply(
+            lambda geom: LineString([(*coord, 10.0) for coord in geom.coords])
+        )
+    }
+)
 kb7_area = read_geofile(kb7_area_path)
 
 test_tracevalidate_params = [
@@ -826,9 +725,16 @@ intersects_next_trace_3_times = LineString(
 intersected_3_times = LineString([Point(-3, -4), Point(-3, -1)])
 test_validation_params = [
     (
-        kb7_traces,  # traces
+        kb7_traces_50,  # traces
         kb7_area,  # area
         "kb7",  # name
+        True,  # auto_fix
+        [SharpCornerValidator.ERROR],  # assume_errors
+    ),
+    (
+        kb7_traces_50_z,  # traces
+        kb7_area,  # area
+        "kb7_z_coordinates",  # name
         True,  # auto_fix
         [SharpCornerValidator.ERROR],  # assume_errors
     ),
@@ -932,6 +838,22 @@ test_validation_params = [
         "TargetAreaSnapValidator error",  # name
         True,  # auto_fix
         [TargetAreaSnapValidator.ERROR],  # assume_errors
+    ),
+    (
+        gpd.GeoDataFrame(
+            geometry=[
+                LineString([(0, 0, 0), (1, 1, 1)]),
+                LineString([(2, 2, 2), (3, 3, 3)]),
+            ]
+        ),  # traces
+        gpd.GeoDataFrame(
+            geometry=[
+                Polygon([(-5, -5), (5, -5), (5, 5), (-5, 5)]),
+            ]
+        ),  # area
+        "traces-with-z-coordinates",  # name
+        True,  # auto_fix
+        [],  # assume_errors
     ),
 ]
 
@@ -1093,6 +1015,7 @@ test_network_params = [
         0.001,  # snap_threshold
         True,  # circular_target_area
         False,  # try_export_of_data
+        True,  # remove_z_coordinates_from_inputs
     ),
     (
         kb11_traces,  # traces
@@ -1103,6 +1026,7 @@ test_network_params = [
         0.001,  # snap_threshold
         False,  # circular_target_area
         False,  # try_export_of_data
+        True,  # remove_z_coordinates_from_inputs
     ),
     (
         kb11_traces.iloc[0:100],  # traces
@@ -1113,6 +1037,7 @@ test_network_params = [
         0.001,  # snap_threshold
         False,  # circular_target_area
         True,  # try_export_of_data
+        True,  # remove_z_coordinates_from_inputs
     ),
     (
         v_node_network_error_gdf,  # traces
@@ -1123,6 +1048,29 @@ test_network_params = [
         0.001,  # snap_threshold
         False,  # circular_target_area
         False,  # try_export_of_data
+        True,  # remove_z_coordinates_from_inputs
+    ),
+    (
+        kb7_traces_50_z,  # traces
+        kb7_area,  # area
+        "KB7_Z-coords",  # name
+        True,  # determine_branches_nodes
+        True,  # truncate_traces
+        0.001,  # snap_threshold
+        False,  # circular_target_area
+        False,  # try_export_of_data
+        True,  # remove_z_coordinates_from_inputs
+    ),
+    (
+        kb7_traces_50_z,  # traces
+        kb7_area,  # area
+        "KB7_Z-coords",  # name
+        True,  # determine_branches_nodes
+        True,  # truncate_traces
+        0.001,  # snap_threshold
+        False,  # circular_target_area
+        False,  # try_export_of_data
+        False,  # remove_z_coordinates_from_inputs
     ),
 ]
 
@@ -1407,6 +1355,15 @@ test_segment_within_buffer_params = [
         1.1,
         50,
         False,
+    ),
+    (
+        # LineString with z-coordinates
+        LineString([(0, 0, 0), (1, 1, 1)]),
+        MultiLineString([LineString([(0, 0, 0), (1, 1, 1)])]),
+        0.001,
+        1.1,
+        50,
+        True,
     ),
 ]
 
@@ -2025,7 +1982,7 @@ KB11_NETWORK_PARAMS = dict(
     snap_threshold=0.001,
 )
 KB7_NETWORK_PARAMS = dict(
-    trace_gdf=kb7_traces,
+    trace_gdf=kb7_traces_50,
     area_gdf=kb7_area,
     name="kb7",
     circular_target_area=False,
