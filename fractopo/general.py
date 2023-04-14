@@ -96,7 +96,7 @@ ParameterListType = List[ParameterValuesType]
 
 MINIMUM_LINE_LENGTH = 1e-18
 
-DEFAULT_FRACTOPO_CACHE_PATH = Path(".fractopo_cache")
+DEFAULT_FRACTOPO_CACHE_PATH = Path(".cache/fractopo")
 
 JOBLIB_CACHE = Memory(
     DEFAULT_FRACTOPO_CACHE_PATH,
