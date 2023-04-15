@@ -13,8 +13,7 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 from shapely import prepared
-from shapely.geometry import LineString, Point
-from shapely.strtree import STRtree
+from shapely.geometry import LineString, MultiPoint, Point
 
 from fractopo.general import (
     X_node,
@@ -271,9 +270,11 @@ def determine_intersects(
         chain(*list(trace_series_first_set.geometry.apply(get_trace_endpoints).values))
     )
     assert all(isinstance(p, Point) for p in first_set_points)
-    first_setpointtree = STRtree(first_set_points)
+    # first_setpointtree = STRtree(first_set_points)
+    first_setpointtree = prepared.prep(MultiPoint(first_set_points))
     node: Point
     node_class: str
+    additions = []
     for node, node_class in zip(node_series_xy_intersects, node_types_xy_intersects):
         assert isinstance(node, Point)
         assert isinstance(node_class, str)
@@ -312,10 +313,13 @@ def determine_intersects(
                 "sets": set_names_two_sets,
                 "error": True,
             }  # DEBUGGING
+        additions.append(addition)
 
-        intersectframe = intersectframe.append(
-            addition, ignore_index=True
-        )  # Append frame with result
+    additions_df = pd.DataFrame(additions)
+    intersectframe = pd.concat([intersectframe, additions_df], ignore_index=True)
+    # intersectframe = intersectframe.append(
+    #     addition, ignore_index=True
+    # )  # Append frame with result
 
     return intersectframe
 
@@ -327,7 +331,7 @@ def determine_intersect(
     l2: bool,
     first_set: str,
     second_set: str,
-    first_setpointtree: STRtree,
+    first_setpointtree: prepared.PreparedGeometry,
     buffer_value: float,
 ) -> Dict[str, Union[Point, str, Tuple[str, str], bool]]:
     """
@@ -371,8 +375,9 @@ def determine_intersect(
         if (l1 is True) and (l2 is True):  # It's an y-node between sets
             # p1 == length of list of nodes from first_set traces
             # that intersect with X- or Y-node
-            p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
-            if p1 != 0:  # set 1 ends in set 2
+            # p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
+            p1 = first_setpointtree.intersects(node.buffer(buffer_value))
+            if p1:  # set 1 ends in set 2
                 sets = (first_set, second_set)
             else:  # set 2 ends in set 1
                 sets = (second_set, first_set)
