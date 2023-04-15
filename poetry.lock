@@ -4407,4 +4407,4 @@ typecheck = ["mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "dab9a060df5d12840f3fff16c9ade912ae315ecb607ae03942f2c87e9e29633d"
+content-hash = "873614ee2d51d2a0ede17b2d9348fb4d808a4ffd13f3246b3a82cb5212680914"
