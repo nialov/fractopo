@@ -10,7 +10,6 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 from geopandas.sindex import PyGEOSSTRTreeIndex
 from shapely.geometry import (
     LineString,
@@ -270,7 +269,7 @@ def insert_point_to_linestring(
     if point.has_z:
         log.warning("Point contains z-coordinates. These will be lost.")
 
-    if any(point.intersects(Point(xy)) for xy in trace.coords):
+    if any(point.intersects(Point(xy)) for xy in list(trace.coords)):
         log.error(
             "Point already matches a coordinate point in trace.\n"
             f"point: {point.wkt}, trace: {trace.wkt}\n"
@@ -279,7 +278,7 @@ def insert_point_to_linestring(
         return trace
     trace_point_dists = [
         (idx, trace_point, trace_point.distance(point))
-        for idx, trace_point in enumerate([Point(c) for c in trace.coords])
+        for idx, trace_point in enumerate([Point(c) for c in list(trace.coords)])
     ]
     trace_point_dists = sorted(trace_point_dists, key=lambda vals: vals[2])
     nearest_point = trace_point_dists[0][1]
@@ -386,11 +385,10 @@ def additional_snapping_func(
     indexes_to_fix, points_to_add = zip(*additional_snapping)
     if idx not in indexes_to_fix:
         return trace
-    df = pd.DataFrame(
-        {"indexes_to_fix": indexes_to_fix, "points_to_add": points_to_add}
-    )
-    df = df.loc[df["indexes_to_fix"] == idx]
-    for p in df["points_to_add"].values:
+
+    is_idx = np.array(indexes_to_fix) == idx
+    filtered_points = compress(points_to_add, is_idx)
+    for p in filtered_points:
         trace = insert_point_to_linestring(trace, p, snap_threshold=0.001)
     assert isinstance(trace, LineString)
     return trace
