@@ -48,7 +48,7 @@ class SilentFit(powerlaw.Fit):
 
     def __init__(
         self,
-        data,
+        data: np.ndarray,
         discrete=False,
         xmin=None,
         xmax=None,
@@ -466,10 +466,18 @@ class MultiLengthDistribution:
 @general.JOBLIB_CACHE.cache
 def determine_fit(
     length_array: np.ndarray, cut_off: Optional[float] = None
-) -> powerlaw.Fit:
+) -> Optional[powerlaw.Fit]:
     """
     Determine powerlaw (along other) length distribution fits for given data.
     """
+    if len(length_array) == 0:
+        return None
+    length_array_max = length_array.max()
+    if cut_off is not None and cut_off >= length_array_max:
+        raise ValueError(
+            f"Expected lower cut_off ({cut_off}) "
+            f"than max of length_array ({length_array_max})."
+        )
     fit = (
         # Use cut-off if it is given
         SilentFit(length_array, xmin=cut_off, verbose=False)
@@ -544,17 +552,13 @@ def plot_distribution_fits(
     ax: Optional[Axes] = None,
     fits_to_plot: Tuple[Dist, ...] = (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW),
     plain: bool = False,
-) -> Tuple[powerlaw.Fit, Figure, Axes]:
+) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:
     """
     Plot length distribution and `powerlaw` fits.
 
     If a powerlaw.Fit is not given it will be automatically determined (using
     the optionally given cut_off).
     """
-    if fit is None:
-        # Determine powerlaw, exponential, lognormal fits
-        fit = determine_fit(length_array, cut_off)
-
     if fig is None:
         if ax is None:
             # Create figure, ax
@@ -567,14 +571,16 @@ def plot_distribution_fits(
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert ax is not None
-    assert fit is not None
 
-    if len(length_array) == 0:
-        log.error(
-            "Empty length array passed into plot_distribution_fits. "
-            "Fit and plot will be invalid."
+    if fit is None:
+        # Determine powerlaw, exponential, lognormal fits
+        fit = determine_fit(length_array, cut_off)
+
+    if fit is None:
+        log.warning(
+            f"No length data for plotting with label {label}. Returning fit as None."
         )
-        return fit, fig, ax
+        return None, fig, ax
 
     # Get the x, y data from fit
     # y values are either the complementary cumulative distribution function
@@ -718,7 +724,7 @@ def setup_length_dist_legend(ax: Axes):
     )
 
     # Setup legend line widths larger
-    for lh in lgnd.legendHandles:
+    for lh in lgnd.legend_handles:
         # lh._sizes = [750]
         lh.set_linewidth(3)
 
