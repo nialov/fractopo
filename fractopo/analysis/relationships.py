@@ -89,6 +89,7 @@ def determine_crosscut_abutting_relationships(
         raise ValueError("Expected more than one set to be defined.")
 
     set_combinations = combinations(set_names, 2)
+    additions = []
     for first_set, second_set in set_combinations:
         trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries] = (
             trace_series.loc[set_array == first_set],  # type: ignore
@@ -124,7 +125,7 @@ def determine_crosscut_abutting_relationships(
         y_count = 0
         y_reverse_count = 0
 
-        for item in list(intersect_series.iteritems()):
+        for item in list(intersect_series.items()):
             value = item[1]
             if item[0][0] == X_node:
                 x_count = value
@@ -157,8 +158,10 @@ def determine_crosscut_abutting_relationships(
             "y-reverse": y_reverse_count,
             "error-count": len(intersectframe.loc[intersectframe.error]),
         }
+        additions.append(addition)
 
-        relations_df = relations_df.append(addition, ignore_index=True)
+    additions_df = pd.DataFrame(additions)
+    relations_df = pd.concat([relations_df, additions_df], ignore_index=True)
     return relations_df
 
 
