@@ -1378,7 +1378,9 @@ def dissolve_multi_part_traces(
             dissolved_rows.append(new_row)
 
     # Merge with ls_traces
-    dissolved_traces = pd.concat([ls_traces, gpd.GeoDataFrame(dissolved_rows)])
+    dissolved_rows_gdf = gpd.GeoDataFrame(dissolved_rows, crs=ls_traces.crs)
+    assert ls_traces.crs == dissolved_rows_gdf.crs
+    dissolved_traces = pd.concat([ls_traces, dissolved_rows_gdf])
     assert isinstance(dissolved_traces, gpd.GeoDataFrame)
 
     if not all(isinstance(val, LineString) for val in dissolved_traces.geometry.values):
@@ -1530,6 +1532,10 @@ def total_bounds(
     >>> total_bounds(geodata)
     (-10.0, 10.0, 10.0, 10.0)
     """
+    if geodata.empty or all(
+        geom is None or geom.is_empty for geom in geodata.geometry.values
+    ):
+        return tuple([np.nan] * 4)
     bounds = geodata.total_bounds
     if not len(bounds) == 4:
         raise ValueError(
@@ -1738,10 +1744,13 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
     x1, y1 = point.x, point.y
     x2, y2 = other_point.x, other_point.y
     if any(np.isnan([x1, y1, x2, y2])):
-        raise ValueError(
-            f"Expected no nan values in point_to_point_unit_vector: {x1, y1, x2, y2}"
-        )
+        raise ValueError(f"Expected no nan values: {x1, y1, x2, y2}")
     vector = np.array([x2 - x1, y2 - y1])
+    if np.isclose(point.distance(other_point), 0.0):
+        logging.info(
+            "Cannot compute unit vector between points due to close approximity."
+        )
+        return np.array([np.nan, np.nan])
     normed_vector = vector / np.linalg.norm(vector)
     assert isinstance(normed_vector, np.ndarray)
     return normed_vector
