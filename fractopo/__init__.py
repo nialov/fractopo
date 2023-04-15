@@ -4,13 +4,6 @@ fractopo.
 Fracture Network Analysis
 """
 import logging
-import warnings
-
-warnings.filterwarnings(
-    action="ignore",
-    category=UserWarning,
-    message=r".*The Shapely GEOS version.*is incompatible with the GEOS",
-)
 
 from fractopo.analysis.multi_network import MultiNetwork  # noqa: E402,C0413
 from fractopo.analysis.network import Network  # noqa: E402,C0413
