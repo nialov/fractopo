@@ -4,6 +4,7 @@ Tests for multi_network.py.
 
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
 from matplotlib.axes import Axes
@@ -185,6 +186,7 @@ def test_multinetwork_methods(
 
     for name, fig in zip(mlds, figs):
         output_paths = general.save_fig(fig=fig, results_dir=tmp_path, name=name)
+        plt.close(fig=fig)
         assert all(isinstance(output_path, Path) for output_path in output_paths)
         # logging.info(f"Saved plot to {output_path}.")
 

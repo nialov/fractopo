@@ -86,6 +86,7 @@ def test_network_random_sampler(
     """
     Test NetworkRandomSampler sampling.
     """
+    assert trace_gdf.crs == area_gdf.crs
     sampler = NetworkRandomSampler(
         trace_gdf=trace_gdf,
         area_gdf=area_gdf,

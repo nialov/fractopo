@@ -90,12 +90,13 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     """
     Test plotting parameters.
     """
-    figs, axes = parameters.plot_parameters_plot(
-        topology_parameters_list, labels, colors
-    )
-    assert all(isinstance(fig, Figure) for fig in figs)
-    assert all(isinstance(ax, Axes) for ax in axes)
-    plt.close("all")
+    with matplotlib.rc_context({"figure.max_open_warning": 50}):
+        figs, axes = parameters.plot_parameters_plot(
+            topology_parameters_list, labels, colors
+        )
+        assert all(isinstance(fig, Figure) for fig in figs)
+        assert all(isinstance(ax, Axes) for ax in axes)
+        plt.close("all")
 
 
 @pytest.mark.parametrize(

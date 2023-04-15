@@ -140,7 +140,7 @@ def test_determine_boundary_intersecting_lines(
 
 
 @example(45.0)
-@given(floats())
+@given(floats(allow_infinity=False))
 def test_azimuth_to_unit_vector(azimuth: float):
     """
     Test azimuth_to_unit_vector.

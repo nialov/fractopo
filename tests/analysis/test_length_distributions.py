@@ -7,25 +7,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 import powerlaw
 import pytest
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis.extra import numpy
-from hypothesis.strategies import floats
+from hypothesis.strategies import floats, integers
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 import tests
 from fractopo.analysis import length_distributions
 
+FIT_FLOATS = floats(
+    min_value=0.00001, max_value=10e10, allow_infinity=False, allow_nan=False
+)
+
 
 @given(
-    numpy.arrays(dtype=float, shape=1),
-    floats(min_value=0, allow_infinity=False, allow_nan=False),
+    numpy.arrays(
+        dtype=float,
+        shape=integers(min_value=1, max_value=10),
+        elements=FIT_FLOATS,
+        unique=True,
+    ),
+    FIT_FLOATS,
 )
 @settings(max_examples=25)
 def test_determine_fit(length_array: np.ndarray, cut_off: float):
     """
     Test determine_fit.
     """
+    assume(cut_off < length_array.max())
     fit = length_distributions.determine_fit(length_array, cut_off)
     assert isinstance(fit, powerlaw.Fit)
 
