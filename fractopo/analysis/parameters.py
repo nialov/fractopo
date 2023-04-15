@@ -351,7 +351,9 @@ def plot_xyi_plot_ax(
         # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
         # Add shadow to point
         tax.scatter(
-            points=[point], **ternary_point_kwargs(marker="o", s=35), color="black"
+            points=[point],
+            **ternary_point_kwargs(marker="o", s=35),
+            color="black",
         )
         tax.scatter(
             points=[point], **ternary_point_kwargs(marker="o"), label=label, color=color
@@ -637,17 +639,23 @@ def plot_parameters_plot(
     ]
     figs, axes = [], []
 
+    width = 6 + 1 * len(topology_parameters_list) / 6
+    bar_width = 0.6 * len(topology_parameters_list) / 6
+
+    topology_concat = pd.DataFrame(topology_parameters_list)
+    topology_concat["label"] = labels
+    topology_concat.label = topology_concat.label.astype("category")
+
     for column in columns_to_plot:
+        fig, ax = plt.subplots(figsize=(width, 5.5))
+
+        if all(np.isnan(topology_concat[column.value.name])):
+            figs.append(fig)
+            axes.append(ax)
+            continue
+
         # Figure size setup
         # TODO: width higher, MAYBE lower bar_width
-
-        width = 6 + 1 * len(topology_parameters_list) / 6
-        bar_width = 0.6 * len(topology_parameters_list) / 6
-
-        fig, ax = plt.subplots(figsize=(width, 5.5))
-        topology_concat = pd.DataFrame(topology_parameters_list)
-        topology_concat["label"] = labels
-        topology_concat.label = topology_concat.label.astype("category")
 
         # Trying to have sensible widths for bars:
         topology_concat.plot.bar(
@@ -678,7 +686,9 @@ def plot_parameters_plot(
         )
         legend = ax.legend()
         legend.remove()
-        if column.value.plot_as_log:
+        if column.value.plot_as_log and not all(
+            topology_concat[column.value.name] <= 0
+        ):
             ax.set_yscale("log")
         fig.subplots_adjust(top=0.85, bottom=0.25, left=0.2)
         locs, xtick_labels = plt.xticks()
