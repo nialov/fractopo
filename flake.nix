@@ -137,8 +137,10 @@
           in {
             # TODO: Fails on python38 with nix build
             pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
-              (python-final: python-prev: {
-                fractopo = python-final.callPackage ./. { };
+              # TODO: error: overlay does not take an argument named 'final'
+              # These need to be named final and prev for nix flake check.....
+              (final: prev: {
+                fractopo = final.callPackage ./. { };
                 # TODO: Remove when nixpkgs gets updated upstream with fix
                 # shapely =
                 #   inputs.nixpkgs-fractopo.legacyPackages."${system}".python3Packages.shapely;
