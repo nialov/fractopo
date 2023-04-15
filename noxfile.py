@@ -256,6 +256,7 @@ def _docs(session, auto_build: bool):
     auto_build_args = (
         [
             f"--ignore=**/{DOCS_AUTO_EXAMPLES_PATH.name}/**",
+            "--ignore=**/.cache/**",
             "--watch=README.rst",
             f"--watch={PACKAGE_NAME}/",
             "--watch=examples/",
