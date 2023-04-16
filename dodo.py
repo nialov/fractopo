@@ -186,7 +186,7 @@ def task_ci_test():
     command_base = "nox --session tests_pip -p {}"
     for python_version in PYTHON_VERSIONS:
         command = command_base.format(python_version)
-        yield {
+        task_dict = {
             NAME: python_version,
             FILE_DEP: [
                 *PYTHON_SRC_FILES,
@@ -203,6 +203,17 @@ def task_ci_test():
                 else dict()
             ),
         }
+        if python_version == DEFAULT_PYTHON_VERSION:
+            task_dict_with_joblib = task_dict.copy()
+            task_dict_with_joblib[ACTIONS] = [
+                "export FRACTOPO_DISABLE_CACHE=0",
+                *task_dict[ACTIONS],
+            ]
+            old_name = task_dict[NAME]
+            task_dict_with_joblib[NAME] = f"{old_name}-with-diskcache"
+            task_dict_with_joblib[TARGETS] = []
+            yield task_dict_with_joblib
+        yield task_dict
 
 
 def task_apidocs():
@@ -479,6 +490,7 @@ def task_auxiliary():
 
     return {
         TASK_DEP: [
+            f"ci_test:{DEFAULT_PYTHON_VERSION}-with-diskcache",
             resolve_task_name(task_pre_commit),
             resolve_task_name(task_lint),
             resolve_task_name(task_docs),
