@@ -1,6 +1,13 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+import os
+
+if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
+    # Only set if has not yet been set outside pytest
+    # Value of "0" means it is NOT disabled
+    os.environ["FRACTOPO_DISABLE_CACHE"] = "1"
+
 from functools import lru_cache
 from pathlib import Path
 from traceback import print_tb
