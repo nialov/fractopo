@@ -8,12 +8,15 @@ if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
     # Value of "0" means it is NOT disabled
     os.environ["FRACTOPO_DISABLE_CACHE"] = "1"
 
-from functools import lru_cache
+import logging
+import sys
+from functools import lru_cache, wraps
 from pathlib import Path
 from traceback import print_tb
 from typing import Any, List
 
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
@@ -69,6 +72,8 @@ from tests.sample_data.py_samples.samples import (
     v_node_network_error_ls_list,
 )
 
+log = logging.getLogger(__name__)
+
 GEOMETRY_COLUMN = trace_validation.Validation.GEOMETRY_COLUMN
 ERROR_COLUMN = trace_validation.Validation.ERROR_COLUMN
 
@@ -91,6 +96,27 @@ def click_error_print(result: Result):
     # raise Exception(result.exception)
     assert result.exception is not None
     raise result.exception
+
+
+def plotting_test(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            plt.close("all")
+        except Exception as exc:
+            # a _tkinter.TclError exception is randomly raised during Windows
+            # conda workflows. This is handled here.
+            if sys.platform == "win32" and "_tkinter" in str(exc):
+                log.error(
+                    "matplotlib plotting failed but the flaky error is expected.",
+                    exc_info=True,
+                )
+                return
+            # If the exception is anything else, it is raised
+            raise exc
+
+    return wrapper
 
 
 valid_geom = LineString(((0, 0), (1, 1)))

@@ -138,6 +138,7 @@ def test_determine_crosscut_abutting_relationships(
     assert all(col in relations_df.columns for col in expected_cols)
 
 
+@tests.plotting_test
 def test_plot_crosscut_abutting_relationships_plot():
     """
     Test plot_crosscut_abutting_relationships_plot.

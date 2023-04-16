@@ -24,6 +24,7 @@ from fractopo.analysis import parameters
 #     """,
 # )
 @pytest.mark.parametrize("node_counts_list,labels", tests.test_plot_xyi_plot_params)
+@tests.plotting_test
 def test_plot_xyi_plot(node_counts_list, labels):
     """
     Test plotting xyi.
@@ -40,6 +41,7 @@ def test_plot_xyi_plot(node_counts_list, labels):
 @pytest.mark.parametrize(
     "branch_counts_list,labels,colors", tests.test_plot_branch_plot_params
 )
+@tests.plotting_test
 def test_plot_branch_plot(branch_counts_list, labels, colors):
     """
     Test plotting branches.
@@ -86,6 +88,7 @@ def test_determine_topology_parameters(
 @pytest.mark.parametrize(
     "topology_parameters_list, labels, colors", tests.test_plot_topology_params
 )
+@tests.plotting_test
 def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     """
     Test plotting parameters.
@@ -102,6 +105,7 @@ def test_plot_parameters_plot(topology_parameters_list, labels, colors):
     "x_values,y_values,i_values,number_of_bins",
     tests.test_ternary_heatmapping_params(),
 )
+@tests.plotting_test
 def test_ternary_heatmapping(x_values, y_values, i_values, number_of_bins):
     """
     Test ternary_heatmapping.

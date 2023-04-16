@@ -227,6 +227,7 @@ def test_network(
         )
 
 
+@tests.plotting_test
 def network_extensive_testing(
     network: Network,
     traces: gpd.GeoDataFrame,

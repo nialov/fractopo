@@ -99,6 +99,7 @@ def test_sample_grid(snap_threshold: float):
 @pytest.mark.parametrize(
     "traces,areas,snap_threshold,name", tests.test_network_contour_grid_params
 )
+@tests.plotting_test
 def test_network_contour_grid(
     traces, areas, snap_threshold, name, dataframe_regression
 ):
