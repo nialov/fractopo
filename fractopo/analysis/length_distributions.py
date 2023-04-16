@@ -765,11 +765,18 @@ def setup_ax_for_ld(
     ) if not plain else None
 
     # Setup x and y axis ticks and their labels
-    # plt.xticks(color="black", fontsize="x-large")
-    # plt.yticks(color="black", fontsize="x-large")
-    # plt.tick_params(axis="both", width=1.2)
-    ax.set_xticks(ax.get_xticks(), color="black", fontsize="x-large")
-    ax.set_yticks(ax.get_yticks(), color="black", fontsize="x-large")
+    ax.xaxis.set_ticks(
+        ticks=ax.xaxis.get_ticklocs(),
+        labels=ax.xaxis.get_ticklabels(),
+        color="black",
+        fontsize="x-large",
+    )
+    ax.yaxis.set_ticks(
+        ticks=ax.yaxis.get_ticklocs(),
+        labels=ax.yaxis.get_ticklabels(),
+        color="black",
+        fontsize="x-large",
+    )
     ax.tick_params(axis="both", width=1.2)
 
     # Setup legend

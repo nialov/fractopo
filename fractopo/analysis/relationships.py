@@ -487,8 +487,10 @@ def plot_crosscut_abutting_relationships_plot(
 
                 xticks = [0.3, 0.6]
                 xticklabels = ["X", "Y"]
-                ax.set_xticks(xticks)
-                ax.set_xticklabels(xticklabels)
+                ax.xaxis.set_ticks(
+                    ticks=xticks,
+                    labels=xticklabels,
+                )
 
                 xticklabels_texts = ax.get_xticklabels()
 
