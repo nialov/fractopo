@@ -724,7 +724,13 @@ def setup_length_dist_legend(ax: Axes):
     )
 
     # Setup legend line widths larger
-    for lh in lgnd.legend_handles:
+    # TODO: This can be cleaned to use legend_handles only when matplotlib min
+    # version is high enough
+    legend_handles = getattr(lgnd, "legend_handles", None)
+    legend_handles = (
+        legend_handles if legend_handles is not None else lgnd.legendHandles
+    )
+    for lh in legend_handles:
         # lh._sizes = [750]
         lh.set_linewidth(3)
 
