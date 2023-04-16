@@ -131,6 +131,7 @@ filterwarnings =[
     "ignore:The shapely GEOS version:UserWarning:pygeos",
     "ignore:No data for colormapping provided:UserWarning",
     "ignore:invalid value encountered in divide:RuntimeWarning:powerlaw",
+    "ignore:divide by zero encountered in divide:RuntimeWarning:powerlaw",
     "ignore:The behavior of :FutureWarning",
     "ignore:In a future version, :FutureWarning",
     "ignore:invalid value encountered in intersection:RuntimeWarning:pygeos",
