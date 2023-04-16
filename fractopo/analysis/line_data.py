@@ -228,7 +228,7 @@ class LineData:
         )
 
     @property
-    def automatic_fit(self) -> powerlaw.Fit:
+    def automatic_fit(self) -> Optional[powerlaw.Fit]:
         """
         Get automatic powerlaw Fit.
         """
@@ -260,7 +260,7 @@ class LineData:
         """
         return self._line_gdf.geometry
 
-    def determine_manual_fit(self, cut_off: float) -> powerlaw.Fit:
+    def determine_manual_fit(self, cut_off: float) -> Optional[powerlaw.Fit]:
         """
         Get manually determined Fit with set cut off.
         """
@@ -287,7 +287,7 @@ class LineData:
         use_probability_density_function: bool,
         fit: Optional[powerlaw.Fit] = None,
         plain: bool = False,
-    ) -> Tuple[powerlaw.Fit, Figure, Axes]:
+    ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:
         """
         Plot length data with powerlaw fit.
         """
@@ -364,7 +364,7 @@ class LineData:
     def plot_azimuth_set_lengths(
         self,
         use_probability_density_function: bool = False,
-    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+    ) -> Tuple[List[Optional[powerlaw.Fit]], List[Figure], List[Axes]]:
         """
         Plot azimuth set length distributions with fits.
         """

@@ -826,7 +826,7 @@ class Network:
 
     def trace_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
-    ) -> powerlaw.Fit:
+    ) -> Optional[powerlaw.Fit]:
         """
         Determine powerlaw fit for trace lengths.
         """
@@ -839,7 +839,7 @@ class Network:
     @requires_topology
     def branch_lengths_powerlaw_fit(
         self, cut_off: Optional[float] = None
-    ) -> powerlaw.Fit:
+    ) -> Optional[powerlaw.Fit]:
         """
         Determine powerlaw fit for branch lengths.
         """
@@ -909,7 +909,7 @@ class Network:
         fit: Optional[powerlaw.Fit] = None,
         use_probability_density_function: bool = False,
         plain: bool = False,
-    ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
+    ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:  # type: ignore
         """
         Plot branch length distribution with `powerlaw` fits.
         """
@@ -1103,7 +1103,7 @@ class Network:
 
     def plot_trace_azimuth_set_lengths(
         self,
-    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+    ) -> Tuple[List[Optional[powerlaw.Fit]], List[Figure], List[Axes]]:
         """
         Plot trace azimuth set lengths with fits.
         """
@@ -1112,7 +1112,7 @@ class Network:
     @requires_topology
     def plot_branch_azimuth_set_lengths(
         self,
-    ) -> Tuple[List[powerlaw.Fit], List[Figure], List[Axes]]:
+    ) -> Tuple[List[Optional[powerlaw.Fit]], List[Figure], List[Axes]]:
         """
         Plot branch azimuth set lengths with fits.
         """

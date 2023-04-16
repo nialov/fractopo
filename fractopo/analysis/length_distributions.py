@@ -169,7 +169,7 @@ class LengthDistribution:
         self.lengths = filtered_lengths
 
     @property
-    def automatic_fit(self) -> powerlaw.Fit:
+    def automatic_fit(self) -> Optional[powerlaw.Fit]:
         """
         Get automatic powerlaw Fit.
         """
