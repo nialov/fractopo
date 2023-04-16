@@ -99,8 +99,12 @@ MINIMUM_LINE_LENGTH = 1e-18
 DEFAULT_FRACTOPO_CACHE_PATH = Path(".cache/fractopo")
 
 JOBLIB_CACHE = Memory(
-    DEFAULT_FRACTOPO_CACHE_PATH,
-    verbose=int(os.environ.get("JOBLIB_CACHE_VERBOSITY", 0)),
+    os.environ.get("FRACTOPO_CACHE_PATH", DEFAULT_FRACTOPO_CACHE_PATH)
+    # Disk caching is disabled in pytest execution by setting an environment
+    # variable FRACTOPO_DISABLE_CACHE to a non-zero string (i.e. "1") However,
+    # it can be enabled even in tests by setting FRACTOPO_DISABLE_CACHE to 0
+    if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0") else None,
+    verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
 )
 
 
