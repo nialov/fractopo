@@ -284,68 +284,67 @@ def network_extensive_testing(
     assert isinstance(tax, TernaryAxesSubplot)
     plt.close("all")
 
-    with matplotlib.rc_context({"figure.max_open_warning": 50}):
-        for plot in (
-            "plot_parameters",
-            "plot_anisotropy",
-            "plot_trace_azimuth_set_count",
-            "plot_branch_azimuth_set_count",
-            "plot_trace_length_set_count",
-            "plot_branch_length_set_count",
-            "plot_trace_azimuth",
-            "plot_branch_azimuth",
-            "plot_trace_lengths",
-            "plot_branch_lengths",
-            "plot_trace_azimuth_set_lengths",
-            "plot_branch_azimuth_set_lengths",
-        ):
-            # Test plotting
-            fig_returns = getattr(network, plot)()
-            assert fig_returns is not None
-            if len(fig_returns) == 2:
-                fig, ax = fig_returns
-            elif len(fig_returns) == 3 and "length" in plot:
-                other, fig, ax = fig_returns
-                if not isinstance(other, powerlaw.Fit):
-                    # assume fits, figs, axes from plot_*_set_lengths
-                    assert isinstance(other, list)
-                    assert isinstance(other[0], powerlaw.Fit) or other[0] is None
-                    # Check just the first value of returns
-                    assert len(other) == len(fig)
-                    assert len(other) == len(ax)
-                    assert len(other) == len(network.azimuth_set_names)
-                    other, fig, ax = other[0], fig[0], ax[0]
-            elif len(fig_returns) == 3 and "azimuth" in plot:
-                other, fig, ax = fig_returns
-                assert isinstance(other, AzimuthBins)
-            else:
-                raise ValueError("Expected 3 max returns.")
-            assert isinstance(fig, Figure)
-            assert isinstance(ax, (Axes, PolarAxes))
+    for plot in (
+        "plot_parameters",
+        "plot_anisotropy",
+        "plot_trace_azimuth_set_count",
+        "plot_branch_azimuth_set_count",
+        "plot_trace_length_set_count",
+        "plot_branch_length_set_count",
+        "plot_trace_azimuth",
+        "plot_branch_azimuth",
+        "plot_trace_lengths",
+        "plot_branch_lengths",
+        "plot_trace_azimuth_set_lengths",
+        "plot_branch_azimuth_set_lengths",
+    ):
+        # Test plotting
+        fig_returns = getattr(network, plot)()
+        assert fig_returns is not None
+        if len(fig_returns) == 2:
+            fig, ax = fig_returns
+        elif len(fig_returns) == 3 and "length" in plot:
+            other, fig, ax = fig_returns
+            if not isinstance(other, powerlaw.Fit):
+                # assume fits, figs, axes from plot_*_set_lengths
+                assert isinstance(other, list)
+                assert isinstance(other[0], powerlaw.Fit) or other[0] is None
+                # Check just the first value of returns
+                assert len(other) == len(fig)
+                assert len(other) == len(ax)
+                assert len(other) == len(network.azimuth_set_names)
+                other, fig, ax = other[0], fig[0], ax[0]
+        elif len(fig_returns) == 3 and "azimuth" in plot:
+            other, fig, ax = fig_returns
+            assert isinstance(other, AzimuthBins)
+        else:
+            raise ValueError("Expected 3 max returns.")
+        assert isinstance(fig, Figure)
+        assert isinstance(ax, (Axes, PolarAxes))
 
-            # Test different set-wise length distribution logics (sanity check only)
-            for (
-                azimuth_set_name,
-                set_lengths,
-            ) in network.trace_data.azimuth_set_length_arrays.items():
-                if len(set_lengths) == 0:
-                    continue
-                fit = length_distributions.determine_fit(
-                    length_array=set_lengths, cut_off=None
-                )
-                description = length_distributions.describe_powerlaw_fit(
-                    fit, length_array=set_lengths
-                )
-                ld = network.trace_length_distribution(azimuth_set=azimuth_set_name)
-                fit_ld = ld.automatic_fit
-                description_ld = length_distributions.describe_powerlaw_fit(
-                    fit_ld, length_array=set_lengths
-                )
-                desc_srs = pd.Series(description)
-                desc_ld_srs = pd.Series(description_ld)
-                assert_series_equal(desc_srs, desc_ld_srs)
+        # Test different set-wise length distribution logics (sanity check only)
+        for (
+            azimuth_set_name,
+            set_lengths,
+        ) in network.trace_data.azimuth_set_length_arrays.items():
+            if len(set_lengths) == 0:
+                continue
+            fit = length_distributions.determine_fit(
+                length_array=set_lengths, cut_off=None
+            )
+            description = length_distributions.describe_powerlaw_fit(
+                fit, length_array=set_lengths
+            )
+            ld = network.trace_length_distribution(azimuth_set=azimuth_set_name)
+            fit_ld = ld.automatic_fit
+            description_ld = length_distributions.describe_powerlaw_fit(
+                fit_ld, length_array=set_lengths
+            )
+            desc_srs = pd.Series(description)
+            desc_ld_srs = pd.Series(description_ld)
+            assert_series_equal(desc_srs, desc_ld_srs)
 
-            plt.close("all")
+        plt.close("all")
 
 
 def _test_network_kb11_manual():
