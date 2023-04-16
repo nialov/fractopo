@@ -204,7 +204,7 @@ def angle_to_point(
         or point.intersects(comparison_point)
         or nearest_point.intersects(comparison_point)
     ):
-        raise ValueError("Points in angle_to_point intersect.")
+        raise ValueError("Expected points in angle_to_point not to intersect.")
 
     unit_vector_1 = point_to_point_unit_vector(point=nearest_point, other_point=point)
     unit_vector_2 = point_to_point_unit_vector(
@@ -327,14 +327,26 @@ def determine_insert_approach(
         # It is the last node of linestring
         idx = nearest_point_idx
     else:
-        if nearest_point.distance(point) < snap_threshold:
+        nearest_point_distance_to_point = nearest_point.distance(point)
+        if (
+            nearest_point_distance_to_point < snap_threshold
+            or nearest_point.wkt == point.wkt
+            or np.isnan(nearest_point_distance_to_point)
+        ):
             # Replace instead of insert
             insert = False
             idx = nearest_point_idx
         else:
             # It is in the middle of the linestring
             points_on_either_side = [
-                (vals, angle_to_point(point, nearest_point, vals[1]))
+                (
+                    vals,
+                    angle_to_point(
+                        point=point,
+                        nearest_point=nearest_point,
+                        comparison_point=vals[1],
+                    ),
+                )
                 for vals in trace_point_dists
                 if vals[0] in (nearest_point_idx - 1, nearest_point_idx + 1)
             ]

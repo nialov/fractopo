@@ -1746,7 +1746,7 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
     if any(np.isnan([x1, y1, x2, y2])):
         raise ValueError(f"Expected no nan values: {x1, y1, x2, y2}")
     vector = np.array([x2 - x1, y2 - y1])
-    if np.isclose(point.distance(other_point), 0.0):
+    if np.isclose(point.distance(other_point), 0.0, rtol=1e-15, atol=1e-15):
         logging.info(
             "Cannot compute unit vector between points due to close approximity."
         )
