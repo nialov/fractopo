@@ -8,6 +8,7 @@ on:
       # Only run on changes to source or test python files and environment.yml
       - "fractopo/**.py"
       - "tests/**.py"
+      - "pyproject.toml"
       - "environment.yml"
   # run only on master pull requests
   pull_request:
@@ -16,6 +17,7 @@ on:
       # Only run on changes to source or test python files and environment.yml
       - "fractopo/**.py"
       - "tests/**.py"
+      - "pyproject.toml"
       - "environment.yml"
   # also run periodically
   schedule:
