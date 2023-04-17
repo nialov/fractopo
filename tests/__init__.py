@@ -107,7 +107,9 @@ def plotting_test(func):
         except Exception as exc:
             # a _tkinter.TclError exception is randomly raised during Windows
             # conda workflows. This is handled here.
-            if sys.platform == "win32" and "_tkinter" in str(exc):
+            if sys.platform == "win32" and any(
+                ("tk.tcl" in str(exc), "TclError" in str(exc), "_tkinter" in str(exc))
+            ):
                 log.error(
                     "matplotlib plotting failed but the flaky error is expected.",
                     exc_info=True,
