@@ -87,6 +87,7 @@ def multinetwork_plot_multi_length_distribution(
     "network_params",
     tests.test_multinetwork_plot_multi_length_distribution_slow_params(),
 )
+@tests.plotting_test
 def test_multinetwork_plot_multi_length_distribution_slow(network_params):
     """
     Test MultiNetwork.plot_multi_length_distribution with slow data.
@@ -100,6 +101,7 @@ def test_multinetwork_plot_multi_length_distribution_slow(network_params):
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     assert isinstance(mld, length_distributions.MultiLengthDistribution)
+    plt.close("all")
 
 
 @pytest.mark.parametrize("automatic_cut_offs", [True, False])
@@ -109,6 +111,7 @@ def test_multinetwork_plot_multi_length_distribution_slow(network_params):
     "network_params",
     tests.test_multinetwork_plot_multi_length_distribution_fast_params(),
 )
+@tests.plotting_test
 def test_multinetwork_plot_multi_length_distribution_fast(
     network_params, using_branches, automatic_cut_offs, plot_truncated_data
 ):
@@ -127,6 +130,7 @@ def test_multinetwork_plot_multi_length_distribution_fast(
     "network_params",
     tests.test_multinetwork_plot_multi_length_distribution_fast_params(),
 )
+@tests.plotting_test
 def test_multinetwork_plot_ternary(network_params, tmp_path):
     """
     Test MultiNetwork.plot_xyi and plot_branch.
@@ -150,6 +154,7 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
         plot_path = tmp_path / f"{plot_func}.png"
         fig.savefig(plot_path, bbox_inches="tight")
         print(f"Saved {plot_func} plot to {plot_path.absolute()}.")
+    plt.close("all")
 
 
 @pytest.mark.parametrize(
@@ -164,6 +169,7 @@ def test_multinetwork_plot_ternary(network_params, tmp_path):
     "network_params",
     tests.test_multinetwork_plot_azimuth_set_lengths_params(),
 )
+@tests.plotting_test
 def test_multinetwork_methods(
     network_params, using_branches, automatic_cut_offs, tmp_path: Path
 ):
@@ -226,3 +232,4 @@ def test_multinetwork_methods(
         if new_column is not None:
             assert new_column in basic_network_descriptions_df.index.values
             assert old_column not in basic_network_descriptions_df.index.values
+    plt.close("all")

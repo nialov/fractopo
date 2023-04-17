@@ -88,6 +88,7 @@ def test_all_fit_attributes_dict(lengths, _):
 )
 @pytest.mark.parametrize("automatic_cut_offs", [True, False])
 @pytest.mark.parametrize("using_branches", [True, False])
+@tests.plotting_test
 def test_multilengthdistribution_plot(
     list_of_length_arrays,
     list_of_area_values,
@@ -121,7 +122,7 @@ def test_multilengthdistribution_plot(
     polyfit, fig, ax = multi_length_distribution.plot_multi_length_distributions(
         automatic_cut_offs=automatic_cut_offs, plot_truncated_data=True
     )
-    plt.close()
+    plt.close("all")
 
     mld = multi_length_distribution
 
@@ -236,6 +237,7 @@ def test_fit_to_multi_scale_lengths_fitter_comparisons(
 @pytest.mark.parametrize(
     "distributions", tests.test_fit_to_multi_scale_lengths_params()
 )
+@tests.plotting_test
 def test_plot_mld_optimized(distributions):
     """
     Test plot_mld_optimized.
@@ -254,7 +256,7 @@ def test_plot_mld_optimized(distributions):
     assert isinstance(polyfit, length_distributions.Polyfit)
     assert isinstance(fig, Figure) and isinstance(ax, Axes)
 
-    plt.close()
+    plt.close("all")
 
 
 @pytest.mark.parametrize("using_branches", (True, False))
@@ -262,6 +264,7 @@ def test_plot_mld_optimized(distributions):
 @pytest.mark.parametrize(
     "length_array,label", [*tests.test_describe_powerlaw_fit_params]
 )
+@tests.plotting_test
 def test_plot_distribution_fits(
     length_array: np.ndarray,
     label: str,
@@ -280,3 +283,4 @@ def test_plot_distribution_fits(
     assert isinstance(fit, length_distributions.SilentFit)
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
+    plt.close("all")

@@ -2,6 +2,7 @@
 Test azimuth.py azimuth rose plotting functions.
 """
 
+import matplotlib.pyplot as plt
 import pytest
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -28,6 +29,7 @@ from fractopo.analysis.azimuth import AzimuthBins
     ),
     tests.test_plot_azimuth_plot_params(),
 )
+@tests.plotting_test
 def test_plot_azimuth_plot(
     azimuth_array,
     length_array,
@@ -64,3 +66,4 @@ def test_plot_azimuth_plot(
     assert isinstance(bins, AzimuthBins)
     assert isinstance(fig, Figure)
     assert isinstance(ax, PolarAxes)
+    plt.close("all")
