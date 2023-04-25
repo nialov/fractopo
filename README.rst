@@ -235,7 +235,10 @@ visualizing different parameters and attributes of trace data.
        # (Required for almost all analysis)
        determine_branches_nodes=True,
        # Specify the snapping distance threshold to define when traces are
-       # snapped to each other
+       # snapped to each other. The unit is the same as the one in the
+       # coordinate system the trace and area data are in.
+       # In default values, fractopo assumes a metric unit and using metric units
+       # is heavily recommended.
        snap_threshold=0.001,
        # If the target area used in digitization is a circle, the knowledge can
        # be used in some analysis
