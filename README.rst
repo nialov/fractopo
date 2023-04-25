@@ -7,8 +7,11 @@ fractopo
 validating and analysing lineament and fracture trace maps (fracture
 networks). It is targeted at structural geologists working on the
 characterization of bedrock fractures from outcrops and through remote
-sensing. As it is a Python library, the use of ``fractopo`` requires
-prior (Python) programming knowledge.
+sensing. ``fractopo`` is available as a Python library and through a
+command-line interface. As a Python library, the use of ``fractopo``
+requires prior (Python) programming knowledge. However, if used through
+the command-line, using ``fractopo`` only requires general knowledge of
+command-line interfaces in your operating system of choice.
 
 -  `Full Documentation is hosted on Read the Docs
    <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
