@@ -7,8 +7,11 @@ fractopo
 validating and analysing lineament and fracture trace maps (fracture
 networks). It is targeted at structural geologists working on the
 characterization of bedrock fractures from outcrops and through remote
-sensing. As it is a Python library, the use of ``fractopo`` requires
-prior (Python) programming knowledge.
+sensing. ``fractopo`` is available as a Python library and through a
+command-line interface. As a Python library, the use of ``fractopo``
+requires prior (Python) programming knowledge. However, if used through
+the command-line, using ``fractopo`` only requires general knowledge of
+command-line interfaces in your operating system of choice.
 
 -  `Full Documentation is hosted on Read the Docs
    <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
@@ -59,15 +62,6 @@ The module is on `PyPI <https://www.pypi.org>`__.
    # Non-development installation
    pip install fractopo
 
-Or locally for development:
-
-.. code:: bash
-
-   git clone https://github.com/nialov/fractopo
-   cd fractopo
-   # Omit [dev] from end if you do not want installation for development
-   pip install --editable .[dev]
-
 poetry
 ~~~~~~
 
@@ -77,7 +71,8 @@ For usage:
 
    poetry add fractopo
 
-For development:
+For development, only ``poetry`` installation of ``fractopo`` is
+supported:
 
 .. code:: bash
 
@@ -190,17 +185,18 @@ analysis with a ``Validation`` object.
    # Validation is done explicitly with `run_validation` method
    validated_trace_data = validation.run_validation()
 
-Trace validation is also accessible as a command-line script,
-``fractopo tracevalidate`` which is more straightforward to use than through
-Python calls. Note that all subcommands of ``fractopo`` are available by
-appending them after ``fractopo``.
+Trace validation is also accessible through the ``fractopo``
+command-line interface, ``fractopo tracevalidate`` which is more
+straightforward to use than through Python calls. Note that all
+subcommands of ``fractopo`` are available by appending them after
+``fractopo``.
 
 ``tracevalidate`` always requires the target area that delineates trace
 data.
 
 .. code:: bash
 
-   # Get full up-to-date script help
+   # Get full up-to-date command-line interface help
 
    fractopo tracevalidate --help
 
@@ -239,7 +235,10 @@ visualizing different parameters and attributes of trace data.
        # (Required for almost all analysis)
        determine_branches_nodes=True,
        # Specify the snapping distance threshold to define when traces are
-       # snapped to each other
+       # snapped to each other. The unit is the same as the one in the
+       # coordinate system the trace and area data are in.
+       # In default values, fractopo assumes a metric unit and using metric units
+       # is heavily recommended.
        snap_threshold=0.001,
        # If the target area used in digitization is a circle, the knowledge can
        # be used in some analysis
@@ -258,11 +257,12 @@ visualizing different parameters and attributes of trace data.
    # Plotting is done by plot_ -prefixed methods
    network.plot_trace_lengths()
 
-Network analysis is also available as a command-line script but using the
-Python interface (e.g. ``jupyter lab``, ``ipython``) is recommended when
-analysing ``Networks`` to have access to all available analysis and plotting
-methods. The command-line entrypoint is **opinionated** in what outputs it
-produces. Brief example of command-line entrypoint:
+Network analysis is also available through the ``fractopo`` command-line
+interface but using the Python interface (e.g. ``jupyter lab``,
+``ipython``) is recommended when analysing ``Networks`` to have access
+to all available analysis and plotting methods. The command-line
+entrypoint is **opinionated** in what outputs it produces. Brief example
+of command-line entrypoint:
 
 .. code:: bash
 
@@ -362,7 +362,11 @@ are referred to multiple sources:
 Development
 -----------
 
--  **Breaking changes are possible and expected.**
+-  The package interfaces are nearing stability and breaking changes in
+   code should for the most part be included in the ``CHANGELOG.md``
+   after 25.4.2023. However, this is not guaranteed until the version
+   reaches v1.0.0. The interfaces of ``Network`` and ``Validation`` can
+   be expected to be the most stable.
 
 -  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
 
