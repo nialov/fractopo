@@ -362,7 +362,11 @@ are referred to multiple sources:
 Development
 -----------
 
--  **Breaking changes are possible and expected.**
+-  The package interfaces are nearing stability and breaking changes in
+   code should for the most part be included in the ``CHANGELOG.md``
+   after 25.4.2023. However, this is not guaranteed until the version
+   reaches v1.0.0. The interfaces of ``Network`` and ``Validation`` can
+   be expected to be the most stable.
 
 -  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
 
