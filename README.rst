@@ -190,17 +190,18 @@ analysis with a ``Validation`` object.
    # Validation is done explicitly with `run_validation` method
    validated_trace_data = validation.run_validation()
 
-Trace validation is also accessible as a command-line script,
-``fractopo tracevalidate`` which is more straightforward to use than through
-Python calls. Note that all subcommands of ``fractopo`` are available by
-appending them after ``fractopo``.
+Trace validation is also accessible through the ``fractopo``
+command-line interface, ``fractopo tracevalidate`` which is more
+straightforward to use than through Python calls. Note that all
+subcommands of ``fractopo`` are available by appending them after
+``fractopo``.
 
 ``tracevalidate`` always requires the target area that delineates trace
 data.
 
 .. code:: bash
 
-   # Get full up-to-date script help
+   # Get full up-to-date command-line interface help
 
    fractopo tracevalidate --help
 
@@ -258,11 +259,12 @@ visualizing different parameters and attributes of trace data.
    # Plotting is done by plot_ -prefixed methods
    network.plot_trace_lengths()
 
-Network analysis is also available as a command-line script but using the
-Python interface (e.g. ``jupyter lab``, ``ipython``) is recommended when
-analysing ``Networks`` to have access to all available analysis and plotting
-methods. The command-line entrypoint is **opinionated** in what outputs it
-produces. Brief example of command-line entrypoint:
+Network analysis is also available through the ``fractopo`` command-line
+interface but using the Python interface (e.g. ``jupyter lab``,
+``ipython``) is recommended when analysing ``Networks`` to have access
+to all available analysis and plotting methods. The command-line
+entrypoint is **opinionated** in what outputs it produces. Brief example
+of command-line entrypoint:
 
 .. code:: bash
 
