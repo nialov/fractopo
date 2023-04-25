@@ -62,15 +62,6 @@ The module is on `PyPI <https://www.pypi.org>`__.
    # Non-development installation
    pip install fractopo
 
-Or locally for development:
-
-.. code:: bash
-
-   git clone https://github.com/nialov/fractopo
-   cd fractopo
-   # Omit [dev] from end if you do not want installation for development
-   pip install --editable .[dev]
-
 poetry
 ~~~~~~
 
@@ -80,7 +71,8 @@ For usage:
 
    poetry add fractopo
 
-For development:
+For development, only ``poetry`` installation of ``fractopo`` is
+supported:
 
 .. code:: bash
 
