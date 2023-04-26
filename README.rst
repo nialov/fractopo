@@ -162,10 +162,11 @@ Trace validation
 Trace data must be validated using ``fractopo`` validation functionality
 before analysis. The topological analysis of lineament & fracture traces
 implemented in ``fractopo`` will not tolerate uncertainty related to the
-topological abutting and snapping relationships between traces.
-Therefore the trace validation is recommended before all analysis using
-``Network``. Trace and target area data can be validated for further
-analysis with a ``Validation`` object.
+topological abutting and snapping relationships between traces. See `the
+documentation <https://fractopo.readthedocs.io/en/latest/validation/errors.html>`__
+for further info on validation error types. Trace validation is
+recommended before all analysis using ``Network``. Trace and target area
+data can be validated for further analysis with a ``Validation`` object:
 
 .. code:: python
 
@@ -193,16 +194,13 @@ data.
 .. code:: bash
 
    # Get full up-to-date command-line interface help
-
    fractopo tracevalidate --help
 
    # Basic usage example:
-
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --output /path/to/validated_trace_data.shp
 
    # Or with automatic saving to validated/ directory
-
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --summary
 

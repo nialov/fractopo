@@ -72,6 +72,16 @@ automatically merged if they are not disjointed i.e. the contained
 automatically merged no automatic fix is performed and the error is kept
 in the error column and the user should fix the issue.
 
+``MultiLineStrings`` are not accepted by ``fractopo`` as they cause 1. a
+physical and 2. a technical inconsistency.
+
+1.  A single fracture trace in ``fractopo`` is considered to be
+    continuous and sublinear. A ``LineString`` fulfils this criteria
+    better than a ``MultiLineString`` as they are always continuous.
+2.  If ``MultiLineStrings`` and ``LineStrings`` are mixed in data, then
+    it becomes inconsistent in if geometries are one or many in the rows
+    of a ``geopandas.GeoDataFrame``.
+
 MultiJunctionValidator
 ----------------------
 
@@ -89,8 +99,8 @@ string:
 2. An overlapping Y-node i.e. a trace overlaps the trace it “is
    supposed” to end at too much (alternatively detected by
    `UnderlappingSnapValidator <#underlappingsnapvalidator>`__).
-3. `V NODE <#vnodevalidator>`__ errors might also be
-   detected asMULTI JUNCTION\` errors.
+3. `V NODE <#vnodevalidator>`__ errors might also be detected as
+   ``MULTI JUNCTION`` errors.
 
 .. figure:: ../imgs/MultiJunctionValidator.png
    :alt: Multi junction error examples.
@@ -102,6 +112,14 @@ string:
 
 Fix the error manually by making sure neither of the above rules are
 broken.
+
+Motivation for this validation is primarily physical. An intersection
+between three or more fractures is not defined as a separate topological
+node as it is practically impossible for three-dimensional fracture
+planes to have a common point. Consequently, there should never be an
+intersection point between three fracture traces in nature and such
+points are highlighted by this validation error. For the overlapping and
+V-node errors see the respective error classes for motivation.
 
 VNodeValidator
 --------------
@@ -125,6 +143,11 @@ the same endpoint.
 
 Fix by making sure two traces never end too near to each other.
 
+V-nodes are not physically possible as it would require two fracture
+planes to end along a single line and are not defined as a topological
+node by `Sanderson and Nixon
+(2015) <https://doi.org/10.1016/j.jsg.2015.01.005>`__.
+
 MultipleCrosscutValidator
 -------------------------
 
@@ -147,6 +170,19 @@ geometrically more than two common coordinate points.
 
 Fix by decreasing the number of crosses to a maximum of two between two
 traces.
+
+Crosscuts between two traces more than two times more than likely
+indicate either digitizing errors or e.g. topographical errors within a
+raster where the traces have been digitized from. Due to topography, the
+fracture plane intersections with the surface might appear curved even
+though the plane itself might be subplanar.
+
+However, it is probably possible for curved fracture surfaces to
+crosscut each other more than two times in nature. However, this is
+considered sufficiently rare that ``fractopo`` will not accept these as
+valid fracture trace data. If such data needs to be analysed in the
+future, the functionality can be considered to be added (post an issue
+to ``fractopo`` GitHub!) and this validation error might be reworked.
 
 UnderlappingSnapValidator
 -------------------------
@@ -184,6 +220,21 @@ JUNCTION <#multijunctionvalidator>`__ error.
 
 Fix by more accurately snapping the trace to the other trace.
 
+The motivation for this validation error comes from two technical
+problems:
+
+1. Even though a trace abuts outside the snap threshold, and the
+   abutment is not registered as a Y-node, the proximity can still cause
+   errors in analysis during e.g. crosscutting and abutting relationship
+   detection.
+2. It is very unlikely, that abutments that occur slightly outside the
+   snap threshold (the detected errors) are intentional. Rather, they
+   often highlight errors during digitizing where an abutment has failed
+   in the GIS-software used for digitizing.
+
+Consequently, ``UnderlappingSnapValidator`` provides a safety buffer for
+more accurate analysis of topological relationships.
+
 TargetAreaSnapValidator
 -----------------------
 
@@ -209,6 +260,9 @@ length is undetermined.
 Fix by extending the trace over the target area. The analyses typically
 crop the traces to the target area so there’s very little reason not to
 always extend over the target area edge.
+
+This technical error is expected to occur during faulty digitizing and
+fixing these errors helps avoid inconsistent analysis regarding E-nodes.
 
 GeomNullValidator
 -----------------
@@ -252,6 +306,10 @@ intersection.
 Fix by editing traces do that they do not stack or intersect in a way to
 create small triangles.
 
+Stacked traces are the result of faulty digitizing as two fractures
+cannot co-exist along the same trace or that is at least the technical
+and physical expectation in ``fractopo``.
+
 SimpleGeometryValidator
 -----------------------
 
@@ -273,6 +331,9 @@ A trace intersects itself.
 
 Fix by removing self-intersections.
 
+Fracture planes in nature should be subplanar and therefore unable to
+cut themselves.
+
 SharpCornerValidator
 --------------------
 
@@ -284,10 +345,10 @@ The error string is:
 
 A lineament or fracture trace should not make erratic turns and the
 trace should be sublinear. The exact limit on of what is erratic and
-what is not is **completely open to interpretation and therefore the
-resulting errors are subjective**. But if a segment of a trace has a
-direction change of over 180 degrees compared to the previous there’s
-probably no natural way for a natural bedrock structure to do that.
+what is not is **open to interpretation and therefore the resulting
+errors are subjective**. But if a segment of a trace has a direction
+change of over 180 degrees compared to the previous there is probably no
+natural way for a natural bedrock structure to do that.
 
 ``SHARP TURNS`` -errors rarely cause issues in further analyses.
 Therefore fixing these issues is not critical.
