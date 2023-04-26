@@ -159,7 +159,10 @@ def tracevalidate(
         True,
         "--allow-fix",
         "--fix",
-        help="Allow the direct modification of trace file to fix errors.",
+        help=(
+            "Enable the direct modification of output trace file to fix errors. "
+            "Input files will not be modified unless specified as the --output target."
+        ),
     ),
     summary: bool = typer.Option(True, help="Print summary of validation results."),
     snap_threshold: float = typer.Option(
