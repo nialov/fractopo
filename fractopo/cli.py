@@ -23,7 +23,7 @@ from typer import Typer
 
 from fractopo import __version__
 from fractopo.analysis.network import Network
-from fractopo.general import read_geofile, save_fig
+from fractopo.general import check_for_wrong_geometries, read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
@@ -67,6 +67,19 @@ def get_click_path_args(exists=True, **kwargs):
         nargs=1,
     )
     return path_arguments
+
+
+def _check_for_wrong_geometries_cli(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
+    try:
+        check_for_wrong_geometries(traces=traces, area=area)
+    except TypeError:
+        CONSOLE.print(
+            Text.assemble(
+                "Check that traces and target area arguments are passed in"
+                " the correct order in the command-line (Check with --help)."
+            )
+        )
+        raise
 
 
 def describe_results(
@@ -193,6 +206,7 @@ def tracevalidate(
             "Expected trace and area files to be readable as GeoDataFrames."
         )
 
+    _check_for_wrong_geometries_cli(traces=traces, area=areas)
     log.info(f"Validating traces: {trace_file} area: {area_file}.")
     # Get input crs
     input_crs = traces.crs
@@ -308,10 +322,13 @@ def network(
             "Performing network analysis of ", (network_name, "bold green"), "."
         )
     )
+    traces = gpd.read_file(trace_file)
+    areas = gpd.read_file(area_file)
+    _check_for_wrong_geometries_cli(traces=traces, area=areas)
 
     network = Network(
-        trace_gdf=read_geofile(trace_file),
-        area_gdf=read_geofile(area_file),
+        trace_gdf=traces,
+        area_gdf=areas,
         snap_threshold=snap_threshold,
         determine_branches_nodes=determine_branches_nodes,
         name=network_name,
