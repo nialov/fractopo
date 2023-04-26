@@ -5,13 +5,9 @@
 
    import cog
 
-   # Add conditions here if needed
-   SKIP_CONDITIONS = ["full documentation is hosted", "fractopo.readthedocs"]
    cog.outl("")
    readme = Path("README.rst")
    for line in readme.read_text().splitlines():
-       if any(condition in line.lower() for condition in SKIP_CONDITIONS):
-           continue
        # Make sure this functionality fits the project documentation structure
        if "figure::" in line:
            line = line.replace("docs_src/", "")
@@ -34,6 +30,8 @@ requires prior (Python) programming knowledge. However, if used through
 the command-line, using ``fractopo`` only requires general knowledge of
 command-line interfaces in your operating system of choice.
 
+-  `Full Documentation is hosted on Read the Docs
+   <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
 
 .. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
@@ -125,19 +123,33 @@ Multi-scale length distributions                          `Multi-scale`_
 ========================================================  ======================
 
 .. _Validation 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_1.html
 .. _Validation 2:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_2.html
 .. _Visualizing:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Visualizing-trace-map-data
 .. _Network:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Network
 .. _Topological:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_branches_and_nodes.html#sphx-glr-auto-examples-plot-branches-and-nodes-py
 .. _Length-distributions:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Length-distributions
 .. _Orientation 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Rose-plots
 .. _Orientation 2:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_rose_plot.html#sphx-glr-auto-examples-plot-rose-plot-py
 .. _Proportions:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Node-and-branch-proportions
 .. _Relationships 1:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Crosscutting-and-abutting-relationships
 .. _Relationships 2:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_azimuth_set_relationships.html#sphx-glr-auto-examples-plot-azimuth-set-relationships-py
 .. _Parameters:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Numerical-Fracture-Network-Characterization-Parameters
 .. _Contour-grids:
+   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Contour-Grids
 .. _Multi-scale:
+   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
 
 For a short tutorial on use of ``fractopo`` continue reading:
 
@@ -167,10 +179,11 @@ Trace validation
 Trace data must be validated using ``fractopo`` validation functionality
 before analysis. The topological analysis of lineament & fracture traces
 implemented in ``fractopo`` will not tolerate uncertainty related to the
-topological abutting and snapping relationships between traces.
-Therefore the trace validation is recommended before all analysis using
-``Network``. Trace and target area data can be validated for further
-analysis with a ``Validation`` object.
+topological abutting and snapping relationships between traces. See `the
+documentation <https://fractopo.readthedocs.io/en/latest/validation/errors.html>`__
+for further info on validation error types. Trace validation is
+recommended before all analysis using ``Network``. Trace and target area
+data can be validated for further analysis with a ``Validation`` object:
 
 .. code:: python
 
@@ -198,16 +211,13 @@ data.
 .. code:: bash
 
    # Get full up-to-date command-line interface help
-
    fractopo tracevalidate --help
 
    # Basic usage example:
-
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --output /path/to/validated_trace_data.shp
 
    # Or with automatic saving to validated/ directory
-
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --summary
 
@@ -475,6 +485,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
 
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
+   :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
 .. |CI Test| image:: https://github.com/nialov/fractopo/workflows/CI/badge.svg
@@ -487,7 +498,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 92c03ee889b4cf3f9912a10d762cc69a)
+.. [[[end]]] (checksum: 28ccd28bb4c209764d4a98b3fd177a9b)
 
 .. toctree::
    :hidden:
