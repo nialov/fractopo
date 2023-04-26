@@ -93,7 +93,7 @@ def describe_results(
         console.print(Text.assemble((type_string, type_color)))
 
 
-def make_output_dir(trace_path: Path) -> Path:
+def make_output_dir(base_path: Path) -> Path:
     """
     Make timestamped output dir.
     """
@@ -104,7 +104,7 @@ def make_output_dir(trace_path: Path) -> Path:
     month = localtime.tm_mon
     year = localtime.tm_year
     timestr = "_".join(map(str, [day, month, year, hour, tm_min]))
-    output_dir = trace_path.parent / f"validated_{timestr}"
+    output_dir = base_path / f"validated_{timestr}"
     if not output_dir.exists():
         output_dir.mkdir()
     return output_dir
@@ -227,17 +227,13 @@ def tracevalidate(
 
     # Resolve output if not explicitly given
     if output is None:
-        output_dir = make_output_dir(trace_file)
-        output_path = (
-            trace_file.parent
-            / output_dir
-            / f"{trace_file.stem}_validated{trace_file.suffix}"
-        )
+        output_dir = make_output_dir(Path(".")).resolve()
+        output_path = output_dir / f"{trace_file.stem}_validated{trace_file.suffix}"
         CONSOLE.print(
             Text.assemble(
                 (
-                    f"Generated output directory at {output_dir}"
-                    f"\nwhere validated output will be saved at {output_path}.",
+                    f"Generated output directory at {output_dir} "
+                    f"where validated output will be saved in file {output_path.name}.",
                     "blue",
                 )
             )
