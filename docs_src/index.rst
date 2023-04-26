@@ -15,7 +15,7 @@
        # Make sure this functionality fits the project documentation structure
        if "figure::" in line:
            line = line.replace("docs_src/", "")
-       line = line.replace("</CONTRIBUTING>" , "</CONTRIBUTING.html>")
+       line = line.replace("</CONTRIBUTING.rst>" , "</CONTRIBUTING.html>")
        cog.outl(line)
    ]]]
 
@@ -53,10 +53,6 @@ Installation
 
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
 operating systems. For Windows and MacOS install using `(ana)conda <#conda>`__.
-
-For ``pip`` and ``poetry``: Omit ``--dev`` or ``[dev]`` for regular
-installation. Keep if you want to test/develop or otherwise install all
-development Python dependencies.
 
 conda
 ~~~~~
@@ -491,7 +487,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: f7705676d0d408baf64051a92b4864ac)
+.. [[[end]]] (checksum: 92c03ee889b4cf3f9912a10d762cc69a)
 
 .. toctree::
    :hidden:

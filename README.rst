@@ -35,10 +35,6 @@ Installation
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
 operating systems. For Windows and MacOS install using `(ana)conda <#conda>`__.
 
-For ``pip`` and ``poetry``: Omit ``--dev`` or ``[dev]`` for regular
-installation. Keep if you want to test/develop or otherwise install all
-development Python dependencies.
-
 conda
 ~~~~~
 
@@ -368,7 +364,7 @@ Development
    reaches v1.0.0. The interfaces of ``Network`` and ``Validation`` can
    be expected to be the most stable.
 
--  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING>`__
+-  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING.rst>`__
 
 Development dependencies for ``fractopo`` include:
 
