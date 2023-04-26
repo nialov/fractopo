@@ -89,7 +89,8 @@ def describe_results(
             type_color = "bold red"
     count_color = "bold red" if error_count / trace_count > 0.05 else "yellow"
     console.print(Text.assemble((count_string, count_color)))
-    console.print(Text.assemble((type_string, type_color)))
+    if len(error_types) > 0:
+        console.print(Text.assemble((type_string, type_color)))
 
 
 def make_output_dir(trace_path: Path) -> Path:
