@@ -23,7 +23,7 @@ from typer import Typer
 
 from fractopo import __version__
 from fractopo.analysis.network import Network
-from fractopo.general import read_geofile, save_fig
+from fractopo.general import check_for_wrong_geometries, read_geofile, save_fig
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
@@ -69,6 +69,19 @@ def get_click_path_args(exists=True, **kwargs):
     return path_arguments
 
 
+def _check_for_wrong_geometries_cli(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
+    try:
+        check_for_wrong_geometries(traces=traces, area=area)
+    except TypeError:
+        CONSOLE.print(
+            Text.assemble(
+                "Check that traces and target area arguments are passed in"
+                " the correct order in the command-line (Check with --help)."
+            )
+        )
+        raise
+
+
 def describe_results(
     validated: gpd.GeoDataFrame, error_column: str, console: Console = CONSOLE
 ):
@@ -89,10 +102,11 @@ def describe_results(
             type_color = "bold red"
     count_color = "bold red" if error_count / trace_count > 0.05 else "yellow"
     console.print(Text.assemble((count_string, count_color)))
-    console.print(Text.assemble((type_string, type_color)))
+    if len(error_types) > 0:
+        console.print(Text.assemble((type_string, type_color)))
 
 
-def make_output_dir(trace_path: Path) -> Path:
+def make_output_dir(base_path: Path) -> Path:
     """
     Make timestamped output dir.
     """
@@ -103,7 +117,7 @@ def make_output_dir(trace_path: Path) -> Path:
     month = localtime.tm_mon
     year = localtime.tm_year
     timestr = "_".join(map(str, [day, month, year, hour, tm_min]))
-    output_dir = trace_path.parent / f"validated_{timestr}"
+    output_dir = base_path / f"validated_{timestr}"
     if not output_dir.exists():
         output_dir.mkdir()
     return output_dir
@@ -158,7 +172,10 @@ def tracevalidate(
         True,
         "--allow-fix",
         "--fix",
-        help="Allow the direct modification of trace file to fix errors.",
+        help=(
+            "Enable the direct modification of output trace file to fix errors. "
+            "Input files will not be modified unless specified as the --output target."
+        ),
     ),
     summary: bool = typer.Option(True, help="Print summary of validation results."),
     snap_threshold: float = typer.Option(
@@ -189,6 +206,7 @@ def tracevalidate(
             "Expected trace and area files to be readable as GeoDataFrames."
         )
 
+    _check_for_wrong_geometries_cli(traces=traces, area=areas)
     log.info(f"Validating traces: {trace_file} area: {area_file}.")
     # Get input crs
     input_crs = traces.crs
@@ -226,17 +244,13 @@ def tracevalidate(
 
     # Resolve output if not explicitly given
     if output is None:
-        output_dir = make_output_dir(trace_file)
-        output_path = (
-            trace_file.parent
-            / output_dir
-            / f"{trace_file.stem}_validated{trace_file.suffix}"
-        )
+        output_dir = make_output_dir(Path(".")).resolve()
+        output_path = output_dir / f"{trace_file.stem}_validated{trace_file.suffix}"
         CONSOLE.print(
             Text.assemble(
                 (
-                    f"Generated output directory at {output_dir}"
-                    f"\nwhere validated output will be saved at {output_path}.",
+                    f"Generated output directory at {output_dir} "
+                    f"where validated output will be saved in file {output_path.name}.",
                     "blue",
                 )
             )
@@ -308,10 +322,13 @@ def network(
             "Performing network analysis of ", (network_name, "bold green"), "."
         )
     )
+    traces = gpd.read_file(trace_file)
+    areas = gpd.read_file(area_file)
+    _check_for_wrong_geometries_cli(traces=traces, area=areas)
 
     network = Network(
-        trace_gdf=read_geofile(trace_file),
-        area_gdf=read_geofile(area_file),
+        trace_gdf=traces,
+        area_gdf=areas,
         snap_threshold=snap_threshold,
         determine_branches_nodes=determine_branches_nodes,
         name=network_name,

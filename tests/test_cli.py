@@ -53,15 +53,16 @@ def test_tracevalidate_typer(
     assert Validation.ERROR_COLUMN in output_gdf.columns
     if "--summary" in cli_args:
         assert "Out of" in result.output
-        assert "There were" in result.output
+        if not "There were" in result.output:
+            assert "0 were invalid" in result.output
 
 
 def test_make_output_dir(tmp_path):
     """
     Test make_output_dir.
     """
-    some_file = Path(tmp_path) / "some.file"
-    output_dir = cli.make_output_dir(some_file)
+    some_dir = Path(tmp_path)
+    output_dir = cli.make_output_dir(some_dir)
     assert output_dir.exists()
     assert output_dir.is_dir()
 

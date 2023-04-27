@@ -90,7 +90,11 @@ class Validation:
                 """
                 ).strip()
             )
-            self.traces = remove_z_coordinates_from_geodata(geodata=self.traces)
+            traces_with_removed_z = remove_z_coordinates_from_geodata(
+                geodata=self.traces
+            )
+            assert isinstance(traces_with_removed_z, gpd.GeoDataFrame)
+            self.traces = traces_with_removed_z
 
     def set_general_nodes(self):
         """
