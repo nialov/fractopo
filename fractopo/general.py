@@ -2087,3 +2087,16 @@ def sanitize_name(name: str) -> str:
     Return only alphanumeric parts of name string.
     """
     return "".join(filter(str.isalnum, name))
+
+
+def check_for_wrong_geometries(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
+    """
+    Check that traces are line geometries and area contains area geometries.
+    """
+    accepted_line_types = (LineString, MultiLineString)
+    accepted_area_types = (Polygon, MultiPolygon)
+    for name, geoms, accepted_types in zip(
+        ("traces", "area"), (traces, area), (accepted_line_types, accepted_area_types)
+    ):
+        if not all(isinstance(geom, accepted_types) for geom in geoms.geometry.values):
+            raise TypeError(f"Expected {name} to contain only any of {accepted_types}.")
