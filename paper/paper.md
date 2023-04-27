@@ -36,14 +36,18 @@ discontinuities appear as two-dimensional fracture traces. Digitizing these
 fracture traces from e.g. drone imaged outcrops results in georeferenced
 two-dimensional fracture trace vector datasets, i.e. fracture networks, which
 offer a cross-sectional window into the three-dimensional networks within the
-bedrock. To analyze these datasets, common Geographic Information System (GIS)
-tools are typically used to perform geospatial operations and analysis of the
-data. However, these tools are not specialized to handle the specific
-requirements for geometric and topological consistency of the fracture trace
-data. Therefore, it is both convenient and beneficial for users to have
-access to a common workflow, provided by the newly developed `fractopo`
-package, for the data validation and analysis, rather than implementing a
-geospatial analysis separately each time for the data.
+bedrock.
+
+To analyze these datasets, Geographic Information System (GIS) tools are
+typically used to perform geospatial operations and analysis of the data.
+However, these tools are not specialized to handle the specific requirements
+for geometric and topological consistency of the fracture trace data and lack
+programmability to define repeatable workflows. To fill these gaps, `fractopo`
+provides geometric and topological validation, specifically tailored for
+fracture trace data, and a set of highly specific geospatial analysis tools,
+including plotting of the results. In contrast to GIS tools, `fractopo` is more
+readily usable in Python scripts and data pipelines which allow for better
+reproducibility of results.
 
 # Statement of need
 
@@ -78,7 +82,7 @@ first provided a workflow for analysis of fracture trace data, including the
 determination of topological branches and nodes. However, the tight integration
 of `NetworkGT` with `QGIS` causes the package to be less friendly to
 development as it restricts the use of `NetworkGT` strictly inside `QGIS` (or
-alternatively `ArcGIS`, but with the now deprecated version of `NetworkGT`). In
+alternatively `ArcGIS`, but with an older version of `NetworkGT`). In
 contrast, `fractopo`, can be used anywhere with either the `conda`, `pip` or
 `nix` package managers as well as containing features absent from `NetworkGT`,
 such as the determination of cross-cutting relationships between groups of
