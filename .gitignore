@@ -34,6 +34,7 @@ readme.html
 tests/profile_runtime.html
 trace_validator.egg-info
 venv/
+paper/allrefs.bib
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs

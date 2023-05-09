@@ -16,7 +16,7 @@ affiliations:
    index: 1
  - name: University of Turku, Finland
    index: 2
-date: 9 December 2022
+date: 9 May 2023
 bibliography: paper.bib
 
 # Optional fields if submitting to a AAS journal too, see this blog post:
@@ -33,10 +33,10 @@ These fractures control the stability of the crust and act as pathways for
 fluid flow and subsequently, transfer of geothermal heat and contaminants.
 Fractures can be observed from exposed bedrock surfaces where these
 discontinuities appear as two-dimensional fracture traces. Digitizing these
-fracture traces from e.g. drone imaged outcrops results in georeferenced
-two-dimensional fracture trace vector datasets, i.e. fracture networks, which
-offer a cross-sectional window into the three-dimensional networks within the
-bedrock.
+fracture trace observations (e.g., from drone imaged outcrops) results in
+georeferenced two-dimensional trace vector datasets (i.e., fracture
+networks), which offer a cross-sectional window into the three-dimensional
+networks within the bedrock.
 
 To analyze these datasets, Geographic Information System (GIS) tools are
 typically used to perform geospatial operations and analysis of the data.
@@ -66,15 +66,15 @@ packages to conduct a high variety of geometric consistency checks to find
 topologically invalid traces that are the result of common digitization errors
 which are then reported to the user as attributes of the trace data.
 
-For data analysis, the user can simply input the validated trace data along
-with its associated digitization boundary to `fractopo` based on which a number
-of analysis results in the form of `matplotlib`/`seaborn`
+To analyse the trace data, the user can simply input the validated traces along
+with its associated digitization boundary (i.e., target area). Based on these
+data, a number of analysis results in the form of `matplotlib`/`seaborn`
 [@hunter_matplotlib_2007; @waskom_seaborn_2021] plots and as numerical data in
 the form of `numpy` arrays and `pandas` dataframes can be generated. The
-results (\autoref{fig:montage}) include e.g. rose plots of the orientation of
+results (\autoref{fig:montage}) include rose plots of the orientation of
 the traces [@sanderson_making_2020], power-law length distribution analysis of
 the lengths of traces [@bonnet_scaling_2001; @alstott_powerlaw_2014],
-cross-cutting and abutting relationships between predefined trace sets,
+cross-cutting and abutting relationships between predefined azimuth sets,
 fracture intensities [@sanderson_use_2015] and topological ternary plots
 [@manzocchi_connectivity_2002; @sanderson_use_2015]. The package bears much
 similarity, and is inspired by, `NetworkGT` [@nyberg_networkgt_2018] which
@@ -84,7 +84,7 @@ of `NetworkGT` with `QGIS` causes the package to be less friendly to
 development as it restricts the use of `NetworkGT` strictly inside `QGIS` (or
 alternatively `ArcGIS`, but with an older version of `NetworkGT`). In
 contrast, `fractopo`, can be used anywhere with either the `conda`, `pip` or
-`nix` package managers as well as containing features absent from `NetworkGT`,
+`nix` package managers and contains features absent from `NetworkGT`,
 such as the determination of cross-cutting relationships between groups of
 fractures.
 
@@ -92,10 +92,10 @@ fractures.
 available results.\label{fig:diagram}](figs/fractopo_2d_diagram.png)
 
 Use of `fractopo` in research include two publications
-[@skytta_fault-induced_2021; @ovaskainen_new_2022] as well as three
+[@skytta_fault-induced_2021; @ovaskainen_new_2022], three
 Master's Theses
 [@ovaskainen_scalability_2020; @jokiniemi_3d-modelling_2021; @lauraeus_3d-modelling_2021]
-and in assignments on a course, *Brittle Structures in Bedrock;
+and assignments on a course, *Brittle Structures in Bedrock;
 Engineering Geology* at the University of Turku. Development of
 `fractopo` continues actively and the use of it continues in multiple
 ongoing academic works.
