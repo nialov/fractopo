@@ -95,7 +95,7 @@ Use of `fractopo` in research include two publications
 [@skytta_fault-induced_2021; @ovaskainen_new_2022], three
 Master's Theses
 [@ovaskainen_scalability_2020; @jokiniemi_3d-modelling_2021; @lauraeus_3d-modelling_2021]
-and in assignments on a course, *Brittle Structures in Bedrock;
+and assignments on a course, *Brittle Structures in Bedrock;
 Engineering Geology* at the University of Turku. Development of
 `fractopo` continues actively and the use of it continues in multiple
 ongoing academic works.
