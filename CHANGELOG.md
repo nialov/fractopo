@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.5.3 (2023-05-09)
+
+### New Features
+
+-   A basic input geometry check is done before starting `tracevalidate` and
+    `network` command-line invocations as suggested in
+    <https://github.com/nialov/fractopo/issues/36>.
+
+-   `joblib` cache settings can be set from environment
+    variables.
+
+### Fixes
+
+-   (branches_and_nodes): Fixed `angle_to_point` by setting distance
+    and similarity checks to more reasonable accuracy.
+
+-   (general): Now crs is added before merging geodataframes in
+    `dissolve_multi_part_traces`
+
+-   (length_distribution): Handle empty arrays in in `powerlaw.Fit`
+    invocations by returning `None` instead of a `Fit` instance.
+
+-   (analysis): Length plot ticks are set explicitly in `setup_ax_for_ld` to
+    avoid differences between Python package versions
+    (<https://github.com/nialov/fractopo/issues/25>).
+
+-   Z-coordinates are now *handled* across `fractopo` i.e. they do not raise
+    errors. However, they are not guaranteed to be kept in results such as
+    validated traces. Reported in
+    <https://github.com/nialov/fractopo/issues/21>.
+
+-   (analysis): Removed function signatures with mutable default arguments.
+
+Full set of changes:
+[`v0.5.2...v0.5.3`](https://github.com/nialov/fractopo/compare/v0.5.2...v0.5.3)
+
 ## v0.5.2 (2023-01-16)
 
 ### New Features

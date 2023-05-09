@@ -84,7 +84,7 @@ let
 
 in buildPythonPackage {
   pname = "fractopo";
-  version = "0.5.2";
+  version = "0.5.3";
   src = let
     # Filter from src paths with given suffixes (full name can be given as suffix)
     excludeSuffixes = [
