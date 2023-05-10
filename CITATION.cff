@@ -5,7 +5,7 @@ authors:
 - family-names: Ovaskainen
   given-names: Nikolas
   orcid: "https://orcid.org/0000-0003-1562-0280"
-title: "fractopo"
+title: "fractopo: A Python package for fracture network analysis"
 version: "0.5.3"
 date-released: "2023-05-09"
 keywords:
