@@ -18,7 +18,7 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo|
+|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo| |JOSS| |Conda Version|
 
 ``fractopo`` is a Python library/application that contains tools for
 validating and analysing lineament and fracture trace maps (fracture
@@ -498,7 +498,11 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 28ccd28bb4c209764d4a98b3fd177a9b)
+.. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
+   :target: https://doi.org/10.21105/joss.05300
+.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
+   :target: https://anaconda.org/conda-forge/fractopo
+.. [[[end]]] (checksum: b5b8052c4b5a70a28e0a25ef1b87b344)
 
 .. toctree::
    :hidden:
