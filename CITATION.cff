@@ -1,18 +1,26 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+cff-version: "1.2.0"
 authors:
-
 - family-names: Ovaskainen
   given-names: Nikolas
   orcid: "https://orcid.org/0000-0003-1562-0280"
+doi: 10.5281/zenodo.7915808
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Ovaskainen
+    given-names: Nikolas
+    orcid: "https://orcid.org/0000-0003-1562-0280"
+  date-published: 2023-05-15
+  doi: 10.21105/joss.05300
+  issn: 2475-9066
+  issue: 85
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5300
+  title: "fractopo: A Python package for fracture network analysis"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05300"
+  volume: 8
 title: "fractopo: A Python package for fracture network analysis"
-version: "0.5.3"
-date-released: "2023-05-09"
-keywords:
-  - python
-  - data
-contact:
-  - email: "nikolasovaskainen@gmail.com"
-url: "https://github.com/nialov/fractopo"
-repository-code: "https://github.com/nialov/fractopo"
-doi: "10.5281/zenodo.5517486"
