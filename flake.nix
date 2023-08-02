@@ -124,41 +124,6 @@
     in flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ]
     (system:
       let
-        fractopoOverlay = final: prev:
-          let
-            overridePython = python:
-              let
-                self = prev."${python}".override {
-                  inherit self;
-                  packageOverrides =
-                    prev.lib.composeManyExtensions final.pythonPackagesOverlays;
-                };
-              in self;
-          in {
-            # TODO: Fails on python38 with nix build
-            pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
-              # TODO: error: overlay does not take an argument named 'final'
-              # These need to be named final and prev for nix flake check.....
-              (final: prev: {
-                fractopo = final.callPackage ./. { };
-                # TODO: Remove when nixpkgs gets updated upstream with fix
-                # shapely =
-                #   inputs.nixpkgs-fractopo.legacyPackages."${system}".python3Packages.shapely;
-                # TODO: Only required as long as shapely 2.0 is not supported
-                # inherit (inputs.nixpkgs-fractopo.legacyPackages."${system}".python3Packages)
-                #   shapely;
-              })
-            ];
-            python3 = overridePython "python3";
-            python39 = overridePython "python39";
-            python310 = overridePython "python310";
-            # python311 = overridePython "python311";
-
-            python3Packages = final.python3.pkgs;
-            python39Packages = final.python39.pkgs;
-            python310Packages = final.python310.pkgs;
-            # python311Packages = final.python311.pkgs;
-          };
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
           inherit system;
@@ -170,7 +135,7 @@
         pkgsFractopo = import inputs.nixpkgs-fractopo {
           inherit system;
           # Add copier overlay to provide copier package
-          overlays = [ fractopoOverlay ];
+          overlays = [ self.overlays.default ];
         };
 
         # Choose Python interpreters to include in all devShells
@@ -246,6 +211,34 @@
         packages.fractopo-image = fractopo-image;
         packages.default = self.packages."${system}".fractopo;
         devShells = devShellsWithDefault;
-        overlays.default = fractopoOverlay;
-      });
+      }) // {
+        overlays.default = final: prev:
+          let
+            overridePython = python:
+              let
+                self = prev."${python}".override {
+                  inherit self;
+                  packageOverrides =
+                    prev.lib.composeManyExtensions final.pythonPackagesOverlays;
+                };
+              in self;
+          in {
+            # TODO: Fails on python38 with nix build
+            pythonPackagesOverlays = (prev.pythonPackagesOverlays or [ ]) ++ [
+              # TODO: error: overlay does not take an argument named 'final'
+              # These need to be named final and prev for nix flake check.....
+              (final: prev: { fractopo = final.callPackage ./. { }; })
+            ];
+            python3 = overridePython "python3";
+            python39 = overridePython "python39";
+            python310 = overridePython "python310";
+            # python311 = overridePython "python311";
+
+            python3Packages = final.python3.pkgs;
+            python39Packages = final.python39.pkgs;
+            python310Packages = final.python310.pkgs;
+            # python311Packages = final.python311.pkgs;
+          };
+
+      };
 }
