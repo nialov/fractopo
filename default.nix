@@ -1,7 +1,7 @@
 { buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, pytest
 , poetry2nix, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich
 , scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
-, fetchPypi, mpmath, poetry
+, fetchPypi, mpmath, poetry-core
 # , gpgme, isPy38
 }:
 
@@ -111,7 +111,7 @@ in buildPythonPackage {
   format = "pyproject";
 
   # Uses poetry for install
-  nativeBuildInputs = [ poetry ];
+  nativeBuildInputs = [ poetry-core ];
   # postPatch = ''
   #   substituteInPlace pyproject.toml \
   #       --replace
