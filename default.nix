@@ -18,7 +18,7 @@ let
 
     propagatedBuildInputs = [ matplotlib ];
 
-    checkInputs = [ pytestCheckHook ];
+    checkInputs = [ pytestCheckHook pytest ];
 
     pythonImportsCheck = [ "ternary" ];
 
@@ -44,7 +44,19 @@ let
 
     propagatedBuildInputs = [ scipy numpy matplotlib mpmath ];
 
-    checkInputs = [ pytest ];
+    postPatch = ''
+      substituteInPlace testing/test_powerlaw.py \
+          --replace "reference_data/" "testing/reference_data/"
+    '';
+    # --replace "reference_data/blackouts.txt" "testing/reference_data/blackouts.txt" \
+    # --replace "reference_data/cities.txt" "testing/reference_data/cities.txt" \
+    # --replace "reference_data/fires.txt" "testing/reference_data/fires.txt" \
+    # --replace "reference_data/flares.txt" "testing/reference_data/flares.txt" \
+    # --replace "reference_data/terrorism.txt" "testing/reference_data/terrorism.txt"
+
+    checkInputs = [ pytest pytestCheckHook ];
+
+    pytestFlagsArray = [ "testing" ];
 
     # pytest is not actually used by the package for tests, it uses
     # unittest instead. However pytest can run all unittest cases
@@ -52,10 +64,6 @@ let
     # Tests use local files which are relative to the testing directory
     # so a cd into the testing directory was necessary for successful
     # tests.
-    checkPhase = ''
-      cd testing
-      pytest
-    '';
 
     pythonImportsCheck = [ "powerlaw" ];
 
