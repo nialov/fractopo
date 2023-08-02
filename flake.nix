@@ -77,6 +77,7 @@
           #   projectDir = ./.;
           #   # editablePackageSources = { doit_ext = ./doit_ext; };
           # };
+          # TODO: Does not seem to work?
           inherit (final.python3Packages) fractopo;
           docs = let
             sphinxEnv = final.python3.withPackages (p:
