@@ -36,7 +36,7 @@ jobs:
       - name: Build documentation
         run: |
           nix build .#docs --out-link result
-          cp -Lr ./result ./docs
+          cp -Lr --no-preserve=mode,ownership,timestamps ./result ./docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

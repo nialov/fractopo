@@ -56,6 +56,13 @@
       files = "\\.(rst)$";
       raw = { args = [ "-r" "docs_src" "--ignore-directives" "automodule" ]; };
     };
+    cogapp = {
+      enable = true;
+      name = "cogapp";
+      description = "Execute Python snippets in text files";
+      entry = "${pkgs.python3Packages.cogapp}/bin/cog";
+      files = "(docs_src/index.rst)";
+    };
     # mypy-in-env = {
     #   enable = true;
     #   name = "mypy-in-env";
