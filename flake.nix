@@ -25,11 +25,8 @@
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            self.overlays.default
-            inputs.nix-extra.overlays.default
-
-          ];
+          overlays =
+            [ self.overlays.default inputs.nix-extra.overlays.default ];
         };
 
         devShellPackages = with pkgs; [
@@ -51,7 +48,7 @@
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
-            pre-release poetry-run docs fractopo;
+            pre-release poetry-run docs fractopo fractopo39 fractopo310;
         };
         devShells = {
           default = pkgs.mkShell {
@@ -79,6 +76,8 @@
           # };
           # TODO: Does not seem to work?
           inherit (final.python3Packages) fractopo;
+          fractopo39 = final.python39Packages.fractopo;
+          fractopo310 = final.python310Packages.fractopo;
           docs = let
             sphinxEnv = final.python3.withPackages (p:
               with p; [
