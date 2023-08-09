@@ -1,143 +1,76 @@
-name: CI
-
 on:
-  # run on pushed to master only
-  # make pull request to run jobs for other branches
   push:
-    paths:
-      - "**.py"
-      - "**.rst"
-      - "**.nix"
-      - "**.lock"
-      - "pyproject.toml"
-      - "poetry.lock"
-      - ".pre-commit-config.yaml"
-      - ".github/workflows/*.yaml"
-      # Ignore small changes to documentation files
-      # (ReadTheDocs will build based on new README anyway.)
-      - "!README.rst"
-      - "!CHANGELOG.md"
     branches: [master]
-  # run on all pull requests
   pull_request:
 
-  # also run periodically
-  schedule:
-    - cron: "41 7 * * 5"
-
 jobs:
-  ci:
-    name: Test, check coverage of 🐍 code and run auxiliary tasks on Python 3.8
+  nix:
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v17
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-          extra_nix_config: "accept-flake-config = true"
-          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+      - uses: DeterminateSystems/nix-installer-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
+      - name: Check with nix
+        run: |
+          nix flake check
+  poetry:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+        python-version: ["3.9", "3.10", "3.11"]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
       - uses: cachix/cachix-action@v12
         with:
           name: fractopo
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - name: Cache poetry cache-dir
-        uses: actions/cache@v3
+      - name: Test with poetry on Python ${{ matrix.python-version }}
+        run: |
+          nix run .#poetry-run -- ${{ matrix.python-version }} pytest
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [nix, poetry]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@v2
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
+      - uses: cachix/cachix-action@v12
         with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}-${{ matrix.python-version }}
-      - name: Test with doit -> nix
+          name: fractopo
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: Build package with poetry
         run: |
-          nix develop -c poetry install
-          nix develop -c poetry run doit -v 3 ci_test:${{ matrix.python-version }}
-      - name: Run auxiliary tasks on Python 3.8
-        if: >
-          matrix.python-version == '3.8'
-          && matrix.platform == 'ubuntu-latest'
-        run: |
-          nix develop -c poetry run doit -v 3 -n 2 auxiliary
-          # Check that no files have changed (ignore coverage.svg)
-          git restore docs_src/imgs/coverage.svg
-          git diff --exit-code
-      - name: Publish distribution 📦 to PyPI on tagged commit pushes
-        # Publish to PyPI on tagged commit pushes on master
-        # TODO: Currently does not depend that all python-version builds succeed!
+          nix develop -c poetry check
+          nix develop -c poetry build
+
+      - name: Check that version in pyproject.toml is equivalent to tag
         if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
-          && matrix.python-version == '3.8'
-        uses: pypa/gh-action-pypi-publish@master
+        run: |
+          nix run .#sync-git-tag-with-poetry
+          git diff --exit-code
+
+      - name: Publish distribution 📦 to PyPI on tagged commit pushes
+        # Publish to PyPI on tagged commit pushes on master
+        if: >
+          github.event_name == 'push'
+          && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@v1.8.7
         with:
           user: __token__
           password: ${{ secrets.PYPI_PASSWORD }}
 
-  # auxiliary:
-  #   name: Run auxiliary doit tasks to lint and make docs & citation.
-  #   strategy:
-  #     matrix:
-  #       platform: [ubuntu-latest]
-  #   runs-on: ${{ matrix.platform }}
-  #   needs: [pytest-with-coverage]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: cachix/install-nix-action@v17
-  #       with:
-  #         nix_path: nixpkgs=channel:nixos-unstable
-  #     - name: Cache poetry cache-dir
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.cache/pypoetry
-  #         key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}-${{ hashFiles('flake.lock') }}-${{ hashFiles('flake.nix') }}
-  #     - name: Cache .nox and .doit.db
-  #       uses: actions/cache@v3
-  #       with:
-  #         # We can cache .doit.db and it will be significant as
-  #         # most doit util tasks are run here in the same github actions job
-  #         path: |
-  #           .nox
-  #           .doit.db
-  #         key: "\
-  #           ${{ runner.os }}-\
-  #           ${{ env.pythonLocation }}-\
-  #           nox-\
-  #           ${{ hashFiles('noxfile.py') }}-\
-  #           ${{ hashFiles('poetry.lock') }}-\
-  #           ${{ hashFiles('flake.lock') }}-\
-  #           ${{ hashFiles('flake.nix') }}-\
-  #           "
-  #     - name: Run commands
-  #       # These could be better parallelized with a matrix
-  #       # but as some tasks are dependent on others it is
-  #       # (probably) more efficient to run all here
-  #       # (more efficient for github.com at least)
-  #       run: |
-  #         nix develop -c poetry install
-  #         nix develop -c poetry run doit -v 3 -n 2 pre_commit lint docs build
-  #         # Check that no files have changed
-  #         git diff --exit-code
-  #     - name: Publish distribution 📦 to PyPI on tagged commit pushes
-  #       # Publish to PyPI on tagged commit pushes on master
-  #       if: >
-  #         github.event_name == 'push'
-  #         && startsWith(github.ref, 'refs/tags')
-  #       uses: pypa/gh-action-pypi-publish@master
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.PYPI_PASSWORD }}
-
-  release:
-    runs-on: ubuntu-latest
-    needs: [ci]
-    name: Release on GitHub
-    steps:
-      - uses: actions/checkout@v3
       - name: Create incremental changelog
         run: >
-          cat CHANGELOG.md
-          | sed -n '1,/github/p'
+          sed -n '2,/Release Changelog/p' CHANGELOG.md | head -n -4
           > RELEASE_CHANGELOG.md
 
       - name: Echo RELEASE_CHANGELOG.md
@@ -149,8 +82,6 @@ jobs:
           && startsWith(github.ref, 'refs/tags')
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            CHANGELOG.md
           body_path: RELEASE_CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

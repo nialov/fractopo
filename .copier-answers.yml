@@ -1,6 +1,6 @@
-# Changes here will be overwritten by Copier
-_commit: df2320b
-_src_path: https://github.com/nialov/nialov-py-template.git
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 79fa73b
+_src_path: https://github.com/nialov/nialov-py-template
 classifier: 'Topic :: Scientific/Engineering :: GIS'
 description: Fracture Network Analysis
 email: nikolasovaskainen@gmail.com

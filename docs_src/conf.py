@@ -15,28 +15,28 @@ Configuration file for Sphinx.
 #
 import os
 import sys
-from importlib import import_module
+
+# from importlib import import_module
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("."))
 
 # -- Project information -----------------------------------------------------
 
-project = "fractopo"
-copyright = "2020, Nikolas Ovaskainen"
-author = "Nikolas Ovaskainen"
+project = "{{ package|replace('_', '-') }}"
+copyright = "{{ year }}, {{ full_name }}"
+author = "{{ full_name }}"
 
 # The full version, including alpha/beta/rc tags
-imported_package = import_module("fractopo")  # noqa
+# imported_package = import_module("{{ package }}")  # noqa
 
-release = imported_package.__version__  # type: ignore
+# version = os.environ["SPHINX_PACKAGE_VERSION"].get()  # type: ignore
 
 
 # -- General configuration ---------------------------------------------------
 
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",

@@ -1,7 +1,7 @@
 { buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, pytest
 , poetry2nix, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich
 , scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
-, fetchPypi, mpmath, poetry-core
+, fetchPypi, mpmath, poetry-core, runCommand
 # , gpgme, isPy38
 }:
 
@@ -64,6 +64,14 @@ let
     # Tests use local files which are relative to the testing directory
     # so a cd into the testing directory was necessary for successful
     # tests.
+    # checkPhase = ''
+    #   runHook preCheck
+
+    #   cd testing
+    #   pytest
+
+    #   runHook postCheck
+    # '';
 
     pythonImportsCheck = [ "powerlaw" ];
 
@@ -93,28 +101,36 @@ let
 in buildPythonPackage {
   pname = "fractopo";
   version = "0.5.3";
-  src = let
-    # Filter from src paths with given suffixes (full name can be given as suffix)
-    excludeSuffixes = [
-      ".flake8"
-      ".nix"
-      "docs_src"
-      "flake.lock"
-      "noxfile.py"
-      "dodo.py"
-      "examples"
-      "environment.yml"
-      "paper"
-    ];
-    # anyMatches returns true if any suffix matches
-    anyMatches = path:
-      (builtins.any (value: lib.hasSuffix value (baseNameOf path))
-        excludeSuffixes);
+  src = let cleanSrc = poetry2nix.cleanPythonSources { src = ./.; };
+  in runCommand "src" { } ''
+    mkdir $out
+    cd ${cleanSrc}
+    cp -r fractopo tests README.rst pyproject.toml $out/
+  '';
+  # src = let
+  #   # Filter from src paths with given suffixes (full name can be given as suffix)
+  #   excludeSuffixes = [
+  #     ".flake8"
+  #     ".nix"
+  #     "docs_src"
+  #     "flake.lock"
+  #     "noxfile.py"
+  #     "dodo.py"
+  #     "examples"
+  #     "environment.yml"
+  #     "paper"
+  #     "result"
+  #     "dist"
+  #   ];
+  #   # anyMatches returns true if any suffix matches
+  #   anyMatches = path:
+  #     (builtins.any (value: lib.hasSuffix value (baseNameOf path))
+  #       excludeSuffixes);
 
-  in builtins.filterSource (path: type:
-    # Apply the anyMatches filter and reverse the result with !
-    # as we want to EXCLUDE rather than INCLUDE
-    !(anyMatches path)) (poetry2nix.cleanPythonSources { src = ./.; });
+  # in builtins.filterSource (path: type:
+  #   # Apply the anyMatches filter and reverse the result with !
+  #   # as we want to EXCLUDE rather than INCLUDE
+  #   !(anyMatches path)) (poetry2nix.cleanPythonSources { src = ./.; });
   # src = poetry2nix.cleanPythonSources { src = ./.; };
   format = "pyproject";
 
