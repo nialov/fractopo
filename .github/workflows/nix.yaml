@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         # TODO: Fails on 38 for now
-        python-version: ["39", "310"]
+        python-version: ["39", "310", "311"]
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:

@@ -48,7 +48,8 @@
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
-            pre-release poetry-run docs fractopo fractopo39 fractopo310;
+            pre-release poetry-run docs fractopo fractopo39 fractopo310
+            fractopo311;
         };
         devShells = {
           default = pkgs.mkShell {
@@ -78,6 +79,7 @@
           inherit (final.python3Packages) fractopo;
           fractopo39 = final.python39Packages.fractopo;
           fractopo310 = final.python310Packages.fractopo;
+          fractopo311 = final.python311Packages.fractopo;
           docs = let
             sphinxEnv = final.python3.withPackages (p:
               with p; [
