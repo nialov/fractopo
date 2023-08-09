@@ -44,7 +44,7 @@
           preCommitCheck = inputs.pre-commit-hooks.lib.${system}.run
             (import ././pre-commit.nix { inherit pkgs; });
 
-        };
+        } // self.packages."${system}";
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
