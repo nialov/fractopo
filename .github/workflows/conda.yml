@@ -19,9 +19,7 @@ on:
       - "tests/**.py"
       - "pyproject.toml"
       - "environment.yml"
-  # also run periodically
-  schedule:
-    - cron: "41 7 * * 5"
+
 jobs:
   conda-environment-install:
     name: Conda Install & Test
