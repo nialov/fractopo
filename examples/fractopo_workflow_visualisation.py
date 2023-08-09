@@ -194,7 +194,7 @@ def main(output_path: Optional[Path] = None):
 
     # Final annotations and setup
 
-    ## Arrows
+    # Arrows
     arrow_annotation(ax=ortho_ax, start=(0.5, 0.9), end=(0.5, 1.2))
     arrow_annotation(ax=area_ax, start=(0.5, 0.1), end=(0.5, -0.2))
 
@@ -263,7 +263,7 @@ def main(output_path: Optional[Path] = None):
         ha="center",
     )
 
-    ## Labels
+    # Labels
     for idx, ax in enumerate(axes_flatten):
         assert isinstance(ax, Axes)
         text = ax.text(

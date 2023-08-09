@@ -9,28 +9,9 @@ a wide variety of sources.
 # %%
 # Here we load data from the internet from the ``fractopo`` GitHub repository.
 
-# Import geopandas for loading and handling gis data
-import geopandas as gpd
-
 # Import matplotlib for plotting
 import matplotlib.pyplot as plt
-
-trace_data_url = (
-    "https://raw.githubusercontent.com/nialov/"
-    "fractopo/master/tests/sample_data/KB11/KB11_traces.geojson"
-)
-area_data_url = (
-    "https://raw.githubusercontent.com/nialov/"
-    "fractopo/master/tests/sample_data/KB11/KB11_area.geojson"
-)
-
-# Use geopandas to load data from urls
-traces = gpd.read_file(trace_data_url)
-area = gpd.read_file(area_data_url)
-
-# Check that the type is GeoDataFrame
-assert isinstance(traces, gpd.GeoDataFrame)
-assert isinstance(area, gpd.GeoDataFrame)
+from example_networks import kb11_network
 
 # Name the dataset
 name = "KB11"
@@ -44,11 +25,11 @@ name = "KB11"
 fig, ax = plt.subplots(figsize=(9, 9))
 
 # Plot the loaded trace dataset consisting of fracture traces.
-traces.plot(ax=ax, color="blue")
+kb11_network.trace_gdf.plot(ax=ax, color="blue")
 
 # Plot the loaded area dataset that consists of a single polygon
 # that delineates the traces.
-area.boundary.plot(ax=ax, color="red")
+kb11_network.area_gdf.boundary.plot(ax=ax, color="red")
 
 # Give the figure a title
-ax.set_title(f"{name}, Coordinate Reference System = {traces.crs}")
+ax.set_title(f"{name}, Coordinate Reference System = {kb11_network.trace_gdf.crs}")

@@ -177,3 +177,4 @@ dmypy.json
 .pytype/
 examples/validation_errors.png
 result
+/.pre-commit-config.yaml

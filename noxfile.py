@@ -3,7 +3,7 @@ Nox test suite.
 """
 from pathlib import Path
 from shutil import rmtree
-from typing import List, Literal
+from typing import List
 
 import nox
 import pkg_resources

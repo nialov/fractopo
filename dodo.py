@@ -27,7 +27,7 @@ DEFAULT_PYTHON_VERSION = "3.8"
 
 # Paths
 
-## Docs
+# Docs
 DOCS_SRC_PATH = Path("docs_src")
 DOCS_PATH = Path("docs")
 DOCS_EXAMPLES_PATH = Path("examples")
@@ -53,7 +53,7 @@ DOCS_FILES = [
 ]
 DOCS_APIDOC_PATH = DOCS_SRC_PATH / "apidoc"
 
-## Build
+# Build
 DEV_REQUIREMENTS_PATH = Path("requirements.txt")
 PYPROJECT_PATH = Path("pyproject.toml")
 PRE_COMMIT_CONFIG_PATH = Path(".pre-commit-config.yaml")
@@ -63,10 +63,10 @@ PACKAGE_INIT_PATH = Path(PACKAGE_NAME) / "__init__.py"
 DODO_PATH = Path("dodo.py")
 DEFAULT_NIX_PATH = Path("default.nix")
 
-## Tests
+# Tests
 TESTS_PATH = Path("tests")
 
-## Misc
+# Misc
 CITATION_CFF_PATH = Path("CITATION.cff")
 VERSION_PATHS = [
     f"{PACKAGE_NAME}/__init__.py",
@@ -465,7 +465,8 @@ def task_create_workflow_visualisation():
     Create ``fractopo`` workflow visualisation.
     """
     commands = [
-        f"python {FRACTOPO_WORKFLOW_VISUALISATION_SCRIPT} {FRACTOPO_WORKFLOW_VISUALISATION_PLOT} ",
+        f"python {FRACTOPO_WORKFLOW_VISUALISATION_SCRIPT} "
+        f"{FRACTOPO_WORKFLOW_VISUALISATION_PLOT}",
     ]
     return {
         ACTIONS: commands,

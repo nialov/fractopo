@@ -54,6 +54,7 @@
       description = "Check documentation with rstcheck";
       entry = "${pkgs.rstcheck}/bin/rstcheck";
       files = "\\.(rst)$";
+      raw = { args = [ "-r" "docs_src" "--ignore-directives" "automodule" ]; };
     };
     # mypy-in-env = {
     #   enable = true;

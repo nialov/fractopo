@@ -12,32 +12,13 @@ geometric and topological parameters.
 
 from pprint import pprint
 
-import geopandas as gpd
 import matplotlib.pyplot as plt
 
 # Load kb11_network network from examples/example_networks.py
-from example_networks import kb11_network
+from example_networks import kb7_network, kb11_network
 
 # Import Network class from fractopo
-from fractopo import Network
 from fractopo.analysis.parameters import plot_parameters_plot
-
-# Make kb7_network here
-kb7_network = Network(
-    name="KB7",
-    trace_gdf=gpd.read_file(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB7/KB7_traces.geojson"
-    ),
-    area_gdf=gpd.read_file(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB7/KB7_area.geojson"
-    ),
-    truncate_traces=True,
-    circular_target_area=False,
-    determine_branches_nodes=True,
-    snap_threshold=0.001,
-)
 
 # %%
 # Geometric and topological Network parameters

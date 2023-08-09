@@ -53,7 +53,7 @@ def test_tracevalidate_typer(
     assert Validation.ERROR_COLUMN in output_gdf.columns
     if "--summary" in cli_args:
         assert "Out of" in result.output
-        if not "There were" in result.output:
+        if "There not were" not in result.output:
             assert "0 were invalid" in result.output
 
 

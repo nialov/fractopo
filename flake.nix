@@ -93,14 +93,16 @@
                 notebook
               ]);
           in prev.runCommand "docs" {
-            nativeBuildInputs = [ final.resolve-version ];
+            nativeBuildInputs = [ final.resolve-version prev.pandoc ];
           } ''
-            set -x
             tmpdir=$(mktemp -d)
+            export HOME=$(mktemp -d)
             ln -s ${./. + "/fractopo"} $tmpdir/fractopo
             ln -s ${./README.rst} $tmpdir/README.rst
             cp -r ${./docs_src} $tmpdir/docs_src
             cp -r ${./examples} $tmpdir/examples
+            mkdir -p $tmpdir/tests
+            cp -r ${./tests/sample_data} $tmpdir/tests/sample_data
             chmod -R 777 $tmpdir/docs_src $tmpdir/examples
             cd $tmpdir
             ${sphinxEnv}/bin/sphinx-apidoc -o docs_src/apidoc -f fractopo -e -f

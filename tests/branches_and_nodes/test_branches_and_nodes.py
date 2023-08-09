@@ -1,7 +1,6 @@
 """
 Tests for branch and node determination.
 """
-from pathlib import Path
 from typing import List
 
 import geopandas as gpd

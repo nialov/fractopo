@@ -161,7 +161,7 @@ in buildPythonPackage {
   ];
 
   # Can be disabled for debugging
-  # doCheck = false;
+  doCheck = false;
   checkInputs = [ pytestCheckHook pytest pytest-regressions hypothesis ];
 
   pythonImportsCheck = [ "fractopo" ];

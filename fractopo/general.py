@@ -1264,7 +1264,15 @@ def crop_to_target_areas(
         assert all(area_geom.is_valid for area_geom in areas.geometry.values)
         assert all(not area_geom.is_empty for area_geom in areas.geometry.values)
         # geopandas.clip keeps the column data
-        clipped_traces = gpd.clip(candidate_traces, areas)
+        try:
+            clipped_traces = gpd.clip(candidate_traces, areas)
+        except TypeError:
+            logging.error(
+                "Expected to be able to clip with geopandas. "
+                "Falling back to pygeos clip.",
+                exc_info=True,
+            )
+            clipped_traces = efficient_clip(candidate_traces, areas)
     else:
         # pygeos.intersection does not
         clipped_traces = efficient_clip(candidate_traces, areas)
