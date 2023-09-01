@@ -2,6 +2,7 @@
 Utilities for Network subsampling.
 """
 import logging
+import platform
 import random
 from itertools import compress, groupby
 from typing import Any, Dict, List, Optional, Sequence, Union
@@ -68,7 +69,7 @@ def subsample_networks(
     ] * samples
 
     # Gather subsamples with parallel processing
-    subsamples = Parallel(n_jobs=-1)(
+    subsamples = Parallel(n_jobs=(-1 if not platform.system() == "Windows" else 1))(
         delayed(create_sample)(sampler=sampler) for sampler in subsamplers
     )
     assert isinstance(subsamples, list)

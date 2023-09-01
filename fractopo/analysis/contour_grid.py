@@ -2,6 +2,7 @@
 Scripts for creating sample grids for fracture trace, branch and node data.
 """
 import logging
+import platform
 from typing import Dict, Optional
 
 import geopandas as gpd
@@ -282,7 +283,9 @@ def sample_grid(
     #     )
     # )
     # Use all CPUs with n_jobs=-1
-    params_for_cells = Parallel(n_jobs=-1)(
+    params_for_cells = Parallel(
+        n_jobs=(-1 if not platform.system() == "Windows" else 1)
+    )(
         delayed(populate_sample_cell)(
             sample_cell=sample_cell,
             sample_cell_area=sample_cell_area,
