@@ -389,38 +389,6 @@ Development dependencies for ``fractopo`` include:
       # nox and pytest.
       poetry run '<cmd>'
 
-
--  ``doit``
-
-   -  A general task executor that is a replacement for a ``Makefile``
-   -  Understands task dependencies and can run tasks in parallel
-      even while running them in the order determined from dependencies
-      between tasks. E.g., requirements.txt is a requirement for running
-      tests and therefore the task creating requirements.txt will always
-      run before the test task.
-
-   .. code:: bash
-
-      # Tasks are defined in dodo.py
-      # To list doit tasks from command line
-      poetry run doit list
-      # To run all tasks in parallel (recommended before pushing and/or
-      # committing)
-      # 8 is the number of cpu cores, change as wanted
-      # -v 0 sets verbosity to very low. (Errors will always still be printed.)
-      poetry run doit -n 8 -v 0
-
--  ``nox``
-
-   -  ``nox`` is a replacement for ``tox``. Both are made to create
-      reproducible Python environments for testing, making docs locally, etc.
-
-   .. code:: bash
-
-      # To list available nox sessions
-      # Sessions are defined in noxfile.py
-      poetry run nox --list
-
 -  ``copier``
 
    -  ``copier`` is a project templater. Many Python projects follow a similar
@@ -498,7 +466,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://doi.org/10.21105/joss.05300
 .. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
    :target: https://anaconda.org/conda-forge/fractopo
-.. [[[end]]] (checksum: 8a2fa1fdd5dbcf90dc269a30ff4f617a)
+.. [[[end]]] (checksum: dc8206bf2fe7c6b522d25a5b40fa761e)
 
 .. toctree::
    :hidden:
