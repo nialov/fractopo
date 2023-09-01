@@ -42,16 +42,15 @@
         ];
 
       in {
-        checks = {
+        checks = lib.recursiveUpdate {
           preCommitCheck = inputs.pre-commit-hooks.lib.${system}.run
             (import ././pre-commit.nix { inherit pkgs; });
 
-        } // self.packages."${system}";
+        } self.packages."${system}";
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
-            pre-release poetry-run docs fractopo fractopo39 fractopo310
-            fractopo311;
+            pre-release poetry-run fractopo fractopo39 fractopo310 fractopo311;
         };
         devShells = {
           default = pkgs.mkShell {
