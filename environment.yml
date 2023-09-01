@@ -8,20 +8,20 @@ dependencies:
   - python >=3.8,<3.12
   - click
   - geopandas >=0.11.1,<1.0.0
-  - matplotlib-base >=3.5.3,<4.0.0
+  - matplotlib-base
   - numpy
-  - pandas >=1.3,<2.0.0
+  - pandas
   - powerlaw
   - pygeos >=0.13.0,<1.0.0
   - python-ternary
-  - rich >=11.0.0
+  - rich
   - scikit-learn
   - scipy
   - seaborn
   - shapely >=1.8.0,<2.0.0
-  - typer >=0.4.0,<1.0.0
-  - joblib >=1.2.0,<2.0.0
+  - typer
+  - joblib
   # Dependencies for testing
   - hypothesis
   - pytest
-  - pytest-regressions >=2.2.0,<3.0.0
+  - pytest-regressions
