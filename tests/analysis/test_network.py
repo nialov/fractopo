@@ -205,8 +205,9 @@ def test_network(
         sorted_branch_gdf = network.branch_gdf.sort_index()
         assert isinstance(sorted_branch_gdf, gpd.GeoDataFrame)
         # Do not check massive branch counts
-        # TODO: Add sort_keys=True
-        file_regression.check(sorted_branch_gdf.to_json(indent=1, sort_keys=True))
+        tests.geodataframe_regression_check(
+            file_regression=file_regression, gdf=sorted_branch_gdf
+        )
         network_extensive_testing(
             network=network, traces=traces, area=area, snap_threshold=snap_threshold
         )

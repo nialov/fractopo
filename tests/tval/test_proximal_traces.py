@@ -45,4 +45,5 @@ def test_determine_proximal_traces_regression(file_regression):
     # Sort index and then sort by columns so file refression can work
     result.sort_index(inplace=True)
     result.sort_index(axis="columns", inplace=True)
-    file_regression.check(result.to_json(indent=1, sort_keys=True))
+    tests.geodataframe_regression_check(file_regression=file_regression, gdf=result)
+    # file_regression.check(result.to_json(indent=1, sort_keys=True))

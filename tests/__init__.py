@@ -2141,3 +2141,16 @@ def round_geometry_coordinates(geom: Any) -> Any:
         print(f"Expected for wkt to be able to parse geom: {geom}")
         raise
     return rounded
+
+
+def geodataframe_regression_check(file_regression, gdf: gpd.GeoDataFrame):
+    """
+    Run file regression check on geodataframe.
+
+    Removes crs to avoid differences between module versions where
+    some include it in the json and others do not.
+    """
+    gdf_copy = gdf.copy()
+    gdf_copy.crs = None
+    gdf_as_json = gdf_copy.to_json(indent=1, sort_keys=True)
+    file_regression.check(gdf_as_json)
