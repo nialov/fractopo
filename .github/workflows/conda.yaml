@@ -9,7 +9,7 @@ on:
       - "tests/**.py"
       - ".github/workflows/**.yaml"
       - "pyproject.toml"
-      - "environment.yml"
+      - "environment.yaml"
 
 jobs:
   conda-environment-install:
