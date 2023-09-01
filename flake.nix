@@ -53,7 +53,8 @@
             pre-release poetry-run fractopo;
           fractopo39 = pkgs.python39Packages.fractopo;
           fractopo310 = pkgs.python310Packages.fractopo;
-          fractopo311 = pkgs.python311Packages.fractopo;
+          # TODO: 311 fails due to python3.11-twisted-22.10.0.drv' failed with exit code 1;
+          # fractopo311 = pkgs.python311Packages.fractopo;
         };
         devShells = {
           default = pkgs.mkShell {
