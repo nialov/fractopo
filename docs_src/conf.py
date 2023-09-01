@@ -23,12 +23,11 @@ sys.path.insert(0, os.path.abspath("."))
 
 # -- Project information -----------------------------------------------------
 
-project = "{{ package|replace('_', '-') }}"
-copyright = "{{ year }}, {{ full_name }}"
-author = "{{ full_name }}"
+project = "fractopo"
+copyright = "2023, Nikolas Ovaskainen"
+author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
-# imported_package = import_module("{{ package }}")  # noqa
 
 # version = os.environ["SPHINX_PACKAGE_VERSION"].get()  # type: ignore
 
