@@ -1,6 +1,3 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
-
 on:
   push:
   # Allows you to run this workflow manually from the Actions tab
@@ -33,8 +30,7 @@ jobs:
         run: |
           nix build .#fractopo.doc --out-link result
           cp -Lr --no-preserve=mode,ownership,timestamps ./result/share/doc/ ./docs
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
           path: "docs"
@@ -42,8 +38,7 @@ jobs:
         if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/heads/master')
-      - name: Deploy to GitHub Pages
-        if: >
+      - if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/heads/master')
         id: deployment
