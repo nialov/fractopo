@@ -35,8 +35,8 @@ jobs:
       - uses: actions/configure-pages@v3
       - name: Build documentation
         run: |
-          nix build .#docs --out-link result
-          cp -Lr --no-preserve=mode,ownership,timestamps ./result ./docs
+          nix build .#fractopo.doc --out-link result
+          cp -Lr --no-preserve=mode,ownership,timestamps ./result/share/doc/ ./docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
