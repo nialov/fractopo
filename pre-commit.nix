@@ -62,6 +62,10 @@
       description = "Execute Python snippets in text files";
       entry = "${pkgs.python3Packages.cogapp}/bin/cog";
       files = "(docs_src/index.rst)";
+      raw = {
+        args = [ "-e" "-r" "--check" "-c" ];
+        always_run = true;
+      };
     };
     # mypy-in-env = {
     #   enable = true;
