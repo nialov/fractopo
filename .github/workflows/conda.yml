@@ -3,16 +3,6 @@ name: conda
 on:
   # run on all pushes to any branch
   push:
-    branches: [master]
-    paths:
-      # Only run on changes to source or test python files and environment.yml
-      - "fractopo/**.py"
-      - "tests/**.py"
-      - "pyproject.toml"
-      - "environment.yml"
-  # run only on master pull requests
-  pull_request:
-    # branches: [master]
     paths:
       # Only run on changes to source or test python files and environment.yml
       - "fractopo/**.py"
