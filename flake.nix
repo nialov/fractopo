@@ -50,7 +50,10 @@
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
-            pre-release poetry-run fractopo fractopo39 fractopo310 fractopo311;
+            pre-release poetry-run fractopo;
+          fractopo39 = pkgs.python39Packages.fractopo;
+          fractopo310 = pkgs.python310Packages.fractopo;
+          fractopo311 = pkgs.python311Packages.fractopo;
         };
         devShells = {
           default = pkgs.mkShell {
