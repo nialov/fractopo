@@ -20,7 +20,9 @@
     [ "fractopo.cachix.org-1:Eo5bn5VTQSp4J3+XQnGYlq4dH/2ibKjxrs5n9qKl9Ms=" ];
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
-    flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ] (system:
+    let inherit (nixpkgs) lib;
+    in lib.recursiveUpdate
+    (flake-utils.lib.eachSystem [ flake-utils.lib.system.x86_64-linux ] (system:
       let
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
@@ -58,57 +60,15 @@
           };
           # poetry = self.packages."${system}".poetryEnv.env;
         };
-      }) // {
+      })) {
         overlays.default = final: prev: {
           pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
             (python-final: _: {
               "fractopo" = python-final.callPackage ./default.nix { };
-              # shapely = let
-              #   shapelyPkgs =
-              #     import inputs.nixpkgs-shapely { inherit (prev) system; };
-
-              # in shapelyPkgs.python3Package.shapely;
             })
           ];
 
-          # poetryEnv = prev.poetry2nix.mkPoetryEnv {
-          #   projectDir = ./.;
-          #   # editablePackageSources = { doit_ext = ./doit_ext; };
-          # };
-          # TODO: Does not seem to work?
           inherit (final.python3Packages) fractopo;
-          fractopo39 = final.python39Packages.fractopo;
-          fractopo310 = final.python310Packages.fractopo;
-          fractopo311 = final.python311Packages.fractopo;
-          docs = let
-            sphinxEnv = final.python3.withPackages (p:
-              with p; [
-                sphinx
-                sphinx-autodoc-typehints
-                sphinx-rtd-theme
-                sphinx-gallery
-                nbsphinx
-                matplotlib
-                fractopo
-                ipython
-                notebook
-              ]);
-          in prev.runCommand "docs" {
-            nativeBuildInputs = [ final.resolve-version prev.pandoc ];
-          } ''
-            tmpdir=$(mktemp -d)
-            export HOME=$(mktemp -d)
-            ln -s ${./. + "/fractopo"} $tmpdir/fractopo
-            ln -s ${./README.rst} $tmpdir/README.rst
-            cp -r ${./docs_src} $tmpdir/docs_src
-            cp -r ${./examples} $tmpdir/examples
-            mkdir -p $tmpdir/tests
-            cp -r ${./tests/sample_data} $tmpdir/tests/sample_data
-            chmod -R 777 $tmpdir/docs_src $tmpdir/examples
-            cd $tmpdir
-            ${sphinxEnv}/bin/sphinx-apidoc -o docs_src/apidoc -f fractopo -e -f
-            ${sphinxEnv}/bin/sphinx-build -b html docs_src/ $out
-          '';
           sync-git-tag-with-poetry = final.writeShellApplication {
             name = "sync-git-tag-with-poetry";
             runtimeInputs = with final; [ poetry git resolve-version ];

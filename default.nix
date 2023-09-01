@@ -1,7 +1,10 @@
 { buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, pytest
 , poetry2nix, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich
 , scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
-, fetchPypi, mpmath, poetry-core, runCommand
+, fetchPypi, mpmath, poetry-core, runCommand, sphinxHook, pandoc
+, sphinx-autodoc-typehints, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook
+, ipython
+
 # , gpgme, isPy38
 }:
 
@@ -58,21 +61,6 @@ let
 
     pytestFlagsArray = [ "testing" ];
 
-    # pytest is not actually used by the package for tests, it uses
-    # unittest instead. However pytest can run all unittest cases
-    # so I've just used pytest to run them with ease.
-    # Tests use local files which are relative to the testing directory
-    # so a cd into the testing directory was necessary for successful
-    # tests.
-    # checkPhase = ''
-    #   runHook preCheck
-
-    #   cd testing
-    #   pytest
-
-    #   runHook postCheck
-    # '';
-
     pythonImportsCheck = [ "powerlaw" ];
 
     meta = with lib; {
@@ -83,63 +71,35 @@ let
       maintainers = with maintainers; [ nialov ];
     };
   };
-  # TODO: Fails on python38
-  # gpgmeOverride = if isPy38 then
-  #   null
-  #   # gpgme.overrideAttrs (_: prevAttrs: {
-  #   #   configureFlags = prevAttrs.configureFlags
-  #   #     ++ [ ''LIBS="-L${python}/lib"'' ];
-  #   #     nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
-  #   #         breakpointHook
-  #   #         ];
-  #   # })
-  # else
-  #   gpgme;
-  # pygeosFixed =
-  #   pygeos.overrideAttrs (finalAttrs: prevAttrs: { patches = [ ]; });
 
 in buildPythonPackage {
   pname = "fractopo";
   version = "0.5.3";
+
   src = let cleanSrc = poetry2nix.cleanPythonSources { src = ./.; };
   in runCommand "src" { } ''
     mkdir $out
     cd ${cleanSrc}
-    cp -r fractopo tests README.rst pyproject.toml $out/
+    cp -r fractopo tests README.rst pyproject.toml docs_src/ examples/ $out/
   '';
-  # src = let
-  #   # Filter from src paths with given suffixes (full name can be given as suffix)
-  #   excludeSuffixes = [
-  #     ".flake8"
-  #     ".nix"
-  #     "docs_src"
-  #     "flake.lock"
-  #     "noxfile.py"
-  #     "dodo.py"
-  #     "examples"
-  #     "environment.yml"
-  #     "paper"
-  #     "result"
-  #     "dist"
-  #   ];
-  #   # anyMatches returns true if any suffix matches
-  #   anyMatches = path:
-  #     (builtins.any (value: lib.hasSuffix value (baseNameOf path))
-  #       excludeSuffixes);
-
-  # in builtins.filterSource (path: type:
-  #   # Apply the anyMatches filter and reverse the result with !
-  #   # as we want to EXCLUDE rather than INCLUDE
-  #   !(anyMatches path)) (poetry2nix.cleanPythonSources { src = ./.; });
-  # src = poetry2nix.cleanPythonSources { src = ./.; };
   format = "pyproject";
 
   # Uses poetry for install
-  nativeBuildInputs = [ poetry-core ];
-  # postPatch = ''
-  #   substituteInPlace pyproject.toml \
-  #       --replace
-  # '';
+  nativeBuildInputs = [
+    poetry-core
+    sphinxHook
+    pandoc
+    sphinx-autodoc-typehints
+    sphinx-rtd-theme
+    sphinx-gallery
+    nbsphinx
+    matplotlib
+    notebook
+    ipython
+  ];
+
+  sphinxRoot = "docs_src";
+  outputs = [ "out" "doc" ];
 
   propagatedBuildInputs = [
     # gpgmeOverride
@@ -161,7 +121,7 @@ in buildPythonPackage {
   ];
 
   # Can be disabled for debugging
-  # doCheck = false;
+  doCheck = false;
   checkInputs = [ pytestCheckHook pytest pytest-regressions hypothesis ];
 
   pythonImportsCheck = [ "fractopo" ];
