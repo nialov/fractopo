@@ -3,7 +3,7 @@
 , scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
 , fetchPypi, mpmath, poetry-core, runCommand, sphinxHook, pandoc
 , sphinx-autodoc-typehints, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook
-, ipython
+, ipython, coverage
 
 # , gpgme, isPy38
 }:
@@ -120,7 +120,17 @@ in buildPythonPackage {
     typer
   ];
 
-  checkInputs = [ pytestCheckHook pytest pytest-regressions hypothesis ];
+  checkInputs = [ pytest pytest-regressions hypothesis coverage ];
+
+  checkPhase = ''
+    runHook preCheck
+    coverage run --source fractopo -m pytest
+    runHook postCheck
+  '';
+
+  postCheck = ''
+    coverage report --fail-under 70
+  '';
 
   pythonImportsCheck = [ "fractopo" ];
 
