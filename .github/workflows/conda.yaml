@@ -7,7 +7,7 @@ on:
       # Only run on changes to source or test python files and environment.yml
       - "fractopo/**.py"
       - "tests/**.py"
-      - ".github/workflows/**.yml"
+      - ".github/workflows/**.yaml"
       - "pyproject.toml"
       - "environment.yml"
 
