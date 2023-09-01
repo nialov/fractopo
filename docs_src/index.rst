@@ -162,7 +162,7 @@ cases:
 
 -  https://geopandas.org/
 
-Simple example with trace and area data in GeoPackages:
+Simple example with trace and area data in ``GeoPackages``:
 
 .. code:: python
 
@@ -302,15 +302,11 @@ Citing
 
 To cite this software:
 
--  The software is introduced in https://doi.org/10.1016/j.jsg.2022.104528 and
-   you can cite that article as a general citation:
-
 .. code:: text
 
-   Ovaskainen, N., Nordbäck, N., Skyttä, P. and Engström, J., 2022. A new
-   subsampling methodology to optimize the characterization of
-   two-dimensional bedrock fracture networks. Journal of Structural Geology,
-   p.104528.
+   Ovaskainen, N., (2023). fractopo: A Python package for fracture
+   network analysis. Journal of Open Source Software, 8(85), 5300,
+   https://doi.org/10.21105/joss.05300
 
 -  To cite a specific version of ``fractopo`` you can use a ``zenodo``
    provided ``DOI``. E.g. https://doi.org/10.5281/zenodo.5957206 for version
@@ -502,7 +498,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://doi.org/10.21105/joss.05300
 .. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
    :target: https://anaconda.org/conda-forge/fractopo
-.. [[[end]]] (checksum: b5b8052c4b5a70a28e0a25ef1b87b344)
+.. [[[end]]] (checksum: 8a2fa1fdd5dbcf90dc269a30ff4f617a)
 
 .. toctree::
    :hidden:
