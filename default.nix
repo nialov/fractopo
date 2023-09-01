@@ -120,8 +120,6 @@ in buildPythonPackage {
     typer
   ];
 
-  # Can be disabled for debugging
-  doCheck = false;
   checkInputs = [ pytestCheckHook pytest pytest-regressions hypothesis ];
 
   pythonImportsCheck = [ "fractopo" ];
