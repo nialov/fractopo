@@ -2,10 +2,8 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["master"]
-
+  pull_request:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -43,5 +41,8 @@ jobs:
           # Upload entire repository
           path: "docs"
       - name: Deploy to GitHub Pages
+        if: >
+          github.event_name == 'push'
+          && startsWith(github.ref, 'refs/heads/master')
         id: deployment
         uses: actions/deploy-pages@v2
