@@ -1,5 +1,6 @@
 on:
   push:
+    branches: [$default-branch]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -24,22 +25,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: DeterminateSystems/nix-installer-action@v2
-      - uses: DeterminateSystems/magic-nix-cache-action@v1
+      - uses: DeterminateSystems/nix-installer-action@v4
+      - uses: DeterminateSystems/magic-nix-cache-action@v2
       - name: Build documentation
         run: |
           nix build .#fractopo.doc --out-link result
           cp -Lr --no-preserve=mode,ownership,timestamps ./result/share/doc/ ./docs
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-pages-artifact@v2
         with:
-          # Upload entire repository
+          # Upload folder with static docs
           path: "docs"
       - uses: actions/configure-pages@v3
-        if: >
-          github.event_name == 'push'
-          && startsWith(github.ref, 'refs/heads/master')
-      - if: >
-          github.event_name == 'push'
-          && startsWith(github.ref, 'refs/heads/master')
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v2
