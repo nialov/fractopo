@@ -72,17 +72,23 @@
     #   enable = true;
     #   name = "mypy-in-env";
     #   description = "Run static type checks with mypy";
-    #   entry = "${pkgs.poetryEnv}/bin/mypy";
-    #   types = [ "python" ];
+    #   entry =
+    #     let env = pkgs.python3.withPackages (p: with p; [ fractopo mypy ]);
+    #     in "${env}/bin/mypy";
     #   stages = [ "manual" ];
+    #   pass_filenames = false;
+    #   raw = { args = [ "fractopo" ]; };
     # };
     # pylint-in-env = {
     #   enable = true;
     #   name = "pylint-in-env";
     #   description = "Run pylint";
-    #   entry = "${pkgs.poetryEnv}/bin/pylint";
-    #   types = [ "python" ];
+    #   entry =
+    #     let env = pkgs.python3.withPackages (p: with p; [ fractopo pylint ]);
+    #     in "${env}/bin/pylint";
     #   stages = [ "manual" ];
+    #   pass_filenames = false;
+    #   raw = { args = [ "fractopo" ]; };
     # };
   };
 }
