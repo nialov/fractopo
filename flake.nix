@@ -3,15 +3,12 @@
 
   inputs = {
     # nixpkgs.url = "nixpkgs/nixos-unstable";
+    # TODO: Must use nixpkgs with old shapely version until shapely 2.0 support
     nixpkgs.url = "github:nixos/nixpkgs/b10a520";
     nix-extra = {
       url = "github:nialov/nix-extra";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # nixpkgs-fractopo.url =
-    #   "github:NixOS/nixpkgs/a115bb9bd56831941be3776c8a94005867f316a7";
-    # poetry2nix-copier.url =
-    #   "github:nialov/poetry2nix?rev=6711fdb5da87574d250218c20bcd808949db6da0";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks = { url = "github:cachix/pre-commit-hooks.nix"; };
   };
@@ -50,7 +47,8 @@
         packages = {
           inherit (pkgs)
             sync-git-tag-with-poetry resolve-version update-changelog
-            pre-release poetry-run fractopo;
+            pre-release fractopo;
+          poetry-run = pkgs.poetry-run-fractopo;
           fractopo39 = pkgs.python39Packages.fractopo;
           fractopo310 = pkgs.python310Packages.fractopo;
           # TODO: 311 fails due to python3.11-twisted-22.10.0.drv' failed with exit code 1;
@@ -72,58 +70,8 @@
           ];
 
           inherit (final.python3Packages) fractopo;
-          sync-git-tag-with-poetry = final.writeShellApplication {
-            name = "sync-git-tag-with-poetry";
-            runtimeInputs = with final; [ poetry git resolve-version ];
-            text = ''
-              version="$(resolve-version)"
-              poetry version "$version"
-            '';
-          };
-          resolve-version = prev.writeShellApplication {
-            name = "resolve-version";
-            runtimeInputs = with prev; [ git ];
-            text = ''
-              version="$(git tag --sort=-creatordate | head -n 1 | sed 's/v\(.*\)/\1/')"
-              echo "$version"
-            '';
-          };
-          update-changelog = prev.writeShellApplication {
-            name = "update-changelog";
-            runtimeInputs = with prev; [ clog-cli ripgrep pandoc ];
-            text = ''
-              homepage="$(rg 'homepage =' pyproject.toml | sed 's/.*"\(.*\)"/\1/')"
-              version="$(git tag --sort=-creatordate | head -n 1 | sed 's/v\(.*\)/\1/')"
-              clog --repository "$homepage" --subtitle "Release Changelog $version" "$@"
-            '';
-          };
-          pre-release = final.writeShellApplication {
-            name = "pre-release";
-            runtimeInputs = with final; [
-              update-changelog
-              sync-git-tag-with-poetry
-            ];
-            text = ''
-              sync-git-tag-with-poetry
-              update-changelog --changelog CHANGELOG.md
-              pandoc CHANGELOG.md --from markdown --to markdown --output CHANGELOG.md
-            '';
-
-          };
-          poetry-run = prev.writeShellApplication {
-            name = "poetry-run";
-            runtimeInputs =
-              self.devShells."${prev.system}".default.nativeBuildInputs;
-            text = ''
-              poetry check
-              poetry env use "$1"
-              shift
-              poetry env info
-              poetry lock --check
-              poetry install
-              poetry run "$@"
-            '';
-
+          poetry-run-fractopo = final.poetry-run.override {
+            pythons = with prev; [ python39 python310 python311 ];
           };
 
         };
