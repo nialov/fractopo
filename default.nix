@@ -1,9 +1,9 @@
 { buildPythonPackage, fetchFromGitHub, lib, pytestCheckHook, click, pytest
-, poetry2nix, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich
-, scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis
-, fetchPypi, mpmath, poetry-core, runCommand, sphinxHook, pandoc
-, sphinx-autodoc-typehints, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook
-, ipython, coverage
+, geopandas, joblib, matplotlib, numpy, pandas, pygeos, rich, scikit-learn
+, scipy, seaborn, shapely, typer, pytest-regressions, hypothesis, fetchPypi
+, mpmath, poetry-core, sphinxHook, pandoc, sphinx-autodoc-typehints
+, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
+, filter
 
 # , gpgme, isPy38
 }:
@@ -76,12 +76,26 @@ in buildPythonPackage {
   pname = "fractopo";
   version = "0.5.3";
 
-  src = let cleanSrc = poetry2nix.cleanPythonSources { src = ./.; };
-  in runCommand "src" { } ''
-    mkdir $out
-    cd ${cleanSrc}
-    cp -r fractopo tests README.rst pyproject.toml docs_src/ examples/ $out/
-  '';
+  src = filter {
+    root = ./.;
+    # If no include is passed, it will include all the paths.
+    include = [
+      # Include the "src" path relative to the root.
+      "fractopo"
+      "tests"
+      "README.rst"
+      "pyproject.toml"
+      "docs_src"
+      "examples"
+      # Include this specific path. The path must be under the root.
+      # ./package.json
+      # Include all files with the .js extension
+      # (filter.matchExt "js")
+    ];
+
+    # Works like include, but the reverse.
+    # exclude = [ ./main.js ];
+  };
   format = "pyproject";
 
   # Uses poetry for install

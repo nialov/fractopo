@@ -1698,6 +1698,7 @@
         "mosaic-src": "mosaic-src",
         "neoai-nvim-src": "neoai-nvim-src_2",
         "nickel-src": "nickel-src_2",
+        "nix-filter": "nix-filter_3",
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -1718,11 +1719,11 @@
         "ytdl-sub-src": "ytdl-sub-src_2"
       },
       "locked": {
-        "lastModified": 1693809775,
-        "narHash": "sha256-MovzfQlAlEI2uGMxAupRq4Z8MVUMKF0KEIRs4SG/2Ss=",
+        "lastModified": 1693823319,
+        "narHash": "sha256-TPLrdivvZrC5eV/m5Nlu8hrMDnvF5PGi3tYF++tl3Z0=",
         "owner": "nialov",
         "repo": "nix-extra",
-        "rev": "0992d2fb5cf4b42b7ff6d0760e85aef248f81639",
+        "rev": "a43c98ccd2159629a5870d60f93446273a4a61ab",
         "type": "github"
       },
       "original": {
@@ -1798,6 +1799,21 @@
       }
     },
     "nix-filter_2": {
+      "locked": {
+        "lastModified": 1687178632,
+        "narHash": "sha256-HS7YR5erss0JCaUijPeyg2XrisEb959FIct3n2TMGbE=",
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "rev": "d90c75e8319d0dd9be67d933d8eb9d0894ec9174",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nix-filter",
+        "type": "github"
+      }
+    },
+    "nix-filter_3": {
       "locked": {
         "lastModified": 1687178632,
         "narHash": "sha256-HS7YR5erss0JCaUijPeyg2XrisEb959FIct3n2TMGbE=",
