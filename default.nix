@@ -98,9 +98,10 @@ in buildPythonPackage {
   };
   format = "pyproject";
 
-  # Uses poetry for install
   nativeBuildInputs = [
+    # Uses poetry for install
     poetry-core
+    # Documentation dependencies
     sphinxHook
     pandoc
     sphinx-autodoc-typehints
@@ -116,7 +117,6 @@ in buildPythonPackage {
   outputs = [ "out" "doc" ];
 
   propagatedBuildInputs = [
-    # gpgmeOverride
     click
     geopandas
     joblib

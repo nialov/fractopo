@@ -1,5 +1,5 @@
 {
-  description = "nix declared development environment";
+  description = "fractopo: A Python package for fracture network analysis";
 
   inputs = {
     # nixpkgs.url = "nixpkgs/nixos-unstable";
@@ -59,7 +59,6 @@
             packages = devShellPackages;
             inherit (self.checks.${system}.preCommitCheck) shellHook;
           };
-          # poetry = self.packages."${system}".poetryEnv.env;
         };
       })) {
         overlays.default = final: prev: {
