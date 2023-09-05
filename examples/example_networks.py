@@ -32,6 +32,7 @@ import geopandas as gpd
 from fractopo import Network
 
 
+# TODO: Clean up
 def remote_or_local_read_file(url: str, path: Path):
     """
     Try to read remotely and fallback to local without internet.

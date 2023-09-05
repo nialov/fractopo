@@ -283,6 +283,7 @@ def sample_grid(
     #     )
     # )
     # Use all CPUs with n_jobs=-1
+    # Use only one process on Windows
     params_for_cells = Parallel(
         n_jobs=(-1 if not platform.system() == "Windows" else 1)
     )(
