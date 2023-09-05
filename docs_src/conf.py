@@ -15,8 +15,7 @@ Configuration file for Sphinx.
 #
 import os
 import sys
-
-# from importlib import import_module
+from importlib import import_module
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.insert(0, os.path.abspath("."))
@@ -28,8 +27,8 @@ copyright = "2023, Nikolas Ovaskainen"
 author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
-
-# version = os.environ["SPHINX_PACKAGE_VERSION"].get()  # type: ignore
+imported_package = import_module("fractopo")  # noqa
+release = imported_package.__version__  # type: ignore
 
 
 # -- General configuration ---------------------------------------------------

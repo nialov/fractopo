@@ -1,7 +1,7 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Coverage| |Binder| |Zenodo| |JOSS| |Conda Version|
+|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
 
 ``fractopo`` is a Python library/application that contains tools for
 validating and analysing lineament and fracture trace maps (fracture
@@ -378,6 +378,12 @@ Development dependencies for ``fractopo`` include:
       framework for testing, creating documentations and overall placement of
       files and configuration. ``copier`` allows creating a template project
       (e.g., https://github.com/nialov/nialov-py-template) which can be firstly
+-  ``copier``
+
+   -  ``copier`` is a project templater. Many Python projects follow a similar
+      framework for testing, creating documentations and overall placement of
+      files and configuration. ``copier`` allows creating a template project
+      (e.g., https://github.com/nialov/nialov-py-template) which can be firstly
       cloned as the framework for your own package and secondly to pull updates
       from the template to your already started project.
 
@@ -386,6 +392,17 @@ Development dependencies for ``fractopo`` include:
       # To pull copier update from github/nialov/nialov-py-template
       poetry run copier update
 
+
+-  ``nix``
+
+   -  ``fractopo`` is also packaged with ``nix``. ``nix`` provides
+      declarative and immutable packaging which should make ``fractopo``
+      last longer.
+
+   .. code:: bash
+
+      # To run the fractopo command-line using nix
+      nix run github:nialov/fractopo#fractopo -- --help
 
 -  ``pytest``
 
@@ -402,24 +419,11 @@ Development dependencies for ``fractopo`` include:
       # within project itself:
       poetry run pytest
 
-
 -  ``coverage``
-
-   .. code:: bash
-
-      # To check coverage of tests
-      # (Implemented as nox session!)
-      poetry run nox --session test_pip
 
 -  ``sphinx``
 
    -  Creates documentation from files in ``./docs_src``.
-
-   .. code:: bash
-
-      # To create documentation
-      # (Implemented as nox session!)
-      poetry run nox --session docs
 
 Big thanks to all maintainers of the above packages!
 
@@ -435,12 +439,10 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/CI/badge.svg
+.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/main.yaml/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
-.. |Conda Test| image:: https://github.com/nialov/fractopo/workflows/conda/badge.svg
+.. |Conda Test| image:: https://github.com/nialov/fractopo/workflows/conda.yaml/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
-.. |Coverage| image:: https://raw.githubusercontent.com/nialov/fractopo/master/docs_src/imgs/coverage.svg
-   :target: https://github.com/nialov/fractopo/blob/master/docs_src/imgs/coverage.svg
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
