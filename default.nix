@@ -138,12 +138,12 @@ in buildPythonPackage {
 
   checkPhase = ''
     runHook preCheck
-    coverage run --source fractopo -m pytest
+    python -m coverage run --source fractopo -m pytest
     runHook postCheck
   '';
 
   postCheck = ''
-    coverage report --fail-under 70
+    python -m coverage report --fail-under 70
   '';
 
   pythonImportsCheck = [ "fractopo" ];

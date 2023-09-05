@@ -4,6 +4,11 @@ fractopo.
 Fracture Network Analysis
 """
 import logging
+import os
+
+# Make GeoPandas use shapely 2.0 instead of pygeos
+os.environ["USE_PYGEOS"] = "0"
+
 
 from fractopo.analysis.multi_network import MultiNetwork  # noqa: E402,C0413
 from fractopo.analysis.network import Network  # noqa: E402,C0413

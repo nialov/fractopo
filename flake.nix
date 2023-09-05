@@ -4,7 +4,7 @@
   inputs = {
     # nixpkgs.url = "nixpkgs/nixos-unstable";
     # TODO: Must use nixpkgs with old shapely version until shapely 2.0 support
-    nixpkgs.url = "github:nixos/nixpkgs/b10a520";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix-extra = {
       url = "github:nialov/nix-extra";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -270,6 +270,8 @@ class MultipleCrosscutValidator(BaseValidator):
         True
 
         """
+        if not any(trace_candidates.intersects(geom)):
+            return True
         intersection_geoms = trace_candidates.intersection(geom)
         return not any(
             len(list(geom.geoms)) > 2

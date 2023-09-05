@@ -8,6 +8,9 @@ if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
     # Value of "0" means it is NOT disabled
     os.environ["FRACTOPO_DISABLE_CACHE"] = "1"
 
+# Make GeoPandas use shapely 2.0 instead of pygeos
+os.environ["USE_PYGEOS"] = "0"
+
 import logging
 import sys
 from functools import lru_cache, wraps
@@ -23,6 +26,7 @@ import pytest
 from click.testing import Result
 from hypothesis.strategies import floats, integers, tuples
 from shapely import wkt
+from shapely.errors import GEOSException
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -1635,7 +1639,7 @@ def generate_known_params(error, false_positive):
     ]
     try:
         areas = [gpd.GeoDataFrame(geometry=[bounding_polygon(gdf)]) for gdf in knowns]
-    except (ValueError, AttributeError):
+    except (ValueError, AttributeError, GEOSException):
         areas = [
             gpd.GeoDataFrame(
                 geometry=[

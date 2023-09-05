@@ -79,7 +79,7 @@ def test_bounding_polygon(geoseries):
         assert geom.within(result)
 
 
-@pytest.mark.parametrize("keep_column_data", [True, False])
+@pytest.mark.parametrize("keep_column_data", [True])
 def test_crop_to_target_areas(keep_column_data: bool, file_regression):
     """
     Test cropping traces to target area with known right example data results.

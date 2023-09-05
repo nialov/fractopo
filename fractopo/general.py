@@ -743,9 +743,9 @@ def determine_general_nodes(
     except TypeError:
         spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
-        if not isinstance(geom, LineString):
+        if not isinstance(geom, LineString) or geom.is_empty:
             # Intersections and endpoints are not defined for
-            # MultiLineStrings
+            # MultiLineStrings or empty LineStrings
             intersect_nodes.append(())
             endpoint_nodes.append(())
             continue
@@ -1260,7 +1260,8 @@ def crop_to_target_areas(
     else:
         candidate_traces = traces
 
-    if keep_column_data:
+    # TODO: Remove environment check
+    if keep_column_data or os.environ.get("USE_PYGEOS") == "0":
         assert all(area_geom.is_valid for area_geom in areas.geometry.values)
         assert all(not area_geom.is_empty for area_geom in areas.geometry.values)
         # geopandas.clip keeps the column data
@@ -1478,6 +1479,9 @@ def spatial_index_intersection(
 ) -> List[int]:
     """
     Type-checked spatial index intersection.
+
+    TODO: Maybe use spatial_index.quary_bulk for faster execution?
+    TODO: Maybe use a predicate (e.g., "contains") to specify operation?
     """
     if spatial_index is None:
         return []
@@ -1608,6 +1612,8 @@ def determine_boundary_intersecting_lines(
         target_area_bounds = geom_bounds(target_area)
         assert len(target_area_bounds) == 4 and isinstance(target_area_bounds, tuple)
         min_x, min_y, max_x, max_y = target_area_bounds
+        # TODO: Use spatial_index.quary_bulk for faster execution?
+        # TODO: Use a predicate (e.g., "contains") to specify operation?
         intersection = spatial_index.intersection(
             extend_bounds(
                 min_x=min_x,

@@ -180,10 +180,10 @@ class Network:
 
     # Branches and nodes
     # ==================
-    branch_gdf: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
-    node_gdf: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
+    branch_gdf: gpd.GeoDataFrame = field(default_factory=gpd.GeoDataFrame)
+    node_gdf: gpd.GeoDataFrame = field(default_factory=gpd.GeoDataFrame)
 
-    censoring_area: gpd.GeoDataFrame = field(default_factory=lambda: gpd.GeoDataFrame())
+    censoring_area: gpd.GeoDataFrame = field(default_factory=gpd.GeoDataFrame)
 
     # Misc
     # ==================

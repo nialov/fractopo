@@ -40,6 +40,8 @@ def segment_within_buffer(
 
     TODO: segmentize_linestring is very inefficient.
     """
+    if multilinestring.is_empty:
+        return False
     # Test for a single segment overlap
     if linestring.overlaps(multilinestring):
         return True
@@ -54,6 +56,8 @@ def segment_within_buffer(
     min_x, min_y, max_x, max_y = geom_bounds(buffered_linestring)
 
     # Crop MultiLineString near to the buffered_linestring
+    if not buffered_linestring.intersects(multilinestring):
+        return False
     cropped_mls = buffered_linestring.intersection(multilinestring)
 
     # Check for cases with no chance of stacking
