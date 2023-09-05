@@ -29,8 +29,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v2
       - name: Build documentation
         run: |
-          nix build .#fractopo.doc --out-link result
-          cp -Lr --no-preserve=mode,ownership,timestamps ./result/share/doc/ ./docs
+          nix build .#fractopo.doc
+          cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/* ./docs
       - uses: actions/upload-pages-artifact@v2
         with:
           # Upload folder with static docs
