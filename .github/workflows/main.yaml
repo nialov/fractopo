@@ -93,7 +93,7 @@ jobs:
   docs:
     if: >
       github.event_name == 'push'
-      && startsWith(github.ref, 'refs/tags')
+      && startsWith(github.ref, 'refs/heads/master')
     needs: [nix]
     permissions:
       contents: read
