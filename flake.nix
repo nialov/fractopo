@@ -50,11 +50,12 @@
             sync-git-tag-with-poetry resolve-version update-changelog
             pre-release fractopo;
           poetry-run = pkgs.poetry-run-fractopo;
-          # django not supported for python 3.9
+          # django not supported for python <3.10
+          # fractopo38 = pkgs.python38Packages.fractopo;
           # fractopo39 = pkgs.python39Packages.fractopo;
           fractopo310 = pkgs.python310Packages.fractopo;
           # TODO: 311 fails due to python3.11-twisted-22.10.0.drv' failed with exit code 1;
-          # fractopo311 = pkgs.python311Packages.fractopo;
+          fractopo311 = pkgs.python311Packages.fractopo;
         };
         devShells = {
           default = pkgs.mkShell {
