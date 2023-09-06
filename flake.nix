@@ -33,6 +33,7 @@
           pandoc
           poetry-with-c-tooling
           # Supported python versions
+          python38
           python39
           python310
           python311
@@ -71,7 +72,7 @@
 
           inherit (final.python3Packages) fractopo;
           poetry-run-fractopo = final.poetry-run.override {
-            pythons = with prev; [ python39 python310 python311 ];
+            pythons = with prev; [ python38 python39 python310 python311 ];
           };
 
         };
