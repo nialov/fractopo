@@ -5253,11 +5253,11 @@
         "ytdl-sub-src": "ytdl-sub-src_6"
       },
       "locked": {
-        "lastModified": 1694089162,
-        "narHash": "sha256-HaOPZ4OWDD341yafx40aV14+YFgdtTcoVHGX28OTiSM=",
+        "lastModified": 1694092674,
+        "narHash": "sha256-wpiq77lC5a83dYEHFdPTPejZE8v1R0iOcdxZ6uvC1fM=",
         "owner": "nialov",
         "repo": "nix-extra",
-        "rev": "4cfafb1a962b104396e37808ec8d58ae200cabe7",
+        "rev": "7fa27374e37c77c6dcba325eb5c218bb162ae561",
         "type": "github"
       },
       "original": {
