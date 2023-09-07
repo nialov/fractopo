@@ -5,7 +5,6 @@
 , sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
 , filter
 
-# , gpgme, isPy38
 }:
 
 let
@@ -51,11 +50,6 @@ let
       substituteInPlace testing/test_powerlaw.py \
           --replace "reference_data/" "testing/reference_data/"
     '';
-    # --replace "reference_data/blackouts.txt" "testing/reference_data/blackouts.txt" \
-    # --replace "reference_data/cities.txt" "testing/reference_data/cities.txt" \
-    # --replace "reference_data/fires.txt" "testing/reference_data/fires.txt" \
-    # --replace "reference_data/flares.txt" "testing/reference_data/flares.txt" \
-    # --replace "reference_data/terrorism.txt" "testing/reference_data/terrorism.txt"
 
     checkInputs = [ pytest pytestCheckHook ];
 
