@@ -65,7 +65,7 @@
       })) {
 
         overlays.default = inputs.nixpkgs.lib.composeManyExtensions [
-          inputs.nix-extra.overlays.default
+          inputs.nix-extra.overlays.utils
           (final: prev: {
             pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
               (python-final: _: {
