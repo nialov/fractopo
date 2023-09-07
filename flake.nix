@@ -24,8 +24,7 @@
         # Initialize nixpkgs for system
         pkgs = import nixpkgs {
           inherit system;
-          overlays =
-            [ self.overlays.default inputs.nix-extra.overlays.default ];
+          overlays = [ self.overlays.default ];
         };
 
         devShellPackages = with pkgs; [
@@ -64,19 +63,21 @@
           };
         };
       })) {
-        overlays.default = final: prev: {
-          pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-            (python-final: _: {
-              "fractopo" = python-final.callPackage ./default.nix { };
-            })
-          ];
 
-          inherit (final.python3Packages) fractopo;
-          poetry-run-fractopo = final.poetry-run.override {
-            pythons = with prev; [ python38 python39 python310 python311 ];
-          };
-
-        };
+        overlays.default = inputs.nixpkgs.lib.composeManyExtensions [
+          inputs.nix-extra.overlays.default
+          (final: prev: {
+            pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+              (python-final: _: {
+                "fractopo" = python-final.callPackage ./default.nix { };
+              })
+            ];
+            inherit (final.python3Packages) fractopo;
+            poetry-run-fractopo = final.poetry-run.override {
+              pythons = with prev; [ python38 python39 python310 python311 ];
+            };
+          })
+        ];
       };
 
 }
