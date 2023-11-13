@@ -502,6 +502,7 @@ sample_trace_100_data = Path("tests/sample_data/KB11/KB11_traces_100.geojson")
 sample_area_data = Path("tests/sample_data/KB11/KB11_area.geojson")
 kb11_traces = read_geofile(sample_trace_data)
 kb11_area = read_geofile(sample_area_data)
+kb11_traces_150 = kb11_traces.iloc[0:150]
 
 kb10_unfit_traces = read_geofile(
     Path("tests/sample_data/kb10_validation_error/kb10_unfit_traces.geojson")
@@ -1071,9 +1072,9 @@ test_network_params = [
         True,  # remove_z_coordinates_from_inputs
     ),
     (
-        kb11_traces.iloc[0:100],  # traces
+        kb11_traces_150,  # traces
         kb11_area,  # area
-        "KB11_0_100",  # name
+        "KB11_0_150",  # name
         True,  # determine_branches_nodes
         True,  # truncate_traces
         0.001,  # snap_threshold
@@ -1479,10 +1480,18 @@ test_determine_middle_in_triangle_params = [
 
 test_network_contour_grid_params = [
     (
-        kb11_traces,  # traces
+        kb11_traces_150,  # traces
         kb11_area,  # areas
         0.001,  # snap_threshold
-        "kb11_traces",
+        "kb11_150_traces",
+        True,
+    ),
+    (
+        kb11_traces_150,  # traces
+        kb11_area,  # areas
+        0.001,  # snap_threshold
+        "kb11_150_traces",
+        False,
     ),
 ]
 
