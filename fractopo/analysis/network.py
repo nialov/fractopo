@@ -282,6 +282,8 @@ class Network:
         # Branches
         self.node_gdf = self.node_gdf.copy()
 
+        # The attribute trace_gdf by truncating it to the passed target
+        # area
         if self.truncate_traces:
             self.trace_gdf = gpd.GeoDataFrame(
                 crop_to_target_areas(
@@ -1135,9 +1137,10 @@ class Network:
         If ``precursor_grid`` is passed it is used as the grid in which
         each Polygon cell is filled with calculated network parameter values.
         """
+        line_gdf = self.branch_gdf if self.determine_branches_nodes else self.trace_gdf
         if cell_width is None:
             # Use trace bounds to calculate a width
-            min_x, min_y, max_x, max_y = total_bounds(self.branch_gdf)
+            min_x, min_y, max_x, max_y = total_bounds(line_gdf)
             x_diff = max_x - min_x
             y_diff = max_y - min_y
             if x_diff < y_diff:

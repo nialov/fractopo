@@ -31,15 +31,15 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
-def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def create_grid(cell_width: float, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
-    Create an empty polygon grid for sampling fracture branch data.
+    Create an empty polygon grid for sampling fracture line data.
 
-    Grid is created to always contain all given branches.
+    Grid is created to always contain all given lines.
 
     E.g.
 
-    >>> branches = gpd.GeoSeries(
+    >>> lines = gpd.GeoSeries(
     ...     [
     ...         LineString([(1, 1), (2, 2)]),
     ...         LineString([(2, 2), (3, 3)]),
@@ -47,7 +47,7 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     ...         LineString([(2, 2), (-2, 5)]),
     ...     ]
     ... )
-    >>> create_grid(cell_width=0.1, branches=branches).head(5)
+    >>> create_grid(cell_width=0.1, lines=lines).head(5)
                                                 geometry
     0  POLYGON ((-2.00000 5.00000, -1.90000 5.00000, ...
     1  POLYGON ((-2.00000 4.90000, -1.90000 4.90000, ...
@@ -56,11 +56,11 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
     4  POLYGON ((-2.00000 4.60000, -1.90000 4.60000, ...
     """
     assert cell_width > 0
-    assert len(branches) > 0
-    assert all(isinstance(val, LineString) for val in branches.geometry.values)
+    assert len(lines) > 0
+    assert all(isinstance(val, LineString) for val in lines.geometry.values)
 
     # Get total bounds of branches
-    x_min, y_min, x_max, y_max = branches.total_bounds
+    x_min, y_min, x_max, y_max = lines.total_bounds
     cell_height = cell_width
 
     # Calculate cell row and column counts
@@ -93,7 +93,7 @@ def create_grid(cell_width: float, branches: gpd.GeoDataFrame) -> gpd.GeoDataFra
         x_right_origin = x_right_origin + cell_width
 
     # Create GeoDataFrame with grid polygons
-    grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=branches.crs)
+    grid = gpd.GeoDataFrame({GEOMETRY_COLUMN: polygons}, crs=lines.crs)
     assert len(grid) != 0
     return grid
 
@@ -144,10 +144,9 @@ def populate_sample_cell(
         assert isinstance(candidates, gpd.GeoDataFrame)
         return candidates
 
-    _centroid = sample_cell.centroid
-    if not isinstance(_centroid, Point):
+    centroid = sample_cell.centroid
+    if not isinstance(centroid, Point):
         raise TypeError("Expected Point centroid.")
-    centroid = _centroid
     sample_circle = safe_buffer(centroid, np.sqrt(sample_cell_area) * 1.5)
     sample_circle_area = sample_circle.area
     assert sample_circle_area > 0
@@ -184,53 +183,57 @@ def populate_sample_cell(
             snap_threshold=snap_threshold,
         )
 
-    branch_candidates = choose_geometries(
-        sindex=pygeos_spatial_index(branches),
-        sample_circle=sample_circle,
-        geometries=branches,
-    )
+    is_topology_defined = branches.shape[0] > 0
+    if is_topology_defined:
+        branch_candidates = choose_geometries(
+            sindex=pygeos_spatial_index(branches),
+            sample_circle=sample_circle,
+            geometries=branches,
+        )
 
-    node_candidates = choose_geometries(
-        sindex=pygeos_spatial_index(nodes),
-        sample_circle=sample_circle,
-        geometries=nodes,
-    )
+        node_candidates = choose_geometries(
+            sindex=pygeos_spatial_index(nodes),
+            sample_circle=sample_circle,
+            geometries=nodes,
+        )
+        sample_branches = resolve_samples(
+            candidates=branch_candidates, sample_circle=sample_circle
+        )
+        if any(node.intersects(sample_circle) for node in nodes.geometry.values):
+            # if any(nodes.intersects(sample_circle)):
+            # TODO: Is node clipping stable?
+            sample_nodes = gpd.clip(node_candidates, sample_circle)
+            assert sample_nodes is not None
+            assert all(isinstance(val, Point) for val in sample_nodes.geometry.values)
+        else:
+            sample_nodes = nodes.iloc[0:0]
+        assert isinstance(sample_nodes, gpd.GeoDataFrame)
+        assert isinstance(sample_branches, gpd.GeoDataFrame)
+        sample_node_type_values = sample_nodes[CLASS_COLUMN].values
+        assert isinstance(sample_node_type_values, np.ndarray)
+        node_counts = determine_node_type_counts(
+            sample_node_type_values, branches_defined=True
+        )
+        sample_branches_lengths = sample_branches.geometry.length.values
+    else:
+        sample_branches_lengths = np.array([])
+        node_counts = determine_node_type_counts(np.array([]), branches_defined=True)
 
     sample_traces = resolve_samples(
         candidates=trace_candidates, sample_circle=sample_circle
     )
-    sample_branches = resolve_samples(
-        candidates=branch_candidates, sample_circle=sample_circle
-    )
-    if any(node.intersects(sample_circle) for node in nodes.geometry.values):
-        # if any(nodes.intersects(sample_circle)):
-        # TODO: Is node clipping stable?
-        sample_nodes = gpd.clip(node_candidates, sample_circle)
-        assert sample_nodes is not None
-        assert all(isinstance(val, Point) for val in sample_nodes.geometry.values)
-    else:
-        sample_nodes = nodes.iloc[0:0]
 
-    assert isinstance(sample_nodes, gpd.GeoDataFrame)
     assert isinstance(sample_traces, gpd.GeoDataFrame)
-    assert isinstance(sample_branches, gpd.GeoDataFrame)
-
-    sample_node_type_values = sample_nodes[CLASS_COLUMN].values
-    assert isinstance(sample_node_type_values, np.ndarray)
-
-    node_counts = determine_node_type_counts(
-        sample_node_type_values, branches_defined=True
-    )
 
     topology_parameters = determine_topology_parameters(
         trace_length_array=sample_traces.geometry.length.values,
-        branch_length_array=sample_branches.geometry.length.values,
+        branch_length_array=sample_branches_lengths,
         node_counts=node_counts,
         area=sample_circle_area,
         correct_mauldon=resolve_branches_and_nodes,
         # TODO: Sample grids are currently not implemented for Networks
         # without determined topology.
-        branches_defined=True,
+        branches_defined=is_topology_defined,
     )
     return topology_parameters
 
@@ -343,7 +346,12 @@ def run_grid_sampling(
             raise ValueError(
                 "Expected cell_width to be non-close-to-zero positive number."
             )
-        grid = create_grid(cell_width, branches)
+        is_topology_defined = branches.shape[0] > 0
+        if is_topology_defined:
+            lines = branches
+        else:
+            lines = traces
+        grid = create_grid(cell_width, lines=lines)
     sampled_grid = sample_grid(
         grid,
         traces,
