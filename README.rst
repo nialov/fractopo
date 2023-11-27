@@ -1,7 +1,7 @@
 fractopo
 ========
 
-|Documentation Status| |PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
+|PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
 
 ``fractopo`` is a Python library/application that contains tools for
 validating and analysing lineament and fracture trace maps (fracture
@@ -13,7 +13,7 @@ requires prior (Python) programming knowledge. However, if used through
 the command-line, using ``fractopo`` only requires general knowledge of
 command-line interfaces in your operating system of choice.
 
--  `Full Documentation is hosted on Read the Docs
+-  `Full Documentation is hosted on GitHub
    <https://nialov.github.io/fractopo/index.html#full-documentation>`__
 
 .. figure:: https://git.io/JBRuK
@@ -438,8 +438,8 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://pypi.python.org/pypi/fractopo
 .. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
    :target: https://anaconda.org/conda-forge/fractopo
-.. |Documentation Status| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
-   :target: https://nialov.github.io/fractopo/
+.. .. |Documentation Status| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
+..    :target: https://nialov.github.io/fractopo/
 .. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
    :target: https://doi.org/10.21105/joss.05300
 .. |CI Test| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg

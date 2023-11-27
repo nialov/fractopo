@@ -198,7 +198,7 @@ plt.subplots_adjust(wspace=0.11, hspace=-0.31)
 if __name__ == "__main__":
     # Save plot for usage outside sphinx
     # This section can be ignored if looking at the documentation
-    # in ReadTheDocs
+    # online
     output_name = "validation_errors.png"
     try:
         output_path = Path(__file__).parent / output_name
