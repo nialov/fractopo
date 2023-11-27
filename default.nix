@@ -66,86 +66,91 @@ let
     };
   };
 
-in buildPythonPackage {
-  pname = "fractopo";
-  version = "0.5.3";
+  self = buildPythonPackage {
+    pname = "fractopo";
+    version = "0.5.3";
 
-  src = filter {
-    root = ./.;
-    # If no include is passed, it will include all the paths.
-    include = [
-      # Include the "src" path relative to the root.
-      "fractopo"
-      "tests"
-      "README.rst"
-      "pyproject.toml"
-      "docs_src"
-      "examples"
-      # Include this specific path. The path must be under the root.
-      # ./package.json
-      # Include all files with the .js extension
-      # (filter.matchExt "js")
+    src = filter {
+      root = ./.;
+      # If no include is passed, it will include all the paths.
+      include = [
+        # Include the "src" path relative to the root.
+        "fractopo"
+        "tests"
+        "README.rst"
+        "pyproject.toml"
+        "docs_src"
+        "examples"
+        # Include this specific path. The path must be under the root.
+        # ./package.json
+        # Include all files with the .js extension
+        # (filter.matchExt "js")
+      ];
+
+      # Works like include, but the reverse.
+      # exclude = [ ./main.js ];
+    };
+    format = "pyproject";
+
+    nativeBuildInputs = [
+      # Uses poetry for install
+      poetry-core
+      # Documentation dependencies
+      sphinxHook
+      pandoc
+      sphinx-autodoc-typehints
+      sphinx-rtd-theme
+      sphinx-gallery
+      nbsphinx
+      matplotlib
+      notebook
+      ipython
     ];
 
-    # Works like include, but the reverse.
-    # exclude = [ ./main.js ];
+    # Enables building package and docs without tests
+    # nix build .#fractopo.passthru.no-check.doc
+    passthru.no-check = self.overridePythonAttrs (_: { doCheck = false; });
+
+    sphinxRoot = "docs_src";
+    outputs = [ "out" "doc" ];
+
+    propagatedBuildInputs = [
+      click
+      geopandas
+      joblib
+      matplotlib
+      numpy
+      pandas
+      powerlaw
+      pygeos
+      python-ternary
+      rich
+      scikit-learn
+      scipy
+      seaborn
+      shapely
+      typer
+    ];
+
+    checkInputs = [ pytest pytest-regressions hypothesis coverage ];
+
+    checkPhase = ''
+      runHook preCheck
+      python -m coverage run --source fractopo -m pytest
+      runHook postCheck
+    '';
+
+    postCheck = ''
+      python -m coverage report --fail-under 70
+    '';
+
+    pythonImportsCheck = [ "fractopo" ];
+
+    meta = with lib; {
+      homepage = "https://github.com/nialov/fractopo";
+      description = "Fracture Network analysis";
+      license = licenses.mit;
+      maintainers = [ maintainers.nialov ];
+    };
   };
-  format = "pyproject";
-
-  nativeBuildInputs = [
-    # Uses poetry for install
-    poetry-core
-    # Documentation dependencies
-    sphinxHook
-    pandoc
-    sphinx-autodoc-typehints
-    sphinx-rtd-theme
-    sphinx-gallery
-    nbsphinx
-    matplotlib
-    notebook
-    ipython
-  ];
-
-  sphinxRoot = "docs_src";
-  outputs = [ "out" "doc" ];
-
-  propagatedBuildInputs = [
-    click
-    geopandas
-    joblib
-    matplotlib
-    numpy
-    pandas
-    powerlaw
-    pygeos
-    python-ternary
-    rich
-    scikit-learn
-    scipy
-    seaborn
-    shapely
-    typer
-  ];
-
-  checkInputs = [ pytest pytest-regressions hypothesis coverage ];
-
-  checkPhase = ''
-    runHook preCheck
-    python -m coverage run --source fractopo -m pytest
-    runHook postCheck
-  '';
-
-  postCheck = ''
-    python -m coverage report --fail-under 70
-  '';
-
-  pythonImportsCheck = [ "fractopo" ];
-
-  meta = with lib; {
-    homepage = "https://github.com/nialov/fractopo";
-    description = "Fracture Network analysis";
-    license = licenses.mit;
-    maintainers = [ maintainers.nialov ];
-  };
-}
+in self
