@@ -8,7 +8,7 @@ license = "MIT"
 # Make sure hyphens/underscores are correct in urls
 homepage = "https://github.com/nialov/fractopo"
 repository = "https://github.com/nialov/fractopo"
-documentation = "https://fractopo.readthedocs.io/en/latest/"
+documentation = "https://nialov.github.io/fractopo/"
 # For inspiration: https://pydigger.com/keywords
 keywords = [
     "data",

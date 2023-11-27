@@ -85,9 +85,4 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-if "READTHEDOCS" not in os.environ:
-    # Always execute notebooks locally (to test that they work!)
-    nbsphinx_execute = "always"
-else:
-    # Do not always execute notebooks on ReadtheDocs
-    nbsphinx_execute = "auto"
+nbsphinx_execute = "always"

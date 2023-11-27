@@ -31,7 +31,7 @@ the command-line, using ``fractopo`` only requires general knowledge of
 command-line interfaces in your operating system of choice.
 
 -  `Full Documentation is hosted on Read the Docs
-   <https://fractopo.readthedocs.io/en/latest/index.html#full-documentation>`__
+   <https://nialov.github.io/fractopo/index.html#full-documentation>`__
 
 .. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
@@ -123,33 +123,33 @@ Multi-scale length distributions                          `Multi-scale`_
 ========================================================  ======================
 
 .. _Validation 1:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_1.html
+   https://nialov.github.io/fractopo/notebooks/fractopo_validation_1.html
 .. _Validation 2:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_validation_2.html
+   https://nialov.github.io/fractopo/notebooks/fractopo_validation_2.html
 .. _Visualizing:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Visualizing-trace-map-data
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Visualizing-trace-map-data
 .. _Network:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Network
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network
 .. _Topological:
-   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_branches_and_nodes.html#sphx-glr-auto-examples-plot-branches-and-nodes-py
+   https://nialov.github.io/fractopo/auto_examples/plot_branches_and_nodes.html#sphx-glr-auto-examples-plot-branches-and-nodes-py
 .. _Length-distributions:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Length-distributions
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Length-distributions
 .. _Orientation 1:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Rose-plots
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Rose-plots
 .. _Orientation 2:
-   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_rose_plot.html#sphx-glr-auto-examples-plot-rose-plot-py
+   https://nialov.github.io/fractopo/auto_examples/plot_rose_plot.html#sphx-glr-auto-examples-plot-rose-plot-py
 .. _Proportions:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Node-and-branch-proportions
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Node-and-branch-proportions
 .. _Relationships 1:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Crosscutting-and-abutting-relationships
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Crosscutting-and-abutting-relationships
 .. _Relationships 2:
-   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_azimuth_set_relationships.html#sphx-glr-auto-examples-plot-azimuth-set-relationships-py
+   https://nialov.github.io/fractopo/auto_examples/plot_azimuth_set_relationships.html#sphx-glr-auto-examples-plot-azimuth-set-relationships-py
 .. _Parameters:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Numerical-Fracture-Network-Characterization-Parameters
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Numerical-Fracture-Network-Characterization-Parameters
 .. _Contour-grids:
-   https://fractopo.readthedocs.io/en/latest/notebooks/fractopo_network_1.html#Contour-Grids
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Contour-Grids
 .. _Multi-scale:
-   https://fractopo.readthedocs.io/en/latest/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
+   https://nialov.github.io/fractopo/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
 
 For a short tutorial on use of ``fractopo`` continue reading:
 
@@ -180,7 +180,7 @@ Trace data must be validated using ``fractopo`` validation functionality
 before analysis. The topological analysis of lineament & fracture traces
 implemented in ``fractopo`` will not tolerate uncertainty related to the
 topological abutting and snapping relationships between traces. See `the
-documentation <https://fractopo.readthedocs.io/en/latest/validation/errors.html>`__
+documentation <https://nialov.github.io/fractopo/validation/errors.html>`__
 for further info on validation error types. Trace validation is
 recommended before all analysis using ``Network``. Trace and target area
 data can be validated for further analysis with a ``Validation`` object:
@@ -451,24 +451,23 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
 
 -----
 
-
-.. |Documentation Status| image:: https://readthedocs.org/projects/fractopo/badge/?version=latest
-   :target: https://fractopo.readthedocs.io/en/latest/?badge=latest
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
    :target: https://pypi.python.org/pypi/fractopo
-.. |CI Test| image:: https://github.com/nialov/fractopo/workflows/main.yaml/badge.svg
+.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
+   :target: https://anaconda.org/conda-forge/fractopo
+.. |Documentation Status| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
+   :target: https://nialov.github.io/fractopo/
+.. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
+   :target: https://doi.org/10.21105/joss.05300
+.. |CI Test| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
-.. |Conda Test| image:: https://github.com/nialov/fractopo/workflows/conda.yaml/badge.svg
+.. |Conda Test| image:: https://github.com/nialov/fractopo/actions/workflows/conda.yaml/badge.svg
    :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
-   :target: https://doi.org/10.21105/joss.05300
-.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
-   :target: https://anaconda.org/conda-forge/fractopo
-.. [[[end]]] (checksum: 070b598295d722f8ec97f78c03d9f3d3)
+.. [[[end]]] (checksum: c73a7976964fce91fef3212c9d306236)
 
 .. toctree::
    :hidden:
