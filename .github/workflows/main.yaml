@@ -17,6 +17,8 @@ jobs:
           name: fractopo
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Check with nix
+        # This also builds documentation (fractopo-documentation) so docs job
+        # does not have to run every time
         run: |
           nix flake check
   poetry:
