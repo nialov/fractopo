@@ -3,7 +3,7 @@
 , scipy, seaborn, shapely, typer, pytest-regressions, hypothesis, fetchPypi
 , mpmath, poetry-core, sphinxHook, pandoc, sphinx-autodoc-typehints
 , sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
-, filter
+, filter,
 
 }:
 
@@ -95,24 +95,31 @@ let
     nativeBuildInputs = [
       # Uses poetry for install
       poetry-core
-      # Documentation dependencies
-      sphinxHook
-      pandoc
-      sphinx-autodoc-typehints
-      sphinx-rtd-theme
-      sphinx-gallery
-      nbsphinx
-      matplotlib
-      notebook
-      ipython
     ];
 
-    # Enables building package and docs without tests
-    # nix build .#fractopo.passthru.no-check.doc
-    passthru.no-check = self.overridePythonAttrs (_: { doCheck = false; });
-
-    sphinxRoot = "docs_src";
-    outputs = [ "out" "doc" ];
+    passthru = {
+      # Enables building package without tests
+      # nix build .#fractopo.passthru.no-check
+      no-check = self.overridePythonAttrs (_: { doCheck = false; });
+      # Documentation without tests
+      documentation = self.overridePythonAttrs (prevAttrs: {
+        doCheck = false;
+        nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
+          # Documentation dependencies
+          sphinxHook
+          pandoc
+          sphinx-autodoc-typehints
+          sphinx-rtd-theme
+          sphinx-gallery
+          nbsphinx
+          matplotlib
+          notebook
+          ipython
+        ];
+        sphinxRoot = "docs_src";
+        outputs = [ "out" "doc" ];
+      });
+    };
 
     propagatedBuildInputs = [
       click
