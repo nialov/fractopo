@@ -5,11 +5,14 @@
 ### New Features
 
 -   **analysis:** Allow creating contour grids without determination of
-    branches and nodes i.e. topology ([854d1e03](854d1e03))
+    branches and nodes i.e. topology
+    ([854d1e03](https://github.com/nialov/fractopo/commit/854d1e034d932afba648bde25c41039cae6f7ccc))
 
 ### Fixes
 
--   **analysis:** Disable parallel processing on Windows due to instability ([614070fd](614070fd))
+-   **analysis:** Disable parallel processing on Windows due to
+    instability
+    ([614070fd](https://github.com/nialov/fractopo/commit/614070fd679e170126d40a0e66722ed92ae5853e))
 
 ## v0.5.3 (2023-05-09)
 
