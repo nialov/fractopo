@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.0 (2023-12-14)
+
+### New Features
+
+-   **analysis:** Allow creating contour grids without determination of
+    branches and nodes i.e. topology ([854d1e03](854d1e03))
+
+### Fixes
+
+-   **analysis:** Disable parallel processing on Windows due to instability ([614070fd](614070fd))
+
 ## v0.5.3 (2023-05-09)
 
 ### New Features

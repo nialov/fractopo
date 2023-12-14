@@ -76,8 +76,9 @@ jobs:
 
       - name: Create incremental changelog
         run: >
-          sed -n '2,/Release Changelog/p' CHANGELOG.md | head -n -4
+          sed -n '3,/## v[[:digit:]].[[:digit:]].[[:digit:]]/p' CHANGELOG.md | head -n -2
           > RELEASE_CHANGELOG.md
+          # sed -n '2,/Release Changelog/p' CHANGELOG.md | head -n -4
 
       - name: Echo RELEASE_CHANGELOG.md
         run: cat RELEASE_CHANGELOG.md

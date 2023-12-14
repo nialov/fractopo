@@ -68,7 +68,7 @@ let
 
   self = buildPythonPackage {
     pname = "fractopo";
-    version = "0.5.3";
+    version = "0.6.0";
 
     src = filter {
       root = ./.;
