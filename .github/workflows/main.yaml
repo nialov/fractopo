@@ -127,4 +127,4 @@ jobs:
           path: "docs/html"
       - uses: actions/configure-pages@v3
       - id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v3
