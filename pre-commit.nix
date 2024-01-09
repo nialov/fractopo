@@ -68,6 +68,13 @@
         always_run = true;
       };
     };
+    nbstripout = {
+      enable = true;
+      name = "nbstripout";
+      description = "Strip output from Jupyter notebooks";
+      entry = "${pkgs.nbstripout}/bin/nbstripout";
+      files = "\\.(ipynb)$";
+    };
     # mypy-in-env = {
     #   enable = true;
     #   name = "mypy-in-env";
