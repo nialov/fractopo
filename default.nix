@@ -141,6 +141,13 @@ let
 
     checkInputs = [ pytest pytest-regressions hypothesis coverage ];
 
+    postInstall = ''
+      HOME="$(mktemp -d)"
+      export HOME
+      FRACTOPO_DISABLE_CACHE="1"
+      export FRACTOPO_DISABLE_CACHE
+    '';
+
     checkPhase = ''
       runHook preCheck
       python -m coverage run --source fractopo -m pytest
