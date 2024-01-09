@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from typing import Callable, Optional, Tuple
 
 import matplotlib.pyplot as plt
-from example_networks import kb11_network
+from example_data import KB11_IMAGE_PATH, KB11_NETWORK
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.patheffects import withStroke
@@ -31,7 +31,7 @@ def close_fig(func: Callable):
     return wrapper
 
 
-def plot_area(kb11_network: Network = kb11_network) -> Figure:
+def plot_area(kb11_network: Network = KB11_NETWORK) -> Figure:
     """
     Plot area boundary.
     """
@@ -43,7 +43,7 @@ def plot_area(kb11_network: Network = kb11_network) -> Figure:
     return area_fig
 
 
-def plot_traces_and_area(kb11_network: Network = kb11_network) -> Figure:
+def plot_traces_and_area(kb11_network: Network = KB11_NETWORK) -> Figure:
     """
     Plot area boundary along with the traces.
     """
@@ -57,7 +57,7 @@ def plot_traces_and_area(kb11_network: Network = kb11_network) -> Figure:
     return area_fig
 
 
-def plot_branches_and_area(kb11_network: Network = kb11_network) -> Figure:
+def plot_branches_and_area(kb11_network: Network = KB11_NETWORK) -> Figure:
     """
     Plot area boundary along with the branches.
     """
@@ -88,8 +88,7 @@ def plot_ortho(ax: Axes):
     Plot drone orthomosaic.
     """
     # Ortho
-    image_path = Path(__file__).parent.parent / "docs_src/imgs/kb11_orthomosaic.jpg"
-    with Image.open(image_path) as image:
+    with Image.open(KB11_IMAGE_PATH) as image:
         # image = image.convert("RGBA")
         # data = np.ones((image.size[1], image.size[0], 4), dtype=np.uint8) * 255
         # mask = Image.fromarray(data)

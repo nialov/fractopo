@@ -10,7 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load kb11_network and hastholmen_network
-from example_networks import hastholmen_network, kb11_network
+from example_data import HASTHOLMEN_NETWORK, KB11_NETWORK
 
 from fractopo import MultiNetwork
 
@@ -21,7 +21,7 @@ mpl.rcParams["font.size"] = 8
 # Create MultiNetwork object
 # ------------------------------------------------------------------
 
-multi_network = MultiNetwork((kb11_network, hastholmen_network))
+multi_network = MultiNetwork((KB11_NETWORK, HASTHOLMEN_NETWORK))
 
 # %%
 # Plot automatically cut length distributions with a multi-scale fit

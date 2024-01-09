@@ -16,7 +16,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # Load three networks, each digitized from a different scale of observation
-from example_networks import hastholmen_network, kb11_network, lidar_200k_network
+from example_data import HASTHOLMEN_NETWORK, KB11_NETWORK, LIDAR_200K_NETOWORK
 
 from fractopo import general
 from fractopo.analysis import length_distributions
@@ -28,7 +28,7 @@ mpl.rcParams["font.size"] = 8
 # Collect LengthDistributions into MultiLengthDistribution
 # ------------------------------------------------------------------
 
-networks = [kb11_network, hastholmen_network, lidar_200k_network]
+networks = [KB11_NETWORK, HASTHOLMEN_NETWORK, LIDAR_200K_NETOWORK]
 
 distributions = [netw.trace_length_distribution(azimuth_set=None) for netw in networks]
 

@@ -11,8 +11,8 @@ from pprint import pprint
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-# Load kb11_network network from examples/example_networks.py
-from example_networks import kb11_network
+# Load kb11_network network from examples/example_data.py
+from example_data import KB11_NETWORK
 
 mpl.rcParams["figure.figsize"] = (5, 5)
 mpl.rcParams["font.size"] = 8
@@ -26,7 +26,7 @@ mpl.rcParams["font.size"] = 8
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Log-log plot of network trace length distribution
-fit, fig, ax = kb11_network.plot_trace_lengths()
+fit, fig, ax = KB11_NETWORK.plot_trace_lengths()
 
 # Use matplotlib helpers to make sure plot fits in the gallery webpage!
 # (Not required.)
@@ -36,7 +36,7 @@ plt.show()
 # %%
 
 # Log-log plot of network branch length distribution
-kb11_network.plot_branch_lengths()
+KB11_NETWORK.plot_branch_lengths()
 plt.tight_layout()
 plt.show()
 
@@ -45,7 +45,7 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Log-log plot of network trace length distribution
-kb11_network.plot_trace_lengths(use_probability_density_function=True)
+KB11_NETWORK.plot_trace_lengths(use_probability_density_function=True)
 
 # Use matplotlib helpers to make sure plot fits in the gallery webpage!
 # (Not required.)
@@ -55,7 +55,7 @@ plt.show()
 # %%
 
 # Log-log plot of network branch length distribution
-kb11_network.plot_branch_lengths(use_probability_density_function=True)
+KB11_NETWORK.plot_branch_lengths(use_probability_density_function=True)
 plt.tight_layout()
 plt.show()
 
@@ -64,19 +64,19 @@ plt.show()
 # -----------------------------------------------------------
 
 # Use pprint for printing with prettier output
-pprint(kb11_network.trace_lengths_powerlaw_fit_description)
+pprint(KB11_NETWORK.trace_lengths_powerlaw_fit_description)
 
 # %%
 
-pprint(kb11_network.branch_lengths_powerlaw_fit_description)
+pprint(KB11_NETWORK.branch_lengths_powerlaw_fit_description)
 
 # %%
 # Set-wise length distribution plotting
 # -----------------------------------------------------------
 
-pprint(kb11_network.azimuth_set_names)
-pprint(kb11_network.azimuth_set_ranges)
+pprint(KB11_NETWORK.azimuth_set_names)
+pprint(KB11_NETWORK.azimuth_set_ranges)
 
 # %%
 
-fits, figs, axes = kb11_network.plot_trace_azimuth_set_lengths()
+fits, figs, axes = KB11_NETWORK.plot_trace_azimuth_set_lengths()

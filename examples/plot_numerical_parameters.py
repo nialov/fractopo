@@ -14,8 +14,8 @@ from pprint import pprint
 
 import matplotlib.pyplot as plt
 
-# Load kb11_network network from examples/example_networks.py
-from example_networks import kb7_network, kb11_network
+# Load kb11_network network from examples/example_data.py
+from example_data import KB7_NETWORK, KB11_NETWORK
 
 # Import Network class from fractopo
 from fractopo.analysis.parameters import plot_parameters_plot
@@ -26,8 +26,8 @@ from fractopo.analysis.parameters import plot_parameters_plot
 #
 # All parameters are accessible through an attribute
 
-kb11_parameters = kb11_network.parameters
-kb7_parameters = kb7_network.parameters
+kb11_parameters = KB11_NETWORK.parameters
+kb7_parameters = KB7_NETWORK.parameters
 
 # %%
 pprint(kb11_parameters)

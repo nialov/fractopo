@@ -11,7 +11,7 @@ a wide variety of sources.
 
 # Import matplotlib for plotting
 import matplotlib.pyplot as plt
-from example_networks import kb11_network
+from example_data import KB11_NETWORK
 
 # Name the dataset
 name = "KB11"
@@ -25,11 +25,11 @@ name = "KB11"
 fig, ax = plt.subplots(figsize=(9, 9))
 
 # Plot the loaded trace dataset consisting of fracture traces.
-kb11_network.trace_gdf.plot(ax=ax, color="blue")
+KB11_NETWORK.trace_gdf.plot(ax=ax, color="blue")
 
 # Plot the loaded area dataset that consists of a single polygon
 # that delineates the traces.
-kb11_network.area_gdf.boundary.plot(ax=ax, color="red")
+KB11_NETWORK.area_gdf.boundary.plot(ax=ax, color="red")
 
 # Give the figure a title
-ax.set_title(f"{name}, Coordinate Reference System = {kb11_network.trace_gdf.crs}")
+ax.set_title(f"{name}, Coordinate Reference System = {KB11_NETWORK.trace_gdf.crs}")

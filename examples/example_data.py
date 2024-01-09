@@ -25,100 +25,56 @@ required (it is similarly loaded from ``fractopo`` GitHub page).
 # the user.
 
 from pathlib import Path
-from urllib.error import URLError
 
 import geopandas as gpd
 
 from fractopo import Network
 
+# Root fractopo repository directory path
+PROJECT_BASE_PATH = Path("..")
 
-# TODO: Clean up
-def remote_or_local_read_file(url: str, path: Path):
+
+def read_path_from_base(path: Path, project_base_path: Path = PROJECT_BASE_PATH):
     """
-    Try to read remotely and fallback to local without internet.
+    Prefix path with project base path.
     """
-    try:
-        return gpd.read_file(url)
-    except URLError:
-        try:
-            return gpd.read_file(Path(__file__).parent.parent / path)
-        except Exception:
-            message = f"""
-            { Path(__file__) }
-            { Path(__file__).parent }
-            { Path(__file__).parent.parent }
-            { Path(__file__).parent.parent / path }
-            { (Path(__file__).parent.parent / path).parent.glob("*") }
-            """
-            raise FileNotFoundError(message)
+    return gpd.read_file(project_base_path / path)
 
 
-kb11_trace_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB11/KB11_traces.geojson"
-    ),
+KB11_TRACE_GDF = read_path_from_base(
     path=Path("tests/sample_data/KB11/KB11_traces.geojson"),
 )
 
-kb11_area_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB11/KB11_area.geojson"
-    ),
+KB11_AREA_GDF = read_path_from_base(
     path=Path("tests/sample_data/KB11/KB11_area.geojson"),
 )
-kb7_trace_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB7/KB7_traces.geojson"
-    ),
+KB7_TRACE_GDF = read_path_from_base(
     path=Path("tests/sample_data/KB7/KB7_traces.geojson"),
 )
-kb7_area_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/KB7/KB7_area.geojson"
-    ),
+KB7_AREA_GDF = read_path_from_base(
     path=Path("tests/sample_data/KB7/KB7_area.geojson"),
 )
 
-hastholmen_trace_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/hastholmen_traces_validated.geojson"
-    ),
+HASTHOLMEN_TRACE_GDF = read_path_from_base(
     path=Path("tests/sample_data/hastholmen_traces_validated.geojson"),
 )
-hastholmen_area_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/hastholmen_area.geojson"
-    ),
+HASTHOLMEN_AREA_GDF = read_path_from_base(
     path=Path("tests/sample_data/hastholmen_area.geojson"),
 )
 
-lidar200k_trace_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/traces_200k.geojson"
-    ),
+LIDAR_200K_TRACE_GDF = read_path_from_base(
     path=Path("tests/sample_data/traces_200k.geojson"),
 )
 
-lidar200k_area_gdf = remote_or_local_read_file(
-    url=(
-        "https://raw.githubusercontent.com/nialov/"
-        "fractopo/master/tests/sample_data/area_200k.geojson"
-    ),
+LIDAR_200K_AREA_GDF = read_path_from_base(
     path=Path("tests/sample_data/area_200k.geojson"),
 )
 
 
-kb11_network = Network(
+KB11_NETWORK = Network(
     name="KB11",
-    trace_gdf=kb11_trace_gdf,
-    area_gdf=kb11_area_gdf,
+    trace_gdf=KB11_TRACE_GDF,
+    area_gdf=KB11_AREA_GDF,
     truncate_traces=True,
     circular_target_area=False,
     determine_branches_nodes=True,
@@ -128,20 +84,20 @@ kb11_network = Network(
     azimuth_set_ranges=((135, 45), (45, 135)),
 )
 
-kb7_network = Network(
+KB7_NETWORK = Network(
     name="KB7",
-    trace_gdf=kb7_trace_gdf,
-    area_gdf=kb7_area_gdf,
+    trace_gdf=KB7_TRACE_GDF,
+    area_gdf=KB7_AREA_GDF,
     truncate_traces=True,
     circular_target_area=False,
     determine_branches_nodes=True,
     snap_threshold=0.001,
 )
 
-hastholmen_network = Network(
+HASTHOLMEN_NETWORK = Network(
     name="Hastholmen",
-    trace_gdf=hastholmen_trace_gdf,
-    area_gdf=hastholmen_area_gdf,
+    trace_gdf=HASTHOLMEN_TRACE_GDF,
+    area_gdf=HASTHOLMEN_AREA_GDF,
     truncate_traces=True,
     circular_target_area=False,
     determine_branches_nodes=True,
@@ -151,10 +107,10 @@ hastholmen_network = Network(
     azimuth_set_ranges=((135, 45), (45, 135)),
 )
 
-lidar_200k_network = Network(
+LIDAR_200K_NETOWORK = Network(
     name="1_200_000",
-    trace_gdf=lidar200k_trace_gdf,
-    area_gdf=lidar200k_area_gdf,
+    trace_gdf=LIDAR_200K_TRACE_GDF,
+    area_gdf=LIDAR_200K_AREA_GDF,
     truncate_traces=True,
     circular_target_area=False,
     determine_branches_nodes=True,
@@ -163,3 +119,5 @@ lidar_200k_network = Network(
     azimuth_set_names=("N-S", "E-W"),
     azimuth_set_ranges=((135, 45), (45, 135)),
 )
+
+KB11_IMAGE_PATH = PROJECT_BASE_PATH / "docs_src/imgs/kb11_orthomosaic.jpg"
