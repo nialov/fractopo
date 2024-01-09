@@ -139,6 +139,7 @@ filterwarnings =[
     "ignore:More than 20 figures have been opened:RuntimeWarning",
     "ignore:the convert_dtype parameter is deprecated and will be removed in a future version:FutureWarning",
     "ignore:is_categorical_dtype is deprecated and will be removed in a future version:FutureWarning",
+    "ignore:is_categorical_dtype is deprecated and will be removed in a future version:DeprecationWarning",
     "ignore:'GeoSeries.swapaxes' is deprecated and will be removed in a future version:FutureWarning",
     ]
 
