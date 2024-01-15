@@ -120,11 +120,11 @@ jobs:
       - name: Build documentation
         run: |
           nix build .#fractopo.passthru.documentation.doc
-          cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/* ./docs
+          cp -Lr --no-preserve=mode,ownership,timestamps "$(find ./result-doc/ -maxdepth 4 -type 'd' -path '*html*')" ./docs
       - uses: actions/upload-pages-artifact@v3
         with:
           # Upload folder with static docs
-          path: "docs/html"
+          path: "docs/"
       - uses: actions/configure-pages@v4
       - id: deployment
         uses: actions/deploy-pages@v4
