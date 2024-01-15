@@ -53,6 +53,7 @@
           fractopo310 = pkgs.python310Packages.fractopo;
           fractopo311 = pkgs.python311Packages.fractopo;
           fractopo-documentation = pkgs.fractopo.passthru.documentation;
+          default = self.packages."${system}".fractopo;
         };
         devShells = {
           default = pkgs.mkShell {
