@@ -65,7 +65,8 @@
                 # fractopo39 = pkgs.python39Packages.fractopo;
                 fractopo310 = pkgs.python310Packages.fractopo;
                 fractopo311 = pkgs.python311Packages.fractopo;
-                fractopo-documentation = pkgs.fractopo.passthru.documentation;
+                fractopo-documentation =
+                  pkgs.fractopo.passthru.documentation.doc;
                 default = self'.packages.fractopo;
               };
               devShells.default = self'.devShells.poetry-devshell.overrideAttrs
