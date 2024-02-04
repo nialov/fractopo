@@ -17,11 +17,6 @@
 
   outputs = { self, nixpkgs, ... }@inputs:
     let
-      inherit (nixpkgs) lib;
-      vanillaPerSystem = { };
-      vanillaFlake = {
-
-      };
       flakePart = inputs.flake-parts.lib.mkFlake { inherit inputs; }
         ({ inputs, ... }: {
           systems = [ "x86_64-linux" ];
@@ -75,10 +70,8 @@
               };
               devShells.default = self'.devShells.poetry-devshell.overrideAttrs
                 (prevAttrs: {
-                  buildInputs = prevAttrs.buildInputs ++ [
-                    pkgs.poetry-run-fractopo
-
-                  ];
+                  buildInputs = prevAttrs.buildInputs
+                    ++ [ pkgs.poetry-run-fractopo ];
                 });
               pre-commit = {
                 check.enable = true;
@@ -102,10 +95,7 @@
                     # stages = [ "push" "manual" ];
                     pass_filenames = false;
                   };
-                  trim-trailing-whitespace = {
-                    enable = true;
-
-                  };
+                  trim-trailing-whitespace = { enable = true; };
                   check-added-large-files = { enable = true; };
                   rstcheck = {
                     enable = true;
@@ -126,10 +116,6 @@
             };
 
         });
-    in lib.foldl' lib.recursiveUpdate { } [
-      vanillaPerSystem
-      vanillaFlake
-      flakePart
-    ];
+    in flakePart;
 
 }
