@@ -141,6 +141,7 @@ filterwarnings =[
     "ignore:is_categorical_dtype is deprecated and will be removed in a future version:FutureWarning",
     "ignore:is_categorical_dtype is deprecated and will be removed in a future version:DeprecationWarning",
     "ignore:'GeoSeries.swapaxes' is deprecated and will be removed in a future version:FutureWarning",
+    "ignore:\\nPyarrow will become a required dependency of pandas:DeprecationWarning",
     ]
 
 [tool.isort]
