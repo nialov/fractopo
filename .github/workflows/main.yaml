@@ -119,7 +119,7 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Build documentation
         run: |
-          nix build .#fractopo.passthru.documentation.doc
+          nix build .#fractopo-documentation
           cp -Lr --no-preserve=mode,ownership,timestamps "$(find ./result-doc/ -maxdepth 4 -type 'd' -path '*html*')" ./docs
       - uses: actions/upload-pages-artifact@v3
         with:
