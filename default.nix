@@ -112,7 +112,6 @@ let
           sphinx-rtd-theme
           sphinx-gallery
           nbsphinx
-          matplotlib
           notebook
           ipython
         ];
