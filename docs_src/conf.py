@@ -69,7 +69,7 @@ exclude_patterns = [
     ".DS_Store",
     # auto_examples needs to be added due to nbsphinx executing the ipynb
     # files inside otherwise
-    "auto_examples",
+    "auto_examples/*.ipynb",
 ]
 
 
