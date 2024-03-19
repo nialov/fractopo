@@ -184,3 +184,7 @@ ignore_missing_imports = true
 ignore_words_list = [
     "theses"
 ]
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+lint.ignore = ["E402"]

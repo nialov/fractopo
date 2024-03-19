@@ -934,14 +934,14 @@ def tern_plot_branch_lines(tax):
     for idx, _ in enumerate(points):
         points[idx] = points[idx][0] * 100, points[idx][1] * 100, points[idx][2] * 100
 
-    text_loc = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]
-    for idx, t in enumerate(text_loc):
-        text_loc[idx] = t[0] * 100, t[1] * 100
-    text = [r"$C_B = 1.0$", r"$1.2$", r"$1.4$", r"$1.6$", r"$1.8$"]
+    text_locs = [(0.37, 0.2), (0.44, 0.15), (0.52, 0.088), (0.64, 0.055), (0.79, 0.027)]
+    for idx, t in enumerate(text_locs):
+        text_locs[idx] = t[0] * 100, t[1] * 100
+    texts = [r"$C_B = 1.0$", r"$1.2$", r"$1.4$", r"$1.6$", r"$1.8$"]
     rots = [-61, -44, -28, -14, -3]
     # rot = -65
-    for t, l, rot in zip(text, text_loc, rots):
-        ax.annotate(t, xy=l, fontsize=9, rotation=rot)
+    for text, test_loc, rot in zip(texts, text_locs, rots):
+        ax.annotate(text, xy=test_loc, fontsize=9, rotation=rot)
         # rot += 17
     tax.plot(
         points,
