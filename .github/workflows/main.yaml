@@ -14,8 +14,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v3
       - uses: cachix/cachix-action@v13
         with:
-          name: fractopo
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: nialov
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Check with nix
         # This also builds documentation (fractopo-documentation) so docs job
         # does not have to run every time
@@ -34,8 +34,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v3
       - uses: cachix/cachix-action@v13
         with:
-          name: fractopo
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: nialov
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Test with poetry on Python ${{ matrix.python-version }}
         run: |
           nix run .#poetry-run -- ${{ matrix.python-version }} pytest
@@ -49,8 +49,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v3
       - uses: cachix/cachix-action@v13
         with:
-          name: fractopo
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: nialov
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Build package with poetry
         run: |
           nix develop -c poetry check
@@ -115,8 +115,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@v3
       - uses: cachix/cachix-action@v13
         with:
-          name: fractopo
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          name: nialov
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Build documentation
         run: |
           nix build .#fractopo.passthru.documentation.doc
