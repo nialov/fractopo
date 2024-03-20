@@ -170,8 +170,6 @@ def tracevalidate(
     ),
     allow_fix: bool = typer.Option(
         True,
-        "--allow-fix",
-        "--fix",
         help=(
             "Enable the direct modification of output trace file to fix errors. "
             "Input files will not be modified unless specified as the --output target."
@@ -211,6 +209,7 @@ def tracevalidate(
     # Get input crs
     input_crs = traces.crs
 
+    print(dict(allow_fix=allow_fix))
     # Validate
     validation = Validation(
         traces,
