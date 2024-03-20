@@ -209,7 +209,6 @@ def tracevalidate(
     # Get input crs
     input_crs = traces.crs
 
-    print(dict(allow_fix=allow_fix))
     # Validate
     validation = Validation(
         traces,
