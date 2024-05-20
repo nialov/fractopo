@@ -43,7 +43,7 @@ conda
 .. code:: bash
 
    # Create new environment for fractopo (recommended but optional)
-   conda env create fractopo-env
+   conda env create -n fractopo-env
    conda activate fractopo-env
    # Available on conda-forge channel
    conda install -c conda-forge fractopo
