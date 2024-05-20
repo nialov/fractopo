@@ -125,6 +125,6 @@ jobs:
         with:
           # Upload folder with static docs
           path: "docs/"
-      - uses: actions/configure-pages@v4
+      - uses: actions/configure-pages@v5
       - id: deployment
         uses: actions/deploy-pages@v4
