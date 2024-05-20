@@ -60,7 +60,7 @@ conda
 .. code:: bash
 
    # Create new environment for fractopo (recommended but optional)
-   conda env create fractopo-env
+   conda env create -n fractopo-env
    conda activate fractopo-env
    # Available on conda-forge channel
    conda install -c conda-forge fractopo
@@ -467,7 +467,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: b1a760eff7bda5e9bd2c1927fad99782)
+.. [[[end]]] (checksum: 60fb9e5a533dcccc33604bfa3745dcd5)
 
 .. toctree::
    :hidden:
