@@ -54,24 +54,24 @@ typer = ">=0.4"
 
 # Extras
 # Coverage
-coverage = {version = "*", optional = true}
-coverage-badge = {version = "*", optional = true}
+# coverage = {version = "*", optional = true}
+# coverage-badge = {version = "*", optional = true}
 
 # Docs
-sphinx = {version = "*", optional = true}
-sphinx-rtd-theme = {version = "*", optional = true}
-nbsphinx = {version = "*", optional = true}
-sphinx-gallery = {version = "*", optional = true}
-sphinx-autodoc-typehints = {version = "*", optional = true}
-sphinx-autobuild = {version = "*", optional = true}
+# sphinx = {version = "*", optional = true}
+# sphinx-rtd-theme = {version = "*", optional = true}
+# nbsphinx = {version = "*", optional = true}
+# sphinx-gallery = {version = "*", optional = true}
+# sphinx-autodoc-typehints = {version = "*", optional = true}
+# sphinx-autobuild = {version = "*", optional = true}
 
 # Linting
-pylint = {version = "*", optional = true}
-rstcheck = {version = "*", optional = true}
-markupsafe = {version = "*", optional = true}
+# pylint = {version = "*", optional = true}
+# rstcheck = {version = "*", optional = true}
+# markupsafe = {version = "*", optional = true}
 
 # Typecheck
-mypy = {version = "*", optional = true}
+# mypy = {version = "*", optional = true}
 
 [tool.poetry.dev-dependencies]
 # TODO: copier could be installed outside the poetry environment
@@ -92,23 +92,23 @@ pytest = "*"
 pytest-regressions = ">=2.2.0,<3.0.0"
 toml = "*"
 
-[tool.poetry.extras]
-coverage = ["coverage", "coverage-badge"]
-docs = [
-    "sphinx",
-    "sphinx-rtd-theme",
-    "nbsphinx",
-    "sphinx-gallery",
-    "sphinx-autodoc-typehints",
-    "sphinx-autobuild"
-]
-lint = [
-    "pylint",
-    "rstcheck",
-    "sphinx",
-    "markupsafe",
-]
-typecheck = ["mypy"]
+# [tool.poetry.extras]
+# coverage = ["coverage", "coverage-badge"]
+# docs = [
+#     "sphinx",
+#     "sphinx-rtd-theme",
+#     "nbsphinx",
+#     "sphinx-gallery",
+#     "sphinx-autodoc-typehints",
+#     "sphinx-autobuild"
+# ]
+# lint = [
+#     "pylint",
+#     "rstcheck",
+#     "sphinx",
+#     "markupsafe",
+# ]
+# typecheck = ["mypy"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
