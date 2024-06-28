@@ -173,6 +173,12 @@ Simple example with trace and area data in ``GeoPackages``:
    trace_data = gpd.read_file("traces.gpkg")
    area_data = gpd.read_file("areas.gpkg")
 
+Trace data should consists of polyline geometries, i.e., of
+``LineString`` type. Trace data in ``MultiLineString`` format area not
+supported. Area data should consists of polygon geometries, i.e., of
+either ``Polygon`` or ``MultiPolygon`` type.
+
+
 Trace validation
 ~~~~~~~~~~~~~~~~
 
@@ -467,7 +473,7 @@ Copyright © 2020-2023, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 60fb9e5a533dcccc33604bfa3745dcd5)
+.. [[[end]]] (checksum: b13b20f510b41399a83639eb11e0064c)
 
 .. toctree::
    :hidden:

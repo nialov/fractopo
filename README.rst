@@ -156,6 +156,12 @@ Simple example with trace and area data in ``GeoPackages``:
    trace_data = gpd.read_file("traces.gpkg")
    area_data = gpd.read_file("areas.gpkg")
 
+Trace data should consists of polyline geometries, i.e., of
+``LineString`` type. Trace data in ``MultiLineString`` format area not
+supported. Area data should consists of polygon geometries, i.e., of
+either ``Polygon`` or ``MultiPolygon`` type.
+
+
 Trace validation
 ~~~~~~~~~~~~~~~~
 
