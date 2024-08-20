@@ -3,7 +3,7 @@
 
   inputs = {
     nix-extra = { url = "github:nialov/nix-extra"; };
-    nixpkgs.follows = "nix-extra/nixpkgs";
+    nixpkgs.follows = "nix-extra/nixpkgs-fractopo";
     flake-parts.follows = "nix-extra/flake-parts";
   };
 
