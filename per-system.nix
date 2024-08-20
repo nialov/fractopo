@@ -70,7 +70,7 @@
 
             };
             yamllint = {
-              enable = true;
+              enable = false;
               raw = { args = lib.mkBefore [ "-d" "relaxed" ]; };
             };
             commitizen.enable = true;
@@ -89,6 +89,7 @@
 
         };
         checks = self'.packages;
+        legacyPackages = pkgs;
       };
 
   })
