@@ -143,6 +143,7 @@ filterwarnings =[
     "ignore:'GeoSeries.swapaxes' is deprecated and will be removed in a future version:FutureWarning",
     "ignore:\\nPyarrow will become a required dependency of pandas:DeprecationWarning",
     "ignore:invalid value encountered in intersects",
+    "ignore:invalid value encountered in intersection",
     ]
 
 [tool.isort]
