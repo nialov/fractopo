@@ -1,6 +1,7 @@
 """
 Analysis and plotting of geometric and topological parameters.
 """
+
 import logging
 from itertools import compress
 from textwrap import fill
@@ -57,9 +58,9 @@ def determine_branch_type_counts(
     Determine branch type counts.
     """
     return {
-        str(branch_class): sum(branch_types == branch_class)
-        if branches_defined
-        else np.nan
+        str(branch_class): (
+            sum(branch_types == branch_class) if branches_defined else np.nan
+        )
         for branch_class in (
             CC_branch,
             CI_branch,
@@ -188,8 +189,11 @@ def plot_ternary_plot(
     # If only one set of counts is give, we are only plotting a single ternary
     # point
     if len(counts_list) == 1:
+        label = labels[0]
+        if len(label) == 0:
+            label = "Value"
         # Call plotter with single point
-        plotter(counts=counts_list[0], label=labels[0], tax=tax, color=colors[0])
+        plotter(counts=counts_list[0], label=label, tax=tax, color=colors[0])
 
         # Decorate plot
         decorator(ax, tax, counts=counts_list[0])
@@ -239,15 +243,15 @@ def plot_ternary_plot(
                     [point], color="black", **ternary_point_kwargs(s=35, zorder=3)
                 )
                 tax.scatter([point], label=label, color=color, **ternary_point_kwargs())
-    tax.legend(
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
-        edgecolor="black",
-        ncol=2,
-        columnspacing=0.7,
-        shadow=True,
-    )
+        tax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.15),
+            prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
+            edgecolor="black",
+            ncol=2,
+            columnspacing=0.7,
+            shadow=True,
+        )
 
     # Return Figure, Axes and TernaryAxesSubplot
     return fig, ax, tax
@@ -358,15 +362,15 @@ def plot_xyi_plot_ax(
         tax.scatter(
             points=[point], **ternary_point_kwargs(marker="o"), label=label, color=color
         )
-    tax.legend(
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
-        edgecolor="black",
-        ncol=2,
-        columnspacing=0.7,
-        shadow=True,
-    )
+        tax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.15),
+            prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
+            edgecolor="black",
+            ncol=2,
+            columnspacing=0.7,
+            shadow=True,
+        )
 
 
 def ternary_point_kwargs(
@@ -412,16 +416,15 @@ def plot_branch_plot_ax(
             color=color,
         )
 
-        # plot_ternary_point(tax=tax, point=point, marker="o", label=label, color=color)
-    tax.legend(
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.15),
-        prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
-        edgecolor="black",
-        ncol=2,
-        columnspacing=0.7,
-        shadow=True,
-    )
+        tax.legend(
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.15),
+            prop={"family": "DejaVu Sans", "weight": "heavy", "size": "x-large"},
+            edgecolor="black",
+            ncol=2,
+            columnspacing=0.7,
+            shadow=True,
+        )
 
 
 def decorate_branch_ax(
@@ -730,9 +733,9 @@ def determine_set_counts(
     Determine counts in for each set.
     """
     return {
-        set_name: sum(set_array == set_name)
-        if sum(set_array == set_name) is not None
-        else 0
+        set_name: (
+            sum(set_array == set_name) if sum(set_array == set_name) is not None else 0
+        )
         for set_name in set_names
     }
 
