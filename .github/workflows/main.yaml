@@ -20,7 +20,7 @@ jobs:
         # This also builds documentation (fractopo-documentation) so docs job
         # does not have to run every time
         run: |
-          nix flake check
+          nix run .#nix-fast-build -- --skip-cached --no-nom
   poetry:
     strategy:
       matrix:
