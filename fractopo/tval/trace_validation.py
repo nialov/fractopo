@@ -4,6 +4,7 @@ Contains main entrypoint class for validating trace data, Validation.
 Create Validation objects from traces and their target areas to validate
 the traces for further analysis (``fractopo.analysis.network.Network``).
 """
+
 import logging
 from dataclasses import dataclass
 from itertools import chain
@@ -36,7 +37,6 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class Validation:
-
     """
     Validate traces data delineated by target area(s).
 
@@ -216,6 +216,11 @@ class Validation:
         self.determine_validation_nodes = any(
             validator in VALIDATION_REQUIRES_NODES for validator in validators
         )
+
+        if self.traces.shape[0] == 0:
+            log.error(f"No traces in passed GeoDataFrame: {self.name}.")
+            empty_gdf: gpd.GeoDataFrame = self.traces.copy()
+            return empty_gdf
 
         # Check if target area is completely void of traces
         if not allow_empty_area and is_empty_area(area=self.area, traces=self.traces):

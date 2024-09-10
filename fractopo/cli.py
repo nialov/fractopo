@@ -1,6 +1,7 @@
 """
 Command-line integration of fractopo with click.
 """
+
 import json
 import logging
 import sys
@@ -44,7 +45,6 @@ AREA_FILE_HELP = "Path to target area data that delineates trace data."
 
 @unique
 class LogLevel(Enum):
-
     """
     Enums for log levels.
     """
@@ -231,6 +231,13 @@ def tracevalidate(
         choose_validators=choose_validators, allow_empty_area=allow_empty_area
     )
 
+    if validated_trace.shape[0] == 0:
+        CONSOLE.print(
+            Text.assemble(
+                ("Validation returned a GeoDataFrame with no traces.", "red"), ""
+            )
+        )
+
     # Set same crs as input if input had crs
     if input_crs is not None:
         validated_trace.crs = input_crs
@@ -265,7 +272,8 @@ def tracevalidate(
 
     # Change validation_error column to type: str and consequently save
     # the GeoDataFrame.
-    assert not isinstance(validated_trace[validation.ERROR_COLUMN].iloc[0], list)
+    if validated_trace.shape[0] != 0:
+        assert not isinstance(validated_trace[validation.ERROR_COLUMN].iloc[0], list)
     validated_trace.astype({validation.ERROR_COLUMN: str}).to_file(
         output_path, driver=save_driver
     )
@@ -332,9 +340,11 @@ def network(
         name=network_name,
         circular_target_area=circular_target_area,
         truncate_traces=truncate_traces,
-        censoring_area=read_geofile(censoring_area)
-        if censoring_area is not None
-        else gpd.GeoDataFrame(),
+        censoring_area=(
+            read_geofile(censoring_area)
+            if censoring_area is not None
+            else gpd.GeoDataFrame()
+        ),
     )
     (
         general_output_path,
@@ -403,17 +413,17 @@ def network(
     # json file
     json_data_arrays = {
         "trace_length_array": network.trace_length_array,
-        "branch_length_array": network.branch_length_array
-        if determine_branches_nodes
-        else None,
+        "branch_length_array": (
+            network.branch_length_array if determine_branches_nodes else None
+        ),
         "trace_azimuth_array": network.trace_azimuth_array,
-        "branch_azimuth_array": network.branch_azimuth_array
-        if determine_branches_nodes
-        else None,
+        "branch_azimuth_array": (
+            network.branch_azimuth_array if determine_branches_nodes else None
+        ),
         "trace_azimuth_set_array": network.trace_azimuth_set_array,
-        "branch_azimuth_set_array": network.branch_azimuth_set_array
-        if determine_branches_nodes
-        else None,
+        "branch_azimuth_set_array": (
+            network.branch_azimuth_set_array if determine_branches_nodes else None
+        ),
     }
     json_data_lists = {
         key: (item.tolist() if item is not None else None)
