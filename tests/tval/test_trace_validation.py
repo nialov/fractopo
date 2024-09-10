@@ -46,6 +46,9 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
     validated_gdf = Validation(
         traces, area, name, allow_fix, **additional_kwargs
     ).run_validation()
+    if traces.shape[0] == 0:
+        assert validated_gdf.shape[0] == 0
+        return
     assert isinstance(validated_gdf, gpd.GeoDataFrame)
     assert Validation.ERROR_COLUMN in validated_gdf.columns.values
     if assume_errors is not None:

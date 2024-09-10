@@ -869,6 +869,15 @@ test_validation_params = [
         True,  # auto_fix
         [StackedTracesValidator.ERROR],  # assume_errors
     ),
+    (
+        gpd.GeoDataFrame(geometry=[]),  # traces
+        gpd.GeoSeries(
+            [box(0, 0, 10, 10)],
+        ),  # area
+        "empty_geodataframe",  # name
+        True,  # auto_fix
+        [],  # assume_errors
+    ),
 ]
 
 test_determine_v_nodes_params = [
