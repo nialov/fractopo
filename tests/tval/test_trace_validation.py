@@ -1,6 +1,7 @@
 """
 Test trace Validation.
 """
+
 from typing import List, Optional
 
 import geopandas as gpd
@@ -48,12 +49,14 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
     assert isinstance(validated_gdf, gpd.GeoDataFrame)
     assert Validation.ERROR_COLUMN in validated_gdf.columns.values
     if assume_errors is not None:
+        flat_validated_gdf_errors = [
+            val
+            for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
+            for val in subgroup
+        ]
+        if len(assume_errors) == 0:
+            assert len(flat_validated_gdf_errors) == 0
         for assumed_error in assume_errors:
-            flat_validated_gdf_errors = [
-                val
-                for subgroup in validated_gdf[Validation.ERROR_COLUMN].values
-                for val in subgroup
-            ]
             assert assumed_error in flat_validated_gdf_errors
     validated_gdf[Validation.ERROR_COLUMN] = validated_gdf[
         Validation.ERROR_COLUMN

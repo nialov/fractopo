@@ -1,6 +1,7 @@
 """
 Test parameters i.e. sample data, known past errors, etc.
 """
+
 import os
 
 if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
@@ -436,6 +437,10 @@ nice_traces = gpd.GeoSeries(
     ]
 )
 
+vuosnaisten_invalid_traces = gpd.read_file(
+    Path("tests/sample_data/vuosnaisteninter_invalid_traces.geojson")
+)
+
 
 def get_nice_traces():
     """
@@ -786,7 +791,7 @@ test_validation_params = [
         hastholmen_area,  # area
         "hastholmen_traces",  # name
         True,  # auto_fix
-        [],  # assume_errors
+        [GeomTypeValidator.ERROR],  # assume_errors
     ),
     (
         gpd.GeoDataFrame(
@@ -801,19 +806,7 @@ test_validation_params = [
     ),
     (
         gpd.GeoDataFrame(geometry=[LineString([(0, 0), (0, 1)])]),  # traces
-        gpd.GeoDataFrame(
-            geometry=[
-                box(-1, -1, 1, 1.011)
-                # Polygon(
-                #     [
-                #         Point(-1, -1),
-                #         Point(-1, 1.011),
-                #         Point(1, 1.011),
-                #         Point(1, -1),
-                #     ]
-                # )
-            ]
-        ),  # area
+        gpd.GeoDataFrame(geometry=[box(-1, -1, 1, 1.011)]),  # area
         "TargetAreaSnapValidator error",  # name
         True,  # auto_fix
         [TargetAreaSnapValidator.ERROR],  # assume_errors
@@ -825,23 +818,7 @@ test_validation_params = [
         gpd.GeoDataFrame(
             geometry=[
                 box(-1, -1, 1, 1.011),
-                # Polygon(
-                #     [
-                #         Point(-1, -1),
-                #         Point(-1, 1.011),
-                #         Point(1, 1.011),
-                #         Point(1, -1),
-                #     ]
-                # ),
                 box(2, 2, 6, 6.011),
-                # Polygon(
-                #     [
-                #         Point(2, 2),
-                #         Point(2, 6.011),
-                #         Point(6, 6.011),
-                #         Point(6, 2),
-                #     ]
-                # ),
             ]
         ),  # area
         "TargetAreaSnapValidator error",  # name
@@ -857,23 +834,7 @@ test_validation_params = [
                 MultiPolygon(
                     [
                         box(-1, -1, 1, 1.011),
-                        # Polygon(
-                        #     [
-                        #         Point(-1, -1),
-                        #         Point(-1, 1.011),
-                        #         Point(1, 1.011),
-                        #         Point(1, -1),
-                        #     ]
-                        # ),
                         box(2, 2, 6, 6.011),
-                        # Polygon(
-                        #     [
-                        #         Point(2, 2),
-                        #         Point(2, 6.011),
-                        #         Point(6, 6.011),
-                        #         Point(6, 2),
-                        #     ]
-                        # ),
                     ]
                 )
             ]
@@ -897,6 +858,16 @@ test_validation_params = [
         "traces-with-z-coordinates",  # name
         True,  # auto_fix
         [],  # assume_errors
+    ),
+    (
+        vuosnaisten_invalid_traces,  # traces
+        gpd.GeoSeries(
+            [general.bounding_polygon(vuosnaisten_invalid_traces)],
+            crs=vuosnaisten_invalid_traces.crs,
+        ),  # area
+        "vuosnaisten_invalid_traces",  # name
+        True,  # auto_fix
+        [StackedTracesValidator.ERROR],  # assume_errors
     ),
 ]
 
@@ -1637,13 +1608,15 @@ def generate_known_params(error, false_positive):
         known_errors[error] if not false_positive else known_false_positives[error]
     )
     amounts = [
-        (gdf.shape[0] if not hasattr(gdf, "error_amount") else gdf.error_amount)
-        if error
-        not in (
-            UnderlappingSnapValidator._UNDERLAPPING,
-            UnderlappingSnapValidator._OVERLAPPING,
+        (
+            (gdf.shape[0] if not hasattr(gdf, "error_amount") else gdf.error_amount)
+            if error
+            not in (
+                UnderlappingSnapValidator._UNDERLAPPING,
+                UnderlappingSnapValidator._OVERLAPPING,
+            )
+            else 1
         )
-        else 1
         for gdf in knowns
     ]
     try:
