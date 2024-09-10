@@ -1,6 +1,7 @@
 """
 Direct utilities of trace validation.
 """
+
 import logging
 from typing import List, Optional, Tuple
 
@@ -93,7 +94,7 @@ def segment_within_buffer(
             min_x=min_x,
             min_y=min_y,
             max_x=max_x,
-            max_y=max_y
+            max_y=max_y,
             # *end, min_x, min_y, max_x, max_y
         ):
             ls = LineString([start, end])
@@ -262,7 +263,14 @@ def is_underlapping(
     """
     Determine if a geom is underlapping.
     """
-    split_results = list(split(geom, trace).geoms)
+    try:
+        split_results = list(split(geom, trace).geoms)
+    except ValueError:
+        log.warning(
+            "Expected split to work between geom and trace. Probably overlapping geometries.",
+            exc_info=True,
+        )
+        return None
     if len(split_results) == 1:
         # Do not intersect
         return True

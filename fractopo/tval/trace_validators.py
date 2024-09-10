@@ -1,6 +1,7 @@
 """
 Contains Validator classes which each have their own error to handle and mark.
 """
+
 import logging
 from typing import Any, List, Optional, Set, Tuple, Type, Union
 
@@ -35,7 +36,6 @@ log = logging.getLogger(__name__)
 
 
 class BaseValidator:
-
     """
     Base validator that all classes inherit.
 
@@ -62,7 +62,6 @@ class BaseValidator:
 
 
 class GeomTypeValidator(BaseValidator):
-
     """
     Validates the geometry type.
 
@@ -117,7 +116,6 @@ class GeomTypeValidator(BaseValidator):
 
 
 class MultiJunctionValidator(BaseValidator):
-
     """
     Validates that junctions consists of a maximum of two lines crossing.
     """
@@ -178,7 +176,6 @@ class MultiJunctionValidator(BaseValidator):
 
 
 class VNodeValidator(BaseValidator):
-
     """
     Finds V-nodes within trace data.
     """
@@ -229,7 +226,6 @@ class VNodeValidator(BaseValidator):
 
 
 class MultipleCrosscutValidator(BaseValidator):
-
     """
     Find traces that cross-cut each other multiple times.
 
@@ -281,7 +277,6 @@ class MultipleCrosscutValidator(BaseValidator):
 
 
 class UnderlappingSnapValidator(BaseValidator):
-
     """
     Find snapping errors of underlapping traces.
 
@@ -353,19 +348,23 @@ class UnderlappingSnapValidator(BaseValidator):
                         snap_threshold_error_multiplier,
                     )
                     if is_ul_result is None:
-                        raise ValueError("Expected is_ul_result to not be None.")
-                    if is_ul_result:
+                        if geom.overlaps(trace):
+                            cls.ERROR = StackedTracesValidator.ERROR
+                        else:
+                            raise ValueError(
+                                "Expected None is_ul_result to indicate overlapping traces."
+                            )
+                    elif is_ul_result:
                         # Underlapping
                         cls.ERROR = cls._UNDERLAPPING
-                        return False
-                    cls.ERROR = cls._OVERLAPPING
+                    else:
+                        cls.ERROR = cls._OVERLAPPING
                     return False
 
         return True
 
 
 class TargetAreaSnapValidator(BaseValidator):
-
     """
     Validator for traces that underlap the target area.
     """
@@ -520,7 +519,6 @@ class TargetAreaSnapValidator(BaseValidator):
 
 
 class GeomNullValidator(BaseValidator):
-
     """
     Validate the geometry for NULL GEOMETRY errors.
     """
@@ -557,7 +555,6 @@ class GeomNullValidator(BaseValidator):
 
 
 class StackedTracesValidator(BaseValidator):
-
     """
     Find stacked traces and small triangle intersections.
     """
@@ -651,7 +648,6 @@ class StackedTracesValidator(BaseValidator):
 
 
 class SimpleGeometryValidator(BaseValidator):
-
     """
     Use shapely is_simple and is_ring attributes to validate LineString.
 
@@ -669,7 +665,6 @@ class SimpleGeometryValidator(BaseValidator):
 
 
 class SharpCornerValidator(BaseValidator):
-
     """
     Find sharp cornered traces.
     """
@@ -724,7 +719,6 @@ class SharpCornerValidator(BaseValidator):
 
 
 class EmptyTargetAreaValidator(BaseValidator):
-
     """
     Stub validator for empty target area.
 

@@ -1,6 +1,7 @@
 """
 Contains general calculation and plotting tools.
 """
+
 import json
 import logging
 import math
@@ -30,6 +31,7 @@ from matplotlib.figure import Figure
 from shapely import prepared, wkb
 from shapely.affinity import scale
 from shapely.geometry import (
+    GeometryCollection,
     LineString,
     MultiLineString,
     MultiPoint,
@@ -99,18 +101,20 @@ MINIMUM_LINE_LENGTH = 1e-18
 DEFAULT_FRACTOPO_CACHE_PATH = Path(".cache/fractopo")
 
 JOBLIB_CACHE = Memory(
-    os.environ.get("FRACTOPO_CACHE_PATH", DEFAULT_FRACTOPO_CACHE_PATH)
-    # Disk caching is disabled in pytest execution by setting an environment
-    # variable FRACTOPO_DISABLE_CACHE to a non-zero string (i.e. "1") However,
-    # it can be enabled even in tests by setting FRACTOPO_DISABLE_CACHE to 0
-    if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0") else None,
+    (
+        os.environ.get("FRACTOPO_CACHE_PATH", DEFAULT_FRACTOPO_CACHE_PATH)
+        # Disk caching is disabled in pytest execution by setting an environment
+        # variable FRACTOPO_DISABLE_CACHE to a non-zero string (i.e. "1") However,
+        # it can be enabled even in tests by setting FRACTOPO_DISABLE_CACHE to 0
+        if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0")
+        else None
+    ),
     verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
 )
 
 
 @dataclass
 class ProcessResult:
-
     """
     Dataclass for multiprocessing result parsing.
     """
@@ -122,7 +126,6 @@ class ProcessResult:
 
 @unique
 class Col(Enum):
-
     """
     GeoDataFrame column names for attributes.
     """
@@ -162,7 +165,6 @@ def fallback_aggregation(values) -> str:
 
 @unique
 class Aggregator(Enum):
-
     """
     Define how to aggregate during subsample aggragation.
     """
@@ -173,7 +175,6 @@ class Aggregator(Enum):
 
 @dataclass
 class ParamInfo:
-
     """
     Parameter with name and metadata.
     """
@@ -188,7 +189,6 @@ class ParamInfo:
 
 @unique
 class Param(Enum):
-
     """
     Column names for geometric and topological parameters.
 
@@ -719,7 +719,7 @@ def point_to_xy(point: Point) -> Tuple[float, float]:
 
 @JOBLIB_CACHE.cache
 def determine_general_nodes(
-    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
 ) -> Tuple[List[Tuple[Point, ...]], List[Tuple[Point, ...]]]:
     """
     Determine points of intersection and endpoints of given trace LineStrings.
@@ -876,6 +876,15 @@ def determine_valid_intersection_points(
             log.error(f"Expected geom ({geom.wkt}) not to be of type LineString.")
         elif isinstance(geom, MultiLineString):
             log.error(f"Expected geom ({geom.wkt}) not to be of type MultiLineString.")
+        elif isinstance(geom, GeometryCollection):
+            for collection_geom in geom.geoms:
+                if isinstance(collection_geom, Point):
+                    valid_interaction_points.append(collection_geom)
+                else:
+                    log.warning(
+                        f"Expected collection_geom ({collection_geom.wkt}) to be of type Point"
+                    )
+
         else:
             raise TypeError(
                 "Expected (Multi)Point or (Multi)LineString geometries"
@@ -905,7 +914,7 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
 
 
 def flatten_tuples(
-    list_of_tuples: List[Tuple[Any, ...]]
+    list_of_tuples: List[Tuple[Any, ...]],
 ) -> Tuple[List[int], List[Any]]:
     """
     Flatten collection of tuples and return index references.
@@ -1353,7 +1362,7 @@ def dissolve_multi_part_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
 
 
 def dissolve_multi_part_traces(
-    traces: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+    traces: Union[gpd.GeoDataFrame, gpd.GeoSeries],
 ) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
     """
     Dissolve MultiLineStrings in GeoDataFrame or GeoSeries.
@@ -1510,7 +1519,7 @@ def within_bounds(
 
 
 def geom_bounds(
-    geom: Union[LineString, Polygon, MultiPolygon]
+    geom: Union[LineString, Polygon, MultiPolygon],
 ) -> Tuple[float, float, float, float]:
     """
     Get LineString or Polygon bounds.
@@ -1539,7 +1548,7 @@ def geom_bounds(
 
 
 def total_bounds(
-    geodata: Union[gpd.GeoSeries, gpd.GeoDataFrame]
+    geodata: Union[gpd.GeoSeries, gpd.GeoDataFrame],
 ) -> Tuple[float, float, float, float]:
     """
     Get total bounds of geodataset.
@@ -1561,7 +1570,7 @@ def total_bounds(
 
 
 def pygeos_spatial_index(
-    geodataset: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+    geodataset: Union[gpd.GeoDataFrame, gpd.GeoSeries],
 ) -> PyGEOSSTRTreeIndex:
     """
     Get PyGEOSSTRTreeIndex from geopandas dataset.
@@ -2065,7 +2074,7 @@ def check_for_z_coordinates(geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]) -> 
 
 
 def remove_z_coordinates_from_geodata(
-    geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+    geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries],
 ) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
     """
     Remove Z-coordinates from geometries in geopandasgeodata.
