@@ -17,7 +17,7 @@ import sys
 from functools import lru_cache, wraps
 from pathlib import Path
 from traceback import print_tb
-from typing import Any, List
+from typing import Any, List, NamedTuple, Optional
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -441,6 +441,10 @@ vuosnaisten_invalid_traces = gpd.read_file(
     Path("tests/sample_data/vuosnaisteninter_invalid_traces.geojson")
 )
 
+stacked_and_v_node_error = gpd.read_file(
+    Path("tests/sample_data/validation_errors_202410/stacked_and_v_node_error.geojson")
+)
+
 
 def get_nice_traces():
     """
@@ -771,29 +775,37 @@ intersects_next_trace_3_times = LineString(
 
 # Straight line which is intersected twice by same line
 intersected_3_times = LineString([Point(-3, -4), Point(-3, -1)])
-test_validation_params = [
-    (
+
+
+class ValidationParamType(NamedTuple):
+    traces: gpd.GeoDataFrame
+    area: gpd.GeoDataFrame
+    name: str
+    assume_errors: Optional[list]
+    allow_fix: bool = True
+    snap_threshold: float = 0.01
+
+
+test_validation_params: List[ValidationParamType] = [
+    ValidationParamType(
         kb7_traces_50,  # traces
         kb7_area,  # area
         "kb7",  # name
-        True,  # auto_fix
         [SharpCornerValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         kb7_traces_50_z,  # traces
         kb7_area,  # area
         "kb7_z_coordinates",  # name
-        True,  # auto_fix
         [SharpCornerValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         hastholmen_traces,  # traces
         hastholmen_area,  # area
         "hastholmen_traces",  # name
-        True,  # auto_fix
         [GeomTypeValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(
             geometry=make_invalid_traces(
                 snap_threshold=0.01, snap_threshold_error_multiplier=1.1
@@ -801,17 +813,15 @@ test_validation_params = [
         ),  # traces
         gpd.GeoDataFrame(geometry=make_invalid_target_areas()),  # area
         "invalid_traces",  # name
-        True,  # auto_fix
         None,  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(geometry=[LineString([(0, 0), (0, 1)])]),  # traces
         gpd.GeoDataFrame(geometry=[box(-1, -1, 1, 1.011)]),  # area
         "TargetAreaSnapValidator error",  # name
-        True,  # auto_fix
         [TargetAreaSnapValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(
             geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
         ),  # traces
@@ -822,10 +832,9 @@ test_validation_params = [
             ]
         ),  # area
         "TargetAreaSnapValidator error",  # name
-        True,  # auto_fix
         [TargetAreaSnapValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(
             geometry=[LineString([(0, 0), (0, 1)]), LineString([(5, 5), (5, 6)])]
         ),  # traces
@@ -840,10 +849,9 @@ test_validation_params = [
             ]
         ),  # area
         "TargetAreaSnapValidator error",  # name
-        True,  # auto_fix
         [TargetAreaSnapValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(
             geometry=[
                 LineString([(0, 0, 0), (1, 1, 1)]),
@@ -856,27 +864,34 @@ test_validation_params = [
             ]
         ),  # area
         "traces-with-z-coordinates",  # name
-        True,  # auto_fix
         [],  # assume_errors
     ),
-    (
+    ValidationParamType(
         vuosnaisten_invalid_traces,  # traces
         gpd.GeoSeries(
             [general.bounding_polygon(vuosnaisten_invalid_traces)],
             crs=vuosnaisten_invalid_traces.crs,
         ),  # area
         "vuosnaisten_invalid_traces",  # name
-        True,  # auto_fix
         [StackedTracesValidator.ERROR],  # assume_errors
     ),
-    (
+    ValidationParamType(
         gpd.GeoDataFrame(geometry=[]),  # traces
         gpd.GeoSeries(
             [box(0, 0, 10, 10)],
         ),  # area
         "empty_geodataframe",  # name
-        True,  # auto_fix
         [],  # assume_errors
+    ),
+    ValidationParamType(
+        stacked_and_v_node_error,  # traces
+        gpd.GeoSeries(
+            [general.bounding_polygon(stacked_and_v_node_error)],
+            crs=stacked_and_v_node_error.crs,
+        ),  # area
+        "stacked_and_v_node_error",  # name
+        [StackedTracesValidator.ERROR],  # assume_errors
+        snap_threshold=0.001,
     ),
 ]
 
@@ -1369,14 +1384,15 @@ test_safer_unary_union_params = [
 ]
 
 test_segment_within_buffer_params = [
-    (valid_geom, invalid_geom_multilinestring, 0.001, 1.1, 50, True),
-    (valid_geom, mergeable_geom_multilinestring, 0.001, 1.1, 50, True),
+    (valid_geom, invalid_geom_multilinestring, 0.001, 1.1, 50, 5, True),
+    (valid_geom, mergeable_geom_multilinestring, 0.001, 1.1, 50, 5, True),
     (
         valid_geom,
         MultiLineString([LineString([(10, 10), (50, 50)])]),
         0.001,
         1.1,
         50,
+        5,
         False,
     ),
     (
@@ -1386,6 +1402,7 @@ test_segment_within_buffer_params = [
         0.001,
         1.1,
         50,
+        5,
         True,
     ),
 ]
@@ -1577,6 +1594,7 @@ known_errors[GeomNullValidator.ERROR] = known_null_gdfs
 known_errors[
     UnderlappingSnapValidator._OVERLAPPING
 ] = known_non_underlaping_gdfs_but_overlapping
+
 
 # False Positives
 # ===============

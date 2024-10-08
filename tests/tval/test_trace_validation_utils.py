@@ -1,6 +1,7 @@
 """
 Test trace_validation_utils.
 """
+
 import pytest
 from shapely.geometry import LineString
 
@@ -10,7 +11,7 @@ import tests
 
 @pytest.mark.parametrize(
     "linestring,multilinestring,snap_threshold,snap_threshold_error_multiplier,"
-    "overlap_detection_multiplier,assume_result",
+    "overlap_detection_multiplier,stacked_detector_buffer_multiplier,assume_result",
     tests.test_segment_within_buffer_params,
 )
 def test_segment_within_buffer(
@@ -19,6 +20,7 @@ def test_segment_within_buffer(
     snap_threshold,
     snap_threshold_error_multiplier,
     overlap_detection_multiplier,
+    stacked_detector_buffer_multiplier,
     assume_result,
 ):
     """
@@ -30,6 +32,7 @@ def test_segment_within_buffer(
         snap_threshold,
         snap_threshold_error_multiplier,
         overlap_detection_multiplier,
+        stacked_detector_buffer_multiplier,
     )
     assert isinstance(result, bool)
     assert assume_result == result

@@ -30,10 +30,12 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
 
 
 @pytest.mark.parametrize(
-    "traces,area,name,allow_fix,assume_errors",
+    "traces,area,name,assume_errors,allow_fix,snap_threshold",
     tests.test_validation_params,
 )
-def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[str]]):
+def test_validation(
+    traces, area, name, allow_fix, assume_errors: Optional[List[str]], snap_threshold
+):
     """
     Test Validation.
     """
@@ -44,7 +46,12 @@ def test_validation(traces, area, name, allow_fix, assume_errors: Optional[List[
         )
 
     validated_gdf = Validation(
-        traces, area, name, allow_fix, **additional_kwargs
+        traces,
+        area,
+        name,
+        allow_fix,
+        **additional_kwargs,
+        SNAP_THRESHOLD=snap_threshold,
     ).run_validation()
     if traces.shape[0] == 0:
         assert validated_gdf.shape[0] == 0
