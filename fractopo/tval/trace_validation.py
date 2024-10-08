@@ -55,6 +55,7 @@ class Validation:
     AREA_EDGE_SNAP_MULTIPLIER: float = 1.5
     TRIANGLE_ERROR_SNAP_MULTIPLIER: float = 10.0
     OVERLAP_DETECTION_MULTIPLIER: float = 50.0
+    STACKED_DETECTOR_BUFFER_MULTIPLIER: float = 5.0
     # TODO: Separate SHARP TURNS to major and minor
     SHARP_AVG_THRESHOLD: float = 135.0
     SHARP_PREV_SEG_THRESHOLD: float = 100.0
@@ -270,6 +271,7 @@ class Validation:
                     snap_threshold_error_multiplier=self.SNAP_THRESHOLD_ERROR_MULTIPLIER,
                     overlap_detection_multiplier=self.OVERLAP_DETECTION_MULTIPLIER,
                     triangle_error_snap_multiplier=self.TRIANGLE_ERROR_SNAP_MULTIPLIER,
+                    stacked_detector_buffer_multiplier=self.STACKED_DETECTOR_BUFFER_MULTIPLIER,
                     trace_candidates=trace_candidates,
                     sharp_avg_threshold=self.SHARP_AVG_THRESHOLD,
                     sharp_prev_seg_threshold=self.SHARP_PREV_SEG_THRESHOLD,

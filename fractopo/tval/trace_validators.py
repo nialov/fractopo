@@ -569,6 +569,7 @@ class StackedTracesValidator(BaseValidator):
         snap_threshold_error_multiplier: float,
         overlap_detection_multiplier: float,
         triangle_error_snap_multiplier: float,
+        stacked_detector_buffer_multiplier: float,
         **_,
     ) -> bool:
         """
@@ -580,6 +581,7 @@ class StackedTracesValidator(BaseValidator):
         >>> snap_threshold_error_multiplier = 1.1
         >>> overlap_detection_multiplier = 50
         >>> triangle_error_snap_multiplier = 10
+        >>> stacked_detector_buffer_multiplier = 5
         >>> StackedTracesValidator.validation_method(
         ...     geom,
         ...     trace_candidates,
@@ -587,6 +589,7 @@ class StackedTracesValidator(BaseValidator):
         ...     snap_threshold_error_multiplier,
         ...     overlap_detection_multiplier,
         ...     triangle_error_snap_multiplier,
+        ...     stacked_detector_buffer_multiplier,
         ... )
         False
 
@@ -596,6 +599,7 @@ class StackedTracesValidator(BaseValidator):
         >>> snap_threshold_error_multiplier = 1.1
         >>> overlap_detection_multiplier = 50
         >>> triangle_error_snap_multiplier = 10
+        >>> stacked_detector_buffer_multiplier = 10
         >>> StackedTracesValidator.validation_method(
         ...     geom,
         ...     trace_candidates,
@@ -603,6 +607,7 @@ class StackedTracesValidator(BaseValidator):
         ...     snap_threshold_error_multiplier,
         ...     overlap_detection_multiplier,
         ...     triangle_error_snap_multiplier,
+        ...     stacked_detector_buffer_multiplier,
         ... )
         True
 
@@ -630,6 +635,7 @@ class StackedTracesValidator(BaseValidator):
             snap_threshold=snap_threshold,
             snap_threshold_error_multiplier=snap_threshold_error_multiplier,
             overlap_detection_multiplier=overlap_detection_multiplier,
+            stacked_detector_buffer_multiplier=stacked_detector_buffer_multiplier,
         ):
             return False
 

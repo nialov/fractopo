@@ -27,6 +27,7 @@ def segment_within_buffer(
     snap_threshold: float,
     snap_threshold_error_multiplier: float,
     overlap_detection_multiplier: float,
+    stacked_detector_buffer_multiplier: float,
 ) -> bool:
     """
     Check if segment is within buffer of multilinestring.
@@ -48,7 +49,9 @@ def segment_within_buffer(
         return True
 
     buffered_linestring = safe_buffer(
-        linestring, snap_threshold * snap_threshold_error_multiplier
+        linestring,
+        (snap_threshold * snap_threshold_error_multiplier)
+        * stacked_detector_buffer_multiplier,
     )
     assert isinstance(linestring, LineString)
     assert isinstance(buffered_linestring, Polygon)
