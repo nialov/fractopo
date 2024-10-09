@@ -17,7 +17,7 @@ import sys
 from functools import lru_cache, wraps
 from pathlib import Path
 from traceback import print_tb
-from typing import Any, List, NamedTuple, Optional
+from typing import Any, List, NamedTuple, Optional, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -445,6 +445,12 @@ stacked_and_v_node_error = gpd.read_file(
     Path("tests/sample_data/validation_errors_202410/stacked_and_v_node_error.geojson")
 )
 
+expected_stacked_traces_error = gpd.read_file(
+    Path(
+        "tests/sample_data/validation_errors_202410/expected_stacked_traces_error.geojson"
+    )
+)
+
 
 def get_nice_traces():
     """
@@ -779,7 +785,7 @@ intersected_3_times = LineString([Point(-3, -4), Point(-3, -1)])
 
 class ValidationParamType(NamedTuple):
     traces: gpd.GeoDataFrame
-    area: gpd.GeoDataFrame
+    area: Union[gpd.GeoDataFrame, gpd.GeoSeries]
     name: str
     assume_errors: Optional[list]
     allow_fix: bool = True
@@ -890,6 +896,16 @@ test_validation_params: List[ValidationParamType] = [
             crs=stacked_and_v_node_error.crs,
         ),  # area
         "stacked_and_v_node_error",  # name
+        [StackedTracesValidator.ERROR],  # assume_errors
+        snap_threshold=0.001,
+    ),
+    ValidationParamType(
+        expected_stacked_traces_error,  # traces
+        gpd.GeoSeries(
+            [general.bounding_polygon(expected_stacked_traces_error)],
+            crs=expected_stacked_traces_error.crs,
+        ),  # area
+        "expected_stacked_traces_error",  # name
         [StackedTracesValidator.ERROR],  # assume_errors
         snap_threshold=0.001,
     ),

@@ -31,7 +31,7 @@ def test__validate(validator, geom, current_errors, allow_fix, assumed_result):
 
 @pytest.mark.parametrize(
     "traces,area,name,assume_errors,allow_fix,snap_threshold",
-    tests.test_validation_params,
+    [pytest.param(*param, id=param.name) for param in tests.test_validation_params],
 )
 def test_validation(
     traces, area, name, allow_fix, assume_errors: Optional[List[str]], snap_threshold
