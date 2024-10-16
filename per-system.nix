@@ -56,7 +56,11 @@
         pre-commit = {
           check.enable = true;
           settings.hooks = {
-            nixfmt.enable = true;
+            nixfmt-classic = {
+              enable = true;
+              # TODO: flakeModule uses newer version of nixpkgs where nixfmt is renamed to -classic
+              package = pkgs.nixfmt;
+            };
             black.enable = true;
             black-nb.enable = true;
             nbstripout.enable = true;
