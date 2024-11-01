@@ -115,7 +115,7 @@ def plotting_test(func):
             is_expected_error = any(
                 part in str(exc)
                 for part in ("init.tcl", "tk.tcl", "_tkinter", "TclError")
-            )
+            ) or "TclError" in str(exc.__class__)
 
             if sys.platform == "win32" and is_expected_error:
                 log.error(
