@@ -33,7 +33,6 @@
             pandoc
             poetry-with-c-tooling
             # Supported python versions
-            python38
             python39
             python310
             python311
