@@ -16,12 +16,6 @@
                     "fractopo" = pythonPrev.fractopo.overridePythonAttrs
                       # Test with local source
                       (_: { src = self.outPath; });
-                    # TODO: sphinx-gallery tests fail which is a nix-extra problem(upstream)
-                    sphinx-gallery =
-                      pythonPrev.sphinx-gallery.overridePythonAttrs
-                      (_: { doCheck = false; });
-                    # TODO: Can be removed after nix-extra update
-                    pygeos = null;
                   })
                 ];
                 inherit (final.python3Packages) fractopo;
