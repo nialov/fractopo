@@ -79,6 +79,10 @@
             };
             commitizen.enable = true;
             ruff = { enable = true; };
+            prettier = {
+              enable = true;
+              files = "\\.(geojson)$";
+            };
           };
 
         };
