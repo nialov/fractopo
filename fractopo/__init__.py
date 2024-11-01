@@ -17,7 +17,7 @@ from fractopo.tval.trace_validation import Validation  # noqa: E402,C0413
 
 log = logging.getLogger(__name__)
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 
 log.info(

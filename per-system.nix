@@ -58,7 +58,7 @@
             rstcheck.enable = true;
             trim-trailing-whitespace.enable = true;
             check-added-large-files.enable = true;
-            sync-git-tag-with-poetry.enable = true;
+            sync-git-tag-with-poetry.enable = false;
             editorconfig-checker.enable = true;
             cogapp = {
               enable = true;

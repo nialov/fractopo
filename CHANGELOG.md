@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.7.0 (2024-11-1)
+
+This release drops support for `pygeos` and Python 3.8 🐍 following
+upstream packages. This has resulting in code refactoring and fixes. No
+new features.
+
+### Bug Fixes
+
+-   **analysis:** Topological plotting fixes
+-   **cli:**
+    -   Fix allow_fix option for `network tracevalidate`
+-   **tval:**
+    -   Improve stacked (`STACKED TRACES`) detection
+    -   Handle empty trace geodataframe
+    -   Handle split overlap error
+    -   Handle flaky `shapely` overlap detection
+-   Force return types for some flaky functions (convert to `float`)
+-   Remove all `pygeos` references, i.e., stop using it as it is merged
+    into `shapely`
+
 ## v0.6.0 (2023-12-14)
 
 ### New Features
