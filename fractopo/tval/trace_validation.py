@@ -138,7 +138,7 @@ class Validation:
     @property
     def spatial_index(self) -> Optional[Any]:
         """
-        Get geopandas/pygeos spatial_index of traces.
+        Get geopandas spatial index of traces.
         """
         if self._spatial_index is None:
             spatial_index: SpatialIndex = self.traces.sindex
