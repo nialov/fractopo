@@ -32,10 +32,6 @@
             pre-commit
             pandoc
             poetry-with-c-tooling
-            # Supported python versions
-            python39
-            python310
-            python311
           ];
 
         in {
@@ -85,8 +81,6 @@
         packages = {
 
           inherit (pkgs) fractopo poetry-run;
-          fractopo310 = pkgs.python310Packages.fractopo;
-          fractopo311 = pkgs.python311Packages.fractopo;
           fractopo-documentation =
             self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
