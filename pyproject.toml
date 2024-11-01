@@ -35,13 +35,13 @@ fractopo = "fractopo.__main__:APP"
 
 # Changes here should be kept in sync with ./environment.yml
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.9,<3.13"
 click = "*"
 geopandas = ">=1.0.0"
 joblib = ">=1.2.0"
 matplotlib = ">=3.5.3"
-numpy = "*"
-pandas = ">=1.3,<3.0.0"
+numpy = ">=2.0.0"
+pandas = ">=2.1.0,<3.0.0"
 powerlaw = "*"
 python-ternary = "*"
 rich = ">=11.0.0"
@@ -50,6 +50,7 @@ scipy = ">=1.9.1"
 seaborn = "*"
 shapely = ">=2.0.0,<3.0.0"
 typer = ">=0.4"
+pyproj = ">=3.6.0"
 
 [tool.poetry.dev-dependencies]
 codespell = "^2.2.2"
@@ -98,6 +99,9 @@ filterwarnings =[
     "ignore:'GeoSeries.swapaxes' is deprecated and will be removed in a future version:FutureWarning",
     "ignore:\\nPyarrow will become a required dependency of pandas:DeprecationWarning",
     "ignore:invalid value encountered in",
+    # joblib >=1.2.0 upstream issues
+    "ignore:ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead:DeprecationWarning",
+    "ignore:Attribute n is deprecated and will be removed in Python 3.14; use value instead:DeprecationWarning",
     ]
 
 [tool.isort]
