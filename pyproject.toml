@@ -51,34 +51,10 @@ seaborn = "*"
 shapely = ">=2.0.0,<3.0.0"
 typer = ">=0.4"
 
-# Extras
-# Coverage
-# coverage = {version = "*", optional = true}
-# coverage-badge = {version = "*", optional = true}
-
-# Docs
-# sphinx = {version = "*", optional = true}
-# sphinx-rtd-theme = {version = "*", optional = true}
-# nbsphinx = {version = "*", optional = true}
-# sphinx-gallery = {version = "*", optional = true}
-# sphinx-autodoc-typehints = {version = "*", optional = true}
-# sphinx-autobuild = {version = "*", optional = true}
-
-# Linting
-# pylint = {version = "*", optional = true}
-# rstcheck = {version = "*", optional = true}
-# markupsafe = {version = "*", optional = true}
-
-# Typecheck
-# mypy = {version = "*", optional = true}
-
 [tool.poetry.dev-dependencies]
-# TODO: copier could be installed outside the poetry environment
 codespell = "^2.2.2"
 cogapp = "^3.3.0"
-copier = "*"
 coverage = "^6.5.0"
-doit = "*"
 hypothesis = "*"
 ipython = "*"
 json5 = "*"
@@ -90,24 +66,6 @@ pyinstrument = "*"
 pytest = "*"
 pytest-regressions = ">=2.2.0,<3.0.0"
 toml = "*"
-
-# [tool.poetry.extras]
-# coverage = ["coverage", "coverage-badge"]
-# docs = [
-#     "sphinx",
-#     "sphinx-rtd-theme",
-#     "nbsphinx",
-#     "sphinx-gallery",
-#     "sphinx-autodoc-typehints",
-#     "sphinx-autobuild"
-# ]
-# lint = [
-#     "pylint",
-#     "rstcheck",
-#     "sphinx",
-#     "markupsafe",
-# ]
-# typecheck = ["mypy"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -171,12 +129,6 @@ disable = [
 
 [tool.pylint.similarities]
 ignore-imports = true
-
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
 
 [tool.codespell]
 ignore_words_list = [
