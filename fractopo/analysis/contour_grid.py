@@ -1,13 +1,14 @@
 """
 Scripts for creating sample grids for fracture trace, branch and node data.
 """
+
 import logging
 import platform
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import geopandas as gpd
 import numpy as np
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from geopandas.sindex import SpatialIndex
 from joblib import Parallel, delayed
 from shapely.geometry import LineString, Point, Polygon
 
@@ -23,7 +24,6 @@ from fractopo.general import (
     Param,
     crop_to_target_areas,
     geom_bounds,
-    pygeos_spatial_index,
     safe_buffer,
     spatial_index_intersection,
 )
@@ -49,11 +49,11 @@ def create_grid(cell_width: float, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     ... )
     >>> create_grid(cell_width=0.1, lines=lines).head(5)
                                                 geometry
-    0  POLYGON ((-2.00000 5.00000, -1.90000 5.00000, ...
-    1  POLYGON ((-2.00000 4.90000, -1.90000 4.90000, ...
-    2  POLYGON ((-2.00000 4.80000, -1.90000 4.80000, ...
-    3  POLYGON ((-2.00000 4.70000, -1.90000 4.70000, ...
-    4  POLYGON ((-2.00000 4.60000, -1.90000 4.60000, ...
+    0   POLYGON ((-2 5, -1.9 5, -1.9 4.9, -2 4.9, -2 5))
+    1  POLYGON ((-2 4.9, -1.9 4.9, -1.9 4.8, -2 4.8, ...
+    2  POLYGON ((-2 4.8, -1.9 4.8, -1.9 4.7, -2 4.7, ...
+    3  POLYGON ((-2 4.7, -1.9 4.7, -1.9 4.6, -2 4.6, ...
+    4  POLYGON ((-2 4.6, -1.9 4.6, -1.9 4.5, -2 4.5, ...
     """
     assert cell_width > 0
     assert len(lines) > 0
@@ -106,7 +106,7 @@ def populate_sample_cell(
     branches: gpd.GeoDataFrame,
     snap_threshold: float,
     resolve_branches_and_nodes: bool,
-    traces_sindex: Optional[PyGEOSSTRTreeIndex] = None,
+    traces_sindex: Optional[Any] = None,
 ) -> Dict[str, float]:
     """
     Take a single grid polygon and populate it with parameters.
@@ -152,7 +152,7 @@ def populate_sample_cell(
     assert sample_circle_area > 0
 
     if traces_sindex is None:
-        traces_sindex = pygeos_spatial_index(traces)
+        traces_sindex: SpatialIndex = traces.sindex
 
     # Choose geometries that are either within the sample_circle or
     # intersect it
@@ -186,13 +186,13 @@ def populate_sample_cell(
     is_topology_defined = branches.shape[0] > 0
     if is_topology_defined:
         branch_candidates = choose_geometries(
-            sindex=pygeos_spatial_index(branches),
+            sindex=branches.sindex,
             sample_circle=sample_circle,
             geometries=branches,
         )
 
         node_candidates = choose_geometries(
-            sindex=pygeos_spatial_index(nodes),
+            sindex=nodes.sindex,
             sample_circle=sample_circle,
             geometries=nodes,
         )
@@ -266,25 +266,7 @@ def sample_grid(
     assert isinstance(nodes_reset, gpd.GeoDataFrame)
     assert isinstance(branches_reset, gpd.GeoDataFrame)
     traces, nodes, branches = traces_reset, nodes_reset, branches_reset
-    # [gdf.reset_index(inplace=True, drop=True) for gdf in (traces, nodes)]
-    # traces_sindex = pygeos_spatial_index(traces)
-    # nodes_sindex = pygeos_spatial_index(nodes)
 
-    # params_for_cells = list(
-    #     map(
-    #         lambda sample_cell: populate_sample_cell(
-    #             sample_cell=sample_cell,
-    #             sample_cell_area=sample_cell_area,
-    #             traces_sindex=traces_sindex,
-    #             traces=traces,
-    #             nodes=nodes,
-    #             branches=branches,
-    #             snap_threshold=snap_threshold,
-    #             resolve_branches_and_nodes=resolve_branches_and_nodes,
-    #         ),
-    #         grid.geometry.values,
-    #     )
-    # )
     # Use all CPUs with n_jobs=-1
     # Use only one process on Windows
     params_for_cells = Parallel(

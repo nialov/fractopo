@@ -6,9 +6,11 @@ of LineString geometries and returns a GeoDataFrame with a new
 column `Merge` which has values of True or False depending on if
 nearby proximal traces were found.
 """
+
 from typing import List, Union
 
 import geopandas as gpd
+from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString
 
 from fractopo.general import (
@@ -16,7 +18,6 @@ from fractopo.general import (
     determine_regression_azimuth,
     geom_bounds,
     is_azimuth_close,
-    pygeos_spatial_index,
     safe_buffer,
     spatial_index_intersection,
 )
@@ -112,11 +113,11 @@ def determine_proximal_traces(
     >>> buffer_value = 1.1
     >>> azimuth_tolerance = 10
     >>> determine_proximal_traces(traces, buffer_value, azimuth_tolerance)
-                                              geometry  Merge
-    0    LINESTRING (0.00000 0.00000, 0.00000 3.00000)   True
-    1    LINESTRING (1.00000 0.00000, 1.00000 3.00000)   True
-    2    LINESTRING (5.00000 0.00000, 5.00000 3.00000)  False
-    3  LINESTRING (0.00000 0.00000, -3.00000 -3.00000)  False
+                       geometry  Merge
+    0    LINESTRING (0 0, 0 3)   True
+    1    LINESTRING (1 0, 1 3)   True
+    2    LINESTRING (5 0, 5 3)  False
+    3  LINESTRING (0 0, -3 -3)  False
 
     """
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
@@ -125,7 +126,7 @@ def determine_proximal_traces(
     else:
         traces_as_gdf = traces
     traces_as_gdf.reset_index(inplace=True, drop=True)
-    spatial_index = pygeos_spatial_index(traces_as_gdf)
+    spatial_index: SpatialIndex = traces_as_gdf.sindex
     trace: LineString
     proximal_traces: List[int] = []
     for idx, trace in enumerate(traces_as_gdf.geometry.values):

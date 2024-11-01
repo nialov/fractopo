@@ -3,14 +3,15 @@ Functions for extracting branches and nodes from trace maps.
 
 branches_and_nodes is the main entrypoint.
 """
+
 import logging
 import math
 from itertools import chain, compress
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from geopandas.sindex import SpatialIndex
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -19,8 +20,6 @@ from shapely.geometry import (
     Point,
     Polygon,
 )
-from shapely.geometry.base import BaseMultipartGeometry
-from shapely.ops import unary_union
 from shapely.wkt import dumps
 
 from fractopo.general import (
@@ -47,7 +46,6 @@ from fractopo.general import (
     line_intersection_to_points,
     numpy_to_python_type,
     point_to_point_unit_vector,
-    pygeos_spatial_index,
     remove_z_coordinates_from_geodata,
     spatial_index_intersection,
 )
@@ -134,7 +132,7 @@ def get_branch_identities(
 
     """
     assert len(nodes) == len(node_identities)
-    node_spatial_index = pygeos_spatial_index(nodes)
+    node_spatial_index = nodes.sindex
     branch_identities = []
     for branch in branches.geometry.values:
         assert isinstance(branch, LineString)
@@ -292,8 +290,10 @@ def insert_point_to_linestring(
     t_coords = list(trace.coords)
     if not insert:
         t_coords.pop(idx)
-    t_coords.insert(idx, (point.x, point.y)) if not point.has_z else t_coords.insert(
-        idx, (point.x, point.y, point.z)
+    (
+        t_coords.insert(idx, (point.x, point.y))
+        if not point.has_z
+        else t_coords.insert(idx, (point.x, point.y, point.z))
     )
     # Closest points might not actually be the points which in between the
     # point is added. Have to use project and interpolate (?)
@@ -421,7 +421,7 @@ def snap_traces(
     assert all(isinstance(trace, LineString) for trace in traces)
 
     # Spatial index for traces
-    traces_spatial_index = pygeos_spatial_index(geodataset=gpd.GeoSeries(traces))
+    traces_spatial_index = gpd.GeoSeries(traces).sindex
 
     # Collect simply snapped (and non-snapped) traces to list
     simply_snapped_traces, simple_changes = zip(
@@ -465,12 +465,12 @@ def snap_traces(
 def resolve_trace_candidates(
     trace: LineString,
     idx: int,
-    traces_spatial_index: PyGEOSSTRTreeIndex,
+    traces_spatial_index,
     traces: List[LineString],
     snap_threshold: float,
 ) -> List[LineString]:
     """
-    Resolve PyGEOSSTRTreeIndex intersection to actual intersection candidates.
+    Resolve spatial index intersection to actual intersection candidates.
     """
     assert isinstance(trace, LineString)
 
@@ -517,7 +517,7 @@ def snap_trace_simple(
     trace: LineString,
     snap_threshold: float,
     traces: List[LineString],
-    traces_spatial_index: PyGEOSSTRTreeIndex,
+    traces_spatial_index: Any,
     final_allowed_loop: bool = False,
 ) -> Tuple[LineString, bool]:
     """
@@ -553,7 +553,7 @@ def snap_others_to_trace(
     trace: LineString,
     snap_threshold: float,
     traces: List[LineString],
-    traces_spatial_index: PyGEOSSTRTreeIndex,
+    traces_spatial_index: Any,
     areas: Optional[List[Union[Polygon, MultiPolygon]]],
     final_allowed_loop: bool = False,
 ) -> Tuple[LineString, bool]:
@@ -568,7 +568,7 @@ def snap_others_to_trace(
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> snap_threshold = 0.001
     >>> traces = [trace, LineString([(1.5, 3), (1.5, 0.00001)])]
-    >>> traces_spatial_index = pygeos_spatial_index(gpd.GeoSeries(traces))
+    >>> traces_spatial_index = gpd.GeoSeries(traces).sindex
     >>> areas = None
     >>> snapped = snap_others_to_trace(
     ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
@@ -582,7 +582,7 @@ def snap_others_to_trace(
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
     >>> snap_threshold = 0.001
     >>> traces = [trace, LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
-    >>> traces_spatial_index = pygeos_spatial_index(gpd.GeoSeries(traces))
+    >>> traces_spatial_index = gpd.GeoSeries(traces).sindex
     >>> areas = None
     >>> snapped = snap_others_to_trace(
     ...     idx, trace, snap_threshold, traces, traces_spatial_index, areas
@@ -784,120 +784,6 @@ def filter_non_unique_traces(
     return unique_traces
 
 
-def safer_unary_union(
-    traces_geosrs: gpd.GeoSeries, snap_threshold: float, size_threshold: int
-) -> MultiLineString:
-    """
-    Perform unary union to transform traces to branch segments.
-
-    unary_union is not completely stable with large datasets but problem can be
-    alleviated by dividing analysis to parts.
-
-    TODO: Usage is deprecated as unary_union seems to give consistent results.
-    """
-    if traces_geosrs.empty:
-        return MultiLineString()
-
-    # Get amount of traces
-    trace_count = traces_geosrs.shape[0]
-
-    # Only one trace and self-intersects shouldn't occur -> Simply return the
-    # one LineString wrapped in MultiLineString
-    if trace_count == 1:
-        return MultiLineString(list(traces_geosrs.geometry.values))
-
-    # Try normal union without any funny business
-    # This will be compared to the split approach result and better will
-    # be returned
-    normal_full_union: MultiLineString = traces_geosrs.unary_union
-
-    if isinstance(normal_full_union, LineString):
-        return MultiLineString([normal_full_union])
-
-    if trace_count < size_threshold:
-        if len(normal_full_union.geoms) > trace_count and isinstance(
-            normal_full_union, MultiLineString
-        ):
-            return normal_full_union
-
-    # Debugging, fail safely
-    if size_threshold < UNARY_ERROR_SIZE_THRESHOLD:
-        log.critical(
-            "Expected size_threshold to be higher than 100. Union might be impossible."
-        )
-
-    # How many parts
-    div = int(np.ceil(trace_count / size_threshold))
-
-    # Divide with numpy
-    split_traces = np.array_split(traces_geosrs, div)
-    assert isinstance(split_traces, list)
-
-    # How many in each pair
-    # part_count = int(np.ceil(trace_count / div))
-
-    assert div * sum(part.shape[0] for part in split_traces) >= trace_count
-    assert all(isinstance(val, gpd.GeoSeries) for val in split_traces)
-    assert isinstance(split_traces[0].iloc[0], LineString)
-
-    # Do unary_union in parts
-    part_unions = part_unary_union(
-        split_traces=split_traces,
-        snap_threshold=snap_threshold,
-        size_threshold=size_threshold,
-        div=div,
-    )
-    # Do full union of split unions
-    full_union = unary_union(MultiLineString(list(chain(*part_unions))))
-
-    # full_union should always be better or equivalent to normal unary_union.
-    # (better when unary_union fails silently)
-    if isinstance(full_union, MultiLineString):
-        assert isinstance(full_union, BaseMultipartGeometry)
-        if len(full_union.geoms) >= len(normal_full_union.geoms):
-            return full_union
-
-        raise ValueError(
-            "Expected split union to give better results."
-            " Branches and nodes should be checked for inconsistencies."
-        )
-    if isinstance(full_union, LineString):
-        return MultiLineString([full_union])
-    raise TypeError(
-        f"Expected (Multi)LineString from unary_union. Got {full_union.wkt}"
-    )
-
-
-def part_unary_union(
-    split_traces: list, snap_threshold: float, size_threshold: int, div: int
-):
-    """
-    Conduct safer_unary_union in parts.
-    """
-    # Collect partly done unary_unions to part_unions list
-    part_unions = []
-
-    # Iterate over list of split trace GeoSeries
-    for part in split_traces:
-        # Do unary_union to part
-        part_union = part.unary_union
-
-        # Do naive check for if unary_union is successful
-        if (
-            not isinstance(part_union, MultiLineString)
-            or len(part_union.geoms) < part.shape[0]
-        ):
-            # Still fails -> Try with lower threshold for part
-            part_union = safer_unary_union(
-                part, snap_threshold, size_threshold=size_threshold // 2
-            )
-
-        # Collect
-        part_unions.append(part_union.geoms)
-    assert len(part_unions) == div
-    return part_unions
-
-
 def report_snapping_loop(loops: int, allowed_loops: int):
     """
     Report snapping looping.
@@ -1015,7 +901,7 @@ def branches_and_nodes(
     ]
 
     # Branches are determined with shapely/geopandas unary_union
-    unary_union_result = traces_geosrs.unary_union
+    unary_union_result = traces_geosrs.union_all()
     if isinstance(unary_union_result, MultiLineString):
         branches_all = list(unary_union_result.geoms)
     elif isinstance(unary_union_result, LineString):
@@ -1118,7 +1004,7 @@ def node_identity(
     idx: int,
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     endpoints_geoseries: gpd.GeoSeries,
-    endpoints_spatial_index: PyGEOSSTRTreeIndex,
+    endpoints_spatial_index: Any,
     snap_threshold: float,
 ) -> str:
     """
@@ -1201,7 +1087,7 @@ def node_identities_from_branches(
     all_endpoints_geoseries = gpd.GeoSeries(all_endpoints)
 
     # Get spatial index
-    endpoints_spatial_index = pygeos_spatial_index(all_endpoints_geoseries)
+    endpoints_spatial_index: SpatialIndex = all_endpoints_geoseries.sindex
 
     # Collect resolved nodes
     collected_nodes: Dict[str, Tuple[Point, str]] = dict()

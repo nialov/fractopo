@@ -13,13 +13,7 @@ from shapely.geometry import LineString, Point, Polygon
 import tests
 from fractopo.analysis import contour_grid
 from fractopo.analysis.network import Network
-from fractopo.general import (
-    CC_branch,
-    CI_branch,
-    II_branch,
-    Param,
-    pygeos_spatial_index,
-)
+from fractopo.general import CC_branch, CI_branch, II_branch, Param
 
 CELL_WIDTH = 0.10
 BRANCHES = gpd.GeoDataFrame(
@@ -160,7 +154,7 @@ def test_populate_sample_cell(sample_cell, traces, snap_threshold, branches):
     result = contour_grid.populate_sample_cell(
         sample_cell=sample_cell,
         sample_cell_area=sample_cell.area,
-        traces_sindex=pygeos_spatial_index(traces),
+        traces_sindex=traces.sindex,
         nodes=gpd.GeoDataFrame(),
         traces=traces,
         branches=branches,

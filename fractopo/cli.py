@@ -12,10 +12,9 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple, Type
 
 import click
-import fiona
 import geopandas as gpd
 import pandas as pd
-import pygeos
+import pyogrio
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -240,12 +239,11 @@ def tracevalidate(
 
     # Set same crs as input if input had crs
     if input_crs is not None:
-        validated_trace.crs = input_crs
+        validated_trace = validated_trace.set_crs(input_crs)
 
     # Get input driver to use as save driver
-    with fiona.open(trace_file) as open_trace_file:
-        assert open_trace_file is not None
-        save_driver = open_trace_file.driver
+
+    save_driver = pyogrio.detect_write_driver(trace_file)
 
     # Resolve output if not explicitly given
     if output is None:
@@ -481,7 +479,6 @@ def info():
     information = dict(
         fractopo_version=__version__,
         geopandas_version=gpd.__version__,
-        pygeos_version=pygeos.__version__,
         package_location=str(Path(__file__).parent.absolute()),
         python_location=str(Path(sys.executable).absolute()),
     )

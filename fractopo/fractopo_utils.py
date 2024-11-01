@@ -1,10 +1,12 @@
 """
 Miscellaneous utilities and scripts of fractopo.
 """
+
 from itertools import count
 from typing import List, Tuple, Union
 
 import geopandas as gpd
+from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, Point
 
 from fractopo.general import (
@@ -12,14 +14,12 @@ from fractopo.general import (
     create_unit_vector,
     geom_bounds,
     get_trace_endpoints,
-    pygeos_spatial_index,
     safe_buffer,
     spatial_index_intersection,
 )
 
 
 class LineMerge:
-
     """
     Merge lines conditionally.
     """
@@ -137,7 +137,7 @@ class LineMerge:
         (['LINESTRING (0 0, 0 2, 0 4)'], [0, 1])
 
         """
-        spatial_index = pygeos_spatial_index(traces)
+        spatial_index: SpatialIndex = traces.sindex
 
         new_traces = []
         modified_idx = []
@@ -189,8 +189,8 @@ class LineMerge:
         >>> tolerance = 5
         >>> buffer_value = 0.01
         >>> LineMerge.run_loop(traces, tolerance, buffer_value)
-                                                    geometry
-        0  LINESTRING (0.00000 0.00000, 0.00000 2.00000, ...
+                             geometry
+        0  LINESTRING (0 0, 0 2, 0 4)
 
         """
         loop_count = count()
@@ -221,8 +221,8 @@ class LineMerge:
         >>> new_traces = [LineString([(0, 0), (0, 2), (0, 4)])]
         >>> modified_idx = [0, 1]
         >>> LineMerge.integrate_replacements(traces, new_traces, modified_idx)
-                                                    geometry
-        0  LINESTRING (0.00000 0.00000, 0.00000 2.00000, ...
+                             geometry
+        0  LINESTRING (0 0, 0 2, 0 4)
 
         """
         unmod_traces = [
@@ -246,7 +246,7 @@ def remove_identical_sindex(
     geosrs_reset = geosrs.reset_index(inplace=False, drop=True)
     assert isinstance(geosrs_reset, gpd.GeoSeries)
     geosrs = geosrs_reset
-    spatial_index = geosrs.sindex
+    spatial_index: SpatialIndex = geosrs.sindex
     identical_idxs = []
     point: Point
     for idx, point in enumerate(geosrs.geometry.values):

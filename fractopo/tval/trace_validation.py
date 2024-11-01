@@ -12,7 +12,7 @@ from textwrap import dedent
 from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, MultiLineString, Point
 
 from fractopo.general import (
@@ -71,7 +71,7 @@ class Validation:
         # Private caching attributes
         self._endpoint_nodes: Optional[List[Tuple[Point, ...]]] = None
         self._intersect_nodes: Optional[List[Tuple[Point, ...]]] = None
-        self._spatial_index: Optional[PyGEOSSTRTreeIndex] = None
+        self._spatial_index: Optional[Any] = None
         self._faulty_junctions: Optional[Set[int]] = None
         self._vnodes: Optional[Set[int]] = None
 
@@ -136,20 +136,14 @@ class Validation:
         raise TypeError("Expected self._intersect_nodes to not be None.")
 
     @property
-    def spatial_index(self) -> Optional[PyGEOSSTRTreeIndex]:
+    def spatial_index(self) -> Optional[Any]:
         """
         Get geopandas/pygeos spatial_index of traces.
         """
         if self._spatial_index is None:
-            spatial_index = self.traces.sindex
-            if (
-                not isinstance(spatial_index, PyGEOSSTRTreeIndex)
-                or len(spatial_index) == 0
-            ):
-                log.warning(
-                    "Expected sindex property to be of type: PyGEOSSTRTreeIndex \n"
-                    "and non-empty."
-                )
+            spatial_index: SpatialIndex = self.traces.sindex
+            if len(spatial_index) == 0:
+                log.warning("Expected sindex property to be non-empty.")
                 self._spatial_index = None
                 return self._spatial_index
             self._spatial_index = spatial_index

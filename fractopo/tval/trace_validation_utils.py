@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, MultiLineString, Point, Polygon
 from shapely.ops import split
 
@@ -237,7 +237,7 @@ def determine_trace_candidates(
     geom: LineString,
     idx: int,
     traces: gpd.GeoDataFrame,
-    spatial_index: Optional[PyGEOSSTRTreeIndex],
+    spatial_index: Optional[SpatialIndex],
 ) -> gpd.GeoSeries:
     """
     Determine potentially intersecting traces with spatial index.
@@ -246,7 +246,7 @@ def determine_trace_candidates(
         log.error("Expected spatial_index not be None.")
         return gpd.GeoSeries()
     assert isinstance(traces, (gpd.GeoSeries, gpd.GeoDataFrame))
-    assert isinstance(spatial_index, PyGEOSSTRTreeIndex)
+    assert isinstance(spatial_index, SpatialIndex)
     candidate_idxs = spatial_index_intersection(spatial_index, geom_bounds(geom))
     candidate_idxs.remove(idx)
     candidate_traces: gpd.GeoSeries = traces.geometry.iloc[candidate_idxs]

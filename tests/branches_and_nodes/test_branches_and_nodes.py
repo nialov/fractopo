@@ -1,6 +1,7 @@
 """
 Tests for branch and node determination.
 """
+
 from typing import List
 
 import geopandas as gpd
@@ -313,31 +314,13 @@ def test_snap_trace_simple(
     """
     Test snap_trace_simple.
     """
-    traces_spatial_index = general.pygeos_spatial_index(gpd.GeoSeries(traces))
+    traces_spatial_index = gpd.GeoSeries(traces).sindex
     result, was_simple_snapped = branches_and_nodes.snap_trace_simple(
         idx, trace, snap_threshold, traces, traces_spatial_index
     )
     if intersects_idx is not None:
         assert was_simple_snapped
     assert result.intersects(traces[intersects_idx])
-
-
-@pytest.mark.parametrize(
-    "traces_geosrs,snap_threshold,size_threshold", tests.test_safer_unary_union_params
-)
-def test_safer_unary_union(traces_geosrs, snap_threshold, size_threshold):
-    """
-    Test safer_unary_union.
-    """
-    try:
-        result = branches_and_nodes.safer_unary_union(
-            traces_geosrs, snap_threshold, size_threshold
-        )
-    except ValueError:
-        if size_threshold < branches_and_nodes.UNARY_ERROR_SIZE_THRESHOLD:
-            return
-        raise
-    assert len(list(result.geoms)) >= traces_geosrs.shape[0]
 
 
 @pytest.mark.parametrize(

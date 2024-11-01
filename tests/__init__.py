@@ -1382,18 +1382,6 @@ unary_err_areas = gpd.read_file(unary_err_areas_path)
 assert isinstance(unary_err_traces, gpd.GeoDataFrame)
 assert isinstance(unary_err_areas, gpd.GeoDataFrame)
 
-test_safer_unary_union_params = [
-    (
-        unary_err_traces.geometry,  # traces_geosrs
-        0.001,  # snap_threshold
-        13000,  # size_threshold
-    ),
-    (
-        unary_err_traces.geometry,  # traces_geosrs
-        0.001,  # snap_threshold
-        50,  # size_threshold
-    ),
-]
 
 test_segment_within_buffer_params = [
     (valid_geom, invalid_geom_multilinestring, 0.001, 1.1, 50, 5, True),
@@ -2175,7 +2163,6 @@ def geodataframe_regression_check(file_regression, gdf: gpd.GeoDataFrame):
     Removes crs to avoid differences between module versions where
     some include it in the json and others do not.
     """
-    gdf_copy = gdf.copy()
-    gdf_copy.crs = None
+    gdf_copy = gdf.copy().set_crs(None, allow_override=True)
     gdf_as_json = gdf_copy.to_json(indent=1, sort_keys=True)
     file_regression.check(gdf_as_json)

@@ -21,9 +21,8 @@ from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overl
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pygeos
 import sklearn.metrics as sklm
-from geopandas.sindex import PyGEOSSTRTreeIndex
+from geopandas.sindex import SpatialIndex
 from joblib import Memory
 from matplotlib import patheffects as path_effects
 from matplotlib.axes import Axes
@@ -646,8 +645,8 @@ def match_crs(
     if len(all_crs) == 1:
         # One valid crs in inputs
         crs = all_crs[0]
-        first.crs = crs
-        second.crs = crs
+        first = first.set_crs(crs)
+        second = second.set_crs(crs)
         return first, second
     # Two crs that are not the same
     return first, second
@@ -739,7 +738,7 @@ def determine_general_nodes(
     endpoint_nodes: List[Tuple[Point, ...]] = []
     # spatial_index = traces.geometry.sindex
     try:
-        spatial_index = pygeos_spatial_index(traces.geometry)
+        spatial_index = traces.sindex
     except TypeError:
         spatial_index = None
     for idx, geom in enumerate(traces.geometry.values):
@@ -977,7 +976,7 @@ def determine_node_junctions(
 
     # Create spatial index of nodes
     # nodes_geoseries_sindex = flattened_nodes_geoseries.sindex
-    nodes_geoseries_sindex = pygeos_spatial_index(flattened_nodes_geoseries)
+    nodes_geoseries_sindex: SpatialIndex = flattened_nodes_geoseries.sindex
 
     # Set collection for indexes with junctions
     indexes_with_junctions: Set[int] = set()
@@ -1167,45 +1166,6 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
     return linestrings
 
 
-def efficient_clip(
-    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
-    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
-) -> gpd.GeoDataFrame:
-    """
-    Perform efficient clip of LineString geometries with a Polygon.
-
-    :param traces: Trace data.
-    :param areas: Area data.
-    :return: Traces clipped with the area data.
-    """
-    # Transform to pygeos types
-    pygeos_traces = pygeos.from_shapely(traces.geometry.values)
-
-    # Convert MultiPolygon in area_gdf to Polygons and collect to list.
-    polygons = []
-    for geom in areas.geometry.values:
-        if isinstance(geom, MultiPolygon):
-            polygons.extend(geom.geoms)
-        elif isinstance(geom, Polygon):
-            polygons.append(geom)
-        else:
-            raise TypeError(
-                f"Expected (Multi)Polygons in efficient_clip."
-                f" Got: {geom.wkt, type(geom)}."
-            )
-    pygeos_polygons = pygeos.from_shapely(polygons)
-    pygeos_multipolygon = pygeos.multipolygons(pygeos_polygons)
-
-    # Perform intersection
-    intersection = pygeos.intersection(pygeos_traces, pygeos_multipolygon)
-    assert isinstance(intersection, np.ndarray)
-
-    # Collect into GeoDataFrame.
-    geodataframe = gpd.GeoDataFrame(geometry=intersection, crs=traces.crs)
-    assert "geometry" in geodataframe.columns
-    return geodataframe
-
-
 @JOBLIB_CACHE.cache
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -1255,7 +1215,8 @@ def crop_to_target_areas(
 
     if not is_filtered:
         traces.reset_index(drop=True, inplace=True)
-        spatial_index = pygeos_spatial_index(traces)
+        spatial_index = traces.sindex
+        assert isinstance(spatial_index, SpatialIndex), type(spatial_index)
 
         areas_bounds = total_bounds(areas)
         assert len(areas_bounds) == 4
@@ -1270,22 +1231,7 @@ def crop_to_target_areas(
         candidate_traces = traces
 
     # TODO: Remove environment check
-    if keep_column_data or os.environ.get("USE_PYGEOS") == "0":
-        assert all(area_geom.is_valid for area_geom in areas.geometry.values)
-        assert all(not area_geom.is_empty for area_geom in areas.geometry.values)
-        # geopandas.clip keeps the column data
-        try:
-            clipped_traces = gpd.clip(candidate_traces, areas)
-        except TypeError:
-            logging.error(
-                "Expected to be able to clip with geopandas. "
-                "Falling back to pygeos clip.",
-                exc_info=True,
-            )
-            clipped_traces = efficient_clip(candidate_traces, areas)
-    else:
-        # pygeos.intersection does not
-        clipped_traces = efficient_clip(candidate_traces, areas)
+    clipped_traces = gpd.clip(candidate_traces, areas)
 
     assert hasattr(clipped_traces, "geometry")
     assert isinstance(clipped_traces, (gpd.GeoDataFrame, gpd.GeoSeries))
@@ -1415,7 +1361,7 @@ def is_empty_area(area: gpd.GeoDataFrame, traces: gpd.GeoDataFrame):
     Check if any traces intersect the area(s) in area GeoDataFrame.
     """
     for area_polygon in area.geometry.values:
-        sindex = pygeos_spatial_index(traces)
+        sindex: SpatialIndex = traces.sindex
         intersection = spatial_index_intersection(sindex, geom_bounds(area_polygon))
         potential_traces = traces.iloc[intersection]
 
@@ -1484,7 +1430,7 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
 
 
 def spatial_index_intersection(
-    spatial_index: PyGEOSSTRTreeIndex, coordinates: Union[BoundsTuple, PointTuple]
+    spatial_index: Any, coordinates: Union[BoundsTuple, PointTuple]
 ) -> List[int]:
     """
     Type-checked spatial index intersection.
@@ -1569,24 +1515,6 @@ def total_bounds(
     return bounds[0], bounds[1], bounds[2], bounds[3]
 
 
-def pygeos_spatial_index(
-    geodataset: Union[gpd.GeoDataFrame, gpd.GeoSeries],
-) -> PyGEOSSTRTreeIndex:
-    """
-    Get PyGEOSSTRTreeIndex from geopandas dataset.
-
-    :param geodataset: Geodataset of which
-        spatial index is wanted.
-    :return: ``pygeos`` spatial index.
-    :raises TypeError: If the geodataset ``sindex`` attribute was not a
-        ``pygeos`` spatial index object.
-    """
-    sindex = geodataset.sindex
-    if not isinstance(sindex, PyGEOSSTRTreeIndex):
-        raise TypeError("Expected PyGEOSSTRTreeIndex as spatial index.")
-    return sindex
-
-
 def read_geofile(path: Path) -> gpd.GeoDataFrame:
     """
     Read a filepath for a ``GeoDataFrame`` representable geo-object.
@@ -1612,7 +1540,8 @@ def determine_boundary_intersecting_lines(
     assert isinstance(line_gdf, (gpd.GeoSeries, gpd.GeoDataFrame))
     # line_gdf = line_gdf.reset_index(inplace=False, drop=True)
     # spatial_index = line_gdf.sindex
-    spatial_index = pygeos_spatial_index(line_gdf)
+    spatial_index = line_gdf.sindex
+    assert isinstance(spatial_index, SpatialIndex), type(spatial_index)
     intersecting_idxs = []
     cuts_through_idxs = []
     for target_area in area_gdf.geometry.values:

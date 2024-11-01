@@ -1,6 +1,7 @@
 """
 Analyse and plot trace map data with Network.
 """
+
 import logging
 from dataclasses import dataclass, field
 from functools import wraps
@@ -13,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import powerlaw
+from geopandas.sindex import SpatialIndex
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -59,7 +61,6 @@ from fractopo.general import (
     determine_boundary_intersecting_lines,
     focus_plot_to_bounds,
     numpy_to_python_type,
-    pygeos_spatial_index,
     raise_determination_error,
     remove_z_coordinates_from_geodata,
     sanitize_name,
@@ -96,7 +97,6 @@ def requires_topology(func: Callable) -> Callable:
 
 @dataclass
 class Network:
-
     """
     Trace network.
 
@@ -343,7 +343,7 @@ class Network:
         """
 
         def convert_gdf(
-            gdf: Union[gpd.GeoDataFrame, gpd.GeoSeries, None, Polygon, MultiPolygon]
+            gdf: Union[gpd.GeoDataFrame, gpd.GeoSeries, None, Polygon, MultiPolygon],
         ) -> Optional[str]:
             """
             Convert GeoDataFrame or geometry to (json) str.
@@ -1218,7 +1218,7 @@ class Network:
 
         # Use spatial index to filter censoring polygons that are not near the
         # network
-        sindex = pygeos_spatial_index(self.censoring_area)
+        sindex: SpatialIndex = self.censoring_area.sindex
         index_intersection = spatial_index_intersection(
             spatial_index=sindex, coordinates=network_area_bounds
         )
