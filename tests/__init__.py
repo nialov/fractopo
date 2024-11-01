@@ -355,7 +355,7 @@ valid_error_srs = pd.Series([[] for _ in valid_traces.geometry.values])
 invalid_error_srs = pd.Series([[] for _ in invalid_traces.geometry.values])
 
 multilinestring_critical_err_in_validation_gdf = read_geofile(
-    Path("tests/sample_data/validation_errror_08042021/Circle3_fractures.shp")
+    Path("tests/sample_data/validation_errror_08042021/Circle3_fractures.geojson")
 )
 multilinestring_critical_err_in_validation_gdf.error_amount = 1
 
@@ -510,10 +510,8 @@ node_frame["c"] = node_frame["Class"]
 area_1 = Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
 # area_frame = gpd.GeoDataFrame({"geometry": [area_1]})
 
-# sample_trace_data = Path("tests/sample_data/KB11_traces.shp")
 sample_trace_data = Path("tests/sample_data/KB11/KB11_traces.geojson")
 sample_trace_100_data = Path("tests/sample_data/KB11/KB11_traces_100.geojson")
-# sample_area_data = Path("tests/sample_data/KB11_area.shp")
 sample_area_data = Path("tests/sample_data/KB11/KB11_area.geojson")
 kb11_traces = read_geofile(sample_trace_data)
 kb11_area = read_geofile(sample_area_data)
@@ -1040,8 +1038,6 @@ test_testtargetareasnapvalidator_validation_method = [
 test_tracevalidate_only_area_params = [
     (
         [
-            # "tests/sample_data/KB7/KB7_tulkinta_50.shp",  # cut 0-50
-            # "tests/sample_data/KB7/KB7_tulkinta_alue.shp",
             str(kb7_trace_50_path),  # cut 0-50
             str(kb7_area_path),
             "--allow-fix",
@@ -1051,10 +1047,10 @@ test_tracevalidate_only_area_params = [
 ]
 
 geta_1_traces = read_geofile(
-    Path("tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg")
+    Path("tests/sample_data/geta1/Getaberget_20m_1_traces.geojson")
 )
 geta_1_1_area = read_geofile(
-    Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg")
+    Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.geojson")
 )
 
 geta_1_traces_1000_n = geta_1_traces.iloc[0:1000]
@@ -1330,8 +1326,8 @@ test_insert_point_to_linestring_params = [
     ),
 ]
 
-sample_traces_path = Path("tests/sample_data/branches_and_nodes/traces.gpkg")
-sample_areas_path = Path("tests/sample_data/branches_and_nodes/areas.gpkg")
+sample_traces_path = Path("tests/sample_data/branches_and_nodes/traces.geojson")
+sample_areas_path = Path("tests/sample_data/branches_and_nodes/areas.geojson")
 sample_traces = read_geofile(sample_traces_path)
 sample_areas = read_geofile(sample_areas_path)
 
@@ -1346,7 +1342,7 @@ test_branches_and_nodes_regression_params = [
 ]
 
 troubling_traces_path = Path(
-    "tests/sample_data/branches_and_nodes/traces_troubling.gpkg"
+    "tests/sample_data/branches_and_nodes/traces_troubling.geojson"
 )
 troubling_traces = read_geofile(troubling_traces_path)
 
@@ -1379,9 +1375,9 @@ test_snap_trace_simple_params = [
     )
 ]
 
-unary_err_traces_path = Path("tests/sample_data/unary_error_data/err_traces.shp")
-unary_err_areas_path = Path("tests/sample_data/unary_error_data/err_area.shp")
-unary_err_traces = gpd.read_file(unary_err_traces_path).iloc[5500:8000]
+unary_err_traces_path = Path("tests/sample_data/unary_error_data/err_traces.geojson")
+unary_err_areas_path = Path("tests/sample_data/unary_error_data/err_area.geojson")
+unary_err_traces = gpd.read_file(unary_err_traces_path)
 unary_err_areas = gpd.read_file(unary_err_areas_path)
 assert isinstance(unary_err_traces, gpd.GeoDataFrame)
 assert isinstance(unary_err_areas, gpd.GeoDataFrame)

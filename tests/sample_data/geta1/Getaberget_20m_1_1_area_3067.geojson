@@ -1,0 +1,9 @@
+{
+  "type": "FeatureCollection",
+  "name": "target_area_Getaberget_20m_1_1",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::3067" }
+  },
+  "features": []
+}

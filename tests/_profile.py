@@ -1,6 +1,7 @@
 """
 Script for profiling ``fractopo`` performance.
 """
+
 from pathlib import Path
 
 import click
@@ -8,8 +9,8 @@ import click
 from fractopo import MultiNetwork, Network, Validation
 from fractopo.general import read_geofile
 
-SAMPLE_TRACES_PATH = Path("tests/sample_data/geta1/Getaberget_20m_1_traces.gpkg")
-SAMPLE_AREA_PATH = Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.gpkg")
+SAMPLE_TRACES_PATH = Path("tests/sample_data/geta1/Getaberget_20m_1_traces.geojson")
+SAMPLE_AREA_PATH = Path("tests/sample_data/geta1/Getaberget_20m_1_1_area.geojson")
 
 
 @click.command()
