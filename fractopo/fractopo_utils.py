@@ -144,8 +144,11 @@ class LineMerge:
         for i, trace in enumerate(traces.geometry):
             assert isinstance(trace, LineString)
             trace_candidates_idx: List[int] = list(
-                spatial_index.intersection(
-                    geom_bounds(safe_buffer(trace, buffer_value * 2))
+                map(
+                    int,
+                    spatial_index.intersection(
+                        geom_bounds(safe_buffer(trace, buffer_value * 2))
+                    ),
                 )
             )
             trace_candidates_idx.remove(i)

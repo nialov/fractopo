@@ -416,7 +416,7 @@ def determine_regression_azimuth(line: LineString) -> float:
     if azimuth < 0:
         azimuth = 90 - np.rad2deg(np.arctan(coef))  # type: ignore
     assert isinstance(azimuth, float) and 0 <= azimuth <= 180
-    return azimuth
+    return float(azimuth)
 
 
 def determine_azimuth(line: LineString, halved: bool) -> float:
@@ -1499,20 +1499,20 @@ def total_bounds(
     """
     Get total bounds of geodataset.
 
-    >>> geodata = gpd.GeoSeries([Point(-10, 10), Point(10, 10)])
+            >>> geodata = gpd.GeoSeries([Point(-10, 10), Point(10, 10)])
     >>> total_bounds(geodata)
     (-10.0, 10.0, 10.0, 10.0)
     """
     if geodata.empty or all(
         geom is None or geom.is_empty for geom in geodata.geometry.values
     ):
-        return tuple([np.nan] * 4)
+        return (np.nan, np.nan, np.nan, np.nan)
     bounds = geodata.total_bounds
     if not len(bounds) == 4:
         raise ValueError(
             f"Expected total_bounds to return an array of length 4: {bounds}."
         )
-    return bounds[0], bounds[1], bounds[2], bounds[3]
+    return float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3])
 
 
 def read_geofile(path: Path) -> gpd.GeoDataFrame:
