@@ -1,13 +1,81 @@
 {
-"type": "FeatureCollection",
-"name": "traces",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3067" } },
-"features": [
-{ "type": "Feature", "properties": { "fid text": "this is 1", "desc": "triangle at s" }, "geometry": { "type": "LineString", "coordinates": [ [ -0.255351348315092, -0.311397918223966 ], [ -0.516657880978408, -0.184513496113413 ], [ -0.904848835752278, -0.33652354636467 ] ] } },
-{ "type": "Feature", "properties": { "fid text": "this is 2", "desc": "sw edge" }, "geometry": { "type": "LineString", "coordinates": [ [ -0.952587529219614, -0.350342641842057 ], [ -1.039270946305041, 0.099406101876536 ] ] } },
-{ "type": "Feature", "properties": { "fid text": "this is 3", "desc": "ends" }, "geometry": { "type": "LineString", "coordinates": [ [ -1.124698081983433, 0.356943790318747 ], [ -0.502838785501021, 0.182320674740858 ] ] } },
-{ "type": "Feature", "properties": { "fid text": "this is 4", "desc": "over" }, "geometry": { "type": "LineString", "coordinates": [ [ 0.038618500931139, 0.341868413434325 ], [ -1.080728232737203, 0.414732735042365 ] ] } },
-{ "type": "Feature", "properties": { "fid text": "this is 5", "desc": "r triangle at e" }, "geometry": { "type": "LineString", "coordinates": [ [ -0.291280132390239, -0.115176052230197 ], [ -0.077178670653351, 0.051633921974446 ], [ -0.271503692149482, 0.255417240977026 ] ] } },
-{ "type": "Feature", "properties": { "fid text": "6", "desc": "M at e" }, "geometry": { "type": "LineString", "coordinates": [ [ -0.133928455692045, 0.239940026875564 ], [ -0.221632668933661, 0.274333835989924 ], [ -0.132208765236327, 0.286371669179949 ], [ -0.22249251416152, 0.314746561699296 ], [ -0.130489074780609, 0.321625323522168 ] ] } }
-]
+  "type": "FeatureCollection",
+  "name": "traces",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::3067" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "fid text": "this is 1", "desc": "triangle at s" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.255351348315092, -0.311397918223966],
+          [-0.516657880978408, -0.184513496113413],
+          [-0.904848835752278, -0.33652354636467]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "fid text": "this is 2", "desc": "sw edge" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.952587529219614, -0.350342641842057],
+          [-1.039270946305041, 0.099406101876536]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "fid text": "this is 3", "desc": "ends" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.124698081983433, 0.356943790318747],
+          [-0.502838785501021, 0.182320674740858]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "fid text": "this is 4", "desc": "over" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [0.038618500931139, 0.341868413434325],
+          [-1.080728232737203, 0.414732735042365]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "fid text": "this is 5", "desc": "r triangle at e" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.291280132390239, -0.115176052230197],
+          [-0.077178670653351, 0.051633921974446],
+          [-0.271503692149482, 0.255417240977026]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "fid text": "6", "desc": "M at e" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.133928455692045, 0.239940026875564],
+          [-0.221632668933661, 0.274333835989924],
+          [-0.132208765236327, 0.286371669179949],
+          [-0.22249251416152, 0.314746561699296],
+          [-0.130489074780609, 0.321625323522168]
+        ]
+      }
+    }
+  ]
 }

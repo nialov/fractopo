@@ -1,11 +1,70 @@
 {
-"type": "FeatureCollection",
-"name": "mls_traces",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3067" } },
-"features": [
-{ "type": "Feature", "properties": { "data": "fid is 1", "another data": "not sublinear" }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ -0.964746345657782, -0.08512467755804 ], [ -0.68615649183147, 0.281169389509888 ] ], [ [ -0.189165950128977, -0.004299226139295 ], [ -0.421324161650903, 0.413585554600172 ] ] ] } },
-{ "type": "Feature", "properties": { "data": "fid is 2", "another data": "n-s" }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 0.400687876182287, -0.112639724849527 ], [ 0.443680137575236, 0.425623387790198 ] ] ] } },
-{ "type": "Feature", "properties": { "data": "fid is 3", "another data": "e-w" }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 0.816852966466036, 0.086844368013758 ], [ 0.163370593293207, 0.255374032674119 ] ] ] } },
-{ "type": "Feature", "properties": { "data": "fid is 4", "another data": "sublinear" }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ -0.91487532244196, -0.568357695614789 ], [ -1.138435081685297, -1.022355975924333 ] ], [ [ -1.399828030954428, -0.958727429062769 ], [ -1.14359415305245, -0.490971625107481 ] ] ] } }
-]
+  "type": "FeatureCollection",
+  "name": "mls_traces",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:EPSG::3067" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "data": "fid is 1", "another data": "not sublinear" },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [-0.964746345657782, -0.08512467755804],
+            [-0.68615649183147, 0.281169389509888]
+          ],
+          [
+            [-0.189165950128977, -0.004299226139295],
+            [-0.421324161650903, 0.413585554600172]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "data": "fid is 2", "another data": "n-s" },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [0.400687876182287, -0.112639724849527],
+            [0.443680137575236, 0.425623387790198]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "data": "fid is 3", "another data": "e-w" },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [0.816852966466036, 0.086844368013758],
+            [0.163370593293207, 0.255374032674119]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "data": "fid is 4", "another data": "sublinear" },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [-0.91487532244196, -0.568357695614789],
+            [-1.138435081685297, -1.022355975924333]
+          ],
+          [
+            [-1.399828030954428, -0.958727429062769],
+            [-1.14359415305245, -0.490971625107481]
+          ]
+        ]
+      }
+    }
+  ]
 }
