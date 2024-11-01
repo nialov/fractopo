@@ -2164,5 +2164,6 @@ def geodataframe_regression_check(file_regression, gdf: gpd.GeoDataFrame):
     some include it in the json and others do not.
     """
     gdf_copy = gdf.copy().set_crs(None, allow_override=True)
+    gdf_copy["geometry"] = gdf.geometry.apply(round_geometry_coordinates)
     gdf_as_json = gdf_copy.to_json(indent=1, sort_keys=True)
     file_regression.check(gdf_as_json)
