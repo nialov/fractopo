@@ -68,6 +68,7 @@
             trim-trailing-whitespace.enable = true;
             check-added-large-files.enable = true;
             sync-git-tag-with-poetry.enable = true;
+            editorconfig-checker.enable = true;
             cogapp = {
               enable = true;
               raw = { args = [ "docs_src/index.rst" ]; };
