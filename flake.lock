@@ -4110,7 +4110,7 @@
         "nix-extra": "nix-extra",
         "nixpkgs": [
           "nix-extra",
-          "nixpkgs-fractopo"
+          "nixpkgs"
         ]
       }
     },
