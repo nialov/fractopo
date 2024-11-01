@@ -17,7 +17,6 @@ from fractopo.general import Number, SetRangeTuple
 
 @dataclass
 class AzimuthBins:
-
     """
     Dataclass for azimuth rose plot bin data.
     """

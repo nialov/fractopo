@@ -1591,9 +1591,9 @@ known_errors[GeomTypeValidator.ERROR] = known_multilinestring_gdfs
 known_errors[VNodeValidator.ERROR] = known_vnode_gdfs
 known_errors[StackedTracesValidator.ERROR] = known_stacked_gdfs
 known_errors[GeomNullValidator.ERROR] = known_null_gdfs
-known_errors[
-    UnderlappingSnapValidator._OVERLAPPING
-] = known_non_underlaping_gdfs_but_overlapping
+known_errors[UnderlappingSnapValidator._OVERLAPPING] = (
+    known_non_underlaping_gdfs_but_overlapping
+)
 
 
 # False Positives
@@ -1615,12 +1615,12 @@ known_non_multijunction_gdfs = [
 ]
 
 known_false_positives[StackedTracesValidator.ERROR] = known_non_stacked_gdfs
-known_false_positives[
-    UnderlappingSnapValidator._UNDERLAPPING
-] = known_non_underlaping_gdfs_but_overlapping
-known_false_positives[
-    UnderlappingSnapValidator._OVERLAPPING
-] = known_non_overlapping_gdfs
+known_false_positives[UnderlappingSnapValidator._UNDERLAPPING] = (
+    known_non_underlaping_gdfs_but_overlapping
+)
+known_false_positives[UnderlappingSnapValidator._OVERLAPPING] = (
+    known_non_overlapping_gdfs
+)
 known_false_positives[MultiJunctionValidator.ERROR] = known_non_multijunction_gdfs
 
 # Class methods to generate pytest params for parametrization

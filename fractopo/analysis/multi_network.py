@@ -15,7 +15,6 @@ from fractopo.general import NAME, Number, SetRangeTuple
 
 
 class MultiNetwork(NamedTuple):
-
     """
     Multiple Network analysis.
     """
@@ -82,9 +81,9 @@ class MultiNetwork(NamedTuple):
         set_names, _ = self.collective_azimuth_sets()
 
         # Collect (set-wise) length distributions for all networks
-        distributions: Dict[
-            str, Dict[str, length_distributions.LengthDistribution]
-        ] = dict()
+        distributions: Dict[str, Dict[str, length_distributions.LengthDistribution]] = (
+            dict()
+        )
 
         # Iterate over the networks
         for network in self.networks:

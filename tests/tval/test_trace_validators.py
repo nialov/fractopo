@@ -1,6 +1,7 @@
 """
 Test trace Validators.
 """
+
 import geopandas as gpd
 import pytest
 from shapely.geometry import LineString
@@ -59,7 +60,6 @@ def test_determine_faulty_junctions_with_known_false_pos():
 
 
 class TestTargetAreaSnapValidator:
-
     """
     Tests for TargetAreaSnapValidator.
     """

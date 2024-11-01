@@ -7,6 +7,7 @@ GitHub repository and creates a ``fractopo.Network`` object of it. Along with
 the traces the target area in which the traces have been determined in is
 required (it is similarly loaded from ``fractopo`` GitHub page).
 """
+
 # %%
 # Setup matplotlib rcParams for better plotting in the examples
 # -------------------------------------------------------------

@@ -1,6 +1,7 @@
 """
 Utilities for Network subsampling.
 """
+
 import logging
 import platform
 import random
@@ -60,9 +61,9 @@ def subsample_networks(
     subsamplers = [
         NetworkRandomSampler.random_network_sampler(
             network=network,
-            min_radius=min_radii
-            if isinstance(min_radii, float)
-            else min_radii[network.name],
+            min_radius=(
+                min_radii if isinstance(min_radii, float) else min_radii[network.name]
+            ),
             random_choice=random_choice,
         )
         for network in networks

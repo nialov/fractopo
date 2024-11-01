@@ -2,6 +2,7 @@
 Plotting topological ternary plots with ``fractopo``
 ====================================================
 """
+
 # %%
 # Initializing
 # ------------

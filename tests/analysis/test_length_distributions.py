@@ -1,6 +1,7 @@
 """
 Tests for length distributions utilities.
 """
+
 from typing import List
 
 import matplotlib.pyplot as plt

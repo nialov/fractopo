@@ -1,6 +1,7 @@
 """
 Tests for proximal trace detection utility.
 """
+
 from typing import Union
 
 import geopandas as gpd

@@ -1,6 +1,7 @@
 """
 Trace and branch data analysis with LineData class abstraction.
 """
+
 import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
@@ -46,7 +47,6 @@ def _column_array_property(
 
 @dataclass
 class LineData:
-
     """
     Wrapper around the given GeoDataFrame with trace or branch data.
 

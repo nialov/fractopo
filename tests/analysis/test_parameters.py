@@ -1,6 +1,7 @@
 """
 Test parameters.py.
 """
+
 import matplotlib
 import pytest
 from matplotlib import pyplot as plt

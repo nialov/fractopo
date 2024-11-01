@@ -1,6 +1,7 @@
 """
 Utilities for analyzing and plotting length distributions for line data.
 """
+
 import logging
 from dataclasses import dataclass
 from enum import Enum, unique
@@ -39,7 +40,6 @@ SCORER_NAMES: Dict[Callable, str] = {
 
 
 class SilentFit(powerlaw.Fit):
-
     """
     Wrap powerlaw.Fit for the singular purpose of silencing output.
 
@@ -100,7 +100,6 @@ class SilentFit(powerlaw.Fit):
 
 @unique
 class Dist(Enum):
-
     """
     Enums of powerlaw model types.
     """
@@ -129,7 +128,6 @@ def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, 
 
 @dataclass
 class LengthDistribution:
-
     """
     Dataclass for length distributions.
     """
@@ -195,7 +193,6 @@ class LengthDistribution:
 
 
 class Polyfit(NamedTuple):
-
     """
     Results of a polyfit to length data.
     """
@@ -208,7 +205,6 @@ class Polyfit(NamedTuple):
 
 
 class MultiScaleOptimizationResult(NamedTuple):
-
     """
     Results of scipy.optimize.shgo on length data.
     """
@@ -223,7 +219,6 @@ class MultiScaleOptimizationResult(NamedTuple):
 
 @dataclass
 class MultiLengthDistribution:
-
     """
     Multi length distribution.
     """
@@ -235,9 +230,9 @@ class MultiLengthDistribution:
 
     # Private caching attributes
     _fit_to_multi_scale_lengths: Optional[Tuple[np.ndarray, float, float]] = None
-    _normalized_distributions: Optional[
-        Tuple[List[np.ndarray], List[np.ndarray]]
-    ] = None
+    _normalized_distributions: Optional[Tuple[List[np.ndarray], List[np.ndarray]]] = (
+        None
+    )
     _optimized: bool = False
 
     def __hash__(self) -> int:
@@ -260,9 +255,7 @@ class MultiLengthDistribution:
             )
         )
 
-    def normalized_distributions(
-        self, automatic_cut_offs: bool
-    ) -> Tuple[
+    def normalized_distributions(self, automatic_cut_offs: bool) -> Tuple[
         List[np.ndarray],
         List[np.ndarray],
         List[np.ndarray],
@@ -760,21 +753,29 @@ def setup_ax_for_ld(
         style="italic",
         fontweight="bold",
     )
-    ax.set_xlabel(
-        label,
-        labelpad=14,
-        **font_props,
-    ) if not plain else None
+    (
+        ax.set_xlabel(
+            label,
+            labelpad=14,
+            **font_props,
+        )
+        if not plain
+        else None
+    )
     # Individual powerlaw fits are not normalized to area because they aren't
     # multiscale
     ccm_unit = r"$(\frac{1}{m^2})$" if not indiv_fit else ""
     prefix = "" if indiv_fit else "AN"
     function_name = "CCM" if not use_probability_density_function else "PDF"
-    ax.set_ylabel(
-        f"{prefix}{function_name} {ccm_unit}",
-        # prefix + function_name + ccm_unit,
-        **font_props,
-    ) if not plain else None
+    (
+        ax.set_ylabel(
+            f"{prefix}{function_name} {ccm_unit}",
+            # prefix + function_name + ccm_unit,
+            **font_props,
+        )
+        if not plain
+        else None
+    )
 
     # Setup x and y axis ticks and their labels
     ax.xaxis.set_ticks(

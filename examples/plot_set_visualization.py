@@ -2,6 +2,7 @@
 Visualizing azimuth sets
 ========================
 """
+
 # %%
 # Initializing
 # ------------

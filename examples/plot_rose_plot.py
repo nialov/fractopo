@@ -2,6 +2,7 @@
 Plotting rose plots with ``fractopo``
 =====================================
 """
+
 # %%
 # Initializing
 # ------------

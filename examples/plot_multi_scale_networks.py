@@ -2,6 +2,7 @@
 Plotting multi-scale fracture networks with ``fractopo``
 ========================================================
 """
+
 # %%
 # Initializing
 # ------------

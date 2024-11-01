@@ -5,6 +5,7 @@ Numerical network characteristics
 Lineament & fracture networks can be characterized with numerous
 geometric and topological parameters.
 """
+
 # %%
 # Initializing
 # ------------

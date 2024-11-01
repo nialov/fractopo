@@ -1,6 +1,7 @@
 """
 Utilities for randomly Network sampling traces.
 """
+
 import logging
 from dataclasses import dataclass
 from enum import Enum, unique
@@ -25,7 +26,6 @@ log = logging.getLogger(__name__)
 
 @unique
 class RandomChoice(Enum):
-
     """
     Choose between random area or radius.
 
@@ -38,7 +38,6 @@ class RandomChoice(Enum):
 
 @dataclass
 class RandomSample:
-
     """
     Dataclass for sampling results.
     """
@@ -51,7 +50,6 @@ class RandomSample:
 
 @dataclass
 class NetworkRandomSampler:
-
     """
     Randomly sample traces inside given target area.
     """

@@ -10,6 +10,9 @@ indent_size = 4
 [/paper/*.md]
 indent_size = unset
 
+[/paper/getbib.lua]
+indent_style = unset
+
 [/tests/sample_data/**]
 indent_size = unset
 charset = unset

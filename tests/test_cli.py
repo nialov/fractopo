@@ -1,6 +1,7 @@
 """
 Tests for command line entrypoints.
 """
+
 from pathlib import Path
 
 import geopandas as gpd

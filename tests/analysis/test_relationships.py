@@ -1,6 +1,7 @@
 """
 Tests for relationship detection.
 """
+
 from itertools import chain
 from typing import List, Optional, Tuple
 

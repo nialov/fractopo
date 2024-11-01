@@ -8,6 +8,7 @@ functionality provided by ``powerlaw`` but it does not directly translate to
 the required methods for multi-scale data where normalization of the
 complementary cumulative number (=ccm) has been done.
 """
+
 # %%
 # Initializing
 # ------------

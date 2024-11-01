@@ -1,6 +1,7 @@
 """
 Literal wkt samples for regression testing.
 """
+
 from ast import literal_eval
 from pathlib import Path
 from typing import List

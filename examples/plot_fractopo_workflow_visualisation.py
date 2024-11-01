@@ -4,6 +4,7 @@ Workflow visualisation of ``fractopo``
 
 See ``examples/fractopo_workflow_visualisation.py`` for the code.
 """
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
