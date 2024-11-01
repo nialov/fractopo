@@ -9,9 +9,6 @@ if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
     # Value of "0" means it is NOT disabled
     os.environ["FRACTOPO_DISABLE_CACHE"] = "1"
 
-# Make GeoPandas use shapely 2.0 instead of pygeos
-os.environ["USE_PYGEOS"] = "0"
-
 import logging
 import sys
 from functools import lru_cache, wraps
