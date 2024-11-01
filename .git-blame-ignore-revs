@@ -3,3 +3,5 @@
 e85a26d725b96503e729dd2bebcc1bb08424c331
 # Tests geojson formatting
 fa4a2b269b82825e926f8ea43b0e9e84a169e95e
+# Format with pre-commit and tool updates
+896873ecadf41d03d86444f8cb9539d5d8b402fd
