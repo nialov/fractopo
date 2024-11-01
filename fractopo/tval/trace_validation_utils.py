@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 import geopandas as gpd
 import numpy as np
 from geopandas.sindex import SpatialIndex
-from shapely.geometry import LineString, MultiLineString, Point, Polygon
+from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.ops import split
 
 from fractopo.general import (
@@ -46,7 +46,13 @@ def segment_within_buffer(
         return False
     # Test for a single segment overlap
     if linestring.overlaps(multilinestring):
-        return True
+        if not isinstance(
+            linestring.intersection(multilinestring), (Point, MultiPoint)
+        ):
+            return True
+        log.warning(
+            "Expected the intersection of overlapping geometries to not be a Point"
+        )
 
     buffered_linestring = safe_buffer(
         linestring,
@@ -171,7 +177,7 @@ def split_to_determine_triangle_errors(
             # NOTE: not an exhaustive test
 
             # Check that case follows expectation... (no overlap)
-            assert not trace.overlaps(splitter_trace)
+            # assert not trace.overlaps(splitter_trace)
             log.info(
                 "Failed to split but intersection was a single point.",
                 extra=dict(
