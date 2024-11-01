@@ -35,15 +35,14 @@ fractopo = "fractopo.__main__:APP"
 
 # Changes here should be kept in sync with ./environment.yml
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9,<3.12"
 click = "*"
-geopandas = ">=0.12.0"
+geopandas = ">=1.0.0"
 joblib = ">=1.2.0"
 matplotlib = ">=3.5.3"
 numpy = "*"
 pandas = ">=1.3,<3.0.0"
 powerlaw = "*"
-pygeos = ">=0.13.0"
 python-ternary = "*"
 rich = ">=11.0.0"
 scikit-learn = "*"
@@ -128,14 +127,12 @@ doctest_optionflags =[
 filterwarnings =[
     "error",
     "ignore:The Shapely:UserWarning:geopandas",
-    "ignore:The shapely GEOS version:UserWarning:pygeos",
     "ignore:No data for colormapping provided:UserWarning",
     "ignore:invalid value encountered in divide:RuntimeWarning:powerlaw",
     "ignore:divide by zero encountered in divide:RuntimeWarning:powerlaw",
     "ignore:overflow encountered in divide:RuntimeWarning:powerlaw",
     "ignore:The behavior of :FutureWarning",
     "ignore:In a future version, :FutureWarning",
-    "ignore:invalid value encountered in intersection:RuntimeWarning:pygeos",
     "ignore:More than 20 figures have been opened:RuntimeWarning",
     "ignore:the convert_dtype parameter is deprecated and will be removed in a future version:FutureWarning",
     "ignore:is_categorical_dtype is deprecated and will be removed in a future version:FutureWarning",
