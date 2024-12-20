@@ -19,6 +19,15 @@
                   })
                 ];
                 inherit (final.python3Packages) fractopo;
+                fhs = let
+                  base = prev.geo-fhs-env.passthru.args;
+                  config = {
+                    name = "fhs";
+                    targetPkgs = fhsPkgs:
+                      (base.targetPkgs fhsPkgs) ++ [ fhsPkgs.gdal ];
+                  };
+                in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
+
               })
 
             ];
@@ -32,6 +41,7 @@
             pre-commit
             pandoc
             poetry-with-c-tooling
+            fhs
           ];
 
         in {
