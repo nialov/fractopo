@@ -16,11 +16,11 @@ def _():
     from pathlib import Path
 
     import geopandas as gpd
-    import marimo as mo
     import pyogrio
 
     import fractopo.general
     import fractopo.tval.trace_validation
+    import marimo as mo
 
     return BytesIO, Path, fractopo, gpd, logging, mo, pyogrio
 
@@ -130,9 +130,9 @@ def _(
         validated = validation.run_validation()
 
         validated_clean = fractopo.general.convert_list_columns(validated, allow=True)
-        validated_clean[validation.ERROR_COLUMN] = validated_clean[
-            validation.ERROR_COLUMN
-        ]
+        # validated_clean[validation.ERROR_COLUMN] = validated_clean[
+        #     validation.ERROR_COLUMN
+        # ]
 
         return validated_clean
 
@@ -145,14 +145,19 @@ def _(execute, logging, mo):
         with mo.redirect_stdout():
             try:
                 validated_clean = execute()
-            except Exception:
+                execute_exception = None
+            except Exception as exc:
                 logging.error("Failed to validate input data.", exc_info=True)
-    return (validated_clean,)
+                validated_clean = None
+                execute_exception = exc
+    return (validated_clean, execute_exception)
 
 
 @app.cell
 def _(fractopo, mo, validated_clean):
-    if (
+    if validated_clean is None:
+        mo.output.replace("")
+    elif (
         fractopo.tval.trace_validation.Validation.ERROR_COLUMN
         in validated_clean.columns
     ):
@@ -165,13 +170,16 @@ def _(fractopo, mo, validated_clean):
 
 
 @app.cell
-def _(validated_clean):
-    validated_clean.drop(columns=["geometry"])
+def _(mo, validated_clean):
+    if validated_clean is not None:
+        mo.output.replace(validated_clean.drop(columns=["geometry"]))
     return
 
 
 @app.cell
-def _():
+def _(mo, execute_exception):
+    if len(mo.cli_args()) != 0 and execute_exception is not None:
+        raise execute_exception
     return
 
 
