@@ -16,11 +16,11 @@ def _():
     from pathlib import Path
 
     import geopandas as gpd
+    import marimo as mo
     import pyogrio
 
     import fractopo.general
     import fractopo.tval.trace_validation
-    import marimo as mo
 
     return BytesIO, Path, fractopo, gpd, logging, mo, pyogrio
 

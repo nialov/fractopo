@@ -1,4 +1,4 @@
-({ self, inputs, ... }:
+({ inputs, ... }:
 
   {
     perSystem = { self', config, system, pkgs, lib, ... }:
@@ -12,10 +12,10 @@
 
               (final: prev: {
                 pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-                  (_: pythonPrev: {
-                    "fractopo" = pythonPrev.fractopo.overridePythonAttrs
-                      # Test with local source
-                      (_: { src = self.outPath; });
+                  (pythonFinal: _: {
+                    fractopo = pythonFinal.callPackage ./nix/package.nix {
+                      inherit inputs;
+                    };
                   })
                 ];
                 inherit (final.python3Packages) fractopo;

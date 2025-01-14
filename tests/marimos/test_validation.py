@@ -8,7 +8,7 @@ import tests
 
 SAMPLE_DATA_DIR = Path(__file__).parent.parent.joinpath("sample_data/")
 VALIDATION_NOTEBOOK = Path(__file__).parent.parent.parent.joinpath(
-    "docs_src/marimo/validation.py"
+    "marimos/validation.py"
 )
 PYTHON_INTERPRETER = sys.executable
 
