@@ -10,25 +10,60 @@
 
               inputs.nix-extra.overlays.default
 
-              (final: prev: {
-                pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-                  (pythonFinal: _: {
-                    fractopo = pythonFinal.callPackage ./nix/package.nix { };
-                  })
-                ];
-                inherit (final.python3Packages) fractopo;
-                fhs = let
-                  base = prev.geo-fhs-env.passthru.args;
-                  config = {
-                    name = "fhs";
-                    targetPkgs = fhsPkgs:
-                      (base.targetPkgs fhsPkgs) ++ [ fhsPkgs.gdal ];
-                  };
-                in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
+              (final: prev:
 
-                pythonEnv = final.python3.withPackages
-                  (p: p.fractopo.passthru.optional-dependencies.dev);
-              })
+                let
+                  imageConfig = {
+                    name = "fractopo-validation";
+                    config = {
+                      Entrypoint = [
+                        "${final.fractopo-validation-run}/bin/fractopo-validation-run"
+                      ];
+                      Cmd = [
+                        "--host"
+                        "0.0.0.0"
+                        "--port"
+                        "2718"
+                        "--redirect-console-to-browser"
+                      ];
+                    };
+                    # contents = [ fractopo ];
+                  };
+
+                in {
+                  pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
+                    (pythonFinal: _: {
+                      fractopo = pythonFinal.callPackage ./nix/package.nix { };
+                    })
+                  ];
+                  inherit (final.python3Packages) fractopo;
+                  fhs = let
+                    base = prev.geo-fhs-env.passthru.args;
+                    config = {
+                      name = "fhs";
+                      targetPkgs = fhsPkgs:
+                        (base.targetPkgs fhsPkgs) ++ [ fhsPkgs.gdal ];
+                    };
+                  in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
+
+                  pythonEnv = final.python3.withPackages
+                    (p: p.fractopo.passthru.optional-dependencies.dev);
+                  fractopoEnv = final.python3.withPackages (p:
+                    [ p.fractopo ]
+                    ++ p.fractopo.passthru.optional-dependencies.dev);
+                  fractopo-validation-run = prev.writeShellApplication {
+                    name = "fractopo-validation-run";
+                    runtimeInputs = [ final.fractopoEnv ];
+                    text = ''
+                      marimo run ${./marimos/validation.py} "$@"
+                    '';
+
+                  };
+                  fractopo-validation-image =
+                    pkgs.dockerTools.buildLayeredImage imageConfig;
+                  fractopo-validation-image-stream =
+                    pkgs.dockerTools.streamLayeredImage imageConfig;
+                })
 
             ];
             config = { allowUnfree = true; };
@@ -85,7 +120,9 @@
         };
         packages = {
 
-          inherit (pkgs) fractopo poetry-run;
+          inherit (pkgs)
+            fractopo poetry-run fractopo-validation-run
+            fractopo-validation-image;
           fractopo-documentation =
             self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
