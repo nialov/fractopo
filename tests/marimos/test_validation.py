@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 from functools import partial
@@ -16,19 +17,20 @@ PYTHON_INTERPRETER = sys.executable
 check_python_call = partial(
     subprocess.check_call,
     env={
+        **os.environ,
         "PYTHONPATH": "{}:{}".format(
             Path(__file__).parent.parent.parent,
             sys.path,
-        )
+        ),
     },
 )
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32",
-    reason="Subprocess call is flaky in Windows",
-    raises=subprocess.CalledProcessError,
-)
+# @pytest.mark.xfail(
+#     sys.platform == "win32",
+#     reason="Subprocess call is flaky in Windows",
+#     raises=subprocess.CalledProcessError,
+# )
 @pytest.mark.parametrize(
     "traces_path,area_path,name",
     [
@@ -59,11 +61,10 @@ def test_validation_cli(traces_path: str, area_path: str, name: str):
     )
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32",
-    reason="Subprocess call is flaky in Windows",
-    raises=subprocess.CalledProcessError,
-)
+# @pytest.mark.skipif(
+#     sys.platform == "win32",
+#     reason="Subprocess call is flaky in Windows",
+# )
 @pytest.mark.parametrize(
     "args,raises",
     [
