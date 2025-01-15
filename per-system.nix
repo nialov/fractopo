@@ -37,7 +37,7 @@
       in {
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
         devShells =
-          let devShellPackages = with pkgs; [ pre-commit fhs pythonEnv ];
+          let devShellPackages = with pkgs; [ pre-commit fhs pythonEnv poetry ];
 
           in {
             default = pkgs.mkShell {
