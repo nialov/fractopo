@@ -13,9 +13,7 @@
               (final: prev: {
                 pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                   (pythonFinal: _: {
-                    fractopo = pythonFinal.callPackage ./nix/package.nix {
-                      inherit inputs;
-                    };
+                    fractopo = pythonFinal.callPackage ./nix/package.nix { };
                   })
                 ];
                 inherit (final.python3Packages) fractopo;
@@ -28,6 +26,9 @@
                   };
                 in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
 
+                pythonEnv = prev.python3.withPackages (p:
+                  (lib.attrValues { inherit (p) fractopo; })
+                  ++ p.fractopo.passthru.optional-dependencies.dev);
               })
 
             ];
@@ -36,23 +37,18 @@
 
       in {
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
-        devShells = let
-          devShellPackages = with pkgs; [
-            pre-commit
-            pandoc
-            poetry-with-c-tooling
-            fhs
-          ];
+        devShells =
+          let devShellPackages = with pkgs; [ pre-commit fhs pythonEnv ];
 
-        in {
-          default = pkgs.mkShell {
-            packages = devShellPackages;
-            shellHook = config.pre-commit.installationScript + ''
-              export PROJECT_DIR="$PWD"
-            '';
+          in {
+            default = pkgs.mkShell {
+              packages = devShellPackages;
+              shellHook = config.pre-commit.installationScript + ''
+                export PROJECT_DIR="$PWD"
+              '';
+            };
+
           };
-
-        };
 
         pre-commit = {
           check.enable = true;
@@ -94,6 +90,7 @@
           fractopo-documentation =
             self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
+          fractopo-shell = self'.devShells.default;
 
         };
         checks = self'.packages;
