@@ -64,9 +64,10 @@ def test_validation_cli(traces_path: str, area_path: str, name: str):
     )
 
 
-@pytest.mark.skipif(
+@pytest.mark.xfail(
     sys.platform == "win32",
     reason="Subprocess call is flaky in Windows",
+    run=False,
 )
 @pytest.mark.parametrize(
     "args,raises",
