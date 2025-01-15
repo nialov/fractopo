@@ -44,10 +44,7 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Test with poetry on Python ${{ matrix.python-version }}
         run: |
-          sudo nix run .#fhs -- -c poetry check
-          sudo nix run .#fhs -- -c poetry env use ${{ matrix.python-version }}
-          sudo nix run .#fhs -- -c poetry install
-          sudo nix run .#fhs -- -c poetry run pytest -v
+          nix run .#poetry-run -- ${{ matrix.python-version }} pytest
 
   release:
     runs-on: ubuntu-latest
