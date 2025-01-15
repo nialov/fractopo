@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 from functools import partial
@@ -19,7 +18,7 @@ check_python_call = partial(
     env={
         "PYTHONPATH": "{}:{}".format(
             Path(__file__).parent.parent.parent,
-            os.environ.get("PYTHONPATH"),
+            sys.path,
         )
     },
 )
