@@ -61,6 +61,10 @@ let
         sphinxRoot = "docs_src";
         outputs = [ "out" "doc" ];
       });
+      optional-dependencies = {
+        dev = self.propagatedBuildInputs ++ self.buildInputs
+          ++ self.passthru.documentation.nativeBuildInputs;
+      };
     };
 
     propagatedBuildInputs = [
