@@ -26,9 +26,8 @@
                   };
                 in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
 
-                pythonEnv = prev.python3.withPackages (p:
-                  (lib.attrValues { inherit (p) fractopo; })
-                  ++ p.fractopo.passthru.optional-dependencies.dev);
+                pythonEnv = prev.python3.withPackages
+                  (p: p.fractopo.passthru.optional-dependencies.dev);
               })
 
             ];
