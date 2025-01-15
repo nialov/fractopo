@@ -995,7 +995,7 @@ def determine_node_junctions(
         ]
 
         # Iterate over the actual Points of the current trace
-        for _, point in enumerate(points):
+        for point in points:
             # Get node candidates from spatial index
             node_candidates_idx = spatial_index_intersection(
                 nodes_geoseries_sindex,
@@ -1013,11 +1013,12 @@ def determine_node_junctions(
             # Only choose node candidates that are not part of current traces
             # nodes
             node_candidates_idx = [
-                val if val <= idx else val - associated_point_count
+                # val if val <= idx else val - associated_point_count
+                val
                 for val in node_candidates_idx
                 if val in remaining_idxs
             ]
-            node_candidates: gpd.GeoSeries = other_nodes_geoseries.iloc[  # type: ignore
+            node_candidates: gpd.GeoSeries = flattened_nodes_geoseries.iloc[  # type: ignore
                 node_candidates_idx
             ]
             # snap_threshold * snap_threshold_error_multiplier represents the
