@@ -26,7 +26,7 @@
                   };
                 in pkgs.buildFHSUserEnv (lib.recursiveUpdate base config);
 
-                pythonEnv = prev.python3.withPackages
+                pythonEnv = final.python3.withPackages
                   (p: p.fractopo.passthru.optional-dependencies.dev);
               })
 
