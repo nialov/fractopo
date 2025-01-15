@@ -1,5 +1,7 @@
+import os
 import subprocess
 import sys
+from functools import partial
 from pathlib import Path
 
 import pytest
@@ -11,6 +13,16 @@ VALIDATION_NOTEBOOK = Path(__file__).parent.parent.parent.joinpath(
     "marimos/validation.py"
 )
 PYTHON_INTERPRETER = sys.executable
+
+check_python_call = partial(
+    subprocess.check_call,
+    env={
+        "PYTHONPATH": "{}:{}".format(
+            Path(__file__).parent.parent,
+            os.environ.get("PYTHONPATH"),
+        )
+    },
+)
 
 
 @pytest.mark.parametrize(
@@ -38,7 +50,9 @@ def test_validation_cli(traces_path: str, area_path: str, name: str):
         name,
     ]
 
-    subprocess.check_call([PYTHON_INTERPRETER, VALIDATION_NOTEBOOK.as_posix(), *args])
+    check_python_call(
+        [PYTHON_INTERPRETER, VALIDATION_NOTEBOOK.as_posix(), *args],
+    )
 
 
 @pytest.mark.parametrize(
@@ -49,6 +63,4 @@ def test_validation_cli(traces_path: str, area_path: str, name: str):
 )
 def test_validation_cli_args(args, raises):
     with raises:
-        subprocess.check_call(
-            [PYTHON_INTERPRETER, VALIDATION_NOTEBOOK.as_posix(), *args]
-        )
+        check_python_call([PYTHON_INTERPRETER, VALIDATION_NOTEBOOK.as_posix(), *args])
