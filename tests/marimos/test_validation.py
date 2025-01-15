@@ -18,7 +18,7 @@ check_python_call = partial(
     subprocess.check_call,
     env={
         "PYTHONPATH": "{}:{}".format(
-            Path(__file__).parent.parent,
+            Path(__file__).parent.parent.parent,
             os.environ.get("PYTHONPATH"),
         )
     },
