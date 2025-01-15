@@ -62,8 +62,8 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Build package with poetry
         run: |
-          nix develop -c poetry check
-          nix develop -c poetry build
+          nix run .#poetry -- check
+          nix run .#poetry -- build
 
       - name: Check that version in pyproject.toml is equivalent to tag
         if: >
