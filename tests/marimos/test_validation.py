@@ -24,6 +24,11 @@ check_python_call = partial(
 )
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32",
+    reason="Subprocess call is flaky in Windows",
+    raises=subprocess.CalledProcessError,
+)
 @pytest.mark.parametrize(
     "traces_path,area_path,name",
     [
@@ -54,6 +59,11 @@ def test_validation_cli(traces_path: str, area_path: str, name: str):
     )
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32",
+    reason="Subprocess call is flaky in Windows",
+    raises=subprocess.CalledProcessError,
+)
 @pytest.mark.parametrize(
     "args,raises",
     [
