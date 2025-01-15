@@ -24,3 +24,4 @@ dependencies:
   - hypothesis
   - pytest
   - pytest-regressions
+  - marimo
