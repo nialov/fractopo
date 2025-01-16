@@ -13,22 +13,33 @@
               (final: prev:
 
                 let
-                  imageConfig = {
-                    name = "fractopo-validation";
-                    config = {
-                      Entrypoint = [
-                        "${final.fractopo-validation-run}/bin/fractopo-validation-run"
-                      ];
-                      Cmd = [
-                        "--host"
-                        "0.0.0.0"
-                        "--port"
-                        "2718"
-                        "--redirect-console-to-browser"
-                      ];
+                  imageConfig =
+                    # let
+
+                    #   WorkingDir = "app";
+
+                    # in
+                    {
+                      name = "fractopo-validation";
+                      # extraCommands = ''
+                      #   mkdir ./${WorkingDir}
+                      #   chmod 777 ./${WorkingDir}
+                      # '';
+                      config = {
+                        Entrypoint = [
+                          "${final.fractopo-validation-run}/bin/fractopo-validation-run"
+                        ];
+                        Cmd = [
+                          "--host"
+                          "0.0.0.0"
+                          "--port"
+                          "2718"
+                          "--redirect-console-to-browser"
+                        ];
+                        # WorkingDir = "/${WorkingDir}";
+                      };
+                      # contents = [ fractopo ];
                     };
-                    # contents = [ fractopo ];
-                  };
 
                 in {
                   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
@@ -49,7 +60,8 @@
                   pythonEnv = final.python3.withPackages
                     (p: p.fractopo.passthru.optional-dependencies.dev);
                   fractopoEnv = final.python3.withPackages (p:
-                    [ p.fractopo ]
+                    # TODO: Should check.
+                    [ p.fractopo.passthru.no-check ]
                     ++ p.fractopo.passthru.optional-dependencies.dev);
                   fractopo-validation-run = prev.writeShellApplication {
                     name = "fractopo-validation-run";
@@ -63,6 +75,30 @@
                     pkgs.dockerTools.buildLayeredImage imageConfig;
                   fractopo-validation-image-stream =
                     pkgs.dockerTools.streamLayeredImage imageConfig;
+                  push-fractopo-validation-image = prev.writeShellApplication {
+                    name = "push-fractopo-validation-image";
+                    text = let
+
+                      inherit (final.fractopo-validation-image-stream)
+                        imageName imageTag;
+
+                    in ''
+                      echo "Logging in to $1"
+                      docker login -p "$3" -u unused "$1"
+
+                      echo "Listing images"
+                      docker image list
+
+                      echo "Loading new version of fractopo validation image into docker"
+                      ${final.fractopo-validation-image-stream} | docker load
+
+                      echo "Tagging new image version to project $2 in $1"
+                      docker tag localhost/${imageName}:${imageTag} "$1"/"$2"/${imageName}:latest
+
+                      echo "Pushing new image version to project $2 in $1"
+                      docker push "$1"/"$2"/${imageName}:latest
+                    '';
+                  };
                 })
 
             ];
@@ -122,7 +158,7 @@
 
           inherit (pkgs)
             fractopo poetry-run fractopo-validation-run
-            fractopo-validation-image;
+            fractopo-validation-image fractopo-validation-image-stream;
           fractopo-documentation =
             self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
