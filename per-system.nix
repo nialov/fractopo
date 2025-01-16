@@ -86,14 +86,14 @@
                       echo "Logging in to $1"
                       docker login -p "$3" -u unused "$1"
 
-                      echo "Listing images"
-                      docker image list
-
                       echo "Loading new version of fractopo validation image into docker"
                       ${final.fractopo-validation-image-stream} | docker load
 
+                      echo "Listing images"
+                      docker image list
+
                       echo "Tagging new image version to project $2 in $1"
-                      docker tag localhost/${imageName}:${imageTag} "$1"/"$2"/${imageName}:latest
+                      docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:latest
 
                       echo "Pushing new image version to project $2 in $1"
                       docker push "$1"/"$2"/${imageName}:latest
