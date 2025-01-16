@@ -162,5 +162,6 @@ jobs:
           PUSHER_TOKEN: ${{ secrets.PUSHER_TOKEN }}
           REGISTRY: ${{ secrets.REGISTRY }}
           PROJECT: ${{ secrets.PROJECT }}
+        # TODO: Should not run unless on master branch?
         run: |
           nix run .#push-fractopo-validation-image -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN"
