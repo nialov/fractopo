@@ -87,6 +87,12 @@
                       docker push "$1"/"$2"/${imageName}:latest
                     '';
                   };
+                  cut-release-changelog = prev.writeShellApplication {
+                    name = "cut-release-changelog";
+                    text = ''
+                      ${prev.busybox}/bin/sed -n '3,/## v[[:digit:]].[[:digit:]].[[:digit:]]/p' CHANGELOG.md | head -n -2
+                    '';
+                  };
                 })
 
             ];

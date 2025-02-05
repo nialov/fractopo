@@ -74,20 +74,19 @@ jobs:
           git diff --exit-code
 
       - name: Publish distribution 📦 to PyPI on tagged commit pushes
-        # Publish to PyPI on tagged commit pushes on master
         if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@v1.12.2
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
+        # uses: pypa/gh-action-pypi-publish@v1.12.2
+        # with:
+        #   user: __token__
+        #   password: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          nix run .#poetry -- publish --username=__token__ --password=${{ secrets.PYPI_PASSWORD }} --no-interaction
 
       - name: Create incremental changelog
-        run: >
-          sed -n '3,/## v[[:digit:]].[[:digit:]].[[:digit:]]/p' CHANGELOG.md | head -n -2
-          > RELEASE_CHANGELOG.md
-          # sed -n '2,/Release Changelog/p' CHANGELOG.md | head -n -4
+        run: |
+          nix run .#cut-release-changelog > RELEASE_CHANGELOG.md
 
       - name: Echo RELEASE_CHANGELOG.md
         run: cat RELEASE_CHANGELOG.md
