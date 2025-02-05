@@ -14,7 +14,6 @@ jobs:
         with:
           # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
           source-tag: "v0.32.3"
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -37,7 +36,6 @@ jobs:
         with:
           # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
           source-tag: "v0.32.3"
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -55,7 +53,6 @@ jobs:
         with:
           # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
           source-tag: "v0.32.3"
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -126,7 +123,6 @@ jobs:
         with:
           # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
           source-tag: "v0.32.3"
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -152,7 +148,6 @@ jobs:
   #       with:
   #         # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
   #         source-tag: "v0.32.3"
-  #     - uses: DeterminateSystems/magic-nix-cache-action@v8
   #     - uses: cachix/cachix-action@v15
   #       with:
   #         name: nialov
