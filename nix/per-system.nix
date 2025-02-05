@@ -13,38 +13,26 @@
               (final: prev:
 
                 let
-                  imageConfig =
-                    # let
-
-                    #   WorkingDir = "app";
-
-                    # in
-                    {
-                      name = "fractopo-validation";
-                      # extraCommands = ''
-                      #   mkdir ./${WorkingDir}
-                      #   chmod 777 ./${WorkingDir}
-                      # '';
-                      config = {
-                        Entrypoint = [
-                          "${final.fractopo-validation-run}/bin/fractopo-validation-run"
-                        ];
-                        Cmd = [
-                          "--host"
-                          "0.0.0.0"
-                          "--port"
-                          "2718"
-                          "--redirect-console-to-browser"
-                        ];
-                        # WorkingDir = "/${WorkingDir}";
-                      };
-                      # contents = [ fractopo ];
+                  imageConfig = {
+                    name = "fractopo-validation";
+                    config = {
+                      Entrypoint = [
+                        "${final.fractopo-validation-run}/bin/fractopo-validation-run"
+                      ];
+                      Cmd = [
+                        "--host"
+                        "0.0.0.0"
+                        "--port"
+                        "2718"
+                        "--redirect-console-to-browser"
+                      ];
                     };
+                  };
 
                 in {
                   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
                     (pythonFinal: _: {
-                      fractopo = pythonFinal.callPackage ./nix/package.nix { };
+                      fractopo = pythonFinal.callPackage ./package.nix { };
                     })
                   ];
                   inherit (final.python3Packages) fractopo;
@@ -67,7 +55,7 @@
                     name = "fractopo-validation-run";
                     runtimeInputs = [ final.fractopoEnv ];
                     text = ''
-                      marimo run ${./marimos/validation.py} "$@"
+                      marimo run ${./../marimos/validation.py} "$@"
                     '';
 
                   };
