@@ -88,7 +88,7 @@
                     pkgs.dockerTools.buildLayeredImage networkImageConfig;
                   fractopo-network-image-stream =
                     pkgs.dockerTools.streamLayeredImage networkImageConfig;
-                  push-fractopo-fractopo-images = prev.writeShellApplication {
+                  push-fractopo-images = prev.writeShellApplication {
                     name = "push-fractopo-images";
                     text = let
 
