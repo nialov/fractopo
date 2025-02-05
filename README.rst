@@ -87,7 +87,7 @@ Usage
 Validation is done to make sure the data is valid for the analysis and
 is crucial as analysis cannot take into account different kinds of
 geometric and topological inconsistencies between the traces.
-Capabilities and associated guides are inexhaustively listed in the
+Capabilities and associated guides are inexhaustibly listed in the
 table below.
 
 ========================================================  ======================
@@ -160,7 +160,6 @@ Trace data should consists of polyline geometries, i.e., of
 ``LineString`` type. Trace data in ``MultiLineString`` format area not
 supported. Area data should consists of polygon geometries, i.e., of
 either ``Polygon`` or ``MultiPolygon`` type.
-
 
 Trace validation
 ~~~~~~~~~~~~~~~~
@@ -285,7 +284,6 @@ of command-line entrypoint:
    between chosen azimuth sets. H. Ternary plot of node (X, Y and I)
    proportions. I. Ternary plot of branch (C-C, C-I, I-I) proportions.
 
-
 Citing
 ------
 
@@ -366,77 +364,10 @@ Development
 
 -  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING.rst>`__
 
-Development dependencies for ``fractopo`` include:
-
--  ``poetry``
-
-   -  Used to handle Python package dependencies.
-
-   .. code:: bash
-
-      # Use poetry run to execute poetry installed cli tools such as invoke,
-      # nox and pytest.
-      poetry run '<cmd>'
-
--  ``copier``
-
-   -  ``copier`` is a project templater. Many Python projects follow a similar
-      framework for testing, creating documentations and overall placement of
-      files and configuration. ``copier`` allows creating a template project
-      (e.g., https://github.com/nialov/nialov-py-template) which can be firstly
--  ``copier``
-
-   -  ``copier`` is a project templater. Many Python projects follow a similar
-      framework for testing, creating documentations and overall placement of
-      files and configuration. ``copier`` allows creating a template project
-      (e.g., https://github.com/nialov/nialov-py-template) which can be firstly
-      cloned as the framework for your own package and secondly to pull updates
-      from the template to your already started project.
-
-   .. code:: bash
-
-      # To pull copier update from github/nialov/nialov-py-template
-      poetry run copier update
-
-
--  ``nix``
-
-   -  ``fractopo`` is also packaged with ``nix``. ``nix`` provides
-      declarative and immutable packaging which should make ``fractopo``
-      last longer.
-
-   .. code:: bash
-
-      # To run the fractopo command-line using nix
-      nix run github:nialov/fractopo#fractopo -- --help
-
--  ``pytest``
-
-   -  ``pytest`` is a Python test runner. It is used to run defined tests to
-      check that the package executes as expected. The defined tests in
-      ``./tests`` contain many regression tests (done with
-      ``pytest-regressions``) that make it almost impossible
-      to add features to ``fractopo`` that changes the results of functions
-      and methods.
-
-   .. code:: bash
-
-      # To run tests implemented in ./tests directory and as doctests
-      # within project itself:
-      poetry run pytest
-
--  ``coverage``
-
--  ``sphinx``
-
-   -  Creates documentation from files in ``./docs_src``.
-
-Big thanks to all maintainers of the above packages!
-
 License
 ~~~~~~~
 
-Copyright © 2020-2023, Nikolas Ovaskainen.
+Copyright © 2020-2025, Nikolas Ovaskainen.
 
 -----
 

@@ -40,3 +40,43 @@ Style
 
 -  New code should be documented following the style of the code base i.e.,
    using the ``sphinx`` style.
+
+Development dependencies
+------------------------
+
+Development dependencies for ``fractopo`` include:
+
+-  `poetry <https://github.com/python-poetry/poetry>`__
+
+   -  Used to handle Python package dependencies.
+
+-  `nix <https://nixos.org/>`__
+
+   -  ``fractopo`` is also packaged with ``nix``. ``nix`` provides
+      declarative and immutable packaging which should make ``fractopo``
+      last longer.
+
+   .. code:: bash
+
+      # To run the fractopo command-line using nix
+      nix run github:nialov/fractopo#fractopo -- --help
+
+-  `pytest <https://github.com/pytest-dev/pytest>`__
+
+   -  ``pytest`` is a Python test runner. It is used to run defined
+      tests to check that the package executes as expected. The defined
+      tests in ``./tests`` contain many regression tests (done with
+      ``pytest-regressions``) that make it almost impossible to add
+      features to ``fractopo`` that changes (regresses) the results of
+      functions and methods without notice.
+
+-  `coverage <https://github.com/nedbat/coveragepy>`__
+
+   -  Gathers code coverage info
+
+-  `sphinx <https://github.com/sphinx-doc/sphinx>`__
+
+   -  Creates documentation from files in ``./docs_src`` and
+      ``examples``.
+
+Big thanks to all maintainers of the above and other used packages!
