@@ -11,9 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
-        with:
-          # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
-          source-tag: "v0.32.3"
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -33,9 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
-        with:
-          # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
-          source-tag: "v0.32.3"
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -50,9 +44,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
-        with:
-          # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
-          source-tag: "v0.32.3"
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
@@ -120,9 +111,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
-        with:
-          # TODO: https://github.com/DeterminateSystems/nix-installer-action/issues/133
-          source-tag: "v0.32.3"
       - uses: cachix/cachix-action@v15
         with:
           name: nialov
