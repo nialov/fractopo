@@ -147,4 +147,4 @@ jobs:
           REGISTRY: ${{ secrets.REGISTRY }}
           PROJECT: ${{ secrets.PROJECT }}
         run: |
-          nix run .#push-fractopo-validation-image -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN"
+          nix run .#push-fractopo-images -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN"
