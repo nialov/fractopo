@@ -7,6 +7,7 @@ import logging
 import math
 import os
 import random
+import re
 from bisect import bisect
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
@@ -2039,7 +2040,8 @@ def sanitize_name(name: str) -> str:
     """
     Return only alphanumeric parts of name string.
     """
-    return "".join(filter(str.isalnum, name))
+
+    return re.sub(r"[^a-zA-Z0-9_]", "", name)
 
 
 def check_for_wrong_geometries(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
