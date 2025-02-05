@@ -64,6 +64,7 @@ jobs:
         run: |
           nix run .#poetry -- check
           nix run .#poetry -- build
+          nix run .#poetry -- publish --dry-run
 
       - name: Check that version in pyproject.toml is equivalent to tag
         if: >
