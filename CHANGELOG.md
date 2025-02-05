@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.1 (2025-02-05)
+
+Minor bug release.
+
+### Bug Fixes
+
+-   **general:** Fix determine_node_junctions logic to avoid ``IndexError``.
+
 ## v0.7.0 (2024-11-1)
 
 This release drops support for `pygeos` and Python 3.8 🐍 following
