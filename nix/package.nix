@@ -22,7 +22,7 @@ let
     in src;
   self = buildPythonPackage {
     pname = "fractopo";
-    version = "0.7.0";
+    version = "0.7.1";
 
     src = mkSrc baseFiles;
 
