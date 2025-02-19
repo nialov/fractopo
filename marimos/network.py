@@ -203,19 +203,17 @@ def _(
 
 @app.cell
 def _(execute, logging, mo):
-    with mo.capture_stderr() as stderr_buffer:
-        with mo.capture_stdout() as stdout_buffer:
+    with mo.redirect_stderr():
+        with mo.redirect_stdout():
             try:
                 network, name = execute()
                 execute_exception = None
             except Exception as exc:
-                logging.error("Failed to analyze input data.", exc_info=True)
-                logging.error(f"stderr:\n{stderr_buffer.getvalue()}")
-                logging.error(f"stdout:\n{stdout_buffer.getvalue()}")
+                logging.error("Failed to analyze trace data.", exc_info=True)
                 network = None
                 name = None
                 execute_exception = exc
-    return execute_exception, name, network, stderr_buffer, stdout_buffer
+    return execute_exception, name, network
 
 
 @app.cell
@@ -288,23 +286,16 @@ def __(
 
 @app.cell
 def __(logging, mo, to_file):
-    with mo.capture_stderr() as write_stderr_buffer:
-        with mo.capture_stdout() as write_stdout_buffer:
+    with mo.redirect_stderr():
+        with mo.redirect_stdout():
             try:
                 download_element = to_file()
                 to_file_exception = None
             except Exception as exc:
-                logging.error("Failed to write analysis results.", exc_info=True)
-                logging.error(f"stderr:\n{write_stderr_buffer.getvalue()}")
-                logging.error(f"stdout:\n{write_stdout_buffer.getvalue()}")
+                logging.error("Failed to write results.", exc_info=True)
                 to_file_exception = exc
                 download_element = None
-    return (
-        download_element,
-        to_file_exception,
-        write_stderr_buffer,
-        write_stdout_buffer,
-    )
+    return download_element, to_file_exception
 
 
 @app.cell
