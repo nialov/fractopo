@@ -180,7 +180,7 @@ def _(execute, logging, mo):
 
 @app.cell
 def __(mo):
-    mo.md("## Results")
+    mo.md("""## Results""")
     return
 
 
@@ -237,7 +237,6 @@ def __(logging, mo, to_file):
                 logging.error("Failed to write validated data.", exc_info=True)
                 to_file_exception = exc
                 download_element = None
-
     return download_element, to_file_exception
 
 
