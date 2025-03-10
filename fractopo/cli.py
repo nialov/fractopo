@@ -137,16 +137,28 @@ def rich_table_from_parameters(parameters: Dict[str, float]) -> Table:
     return param_table
 
 
+def _version_callback(value: bool):
+    if value:
+        CONSOLE.print(__version__)
+
+
+def _logging_callback(log_level: LogLevel):
+    log_level_int = int(getattr(logging, log_level.value))
+    log.info("Setting up log with basicConfig.")
+    logging.basicConfig(level=log_level_int, force=True)
+
+
 @APP.callback()
 def fractopo_callback(
-    log_level: LogLevel = typer.Option(LogLevel.WARNING.value),
+    log_level: LogLevel = typer.Option(
+        LogLevel.WARNING.value, callback=_logging_callback
+    ),
+    version: bool = typer.Option(None, callback=_version_callback),
 ):
     """
     Use fractopo command-line utilities.
     """
-    log_level_int = int(getattr(logging, log_level.value))
-    log.info("Setting up log with basicConfig.")
-    logging.basicConfig(level=log_level_int, force=True)
+    log.debug(f"Callback inputs: {dict(log_level=log_level, version=version)}")
 
 
 @APP.command()
