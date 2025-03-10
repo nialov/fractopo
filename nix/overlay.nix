@@ -13,6 +13,7 @@
       config = {
         Entrypoint = [ entrypoint ];
         WorkingDir = "/app";
+        Env = [ "HOME=/app" ];
         Cmd = [
           "--host"
           "0.0.0.0"
