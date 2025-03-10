@@ -7,18 +7,6 @@
     flake-parts.follows = "nix-extra/flake-parts";
   };
 
-  outputs = inputs:
-    let
-      flakePart = inputs.flake-parts.lib.mkFlake { inherit inputs; }
-        ({ self, inputs, ... }: {
-          systems = [ "x86_64-linux" ];
-          imports = [
-            inputs.nix-extra.flakeModules.custom-pre-commit-hooks
-            ./nix/per-system.nix
-          ];
-          flake = { inherit self; };
-        });
-
-    in flakePart;
+  outputs = inputs: (import ./nix) inputs;
 
 }
