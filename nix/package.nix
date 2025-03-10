@@ -2,7 +2,7 @@
 , pandas, rich, scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions
 , hypothesis, poetry-core, sphinxHook, pandoc, sphinx-autodoc-typehints
 , sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
-, powerlaw, python-ternary, marimo,
+, powerlaw, python-ternary, marimo, versionCheckHook
 
 }:
 
@@ -26,12 +26,17 @@ let
 
     src = mkSrc baseFiles;
 
-    # TODO: Conflicts when other package also includes the same file
-    # nix puts both in site-packages/ directory
-    # postPatch = ''
-    #   substituteInPlace pyproject.toml \
-    #       --replace-fail 'include = ["CHANGELOG.md"]' ""
-    # '';
+    env = {
+      # Disable disk caching during package build and testing
+      FRACTOPO_DISABLE_CACHE = "1";
+    };
+
+    # TODO: Should this be precheck or does postInstall affect the docs build as well?
+    postPatch = ''
+      HOME="$(mktemp -d)"
+      export HOME
+    '';
+
     format = "pyproject";
 
     nativeBuildInputs = [
@@ -84,18 +89,14 @@ let
       typer
     ];
 
-    checkInputs = [ pytest pytest-regressions hypothesis coverage marimo ];
+    checkInputs =
+      [ pytest pytest-regressions hypothesis coverage marimo versionCheckHook ];
 
-    # TODO: Should this be precheck or does postInstall affect the docs build as well?
-    postInstall = ''
-      HOME="$(mktemp -d)"
-      export HOME
-      FRACTOPO_DISABLE_CACHE="1"
-      export FRACTOPO_DISABLE_CACHE
-    '';
+    versionCheckProgramArg = "--version";
 
     checkPhase = ''
       runHook preCheck
+      versionCheckHook
       python -m coverage run --source fractopo -m pytest --hypothesis-seed=1
       runHook postCheck
     '';
