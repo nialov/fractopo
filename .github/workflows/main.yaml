@@ -138,6 +138,9 @@ jobs:
         with:
           name: nialov
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
+      - name: Build push script
+        run: |
+          nix build .#push-fractopo-images
       - name: Push to registry on tag
         if: >
           github.event_name == 'push'
