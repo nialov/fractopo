@@ -100,17 +100,24 @@ MINIMUM_LINE_LENGTH = 1e-18
 
 DEFAULT_FRACTOPO_CACHE_PATH = Path(".cache/fractopo")
 
-JOBLIB_CACHE = Memory(
-    (
-        os.environ.get("FRACTOPO_CACHE_PATH", DEFAULT_FRACTOPO_CACHE_PATH)
-        # Disk caching is disabled in pytest execution by setting an environment
-        # variable FRACTOPO_DISABLE_CACHE to a non-zero string (i.e. "1") However,
-        # it can be enabled even in tests by setting FRACTOPO_DISABLE_CACHE to 0
-        if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0")
-        else None
-    ),
-    verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
-)
+try:
+    JOBLIB_CACHE = Memory(
+        (
+            os.environ.get("FRACTOPO_CACHE_PATH", DEFAULT_FRACTOPO_CACHE_PATH)
+            # Disk caching is disabled in pytest execution by setting an environment
+            # variable FRACTOPO_DISABLE_CACHE to a non-zero string (i.e. "1") However,
+            # it can be enabled even in tests by setting FRACTOPO_DISABLE_CACHE to 0
+            if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0")
+            else None
+        ),
+        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
+    )
+
+except Exception:
+    log.error("Failed to generate joblib cache for fractopo.", exc_info=True)
+    JOBLIB_CACHE = Memory(
+        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
+    )
 
 
 @dataclass
@@ -687,8 +694,7 @@ def get_trace_endpoints(
     """
     if not isinstance(trace, LineString):
         raise TypeError(
-            "Non LineString geometry passed into get_trace_endpoints.\n"
-            f"trace: {trace}"
+            f"Non LineString geometry passed into get_trace_endpoints.\ntrace: {trace}"
         )
     points = Point(trace.coords[0]), Point(trace.coords[-1])
     return points
@@ -1776,7 +1782,7 @@ def multiprocess(
                 )
             except Exception as exc:
                 # Catch and log critical failures
-                log.error(f"Process exception with {futures[future]}:\n\n" f"{exc}")
+                log.error(f"Process exception with {futures[future]}:\n\n{exc}")
                 collect_results.append(
                     ProcessResult(identifier=identifier, error=True, result=exc)
                 )
