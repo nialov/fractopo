@@ -1,13 +1,13 @@
 import tempfile
 import zipfile
 from contextlib import redirect_stderr, redirect_stdout
+from functools import partial
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Callable, Optional, Tuple
 
 import geopandas as gpd
 import marimo as mo
-import pyogrio
 
 import fractopo.tval.trace_validation
 from fractopo.analysis.network import Network
@@ -19,16 +19,30 @@ def parse_network_cli_args(cli_args):
 
     name = cli_args.get("name") or cli_traces_path.stem
 
-    driver = pyogrio.detect_write_driver(cli_traces_path.name)
-
-    traces_gdf = gpd.read_file(cli_traces_path, driver=driver)
-    area_gdf = gpd.read_file(cli_area_path, driver=driver)
+    traces_gdf = gpd.read_file(cli_traces_path)
+    area_gdf = gpd.read_file(cli_area_path)
     snap_threshold_str = cli_args.get("snap-threshold")
     if snap_threshold_str is None:
         snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
     else:
         snap_threshold = float(snap_threshold_str)
-    return name, driver, traces_gdf, area_gdf, snap_threshold
+    return name, traces_gdf, area_gdf, snap_threshold
+
+
+def read_spatial_app_input(input_spatial_file, input_spatial_layer_name):
+    input_spatial_file_path = Path(input_spatial_file.name())
+    if input_spatial_file_path.suffix == ".zip":
+        read_file = partial(gpd.read_file, driver="/vsizip/")
+    else:
+        read_file = gpd.read_file
+    layer_name = (
+        input_spatial_layer_name.value if input_spatial_layer_name.value != "" else None
+    )
+    gdf = read_file(
+        input_spatial_file.contents(),
+        layer=layer_name,
+    )
+    return layer_name, gdf
 
 
 def parse_network_app_args(
@@ -37,48 +51,22 @@ def parse_network_app_args(
     input_traces_file,
     input_area_file,
     input_snap_threshold,
-):
-    trace_layer_name = (
-        input_trace_layer_name.value if input_trace_layer_name.value != "" else None
-    )
-    area_layer_name = (
-        input_area_layer_name.value if input_area_layer_name.value != "" else None
-    )
-
-    driver = pyogrio.detect_write_driver(input_traces_file.name())
-    print(f"Detected driver: {driver}")
-
-    print(
-        f"Trace layer name: {trace_layer_name}"
-        if trace_layer_name is not None
-        else "No layer specified"
-    )
-    traces_gdf = gpd.read_file(
-        input_traces_file.contents(),
-        layer=trace_layer_name,
-        # , driver=driver
-    )
-    print(
-        f"Area layer name: {area_layer_name}"
-        if area_layer_name is not None
-        else "No layer specified"
-    )
-    area_gdf = gpd.read_file(
-        input_area_file.contents(),
-        layer=area_layer_name,
-        # , driver=driver
+) -> Tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float]:
+    (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
+        input_traces_file=input_traces_file,
+        input_trace_layer_name=input_trace_layer_name,
+        input_area_file=input_area_file,
+        input_area_layer_name=input_area_layer_name,
     )
 
     snap_threshold = float(input_snap_threshold.value)
-    name = (
-        Path(input_traces_file.name()).stem
-        if trace_layer_name is None
-        else trace_layer_name
+    name = resolve_name(
+        input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
     )
     print(f"Snap threshold: {snap_threshold}")
     print(f"Name: {name}")
 
-    return name, driver, traces_gdf, area_gdf, snap_threshold
+    return name, traces_gdf, area_gdf, snap_threshold
 
 
 def capture_function_outputs(
@@ -144,10 +132,8 @@ def parse_validation_cli_args(cli_args):
 
     name = cli_args.get("name") or cli_traces_path.stem
 
-    driver = pyogrio.detect_write_driver(cli_traces_path.name)
-
-    traces_gdf = gpd.read_file(cli_traces_path, driver=driver)
-    area_gdf = gpd.read_file(cli_area_path, driver=driver)
+    traces_gdf = gpd.read_file(cli_traces_path)
+    area_gdf = gpd.read_file(cli_area_path)
     snap_threshold_str = cli_args.get("snap-threshold")
     if snap_threshold_str is None:
         snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
@@ -157,6 +143,39 @@ def parse_validation_cli_args(cli_args):
     return name, traces_gdf, area_gdf, snap_threshold
 
 
+def read_traces_and_area(
+    input_traces_file, input_trace_layer_name, input_area_file, input_area_layer_name
+):
+    trace_layer_name, traces_gdf = read_spatial_app_input(
+        input_spatial_file=input_traces_file,
+        input_spatial_layer_name=input_trace_layer_name,
+    )
+    area_layer_name, area_gdf = read_spatial_app_input(
+        input_spatial_file=input_area_file,
+        input_spatial_layer_name=input_area_layer_name,
+    )
+    print(
+        f"Trace layer name: {trace_layer_name}"
+        if trace_layer_name is not None
+        else "No layer specified"
+    )
+    print(
+        f"Area layer name: {area_layer_name}"
+        if area_layer_name is not None
+        else "No layer specified"
+    )
+
+    return (traces_gdf, trace_layer_name), (area_gdf, area_layer_name)
+
+
+def resolve_name(input_traces_file, trace_layer_name):
+    return (
+        Path(input_traces_file.name()).stem
+        if trace_layer_name is None
+        else trace_layer_name
+    )
+
+
 def parse_validation_app_args(
     input_trace_layer_name,
     input_area_layer_name,
@@ -164,44 +183,17 @@ def parse_validation_app_args(
     input_area_file,
     input_snap_threshold,
 ):
-    trace_layer_name = (
-        input_trace_layer_name.value if input_trace_layer_name.value != "" else None
+    (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
+        input_traces_file=input_traces_file,
+        input_trace_layer_name=input_trace_layer_name,
+        input_area_file=input_area_file,
+        input_area_layer_name=input_area_layer_name,
     )
-    area_layer_name = (
-        input_area_layer_name.value if input_area_layer_name.value != "" else None
-    )
-
-    driver = pyogrio.detect_write_driver(input_traces_file.name())
-    print(f"Detected driver: {driver}")
-
-    print(
-        f"Trace layer name: {trace_layer_name}"
-        if trace_layer_name is not None
-        else "No layer specified"
-    )
-    traces_gdf = gpd.read_file(
-        input_traces_file.contents(),
-        layer=trace_layer_name,
-        # , driver=driver
-    )
-    print(
-        f"Area layer name: {area_layer_name}"
-        if area_layer_name is not None
-        else "No layer specified"
-    )
-    area_gdf = gpd.read_file(
-        input_area_file.contents(),
-        layer=area_layer_name,
-        # , driver=driver
-    )
-
     snap_threshold = float(input_snap_threshold.value)
     print(f"Snap threshold: {snap_threshold}")
 
-    name = (
-        Path(input_traces_file.name()).stem
-        if trace_layer_name is None
-        else trace_layer_name
+    name = resolve_name(
+        input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
     )
     return name, traces_gdf, area_gdf, snap_threshold
 

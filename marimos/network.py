@@ -126,19 +126,17 @@ def _(
     def execute():
         cli_args = mo.cli_args()
         if len(cli_args) != 0:
-            name, driver, traces_gdf, area_gdf, snap_threshold = (
-                utils.parse_network_cli_args(cli_args)
+            name, traces_gdf, area_gdf, snap_threshold = utils.parse_network_cli_args(
+                cli_args
             )
         else:
             mo.stop(not input_button.value)
-            name, driver, traces_gdf, area_gdf, snap_threshold = (
-                utils.parse_network_app_args(
-                    input_trace_layer_name,
-                    input_area_layer_name,
-                    input_traces_file,
-                    input_area_file,
-                    input_snap_threshold,
-                )
+            name, traces_gdf, area_gdf, snap_threshold = utils.parse_network_app_args(
+                input_trace_layer_name,
+                input_area_layer_name,
+                input_traces_file,
+                input_area_file,
+                input_snap_threshold,
             )
 
         network = fractopo.analysis.network.Network(
