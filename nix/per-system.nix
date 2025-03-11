@@ -13,19 +13,25 @@
 
       in {
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
-        devShells =
-          let devShellPackages = with pkgs; [ pre-commit fhs pythonEnv poetry ];
+        devShells = let
+          devShellPackages = with pkgs; [
+            pre-commit
+            fhs
+            pythonEnv
+            poetry
+            ruff
+          ];
 
-          in {
-            default = pkgs.mkShell {
-              packages = devShellPackages;
-              shellHook = config.pre-commit.installationScript + ''
-                export PROJECT_DIR="$PWD"
-                export PYTHONPATH="$PWD":"$PYTHONPATH"
-              '';
-            };
-
+        in {
+          default = pkgs.mkShell {
+            packages = devShellPackages;
+            shellHook = config.pre-commit.installationScript + ''
+              export PROJECT_DIR="$PWD"
+              export PYTHONPATH="$PWD":"$PYTHONPATH"
+            '';
           };
+
+        };
 
         pre-commit = {
           check.enable = true;

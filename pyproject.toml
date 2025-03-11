@@ -145,3 +145,7 @@ ignore_words_list = [
 [tool.ruff]
 extend-include = ["*.ipynb"]
 lint.ignore = ["E402"]
+
+[tool.marimo.runtime]
+on_cell_change = "autorun"
+
