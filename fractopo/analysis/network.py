@@ -1184,7 +1184,7 @@ class Network:
             ax=ax,
             legend_kwds={"label": parameter},
         )
-        ax.set_title(f"{ self.name } - {parameter}")
+        ax.set_title(f"{self.name} - {parameter}")
         return fig, ax
 
     def estimate_censoring(
@@ -1328,7 +1328,10 @@ class Network:
 
     @requires_topology
     def export_network_analysis(
-        self, output_path: Path, include_contour_grid: bool = True
+        self,
+        output_path: Path,
+        include_contour_grid: bool = True,
+        contour_grid_cell_size: Optional[float] = None,
     ):
         """
         Export pre-selected ``Network`` analysis results to a directory.
@@ -1443,7 +1446,7 @@ class Network:
 
         # Create contour grid
         if include_contour_grid:
-            sampled_grid = self.contour_grid()
+            sampled_grid = self.contour_grid(cell_width=contour_grid_cell_size)
             write_geodataframe(
                 sampled_grid, f"{self.plain_name}_contour_grid", results_dir=export_path
             )
