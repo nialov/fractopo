@@ -21,11 +21,17 @@ def parse_network_cli_args(cli_args):
     traces_gdf = gpd.read_file(cli_traces_path)
     area_gdf = gpd.read_file(cli_area_path)
     snap_threshold_str = cli_args.get("snap-threshold")
+    contour_grid_cell_size_str = cli_args.get("contour-grid-cell-size")
+    contour_grid_cell_size = (
+        float(contour_grid_cell_size_str)
+        if contour_grid_cell_size_str is not None
+        else None
+    )
     if snap_threshold_str is None:
         snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
     else:
         snap_threshold = float(snap_threshold_str)
-    return name, traces_gdf, area_gdf, snap_threshold
+    return name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size
 
 
 def read_spatial_app_input(
@@ -58,7 +64,8 @@ def parse_network_app_args(
     input_traces_file: mo.ui.file,
     input_area_file: mo.ui.file,
     input_snap_threshold: mo.ui.text,
-) -> Tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float]:
+    input_contour_grid_cell_size: mo.ui.text,
+) -> Tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float, Optional[float]]:
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
         input_traces_file=input_traces_file,
         input_trace_layer_name=input_trace_layer_name,
@@ -67,13 +74,20 @@ def parse_network_app_args(
     )
 
     snap_threshold = float(input_snap_threshold.value)
+    contour_grid_cell_size = (
+        None
+        if input_contour_grid_cell_size.value == ""
+        else float(input_contour_grid_cell_size.value)
+    )
     name = resolve_name(
         input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
     )
     print(f"Snap threshold: {snap_threshold}")
+    if contour_grid_cell_size is not None:
+        print(f"Contour grid cell size: {contour_grid_cell_size}")
     print(f"Name: {name}")
 
-    return name, traces_gdf, area_gdf, snap_threshold
+    return name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size
 
 
 def capture_function_outputs(
@@ -93,7 +107,10 @@ def capture_function_outputs(
 
 
 def network_results_to_download_element(
-    network: Optional[Network], determine_branches_nodes: bool, name: str
+    network: Optional[Network],
+    determine_branches_nodes: bool,
+    name: str,
+    contour_grid_cell_size: float,
 ):
     if network is None:
         return None
@@ -102,7 +119,9 @@ def network_results_to_download_element(
 
         # Create and write plots to tmp_dir
         if determine_branches_nodes:
-            network.export_network_analysis(output_path=tmp_dir_path)
+            network.export_network_analysis(
+                output_path=tmp_dir_path, contour_grid_cell_size=contour_grid_cell_size
+            )
         else:
             _, fig, _ = network.plot_trace_azimuth()
             fig.savefig(tmp_dir_path / "trace_azimuth.png", bbox_inches="tight")

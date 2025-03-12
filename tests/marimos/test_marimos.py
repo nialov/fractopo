@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import fractopo.tval.trace_validation
 import tests
 
 SAMPLE_DATA_DIR = Path(__file__).parent.parent.joinpath("sample_data/")
@@ -81,13 +82,11 @@ def test_validation_cli_args(args, raises):
 
 @pytest_mark_xfail_windows_flaky
 @pytest.mark.parametrize(
+    "snap_threshold", [fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD]
+)
+@pytest.mark.parametrize(
     "traces_path,area_path,name",
     [
-        # (
-        #     SAMPLE_DATA_DIR.joinpath("hastholmen_traces.geojson").as_posix(),
-        #     SAMPLE_DATA_DIR.joinpath("hastholmen_area.geojson").as_posix(),
-        #     "hastholmen",
-        # ),
         (
             tests.kb7_trace_100_path.as_posix(),
             tests.kb7_area_path.as_posix(),
@@ -95,7 +94,12 @@ def test_validation_cli_args(args, raises):
         ),
     ],
 )
-def test_network_cli(traces_path: str, area_path: str, name: str):
+def test_network_cli(
+    traces_path: str,
+    area_path: str,
+    name: str,
+    snap_threshold: float,
+):
     args = [
         "--traces-path",
         traces_path,
@@ -103,6 +107,8 @@ def test_network_cli(traces_path: str, area_path: str, name: str):
         area_path,
         "--name",
         name,
+        "--snap-threshold",
+        str(snap_threshold),
     ]
 
     check_python_call(
