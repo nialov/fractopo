@@ -1,7 +1,6 @@
 import tempfile
 import zipfile
 from contextlib import redirect_stderr, redirect_stdout
-from functools import partial
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Callable, Optional, Tuple
@@ -29,28 +28,36 @@ def parse_network_cli_args(cli_args):
     return name, traces_gdf, area_gdf, snap_threshold
 
 
-def read_spatial_app_input(input_spatial_file, input_spatial_layer_name):
+def read_spatial_app_input(
+    input_spatial_file: mo.ui.file, input_spatial_layer_name: mo.ui.text
+) -> Tuple[Optional[str], gpd.GeoDataFrame]:
     input_spatial_file_path = Path(input_spatial_file.name())
-    if input_spatial_file_path.suffix == ".zip":
-        read_file = partial(gpd.read_file, driver="/vsizip/")
-    else:
-        read_file = gpd.read_file
+    # if input_spatial_file_path.name.endswith(".gdb.zip"):
+    #     read_file = partial(gpd.read_file, driver="/vsizip/OpenFileGDB/")
+    # elif input_spatial_file_path.suffix == ".zip":
+    #     read_file = partial(gpd.read_file, driver="/vsizip/")
+    # else:
+    read_file = gpd.read_file
     layer_name = (
         input_spatial_layer_name.value if input_spatial_layer_name.value != "" else None
     )
-    gdf = read_file(
-        input_spatial_file.contents(),
-        layer=layer_name,
-    )
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        tmp_data_path = tmp_dir_path.joinpath(input_spatial_file_path)
+        tmp_data_path.write_bytes(input_spatial_file.contents())
+        gdf = read_file(
+            tmp_data_path,
+            layer=layer_name,
+        )
     return layer_name, gdf
 
 
 def parse_network_app_args(
-    input_trace_layer_name,
-    input_area_layer_name,
-    input_traces_file,
-    input_area_file,
-    input_snap_threshold,
+    input_trace_layer_name: mo.ui.text,
+    input_area_layer_name: mo.ui.text,
+    input_traces_file: mo.ui.file,
+    input_area_file: mo.ui.file,
+    input_snap_threshold: mo.ui.text,
 ) -> Tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float]:
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
         input_traces_file=input_traces_file,
@@ -144,8 +151,13 @@ def parse_validation_cli_args(cli_args):
 
 
 def read_traces_and_area(
-    input_traces_file, input_trace_layer_name, input_area_file, input_area_layer_name
-):
+    input_traces_file: mo.ui.file,
+    input_trace_layer_name: mo.ui.text,
+    input_area_file: mo.ui.file,
+    input_area_layer_name: mo.ui.text,
+) -> Tuple[
+    Tuple[gpd.GeoDataFrame, Optional[str]], Tuple[gpd.GeoDataFrame, Optional[str]]
+]:
     trace_layer_name, traces_gdf = read_spatial_app_input(
         input_spatial_file=input_traces_file,
         input_spatial_layer_name=input_trace_layer_name,
@@ -157,31 +169,31 @@ def read_traces_and_area(
     print(
         f"Trace layer name: {trace_layer_name}"
         if trace_layer_name is not None
-        else "No layer specified"
+        else "No trace layer specified"
     )
     print(
         f"Area layer name: {area_layer_name}"
         if area_layer_name is not None
-        else "No layer specified"
+        else "No area layer specified"
     )
 
     return (traces_gdf, trace_layer_name), (area_gdf, area_layer_name)
 
 
-def resolve_name(input_traces_file, trace_layer_name):
+def resolve_name(input_traces_file: mo.ui.file, trace_layer_name: str) -> str:
     return (
-        Path(input_traces_file.name()).stem
+        input_traces_file.name().split(".")[0]
         if trace_layer_name is None
         else trace_layer_name
     )
 
 
 def parse_validation_app_args(
-    input_trace_layer_name,
-    input_area_layer_name,
-    input_traces_file,
-    input_area_file,
-    input_snap_threshold,
+    input_trace_layer_name: mo.ui.text,
+    input_area_layer_name: mo.ui.text,
+    input_traces_file: mo.ui.file,
+    input_area_file: mo.ui.file,
+    input_snap_threshold: mo.ui.text,
 ):
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
         input_traces_file=input_traces_file,
