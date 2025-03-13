@@ -11,7 +11,7 @@
         chmod 777 ./tmp
       '';
       # Add for debugging
-      contents = [ prev.bashInteractive prev.coreutils ];
+      contents = [ prev.bashInteractive prev.busybox ];
       config = {
         Entrypoint = [ entrypoint ];
         WorkingDir = "/app";
