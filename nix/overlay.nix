@@ -34,11 +34,12 @@
       name = "fractopo-network";
       entrypoint = "${final.fractopo-network-run}/bin/fractopo-network-run";
     };
-    mkMarimoRun = { name, scriptPath }:
+    mkMarimoRun = { name, script, marimosDir ? ../marimos }:
       prev.writeShellApplication {
         inherit name;
         runtimeInputs = [ final.fractopoEnv ];
-        text = ''
+        text = let scriptPath = "${marimosDir}/${script}";
+        in ''
           marimo run ${scriptPath} "$@"
         '';
 
@@ -67,12 +68,12 @@
       ++ p.fractopo.passthru.optional-dependencies.dev);
     fractopo-validation-run = mkMarimoRun {
       name = "fractopo-validation-run";
-      scriptPath = ./../marimos/validation.py;
+      script = "validation.py";
     };
 
     fractopo-network-run = mkMarimoRun {
       name = "fractopo-network-run";
-      scriptPath = ./../marimos/network.py;
+      script = "network.py";
 
     };
 
