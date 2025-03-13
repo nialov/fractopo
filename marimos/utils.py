@@ -65,7 +65,17 @@ def parse_network_app_args(
     input_area_file: mo.ui.file,
     input_snap_threshold: mo.ui.text,
     input_contour_grid_cell_size: mo.ui.text,
-) -> Tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float, Optional[float]]:
+    input_azimuth_set_ranges: mo.ui.array,
+    input_azimuth_set_names: mo.ui.array,
+) -> Tuple[
+    str,
+    gpd.GeoDataFrame,
+    gpd.GeoDataFrame,
+    float,
+    Optional[float],
+    Tuple[Tuple[int, int], ...],
+    Tuple[str, ...],
+]:
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
         input_traces_file=input_traces_file,
         input_trace_layer_name=input_trace_layer_name,
@@ -82,12 +92,24 @@ def parse_network_app_args(
     name = resolve_name(
         input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
     )
+    azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
+    azimuth_set_names = tuple(input_azimuth_set_names.value)
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:
         print(f"Contour grid cell size: {contour_grid_cell_size}")
     print(f"Name: {name}")
+    print(f"Azimuth set ranges: {azimuth_set_ranges}")
+    print(f"Azimuth set names: {azimuth_set_names}")
 
-    return name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size
+    return (
+        name,
+        traces_gdf,
+        area_gdf,
+        snap_threshold,
+        contour_grid_cell_size,
+        azimuth_set_ranges,
+        azimuth_set_names,
+    )
 
 
 def capture_function_outputs(

@@ -58,7 +58,6 @@ def _(mo):
     input_debug = mo.ui.switch(False)
     input_define_azimuth_sets = mo.ui.switch(False)
     input_button = mo.ui.run_button()
-
     return (
         input_area_file,
         input_area_layer_name,
@@ -188,6 +187,8 @@ def _(
     fractopo,
     input_area_file,
     input_area_layer_name,
+    input_azimuth_set_names,
+    input_azimuth_set_ranges,
     input_button,
     input_circular_target_area,
     input_contour_grid_cell_size,
@@ -207,15 +208,23 @@ def _(
             )
         else:
             mo.stop(not input_button.value)
-            name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size = (
-                utils.parse_network_app_args(
-                    input_trace_layer_name,
-                    input_area_layer_name,
-                    input_traces_file,
-                    input_area_file,
-                    input_snap_threshold,
-                    input_contour_grid_cell_size,
-                )
+            (
+                name,
+                traces_gdf,
+                area_gdf,
+                snap_threshold,
+                contour_grid_cell_size,
+                azimuth_set_ranges,
+                azimuth_set_names,
+            ) = utils.parse_network_app_args(
+                input_trace_layer_name,
+                input_area_layer_name,
+                input_traces_file,
+                input_area_file,
+                input_snap_threshold,
+                input_contour_grid_cell_size,
+                input_azimuth_set_ranges,
+                input_azimuth_set_names,
             )
 
         network = fractopo.analysis.network.Network(
@@ -226,6 +235,8 @@ def _(
             determine_branches_nodes=input_determine_branches_nodes.value,
             truncate_traces=input_truncate_traces.value,
             snap_threshold=snap_threshold,
+            azimuth_set_ranges=azimuth_set_ranges,
+            azimuth_set_names=azimuth_set_names,
         )
 
         return network, name, contour_grid_cell_size
