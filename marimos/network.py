@@ -104,25 +104,43 @@ def __(
         mo.md(f"Area layer name, if applicable: {input_area_layer_name}"),
         mo.hstack(
             [
-                "Snap threshold:",
+                mo.md(
+                    "[Snap threshold](https://nialov.github.io/fractopo/misc.html#snap-threshold-parameter):"
+                ),
                 input_snap_threshold,
                 "{}".format(input_snap_threshold.value),
             ]
         ),
         mo.hstack(
             [
-                "Contour grid cell size (optional):",
+                mo.md(
+                    "[Contour grid cell size]"
+                    + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Contour-Grids)"
+                    + " (optional):"
+                ),
                 input_contour_grid_cell_size,
                 "{}".format(input_contour_grid_cell_size.value),
             ]
         ),
         mo.md(f"Name for analysis: {input_name}"),
-        mo.md(f"Is the target area a circle? {input_circular_target_area}"),
+        mo.md(
+            "[Is the target area a circle?]"
+            + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network)"
+            + f" {input_circular_target_area}"
+        ),
         mo.md(f"Determine branches and nodes? {input_determine_branches_nodes}"),
-        mo.md(f"Truncate traces to target area? {input_truncate_traces}"),
+        mo.md(
+            "[Truncate traces to target area?]"
+            + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network)"
+            + f" {input_truncate_traces}"
+        ),
         mo.hstack(
             [
-                "Which length distribution fits to plot:",
+                mo.md(
+                    "Which [length distribution fits]"
+                    + "(https://nialov.github.io/fractopo/auto_examples/plot_length_distributions.html#sphx-glr-auto-examples-plot-length-distributions-py)"
+                    + " to plot:"
+                ),
                 input_fits_to_plot,
                 "{}".format(input_fits_to_plot.value),
             ]
