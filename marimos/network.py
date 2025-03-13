@@ -57,8 +57,13 @@ def _(mo):
     input_truncate_traces = mo.ui.switch(True)
     input_debug = mo.ui.switch(False)
     input_define_azimuth_sets = mo.ui.switch(False)
+    default_fits_to_plot = ("power_law", "lognormal", "exponential")
+    input_fits_to_plot = mo.ui.multiselect(
+        options=default_fits_to_plot, value=default_fits_to_plot
+    )
     input_button = mo.ui.run_button()
     return (
+        default_fits_to_plot,
         input_area_file,
         input_area_layer_name,
         input_button,
@@ -67,6 +72,7 @@ def _(mo):
         input_debug,
         input_define_azimuth_sets,
         input_determine_branches_nodes,
+        input_fits_to_plot,
         input_name,
         input_snap_threshold,
         input_trace_layer_name,
@@ -83,6 +89,7 @@ def __(
     input_contour_grid_cell_size,
     input_debug,
     input_determine_branches_nodes,
+    input_fits_to_plot,
     input_name,
     input_snap_threshold,
     input_trace_layer_name,
@@ -113,6 +120,13 @@ def __(
         mo.md(f"Is the target area a circle? {input_circular_target_area}"),
         mo.md(f"Determine branches and nodes? {input_determine_branches_nodes}"),
         mo.md(f"Truncate traces to target area? {input_truncate_traces}"),
+        mo.hstack(
+            [
+                "Which length distribution fits to plot:",
+                input_fits_to_plot,
+                "{}".format(input_fits_to_plot.value),
+            ]
+        ),
         mo.md(f"Enable verbose debug output? {input_debug}"),
     ]
 
@@ -193,6 +207,7 @@ def _(
     input_circular_target_area,
     input_contour_grid_cell_size,
     input_determine_branches_nodes,
+    input_fits_to_plot,
     input_snap_threshold,
     input_trace_layer_name,
     input_traces_file,
@@ -203,9 +218,17 @@ def _(
     def execute():
         cli_args = mo.cli_args()
         if len(cli_args) != 0:
-            name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size = (
-                utils.parse_network_cli_args(cli_args)
-            )
+            (
+                name,
+                traces_gdf,
+                area_gdf,
+                snap_threshold,
+                contour_grid_cell_size,
+                azimuth_set_ranges,
+                azimuth_set_names,
+                fits_to_plot,
+            ) = utils.parse_network_cli_args(cli_args)
+
         else:
             mo.stop(not input_button.value)
             (
@@ -216,6 +239,7 @@ def _(
                 contour_grid_cell_size,
                 azimuth_set_ranges,
                 azimuth_set_names,
+                fits_to_plot,
             ) = utils.parse_network_app_args(
                 input_trace_layer_name,
                 input_area_layer_name,
@@ -225,6 +249,7 @@ def _(
                 input_contour_grid_cell_size,
                 input_azimuth_set_ranges,
                 input_azimuth_set_names,
+                input_fits_to_plot,
             )
 
         network = fractopo.analysis.network.Network(
@@ -239,7 +264,7 @@ def _(
             azimuth_set_names=azimuth_set_names,
         )
 
-        return network, name, contour_grid_cell_size
+        return network, name, contour_grid_cell_size, fits_to_plot
 
     return (execute,)
 
@@ -259,13 +284,15 @@ def _(execute, input_debug, mo, partial, utils):
         network = None
         name = None
         contour_grid_cell_size = None
+        fits_to_plot = None
     else:
-        network, name, contour_grid_cell_size = execute_results
+        network, name, contour_grid_cell_size, fits_to_plot = execute_results
     return (
         contour_grid_cell_size,
         execute_exception,
         execute_results,
         execute_stderr_and_stdout,
+        fits_to_plot,
         name,
         network,
         report_output,
@@ -290,6 +317,7 @@ def _(mo, network):
 @app.cell
 def __(
     contour_grid_cell_size,
+    fits_to_plot,
     input_determine_branches_nodes,
     mo,
     name,
@@ -305,6 +333,7 @@ def __(
                 determine_branches_nodes=input_determine_branches_nodes.value,
                 name=name,
                 contour_grid_cell_size=contour_grid_cell_size,
+                fits_to_plot=fits_to_plot,
             )
         )
     )

@@ -9,6 +9,7 @@ import geopandas as gpd
 import marimo as mo
 
 import fractopo.tval.trace_validation
+from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
 from fractopo.analysis.network import Network
 
 
@@ -31,7 +32,17 @@ def parse_network_cli_args(cli_args):
         snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
     else:
         snap_threshold = float(snap_threshold_str)
-    return name, traces_gdf, area_gdf, snap_threshold, contour_grid_cell_size
+
+    return (
+        name,
+        traces_gdf,
+        area_gdf,
+        snap_threshold,
+        contour_grid_cell_size,
+        Network.azimuth_set_ranges,
+        Network.azimuth_set_names,
+        DEFAULT_FITS_TO_PLOT,
+    )
 
 
 def read_spatial_app_input(
@@ -67,6 +78,7 @@ def parse_network_app_args(
     input_contour_grid_cell_size: mo.ui.text,
     input_azimuth_set_ranges: mo.ui.array,
     input_azimuth_set_names: mo.ui.array,
+    input_fits_to_plot: mo.ui.multiselect,
 ) -> Tuple[
     str,
     gpd.GeoDataFrame,
@@ -75,6 +87,7 @@ def parse_network_app_args(
     Optional[float],
     Tuple[Tuple[int, int], ...],
     Tuple[str, ...],
+    Tuple[Dist, ...],
 ]:
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
         input_traces_file=input_traces_file,
@@ -94,12 +107,14 @@ def parse_network_app_args(
     )
     azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
     azimuth_set_names = tuple(input_azimuth_set_names.value)
+    fits_to_plot = tuple(map(Dist, input_fits_to_plot.value))
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:
         print(f"Contour grid cell size: {contour_grid_cell_size}")
     print(f"Name: {name}")
     print(f"Azimuth set ranges: {azimuth_set_ranges}")
     print(f"Azimuth set names: {azimuth_set_names}")
+    print(f"Length distribution fits to plot: {fits_to_plot}")
 
     return (
         name,
@@ -109,6 +124,7 @@ def parse_network_app_args(
         contour_grid_cell_size,
         azimuth_set_ranges,
         azimuth_set_names,
+        fits_to_plot,
     )
 
 
@@ -133,6 +149,7 @@ def network_results_to_download_element(
     determine_branches_nodes: bool,
     name: str,
     contour_grid_cell_size: float,
+    fits_to_plot: Tuple[Dist, ...],
 ):
     if network is None:
         return None
@@ -142,12 +159,14 @@ def network_results_to_download_element(
         # Create and write plots to tmp_dir
         if determine_branches_nodes:
             network.export_network_analysis(
-                output_path=tmp_dir_path, contour_grid_cell_size=contour_grid_cell_size
+                output_path=tmp_dir_path,
+                contour_grid_cell_size=contour_grid_cell_size,
+                fits_to_plot=fits_to_plot,
             )
         else:
             _, fig, _ = network.plot_trace_azimuth()
             fig.savefig(tmp_dir_path / "trace_azimuth.png", bbox_inches="tight")
-            _, fig, _ = network.plot_trace_lengths()
+            _, fig, _ = network.plot_trace_lengths(fits_to_plot=fits_to_plot)
             fig.savefig(tmp_dir_path / "trace_lengths.png", bbox_inches="tight")
 
         zip_io = BytesIO()
