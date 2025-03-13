@@ -10,6 +10,8 @@
         chmod 777 ./app
         chmod 777 ./tmp
       '';
+      # Add for debugging
+      contents = [ prev.bashInteractive prev.coreutils ];
       config = {
         Entrypoint = [ entrypoint ];
         WorkingDir = "/app";
