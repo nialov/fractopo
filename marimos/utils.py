@@ -12,6 +12,26 @@ import fractopo.tval.trace_validation
 from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
 from fractopo.analysis.network import Network
 
+ENABLE_VERBOSE_BASE = "Enable verbose debug output? {}"
+UPLOAD_TRACE_DATA_BASE = "## Upload trace data: {}"
+UPLOAD_AREA_DATA_BASE = UPLOAD_TRACE_DATA_BASE.replace("trace", "area")
+TRACE_LAYER_NAME_BASE = "Trace layer name, if applicable: {}"
+AREA_LAYER_NAME_BASE = TRACE_LAYER_NAME_BASE.replace("Trace", "Area")
+
+
+def make_data_upload_prompts(
+    input_traces_file, input_area_file, input_trace_layer_name, input_area_layer_name
+):
+    return map(
+        mo.md,
+        (
+            UPLOAD_TRACE_DATA_BASE.format(input_traces_file),
+            TRACE_LAYER_NAME_BASE.format(input_trace_layer_name),
+            UPLOAD_AREA_DATA_BASE.format(input_area_file),
+            AREA_LAYER_NAME_BASE.format(input_area_layer_name),
+        ),
+    )
+
 
 def parse_network_cli_args(cli_args):
     cli_traces_path = Path(cli_args.get("traces-path"))
@@ -282,3 +302,15 @@ def validated_clean_to_download_element(validated_clean, name):
         mimetype="application/octet-stream",
     )
     return download_element
+
+
+def make_snap_threshold_hstack(input_snap_threshold: mo.ui.text) -> mo.Html:
+    return mo.hstack(
+        [
+            mo.md(
+                "[Snap threshold](https://nialov.github.io/fractopo/misc.html#snap-threshold-parameter):"
+            ),
+            input_snap_threshold,
+            "{}".format(input_snap_threshold.value),
+        ]
+    )

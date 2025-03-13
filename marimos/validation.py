@@ -67,20 +67,17 @@ def __(
     input_trace_layer_name,
     input_traces_file,
     mo,
+    utils,
 ):
     prompts = [
-        mo.md(f"## Upload trace data: {input_traces_file}"),
-        mo.md(f"Trace layer name, if applicable: {input_trace_layer_name}"),
-        mo.md(f"## Upload area data: {input_area_file}"),
-        mo.md(f"Area layer name, if applicable: {input_area_layer_name}"),
-        mo.hstack(
-            [
-                "Snap threshold:",
-                input_snap_threshold,
-                "{}".format(input_snap_threshold.value),
-            ]
+        *utils.make_data_upload_prompts(
+            input_traces_file=input_traces_file,
+            input_area_file=input_area_file,
+            input_trace_layer_name=input_trace_layer_name,
+            input_area_layer_name=input_area_layer_name,
         ),
-        mo.md(f"Enable verbose debug output? {input_debug}"),
+        utils.make_snap_threshold_hstack(input_snap_threshold),
+        mo.md(utils.ENABLE_VERBOSE_BASE.format(input_debug)),
         mo.md(f"Press to (re)start validation: {input_button}"),
     ]
 

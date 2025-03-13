@@ -96,21 +96,16 @@ def __(
     input_traces_file,
     input_truncate_traces,
     mo,
+    utils,
 ):
     prompts = [
-        mo.md(f"## Upload trace data: {input_traces_file}"),
-        mo.md(f"Trace layer name, if applicable: {input_trace_layer_name}"),
-        mo.md(f"## Upload area data: {input_area_file}"),
-        mo.md(f"Area layer name, if applicable: {input_area_layer_name}"),
-        mo.hstack(
-            [
-                mo.md(
-                    "[Snap threshold](https://nialov.github.io/fractopo/misc.html#snap-threshold-parameter):"
-                ),
-                input_snap_threshold,
-                "{}".format(input_snap_threshold.value),
-            ]
+        *utils.make_data_upload_prompts(
+            input_traces_file=input_traces_file,
+            input_area_file=input_area_file,
+            input_trace_layer_name=input_trace_layer_name,
+            input_area_layer_name=input_area_layer_name,
         ),
+        utils.make_snap_threshold_hstack(input_snap_threshold),
         mo.hstack(
             [
                 mo.md(
@@ -145,7 +140,7 @@ def __(
                 "{}".format(input_fits_to_plot.value),
             ]
         ),
-        mo.md(f"Enable verbose debug output? {input_debug}"),
+        mo.md(utils.ENABLE_VERBOSE_BASE.format(input_debug)),
     ]
 
     mo.vstack(prompts)
@@ -203,7 +198,6 @@ def __(
         ]
     )
     if input_define_azimuth_sets.value:
-
         mo.output.replace(input_azimuth_stack)
     return (input_azimuth_stack,)
 
