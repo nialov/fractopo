@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
 from fractopo.analysis import azimuth, length_distributions, parameters
+from fractopo.analysis.length_distributions import Dist
 from fractopo.general import (
     BOUNDARY_INTERSECT_KEYS,
     Col,
@@ -287,6 +288,7 @@ class LineData:
         use_probability_density_function: bool,
         fit: Optional[powerlaw.Fit] = None,
         plain: bool = False,
+        fits_to_plot: Tuple[Dist, ...] = length_distributions.DEFAULT_FITS_TO_PLOT,
     ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:
         """
         Plot length data with powerlaw fit.
@@ -298,6 +300,7 @@ class LineData:
             using_branches=self.using_branches,
             use_probability_density_function=use_probability_density_function,
             plain=plain,
+            fits_to_plot=fits_to_plot,
         )
 
     def plot_azimuth(

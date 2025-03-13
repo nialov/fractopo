@@ -25,7 +25,11 @@ from ternary.ternary_axes_subplot import TernaryAxesSubplot
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.contour_grid import run_grid_sampling
-from fractopo.analysis.length_distributions import LengthDistribution
+from fractopo.analysis.length_distributions import (
+    DEFAULT_FITS_TO_PLOT,
+    Dist,
+    LengthDistribution,
+)
 from fractopo.analysis.line_data import LineData
 from fractopo.analysis.parameters import (
     branches_intersect_boundary,
@@ -892,7 +896,8 @@ class Network:
         fit: Optional[powerlaw.Fit] = None,
         use_probability_density_function: bool = False,
         plain: bool = False,
-    ) -> Tuple[powerlaw.Fit, Figure, Axes]:  # type: ignore
+        fits_to_plot: Tuple[Dist, ...] = DEFAULT_FITS_TO_PLOT,
+    ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:  # type: ignore
         """
         Plot trace length distribution with `powerlaw` fits.
         """
@@ -902,6 +907,7 @@ class Network:
             fit=fit,
             use_probability_density_function=use_probability_density_function,
             plain=plain,
+            fits_to_plot=fits_to_plot,
         )
 
     @requires_topology
@@ -911,6 +917,7 @@ class Network:
         fit: Optional[powerlaw.Fit] = None,
         use_probability_density_function: bool = False,
         plain: bool = False,
+        fits_to_plot: Tuple[Dist, ...] = DEFAULT_FITS_TO_PLOT,
     ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:  # type: ignore
         """
         Plot branch length distribution with `powerlaw` fits.
@@ -922,6 +929,7 @@ class Network:
             fit=fit,
             use_probability_density_function=use_probability_density_function,
             plain=plain,
+            fits_to_plot=fits_to_plot,
         )
 
     def plot_trace_azimuth(
@@ -1332,6 +1340,11 @@ class Network:
         output_path: Path,
         include_contour_grid: bool = True,
         contour_grid_cell_size: Optional[float] = None,
+        fits_to_plot: Tuple[Dist, ...] = (
+            Dist.EXPONENTIAL,
+            Dist.LOGNORMAL,
+            Dist.POWERLAW,
+        ),
     ):
         """
         Export pre-selected ``Network`` analysis results to a directory.
@@ -1391,13 +1404,13 @@ class Network:
         )
 
         # Plot length distribution fits of fracture traces
-        _, fig, _ = self.plot_trace_lengths()
+        _, fig, _ = self.plot_trace_lengths(fits_to_plot=fits_to_plot)
         save_fig(
             fig=fig, results_dir=export_path, name="trace_length_distribution_fits"
         )
 
         # Plot length distribution fits of fracture branches
-        _, fig, _ = self.plot_branch_lengths()
+        _, fig, _ = self.plot_branch_lengths(fits_to_plot=fits_to_plot)
         save_fig(
             fig=fig, results_dir=export_path, name="branch_length_distribution_fits"
         )

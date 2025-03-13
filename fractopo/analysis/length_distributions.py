@@ -110,6 +110,13 @@ class Dist(Enum):
     TRUNCATED_POWERLAW = "truncated_power_law"
 
 
+DEFAULT_FITS_TO_PLOT = (
+    Dist.POWERLAW,
+    Dist.LOGNORMAL,
+    Dist.EXPONENTIAL,
+)
+
+
 def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, float]:
     """
     Fit numpy polyfit to data.
@@ -504,7 +511,10 @@ def plot_fit_on_ax(
             ax=ax, label="Exponential", linestyle="--", color="blue"
         )
     else:
-        raise ValueError(f"Expected fit_distribution to be one of {list(Dist)}")
+        raise ValueError(
+            f"Expected fit_distribution to be one of {list(Dist)}. "
+            + f"Got: {fit_distribution}"
+        )
 
 
 def _setup_length_plot_axlims(
@@ -543,7 +553,7 @@ def plot_distribution_fits(
     fit: Optional[powerlaw.Fit] = None,
     fig: Optional[Figure] = None,
     ax: Optional[Axes] = None,
-    fits_to_plot: Tuple[Dist, ...] = (Dist.EXPONENTIAL, Dist.LOGNORMAL, Dist.POWERLAW),
+    fits_to_plot: Tuple[Dist, ...] = DEFAULT_FITS_TO_PLOT,
     plain: bool = False,
 ) -> Tuple[Optional[powerlaw.Fit], Figure, Axes]:
     """
