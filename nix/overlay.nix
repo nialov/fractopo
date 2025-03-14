@@ -114,8 +114,8 @@
         pushCmds = builtins.map (stream: mkPushCmd stream.imageName) streams;
 
       in ''
-        echo "Logging in to $1"
-        docker login -p "$3" -u unused "$1"
+        echo "Logging in to $1 with user $4"
+        docker login -p "$3" -u "$4" "$1"
 
         echo "Loading new version of fractopo images into docker"
         ${lib.concatStringsSep "\n" loadCmds}
