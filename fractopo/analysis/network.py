@@ -4,7 +4,7 @@ Analyse and plot trace map data with Network.
 
 import logging
 from dataclasses import dataclass, field
-from functools import wraps
+from functools import partial, wraps
 from pathlib import Path
 from textwrap import dedent
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -1366,13 +1366,17 @@ class Network:
                 "directory or a path to where an export directory will be created."
             )
         export_path.mkdir(exist_ok=False)
+        save_fig_to_export_path = partial(save_fig, results_dir=export_path)
+        write_geodataframe_to_export_path = partial(
+            write_geodataframe, results_dir=export_path
+        )
 
         # Plot map of traces with area
         fig, ax = plt.subplots(figsize=(9, 9))
         self.trace_gdf.plot(ax=ax, color="blue")
         self.area_gdf.boundary.plot(ax=ax, color="red")
         focus_plot_to_bounds(ax, self.area_gdf.total_bounds)
-        save_fig(fig=fig, results_dir=export_path, name="trace_map")
+        save_fig_to_export_path(fig=fig, name="trace_map")
 
         # Plot map of branches
         fig, ax = plt.subplots(figsize=(9, 9))
@@ -1381,7 +1385,7 @@ class Network:
             ax=ax,
         )
         self.area_gdf.boundary.plot(ax=ax, color="red")
-        save_fig(fig=fig, results_dir=export_path, name="branches_map")
+        save_fig_to_export_path(fig=fig, name="branches_map")
 
         # Plot map of nodes
         fig, ax = plt.subplots(figsize=(9, 9))
@@ -1395,50 +1399,63 @@ class Network:
         )
         self.area_gdf.boundary.plot(ax=ax, color="red")
         focus_plot_to_bounds(ax, self.area_gdf.total_bounds)
-        save_fig(fig=fig, results_dir=export_path, name="nodes_map")
+        save_fig_to_export_path(fig=fig, name="nodes_map")
 
         # Plot azimuth rose plot of fracture traces
         _, fig, _ = self.plot_trace_azimuth()
-        save_fig(
-            fig=fig, results_dir=export_path, name="trace_length_weighted_rose_plot"
+        save_fig_to_export_path(fig=fig, name="trace_length_weighted_rose_plot")
+
+        # Plot azimuth rose plot of fracture traces with sets
+        _, fig, _ = self.plot_trace_azimuth(visualize_sets=True)
+        save_fig_to_export_path(
+            fig=fig,
+            name="trace_length_weighted_rose_plot_with_sets",
+        )
+
+        # Plot azimuth rose plot of fracture branches
+        _, fig, _ = self.plot_branch_azimuth()
+        save_fig_to_export_path(fig=fig, name="branch_length_weighted_rose_plot")
+
+        # Plot azimuth rose plot of fracture branches with sets
+        _, fig, _ = self.plot_branch_azimuth(visualize_sets=True)
+        save_fig_to_export_path(
+            fig=fig,
+            name="branch_length_weighted_rose_plot_with_sets",
         )
 
         # Plot length distribution fits of fracture traces
         _, fig, _ = self.plot_trace_lengths(fits_to_plot=fits_to_plot)
-        save_fig(
-            fig=fig, results_dir=export_path, name="trace_length_distribution_fits"
-        )
+        save_fig_to_export_path(fig=fig, name="trace_length_distribution_fits")
 
         # Plot length distribution fits of fracture branches
         _, fig, _ = self.plot_branch_lengths(fits_to_plot=fits_to_plot)
-        save_fig(
-            fig=fig, results_dir=export_path, name="branch_length_distribution_fits"
-        )
+        save_fig_to_export_path(fig=fig, name="branch_length_distribution_fits")
 
         # Plot crosscutting and abutting relationships between azimuth sets
         figs, _ = self.plot_azimuth_crosscut_abutting_relationships()
         for i, fig in enumerate(figs):
-            save_fig(
-                fig=fig, results_dir=export_path, name=f"azimuth_set_relationships_{i}"
-            )
+            save_fig_to_export_path(fig=fig, name=f"azimuth_set_relationships_{i}")
 
         # Plot ternary XYI-node proportion plot
         fig, _, _ = self.plot_xyi()
-        save_fig(fig=fig, results_dir=export_path, name="xyi_ternary_plot")
+        save_fig_to_export_path(fig=fig, name="xyi_ternary_plot")
 
         # Plot ternary branch (C-C, C-I, I-I) proportion plot
         fig, _, _ = self.plot_branch()
-        save_fig(fig=fig, results_dir=export_path, name="branch_ternary_plot")
+        save_fig_to_export_path(fig=fig, name="branch_ternary_plot")
 
         # Save traces, branches and nodes.
-        write_geodataframe(
-            self.trace_gdf, f"{self.plain_name}_traces", results_dir=export_path
+        write_geodataframe_to_export_path(
+            self.trace_gdf,
+            f"{self.plain_name}_traces",
         )
-        write_geodataframe(
-            self.branch_gdf, f"{self.plain_name}_branches", results_dir=export_path
+        write_geodataframe_to_export_path(
+            self.branch_gdf,
+            f"{self.plain_name}_branches",
         )
-        write_geodataframe(
-            self.node_gdf, f"{self.plain_name}_nodes", results_dir=export_path
+        write_geodataframe_to_export_path(
+            self.node_gdf,
+            f"{self.plain_name}_nodes",
         )
 
         # Create point with general parameters of the Network
@@ -1453,24 +1470,24 @@ class Network:
             ],
             crs=self.area_gdf.crs,
         )
-        write_geodataframe(
-            params_point, f"{self.plain_name}_parameters", results_dir=export_path
+        write_geodataframe_to_export_path(
+            params_point,
+            f"{self.plain_name}_parameters",
         )
 
         # Create contour grid
         if include_contour_grid:
             sampled_grid = self.contour_grid(cell_width=contour_grid_cell_size)
-            write_geodataframe(
-                sampled_grid, f"{self.plain_name}_contour_grid", results_dir=export_path
+            write_geodataframe_to_export_path(
+                sampled_grid,
+                f"{self.plain_name}_contour_grid",
             )
             fig, _ = self.plot_contour(
                 Param.FRACTURE_INTENSITY_P21.value.name, sampled_grid=sampled_grid
             )
-            save_fig(fig=fig, results_dir=export_path, name="P21_contour")
+            save_fig_to_export_path(fig=fig, name="P21_contour")
 
             fig, _ = self.plot_contour(
                 Param.CONNECTIONS_PER_BRANCH.value.name, sampled_grid=sampled_grid
             )
-            save_fig(
-                fig=fig, results_dir=export_path, name="connections_per_branch_contour"
-            )
+            save_fig_to_export_path(fig=fig, name="connections_per_branch_contour")
