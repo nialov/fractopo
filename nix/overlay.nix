@@ -91,8 +91,8 @@
       prev.dockerTools.buildLayeredImage networkImageConfig;
     fractopo-network-image-stream =
       prev.dockerTools.streamLayeredImage networkImageConfig;
-    push-fractopo-images = prev.writeShellApplication {
-      name = "push-fractopo-images";
+    load-fractopo-images = prev.writeShellApplication {
+      name = "load-fractopo-images";
       text = let
 
         streams = [
@@ -103,13 +103,30 @@
         mkLoadCmd = stream: "${stream} | docker load";
         loadCmds = builtins.map mkLoadCmd streams;
 
+      in ''
+        echo "Loading new version of fractopo images into docker"
+        ${lib.concatStringsSep "\n" loadCmds}
+
+        echo "Listing images"
+        docker image list
+      '';
+    };
+    push-fractopo-images = prev.writeShellApplication {
+      name = "push-fractopo-images";
+      text = let
+
+        streams = [
+          final.fractopo-validation-image-stream
+          final.fractopo-network-image-stream
+        ];
+
         mkTagCmd = { imageName, imageTag }:
-          ''docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:latest'';
+          ''docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:"$5"'';
 
         tagCmds = builtins.map
           (stream: mkTagCmd { inherit (stream) imageName imageTag; }) streams;
 
-        mkPushCmd = imageName: ''docker push "$1"/"$2"/${imageName}:latest'';
+        mkPushCmd = imageName: ''docker push "$1"/"$2"/${imageName}:"$5"'';
 
         pushCmds = builtins.map (stream: mkPushCmd stream.imageName) streams;
 
@@ -117,16 +134,13 @@
         echo "Logging in to $1 with user $4"
         docker login -p "$3" -u "$4" "$1"
 
-        echo "Loading new version of fractopo images into docker"
-        ${lib.concatStringsSep "\n" loadCmds}
-
         echo "Listing images"
         docker image list
 
-        echo "Tagging new image versions to project $2 in $1"
+        echo "Tagging new image versions to $1/$2"
         ${lib.concatStringsSep "\n" tagCmds}
 
-        echo "Pushing new image versions to project $2 in $1"
+        echo "Pushing new image versions to $1/$2"
         ${lib.concatStringsSep "\n" pushCmds}
       '';
     };
