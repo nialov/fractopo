@@ -143,7 +143,7 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
       - name: Load images to docker
         run: |
-          nix build .#load-fractopo-images
+          nix run .#load-fractopo-images
       - name: Push to ghcr.io from all branches
         if: github.event_name == 'push'
         env:
