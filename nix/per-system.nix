@@ -37,8 +37,6 @@
           check.enable = true;
           settings.hooks = {
             nixfmt.enable = true;
-            black.enable = true;
-            black-nb.enable = true;
             nbstripout.enable = true;
             isort = { enable = true; };
             shellcheck.enable = true;
