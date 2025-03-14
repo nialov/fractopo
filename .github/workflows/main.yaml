@@ -131,6 +131,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [nix]
     timeout-minutes: 60
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
@@ -141,7 +144,15 @@ jobs:
       - name: Build push script
         run: |
           nix build .#push-fractopo-images
-      - name: Push to registry on tag
+      - name: Push to ghcr.io from default branch
+        if: >
+          github.event_name == 'push'
+          && github.ref == 'refs/heads/master'
+        env:
+          PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          nix run .#push-fractopo-images -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }}
+      - name: Push to openshift on tag
         if: >
           github.event_name == 'push'
           && startsWith(github.ref, 'refs/tags')
@@ -150,4 +161,4 @@ jobs:
           REGISTRY: ${{ secrets.REGISTRY }}
           PROJECT: ${{ secrets.PROJECT }}
         run: |
-          nix run .#push-fractopo-images -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN"
+          nix run .#push-fractopo-images -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN" unused
