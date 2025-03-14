@@ -262,7 +262,9 @@ class MultiLengthDistribution:
             )
         )
 
-    def normalized_distributions(self, automatic_cut_offs: bool) -> Tuple[
+    def normalized_distributions(
+        self, automatic_cut_offs: bool
+    ) -> Tuple[
         List[np.ndarray],
         List[np.ndarray],
         List[np.ndarray],
@@ -847,7 +849,8 @@ def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
         Dist.EXPONENTIAL.value + " " + LAMBDA: fit.exponential.Lambda,
         Dist.TRUNCATED_POWERLAW.value + " " + LAMBDA: fit.truncated_power_law.Lambda,
         Dist.TRUNCATED_POWERLAW.value + " " + ALPHA: fit.truncated_power_law.alpha,
-        Dist.TRUNCATED_POWERLAW.value + " "
+        Dist.TRUNCATED_POWERLAW.value
+        + " "
         # + EXPONENT: -(fit.truncated_power_law.alpha - 1),
         + EXPONENT: calculate_exponent(fit.truncated_power_law.alpha),
         # Fit statistics

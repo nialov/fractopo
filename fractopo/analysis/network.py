@@ -1445,7 +1445,7 @@ class Network:
         params_point = gpd.GeoDataFrame(
             [
                 {
-                    **self.parameters,
+                    **self.numerical_network_description(),
                     "geometry": MultiPoint(
                         self.area_gdf.geometry.representative_point()
                     ).representative_point(),
