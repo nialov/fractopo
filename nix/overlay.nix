@@ -52,13 +52,18 @@
       })
     ];
     inherit (final.python3Packages) fractopo;
-    fhs = let
-      base = prev.geo-fhs-env.passthru.args;
+    fractopo-fhs = let
+      base = prev.fhs.passthru.args;
       config = {
         name = "fhs";
-        targetPkgs = fhsPkgs: (base.targetPkgs fhsPkgs) ++ [ fhsPkgs.gdal ];
+        targetPkgs = fhsPkgs:
+          (base.targetPkgs fhsPkgs)
+          ++ [ fhsPkgs.gdal fhsPkgs.stdenv.cc.cc.lib ];
+        profile = ''
+          export LD_LIBRARY_PATH=${prev.stdenv.cc.cc.lib}/lib/
+        '';
       };
-    in prev.buildFHSUserEnv (lib.recursiveUpdate base config);
+    in prev.buildFHSEnv (lib.recursiveUpdate base config);
 
     pythonEnv = final.python3.withPackages
       (p: p.fractopo.passthru.optional-dependencies.dev);
