@@ -1005,11 +1005,11 @@
         "vim-nickel-src": "vim-nickel-src"
       },
       "locked": {
-        "lastModified": 1741868459,
-        "narHash": "sha256-xt3JVdGbOVMlZt/B23UgIdnL7uB+lBhs7JGVnU0pFTc=",
+        "lastModified": 1741958924,
+        "narHash": "sha256-TaxyVojlA2M/W/WG1OEDJ0d7glr0Ehs3QICzVOeSQuI=",
         "owner": "nialov",
         "repo": "nix-extra",
-        "rev": "5a3cb0e7336c430f0b691623fdcdfd3bfc934bd8",
+        "rev": "aed000aa0033509da0eb2e634fe1821174951d09",
         "type": "github"
       },
       "original": {
