@@ -117,7 +117,6 @@
         docker image list
 
         echo "Tagging new image version to $1/$2"
-        docker tag
         ${tagCmd}
 
         echo "Pushing new image version to $1/$2"
