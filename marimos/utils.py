@@ -96,6 +96,7 @@ def parse_network_app_args(
     input_area_file: mo.ui.file,
     input_snap_threshold: mo.ui.text,
     input_contour_grid_cell_size: mo.ui.text,
+    input_define_azimuth_sets: mo.ui.switch,
     input_azimuth_set_ranges: mo.ui.array,
     input_azimuth_set_names: mo.ui.array,
     input_fits_to_plot: mo.ui.multiselect,
@@ -105,7 +106,7 @@ def parse_network_app_args(
     gpd.GeoDataFrame,
     float,
     Optional[float],
-    Tuple[Tuple[int, int], ...],
+    Tuple[Tuple[float, float], ...],
     Tuple[str, ...],
     Tuple[Dist, ...],
 ]:
@@ -125,8 +126,15 @@ def parse_network_app_args(
     name = resolve_name(
         input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
     )
-    azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
-    azimuth_set_names = tuple(input_azimuth_set_names.value)
+    if input_define_azimuth_sets.value:
+        print("Using user-defined azimuth sets")
+        azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
+        azimuth_set_names = tuple(input_azimuth_set_names.value)
+    else:
+        print("Using default azimuth sets")
+        azimuth_set_ranges = Network.azimuth_set_ranges
+        azimuth_set_names = Network.azimuth_set_names
+
     fits_to_plot = tuple(map(Dist, input_fits_to_plot.value))
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:
