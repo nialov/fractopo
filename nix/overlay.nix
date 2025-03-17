@@ -2,37 +2,37 @@
 
   let
     inherit (prev) lib;
-    mkImageConfig = { name, entrypoint }: {
-      inherit name;
+    fractopoImageConfig = {
+      name = "fractopo-app";
       extraCommands = ''
-        mkdir ./app
         mkdir -p ./tmp
-        chmod 777 ./app
-        chmod 777 ./tmp
+        chmod -R 777 ./tmp
+        mkdir -p ./app/marimos
+        cp ${../marimos/utils.py} ./app/marimos/utils.py
+        cp ${../marimos/validation.py} ./app/marimos/validation.py
+        cp ${../marimos/network.py} ./app/marimos/network.py
+        chmod -R 777 ./app
       '';
       # Add for debugging
       contents = [ prev.bashInteractive prev.busybox ];
       config = {
-        Entrypoint = [ entrypoint ];
-        WorkingDir = "/app";
-        Env = [ "HOME=/app" ];
-        Cmd = [
-          "--host"
-          "0.0.0.0"
-          "--port"
-          "2718"
-          "--redirect-console-to-browser"
+        Entrypoint = [
+          "/bin/bash"
+          "-c"
+          (lib.concatStringsSep " " [
+            "${final.fractopoEnv}/bin/marimo"
+            "run"
+            "--host"
+            "$HOST"
+            "--port"
+            "$PORT"
+            "--redirect-console-to-browser"
+            "/app/marimos/$RUN_MODE.py"
+          ])
         ];
+        WorkingDir = "/app";
+        Env = [ "HOME=/app" "HOST=0.0.0.0" "PORT=2718" "RUN_MODE=network" ];
       };
-    };
-    validationImageConfig = mkImageConfig {
-      name = "fractopo-validation";
-      entrypoint =
-        "${final.fractopo-validation-run}/bin/fractopo-validation-run";
-    };
-    networkImageConfig = mkImageConfig {
-      name = "fractopo-network";
-      entrypoint = "${final.fractopo-network-run}/bin/fractopo-network-run";
     };
     mkMarimoRun = { name, script, marimosDir ? ../marimos }:
       prev.writeShellApplication {
@@ -79,56 +79,35 @@
     fractopo-network-run = mkMarimoRun {
       name = "fractopo-network-run";
       script = "network.py";
-
     };
 
-    fractopo-validation-image =
-      prev.dockerTools.buildLayeredImage validationImageConfig;
-    fractopo-validation-image-stream =
-      prev.dockerTools.streamLayeredImage validationImageConfig;
+    fractopo-app-image = prev.dockerTools.buildLayeredImage fractopoImageConfig;
+    fractopo-app-image-stream =
+      prev.dockerTools.streamLayeredImage fractopoImageConfig;
 
-    fractopo-network-image =
-      prev.dockerTools.buildLayeredImage networkImageConfig;
-    fractopo-network-image-stream =
-      prev.dockerTools.streamLayeredImage networkImageConfig;
-    load-fractopo-images = prev.writeShellApplication {
-      name = "load-fractopo-images";
-      text = let
-
-        streams = [
-          final.fractopo-validation-image-stream
-          final.fractopo-network-image-stream
-        ];
-
-        mkLoadCmd = stream: "${stream} | docker load";
-        loadCmds = builtins.map mkLoadCmd streams;
-
-      in ''
-        echo "Loading new version of fractopo images into docker"
-        ${lib.concatStringsSep "\n" loadCmds}
+    load-fractopo-image = prev.writeShellApplication {
+      name = "load-fractopo-image";
+      text = ''
+        echo "Loading new version of fractopo image into docker"
+        ${final.fractopo-app-image-stream} | docker load
 
         echo "Listing images"
         docker image list
       '';
     };
-    push-fractopo-images = prev.writeShellApplication {
-      name = "push-fractopo-images";
+    push-fractopo-image = prev.writeShellApplication {
+      name = "push-fractopo-image";
       text = let
-
-        streams = [
-          final.fractopo-validation-image-stream
-          final.fractopo-network-image-stream
-        ];
 
         mkTagCmd = { imageName, imageTag }:
           ''docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:"$5"'';
 
-        tagCmds = builtins.map
-          (stream: mkTagCmd { inherit (stream) imageName imageTag; }) streams;
+        tagCmd = mkTagCmd {
+          inherit (final.fractopo-app-image-stream) imageName imageTag;
+        };
 
         mkPushCmd = imageName: ''docker push "$1"/"$2"/${imageName}:"$5"'';
-
-        pushCmds = builtins.map (stream: mkPushCmd stream.imageName) streams;
+        pushCmd = mkPushCmd final.fractopo-app-image-stream.imageName;
 
       in ''
         echo "Logging in to $1 with user $4"
@@ -137,11 +116,12 @@
         echo "Listing images"
         docker image list
 
-        echo "Tagging new image versions to $1/$2"
-        ${lib.concatStringsSep "\n" tagCmds}
+        echo "Tagging new image version to $1/$2"
+        docker tag
+        ${tagCmd}
 
-        echo "Pushing new image versions to $1/$2"
-        ${lib.concatStringsSep "\n" pushCmds}
+        echo "Pushing new image version to $1/$2"
+        ${pushCmd}
       '';
     };
     cut-release-changelog = prev.writeShellApplication {

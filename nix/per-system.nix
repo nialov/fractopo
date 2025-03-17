@@ -68,9 +68,8 @@
         packages = {
 
           inherit (pkgs)
-            fractopo poetry-run fractopo-validation-run
-            fractopo-validation-image fractopo-validation-image-stream
-            fractopo-network-image-stream push-fractopo-images;
+            fractopo poetry-run fractopo-network-run fractopo-validation-run
+            push-fractopo-image;
           fractopo-documentation =
             self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
