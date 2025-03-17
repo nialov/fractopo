@@ -40,6 +40,7 @@ Trace Mean Length (Mauldon): .nan
 Trace Min Length: 0.08
 X: 53
 Y: 171
+branch Kolmogorov-Smirnov critical distance value: 0.13
 branch exponential Kolmogorov-Smirnov distance D: 0.2
 branch exponential lambda: 0.87
 branch exponential loglikelihood: -122.24
@@ -66,6 +67,7 @@ branch truncated_power_law alpha: 2.6
 branch truncated_power_law exponent: -1.6
 branch truncated_power_law lambda: 0.07
 branch truncated_power_law loglikelihood: -111.73
+trace Kolmogorov-Smirnov critical distance value: .nan
 trace exponential Kolmogorov-Smirnov distance D: 0.14
 trace exponential lambda: 0.3
 trace exponential loglikelihood: -100.9

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import powerlaw
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import assume, example, given, settings
 from hypothesis.extra import numpy
 from hypothesis.strategies import floats, integers
 from matplotlib.axes import Axes
@@ -212,9 +212,10 @@ def test_fit_to_multi_scale_lengths_fitter_comparisons(
         _,
         _,
     ) = mld.normalized_distributions(automatic_cut_offs=automatic_cut_offs)
-    concatted_lengths, concatted_ccm = np.concatenate(
-        truncated_length_array_all
-    ), np.concatenate(ccm_array_normed_all)
+    concatted_lengths, concatted_ccm = (
+        np.concatenate(truncated_length_array_all),
+        np.concatenate(ccm_array_normed_all),
+    )
 
     # Fit with np.polyfit
     numpy_polyfit_vals = length_distributions.fit_to_multi_scale_lengths(
@@ -285,3 +286,35 @@ def test_plot_distribution_fits(
     assert isinstance(fig, Figure)
     assert isinstance(ax, Axes)
     plt.close("all")
+
+
+@pytest.mark.parametrize(
+    "data_length,expected_result", [(100, 0.136), (50, np.nan), (10, np.nan)]
+)
+def test_calculate_critical_distance_value(data_length: int, expected_result):
+    """
+    Test calculate_critical_distance_value.
+    """
+
+    result = length_distributions.calculate_critical_distance_value(
+        data_length=data_length
+    )
+
+    if np.isnan(expected_result):
+        assert np.isnan(result)
+    else:
+        assert np.isclose(result, expected_result)
+
+
+@example(100)
+@given(integers(min_value=0))
+def test_calculate_critical_distance_value_hypothesis(data_length: int):
+    """
+    Test calculate_critical_distance_value with hypothesis.
+    """
+    result = length_distributions.calculate_critical_distance_value(
+        data_length=data_length
+    )
+
+    if not np.isnan(result):
+        assert result >= 0
