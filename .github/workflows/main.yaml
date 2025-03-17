@@ -141,15 +141,15 @@ jobs:
         with:
           name: nialov
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Load images to docker
+      - name: Load image to docker
         run: |
-          nix run .#load-fractopo-images
+          nix run .#load-fractopo-image
       - name: Push to ghcr.io from all branches
         if: github.event_name == 'push'
         env:
           PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          nix run .#push-fractopo-images -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} "$(git rev-parse --short HEAD)"
+          nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} "$(git rev-parse --short HEAD)"
       - name: Push to ghcr.io from default branch
         if: >
           github.event_name == 'push'
@@ -157,7 +157,7 @@ jobs:
         env:
           PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          nix run .#push-fractopo-images -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} latest
+          nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} latest
       - name: Push to openshift on tag
         if: >
           github.event_name == 'push'
@@ -167,4 +167,4 @@ jobs:
           REGISTRY: ${{ secrets.REGISTRY }}
           PROJECT: ${{ secrets.PROJECT }}
         run: |
-          nix run .#push-fractopo-images -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN" unused latest
+          nix run .#push-fractopo-image -- "$REGISTRY" "$PROJECT" "$PUSHER_TOKEN" unused latest
