@@ -5,7 +5,7 @@
 
 import marimo
 
-__generated_with = "0.9.1"
+__generated_with = "0.10.9"
 app = marimo.App(width="medium")
 
 
@@ -26,7 +26,6 @@ def _():
     import fractopo.general
     import fractopo.tval.trace_validation
     from fractopo.analysis.network import Network
-
     return (
         BytesIO,
         Network,
@@ -82,7 +81,7 @@ def _(mo):
 
 
 @app.cell
-def __(
+def _(
     input_area_file,
     input_area_layer_name,
     input_circular_target_area,
@@ -148,19 +147,19 @@ def __(
 
 
 @app.cell
-def __(input_define_azimuth_sets, mo):
+def _(input_define_azimuth_sets, mo):
     mo.md(f"Define azimuth sets? {input_define_azimuth_sets}")
     return
 
 
 @app.cell
-def __(mo):
+def _(mo):
     input_azimuth_set_range_count = mo.ui.number(start=1, stop=10, value=3)
     return (input_azimuth_set_range_count,)
 
 
 @app.cell
-def __(input_azimuth_set_range_count, mo, partial):
+def _(input_azimuth_set_range_count, mo, partial):
     make_set_value = partial(mo.ui.number, start=0, stop=180, step=1)
     input_azimuth_set_ranges = mo.ui.array(
         [
@@ -172,7 +171,7 @@ def __(input_azimuth_set_range_count, mo, partial):
 
 
 @app.cell
-def __(input_azimuth_set_ranges, mo):
+def _(input_azimuth_set_ranges, mo):
     default_set_names = [
         "-".join(map(str, set_range)) for set_range in input_azimuth_set_ranges.value
     ]
@@ -183,7 +182,7 @@ def __(input_azimuth_set_ranges, mo):
 
 
 @app.cell
-def __(
+def _(
     input_azimuth_set_names,
     input_azimuth_set_range_count,
     input_azimuth_set_ranges,
@@ -203,7 +202,7 @@ def __(
 
 
 @app.cell
-def __(input_button, mo):
+def _(input_button, mo):
     mo.md(f"Press to (re)start analysis: {input_button}")
     return
 
@@ -218,6 +217,7 @@ def _(
     input_button,
     input_circular_target_area,
     input_contour_grid_cell_size,
+    input_define_azimuth_sets,
     input_determine_branches_nodes,
     input_fits_to_plot,
     input_snap_threshold,
@@ -259,6 +259,7 @@ def _(
                 input_area_file,
                 input_snap_threshold,
                 input_contour_grid_cell_size,
+                input_define_azimuth_sets,
                 input_azimuth_set_ranges,
                 input_azimuth_set_names,
                 input_fits_to_plot,
@@ -277,7 +278,6 @@ def _(
         )
 
         return network, name, contour_grid_cell_size, fits_to_plot
-
     return (execute,)
 
 
@@ -312,7 +312,7 @@ def _(execute, input_debug, mo, partial, utils):
 
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""## Results""")
     return
 
@@ -327,7 +327,7 @@ def _(mo, network):
 
 
 @app.cell
-def __(
+def _(
     contour_grid_cell_size,
     fits_to_plot,
     input_determine_branches_nodes,
@@ -367,7 +367,7 @@ def _(execute_exception, mo, to_file_exception):
 
 
 @app.cell
-def __(download_element, mo):
+def _(download_element, mo):
     if download_element is not None:
         mo.output.replace(
             mo.md(f"### Download network analysis results: {download_element}")
