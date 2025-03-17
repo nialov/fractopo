@@ -880,6 +880,24 @@ def cut_off_proportion_of_data(fit: powerlaw.Fit, length_array: np.ndarray) -> f
     return sum(arr_less_than) / len(length_array) if len(length_array) > 0 else 0.0
 
 
+def calculate_critical_distance_value(data_length: int, data_length_minimum: int = 51):
+    """
+    Calculate approximate critical distance value for large (n>50) sample counts.
+
+    Assumes significance level of 0.05. If the Kolmogorov-Smirnov distance
+    value is smaller than the critical value, the null hypothesis, i.e., that
+    the distributions are the same, is accepted but not verified.
+    """
+    if data_length < data_length_minimum:
+        return np.nan
+    try:
+        critical_value = 1.36 / np.sqrt(data_length)
+    except Exception:
+        log.error(f"Failed to calculate critical value for data_length: {data_length}")
+        return np.nan
+    return critical_value
+
+
 def describe_powerlaw_fit(
     fit: powerlaw.Fit, length_array: np.ndarray, label: Optional[str] = None
 ) -> Dict[str, float]:
@@ -892,6 +910,9 @@ def describe_powerlaw_fit(
         Dist.EXPONENTIAL.value + " " + KOLM_DIST: fit.exponential.D,
         Dist.LOGNORMAL.value + " " + KOLM_DIST: fit.lognormal.D,
         Dist.TRUNCATED_POWERLAW.value + " " + KOLM_DIST: fit.truncated_power_law.D,
+        "Kolmogorov-Smirnov critical distance value": calculate_critical_distance_value(
+            data_length=len(fit.data)
+        ),
         Dist.POWERLAW.value + " " + ALPHA: fit.alpha,
         Dist.POWERLAW.value + " " + EXPONENT: calculate_exponent(fit.alpha),
         Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
