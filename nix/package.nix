@@ -1,8 +1,9 @@
 { buildPythonPackage, lib, click, pytest, geopandas, joblib, matplotlib, numpy
-, pandas, rich, scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions
-, hypothesis, poetry-core, sphinxHook, pandoc, sphinx-autodoc-typehints
-, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
-, powerlaw, python-ternary, marimo, versionCheckHook, beartype
+, pandas, pandas-stubs, rich, scikit-learn, scipy, seaborn, shapely, typer
+, pytest-regressions, hypothesis, poetry-core, sphinxHook, pandoc
+, sphinx-autodoc-typehints, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook
+, ipython, coverage, powerlaw, python-ternary, marimo, versionCheckHook
+, beartype
 
 }:
 
@@ -79,6 +80,7 @@ let
       matplotlib
       numpy
       pandas
+      pandas-stubs
       powerlaw
       python-ternary
       rich
