@@ -2099,11 +2099,7 @@ def test_plot_azimuth_plot_params():
     """
     return [
         (
-            # np.linspace(0, 360, 100),
             np.random.normal(180, 90, 100),
-            np.ones(100),
-            np.ones(100),
-            np.ones(100).astype(str),
             "PlotWithNonAxialAzimuthData",
             False,
             False,
@@ -2113,10 +2109,6 @@ def test_plot_azimuth_plot_params():
         ),
         (
             np.random.normal(90, 45, 100),
-            # np.linspace(0, 180, 100),
-            np.ones(100),
-            np.ones(100),
-            np.ones(100).astype(str),
             "PlotWithAxialAzimuthData",
             False,
             False,
@@ -2126,10 +2118,6 @@ def test_plot_azimuth_plot_params():
         ),
         (
             np.random.normal(90, 45, 100),
-            # np.linspace(0, 180, 100),
-            np.ones(100),
-            np.ones(100),
-            np.ones(100).astype(str),
             "PlotWithAxialAzimuthData",
             True,
             True,
