@@ -7,12 +7,13 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import chain, cycle
 from textwrap import fill
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import numpy as np
 import powerlaw
 import seaborn as sns
 import sklearn.metrics as sklm
+from beartype import beartype
+from beartype.typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -117,6 +118,7 @@ DEFAULT_FITS_TO_PLOT = (
 )
 
 
+@beartype
 def numpy_polyfit(log_lengths: np.ndarray, log_ccm: np.ndarray) -> Tuple[float, float]:
     """
     Fit numpy polyfit to data.
@@ -269,7 +271,7 @@ class MultiLengthDistribution:
         List[np.ndarray],
         List[np.ndarray],
         List[np.ndarray],
-        List[np.ndarray],
+        List[float],
     ]:
         """
         Create normalized and truncated lengths and ccms.
@@ -331,6 +333,7 @@ class MultiLengthDistribution:
         """
         return [ld.name for ld in self.distributions]
 
+    @beartype
     def plot_multi_length_distributions(
         self,
         automatic_cut_offs: bool,
@@ -372,6 +375,7 @@ class MultiLengthDistribution:
         )
         return polyfit, fig, ax
 
+    @beartype
     def optimize_cut_offs(
         self,
         shgo_kwargs: Optional[Dict[str, Any]] = None,
@@ -392,6 +396,7 @@ class MultiLengthDistribution:
         )
         return opt_result, optimized_mld
 
+    @beartype
     def optimized_multi_scale_fit(
         self,
         scorer: Callable[[np.ndarray, np.ndarray], float],
@@ -414,6 +419,7 @@ class MultiLengthDistribution:
         bounds = [np.quantile(arr, (0.0, 1.0)) for arr in truncated_length_array_all]
         # bounds = [(0.0, 1.0) for _ in truncated_length_array_all]
 
+        @beartype
         def constrainer(
             cut_offs: np.ndarray, distributions: List[LengthDistribution]
         ) -> float:
@@ -466,6 +472,7 @@ class MultiLengthDistribution:
 
 
 @general.JOBLIB_CACHE.cache
+@beartype
 def determine_fit(
     length_array: np.ndarray, cut_off: Optional[float] = None
 ) -> Optional[powerlaw.Fit]:
@@ -490,6 +497,7 @@ def determine_fit(
     return fit
 
 
+@beartype
 def plot_fit_on_ax(
     ax: Axes,
     fit: powerlaw.Fit,
@@ -519,6 +527,7 @@ def plot_fit_on_ax(
         )
 
 
+@beartype
 def _setup_length_plot_axlims(
     ax: Axes,
     length_array: np.ndarray,
@@ -546,6 +555,7 @@ def _setup_length_plot_axlims(
         # Don't try setting if it errors
 
 
+@beartype
 def plot_distribution_fits(
     length_array: np.ndarray,
     label: str,
@@ -740,6 +750,7 @@ def setup_length_dist_legend(ax: Axes):
         lh.set_linewidth(3)
 
 
+@beartype
 def setup_ax_for_ld(
     ax: Axes,
     using_branches: bool,
@@ -819,6 +830,7 @@ def setup_ax_for_ld(
     # ax.set_facecolor(facecolor)
 
 
+@beartype
 def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     """
     Compose a dict of length distribution fit comparisons.
@@ -837,6 +849,7 @@ def distribution_compare_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     return compare_dict
 
 
+@beartype
 def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     """
     Collect 'all' fit attributes into a dict.
@@ -862,6 +875,7 @@ def all_fit_attributes_dict(fit: powerlaw.Fit) -> Dict[str, float]:
     }
 
 
+@beartype
 def calculate_exponent(alpha: float):
     """
     Calculate exponent from powerlaw.alpha.
@@ -869,6 +883,7 @@ def calculate_exponent(alpha: float):
     return -(alpha - 1)
 
 
+@beartype
 def cut_off_proportion_of_data(fit: powerlaw.Fit, length_array: np.ndarray) -> float:
     """
     Get the proportion of data cut off by `powerlaw` cut off.
@@ -880,6 +895,7 @@ def cut_off_proportion_of_data(fit: powerlaw.Fit, length_array: np.ndarray) -> f
     return sum(arr_less_than) / len(length_array) if len(length_array) > 0 else 0.0
 
 
+@beartype
 def calculate_critical_distance_value(data_length: int, data_length_minimum: int = 51):
     """
     Calculate approximate critical distance value for large (n>50) sample counts.
@@ -898,6 +914,7 @@ def calculate_critical_distance_value(data_length: int, data_length_minimum: int
     return critical_value
 
 
+@beartype
 def describe_powerlaw_fit(
     fit: powerlaw.Fit, length_array: np.ndarray, label: Optional[str] = None
 ) -> Dict[str, float]:
@@ -927,6 +944,7 @@ def describe_powerlaw_fit(
     return {f"{label} {key}": value for key, value in base.items()}
 
 
+@beartype
 def sort_and_log_lengths_and_ccm(
     lengths: np.ndarray, ccm: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -945,6 +963,7 @@ def sort_and_log_lengths_and_ccm(
     return log_lengths_sorted, log_ccm_sorted
 
 
+@beartype
 def calculate_fitted_values(
     log_lengths: np.ndarray, m_value: float, constant: float
 ) -> np.ndarray:
@@ -957,6 +976,7 @@ def calculate_fitted_values(
     return y_fit
 
 
+@beartype
 def fit_to_multi_scale_lengths(
     ccm: np.ndarray,
     lengths: np.ndarray,
@@ -998,12 +1018,13 @@ def fit_to_multi_scale_lengths(
     )
 
 
+@beartype
 def plot_multi_distributions_and_fit(
     truncated_length_array_all: List[np.ndarray],
     ccm_array_normed_all: List[np.ndarray],
     full_length_array_all: List[np.ndarray],
     full_ccm_array_normed_all: List[np.ndarray],
-    cut_offs: List[np.ndarray],
+    cut_offs: List[float],
     names: List[str],
     polyfit: Polyfit,
     using_branches: bool,
@@ -1149,6 +1170,7 @@ def plot_multi_distributions_and_fit(
     return fig, ax
 
 
+@beartype
 def _optimize_cut_offs(
     cut_offs: np.ndarray,
     distributions: List[LengthDistribution],
@@ -1180,6 +1202,7 @@ def _optimize_cut_offs(
     return polyfit, proportions
 
 
+@beartype
 def optimize_cut_offs(
     cut_offs: np.ndarray,
     distributions: List[LengthDistribution],
@@ -1209,6 +1232,7 @@ def optimize_cut_offs(
     return polyfit.score
 
 
+@beartype
 def scikit_linear_regression(
     log_lengths: np.ndarray, log_ccm: np.ndarray
 ) -> Tuple[float, float]:
@@ -1230,6 +1254,7 @@ def scikit_linear_regression(
     return m_value, intercept
 
 
+@beartype
 def sorted_lengths_and_ccm(
     lengths: np.ndarray, area_value: Optional[float]
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -1260,6 +1285,7 @@ def sorted_lengths_and_ccm(
     return lengths, ccm
 
 
+@beartype
 def apply_cut_off(
     lengths: np.ndarray, ccm: np.ndarray, cut_off: float = general.MINIMUM_LINE_LENGTH
 ) -> Tuple[np.ndarray, np.ndarray]:
