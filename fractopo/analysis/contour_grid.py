@@ -132,7 +132,6 @@ def populate_sample_cell(
                 traces=candidates,
                 areas=gpd.GeoSeries([sample_circle]),
                 is_filtered=True,
-                keep_column_data=False,
             )
         else:
             samples = candidates.iloc[0:0]

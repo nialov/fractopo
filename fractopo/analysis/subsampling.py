@@ -6,7 +6,7 @@ import logging
 import platform
 import random
 from itertools import compress, groupby
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -238,7 +238,7 @@ def random_sample_of_circles(
 
 def aggregate_chosen(
     chosen: general.ParameterListType,
-    default_aggregator: general.Aggregator = general.Aggregator.MEAN,
+    default_aggregator: Callable = general.mean_aggregation,
 ) -> Dict[str, Any]:
     """
     Aggregate a collection of subsampled circles for params.
