@@ -295,7 +295,9 @@ def test_simple_snap(trace, trace_candidates, snap_threshold, intersects_idx):
     )
     if intersects_idx is not None:
         assert was_simple_snapped
-    assert result.intersects(trace_candidates.geometry.values[intersects_idx])
+    assert result.intersects(
+        gpd.GeoSeries(trace_candidates).geometry.values[intersects_idx]
+    )
 
 
 @pytest.mark.parametrize(
