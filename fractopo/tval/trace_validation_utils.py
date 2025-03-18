@@ -3,15 +3,17 @@ Direct utilities of trace validation.
 """
 
 import logging
-from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
+from beartype import beartype
+from beartype.typing import List, Optional, Tuple
 from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, MultiLineString, MultiPoint, Point, Polygon
 from shapely.ops import split
 
 from fractopo.general import (
+    Number,
     geom_bounds,
     safe_buffer,
     spatial_index_intersection,
@@ -21,13 +23,14 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
+@beartype
 def segment_within_buffer(
     linestring: LineString,
     multilinestring: MultiLineString,
-    snap_threshold: float,
-    snap_threshold_error_multiplier: float,
-    overlap_detection_multiplier: float,
-    stacked_detector_buffer_multiplier: float,
+    snap_threshold: Number,
+    snap_threshold_error_multiplier: Number,
+    overlap_detection_multiplier: Number,
+    stacked_detector_buffer_multiplier: Number,
 ) -> bool:
     """
     Check if segment is within buffer of multilinestring.
@@ -79,7 +82,7 @@ def segment_within_buffer(
 
     assert isinstance(cropped_mls, (MultiLineString, LineString))
 
-    all_segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
+    all_segments: List[Tuple[Tuple[Number, Number], Tuple[Number, Number]]] = []
     ls: LineString
 
     # Create list of LineStrings from within the crop
@@ -114,23 +117,27 @@ def segment_within_buffer(
     return False
 
 
+@beartype
 def segmentize_linestring(
-    linestring: LineString, threshold_length: float
-) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
+    linestring: LineString, threshold_length: Number
+) -> List[Tuple[Tuple[Number, Number], Tuple[Number, Number]]]:
     """
     Segmentize LineString to smaller parts.
 
     Resulting parts are not guaranteed to be mergeable back to the original.
     """
     assert isinstance(linestring, LineString)
-    segments: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
+    segments = []
     for dist in np.arange(0.0, linestring.length, threshold_length):
         segments.append(linestring_segment(linestring, dist, threshold_length))
 
     return segments
 
 
-def linestring_segment(linestring: LineString, dist: float, threshold_length: float):
+@beartype
+def linestring_segment(
+    linestring: LineString, dist: Number, threshold_length: Number
+) -> Tuple[Tuple[Number, Number], Tuple[Number, Number]]:
     """
     Get LineString segment from dist to dist + threshold_length.
     """
@@ -139,11 +146,12 @@ def linestring_segment(linestring: LineString, dist: float, threshold_length: fl
     return coord_1, coord_2
 
 
+@beartype
 def split_to_determine_triangle_errors(
     trace: LineString,
     splitter_trace: LineString,
-    snap_threshold: float,
-    triangle_error_snap_multiplier: float,
+    snap_threshold: Number,
+    triangle_error_snap_multiplier: Number,
 ) -> bool:
     """
     Split trace with splitter_trace to determine triangle intersections.
@@ -200,7 +208,7 @@ def split_to_determine_triangle_errors(
             snap_threshold_error_multiplier=triangle_error_snap_multiplier,
         )
         if len(middle) > 0:
-            seg_lengths: List[float] = [seg.length for seg in middle]
+            seg_lengths: List[Number] = [seg.length for seg in middle]
         else:
             seg_lengths = [seg.length for seg in segments.geoms]
         for seg_length in seg_lengths:
@@ -213,10 +221,11 @@ def split_to_determine_triangle_errors(
     return False
 
 
+@beartype
 def determine_middle_in_triangle(
     segments: List[LineString],
-    snap_threshold: float,
-    snap_threshold_error_multiplier: float,
+    snap_threshold: Number,
+    snap_threshold_error_multiplier: Number,
 ) -> List[LineString]:
     """
     Determine the middle segment within a triangle error.
@@ -239,6 +248,7 @@ def determine_middle_in_triangle(
     return candidates
 
 
+@beartype
 def determine_trace_candidates(
     geom: LineString,
     idx: int,
@@ -262,12 +272,13 @@ def determine_trace_candidates(
     return candidate_traces
 
 
+@beartype
 def is_underlapping(
     geom: LineString,
     trace: LineString,
     endpoint: Point,
-    snap_threshold: float,
-    snap_threshold_error_multiplier: float,
+    snap_threshold: Number,
+    snap_threshold_error_multiplier: Number,
 ) -> Optional[bool]:
     """
     Determine if a geom is underlapping.

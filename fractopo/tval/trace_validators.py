@@ -3,10 +3,11 @@ Contains Validator classes which each have their own error to handle and mark.
 """
 
 import logging
-from typing import Any, List, Optional, Set, Tuple, Type, Union
 
 import geopandas as gpd
 import numpy as np
+from beartype import beartype
+from beartype.typing import Any, List, Optional, Set, Tuple, Type, Union
 from shapely.affinity import scale
 from shapely.geometry import (
     LineString,
@@ -20,6 +21,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import linemerge, split
 
 from fractopo.general import (
+    Number,
     compare_unit_vector_orientation,
     create_unit_vector,
     determine_node_junctions,
@@ -73,6 +75,7 @@ class GeomTypeValidator(BaseValidator):
     LINESTRING_ONLY = False
 
     @staticmethod
+    @beartype
     def fix_method(geom: Any, **_) -> Optional[LineString]:
         """
         Fix mergeable MultiLineStrings to LineStrings.
@@ -97,6 +100,7 @@ class GeomTypeValidator(BaseValidator):
         return fixed_geom if isinstance(fixed_geom, LineString) else None
 
     @staticmethod
+    @beartype
     def validation_method(geom: Any, **_) -> bool:
         """
         Validate geometries.
@@ -123,6 +127,7 @@ class MultiJunctionValidator(BaseValidator):
     ERROR = "MULTI JUNCTION"
 
     @staticmethod
+    @beartype
     def validation_method(idx: int, faulty_junctions: Set[int], **_) -> bool:
         """
         Validate for multi junctions between traces.
@@ -136,10 +141,11 @@ class MultiJunctionValidator(BaseValidator):
         return idx not in faulty_junctions
 
     @staticmethod
+    @beartype
     def determine_faulty_junctions(
         all_nodes: List[Tuple[Point, ...]],
-        snap_threshold: float,
-        snap_threshold_error_multiplier: float,
+        snap_threshold: Number,
+        snap_threshold_error_multiplier: Number,
     ) -> Set[int]:
         """
         Determine when a point of interest represents a multi junction.
@@ -183,6 +189,7 @@ class VNodeValidator(BaseValidator):
     ERROR = "V NODE"
 
     @staticmethod
+    @beartype
     def validation_method(idx: int, vnodes: Set[int], **_) -> bool:
         """
         Validate for V-nodes.
@@ -197,10 +204,11 @@ class VNodeValidator(BaseValidator):
         return idx not in vnodes
 
     @staticmethod
+    @beartype
     def determine_v_nodes(
         endpoint_nodes: List[Tuple[Point, ...]],
-        snap_threshold: float,
-        snap_threshold_error_multiplier: float,
+        snap_threshold: Number,
+        snap_threshold_error_multiplier: Number,
     ) -> Set[int]:
         """
         Determine V-node errors.
@@ -235,6 +243,7 @@ class MultipleCrosscutValidator(BaseValidator):
     ERROR = "MULTIPLE CROSSCUTS"
 
     @staticmethod
+    @beartype
     def validation_method(
         geom: LineString,
         trace_candidates: gpd.GeoSeries,
@@ -288,12 +297,13 @@ class UnderlappingSnapValidator(BaseValidator):
     _UNDERLAPPING = "UNDERLAPPING SNAP"
 
     @classmethod
+    @beartype
     def validation_method(
         cls,
         geom: LineString,
         trace_candidates: gpd.GeoSeries,
-        snap_threshold: float,
-        snap_threshold_error_multiplier: float,
+        snap_threshold: Number,
+        snap_threshold_error_multiplier: Number,
         **_,
     ) -> bool:
         """
@@ -372,12 +382,13 @@ class TargetAreaSnapValidator(BaseValidator):
     ERROR = "TRACE UNDERLAPS TARGET AREA"
 
     @staticmethod
+    @beartype
     def validation_method(
         geom: LineString,
-        area: gpd.GeoDataFrame,
-        snap_threshold: float,
-        snap_threshold_error_multiplier: float,
-        area_edge_snap_multiplier: float,
+        area: Union[gpd.GeoDataFrame, gpd.GeoSeries],
+        snap_threshold: Number,
+        snap_threshold_error_multiplier: Number,
+        area_edge_snap_multiplier: Number,
         **_,
     ) -> bool:
         """
@@ -439,11 +450,12 @@ class TargetAreaSnapValidator(BaseValidator):
         return True
 
     @staticmethod
+    @beartype
     def simple_underlapping_checks(
         endpoint: Point,
         geom: LineString,
         area_polygon: Union[Polygon, MultiPolygon],
-        snap_threshold: float,
+        snap_threshold: Number,
     ) -> Optional[bool]:
         """
         Perform simple underlapping checks.
@@ -468,11 +480,12 @@ class TargetAreaSnapValidator(BaseValidator):
         return None
 
     @staticmethod
+    @beartype
     def is_candidate_underlapping(
         endpoint: Point,
         geom: LineString,
         area_polygon: Union[Polygon, MultiPolygon],
-        snap_threshold: float,
+        snap_threshold: Number,
     ) -> bool:
         """
         Determine if endpoint is candidate for Underlapping error.
@@ -562,14 +575,15 @@ class StackedTracesValidator(BaseValidator):
     ERROR = "STACKED TRACES"
 
     @staticmethod
+    @beartype
     def validation_method(
         geom: LineString,
         trace_candidates: gpd.GeoSeries,
-        snap_threshold: float,
-        snap_threshold_error_multiplier: float,
-        overlap_detection_multiplier: float,
-        triangle_error_snap_multiplier: float,
-        stacked_detector_buffer_multiplier: float,
+        snap_threshold: Number,
+        snap_threshold_error_multiplier: Number,
+        overlap_detection_multiplier: Number,
+        triangle_error_snap_multiplier: Number,
+        stacked_detector_buffer_multiplier: Number,
         **_,
     ) -> bool:
         """
@@ -663,6 +677,7 @@ class SimpleGeometryValidator(BaseValidator):
     ERROR = "CUTS ITSELF"
 
     @staticmethod
+    @beartype
     def validation_method(geom: LineString, **_) -> bool:
         """
         Validate for self-intersections.
@@ -678,10 +693,11 @@ class SharpCornerValidator(BaseValidator):
     ERROR = "SHARP TURNS"
 
     @staticmethod
+    @beartype
     def validation_method(
         geom: LineString,
-        sharp_avg_threshold: float,
-        sharp_prev_seg_threshold: float,
+        sharp_avg_threshold: Number,
+        sharp_prev_seg_threshold: Number,
         **_,
     ) -> bool:
         """

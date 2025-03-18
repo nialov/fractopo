@@ -7,13 +7,14 @@ column `Merge` which has values of True or False depending on if
 nearby proximal traces were found.
 """
 
-from typing import List, Union
-
 import geopandas as gpd
+from beartype import beartype
+from beartype.typing import List, Union
 from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString
 
 from fractopo.general import (
+    Number,
     determine_azimuth,
     determine_regression_azimuth,
     geom_bounds,
@@ -25,9 +26,10 @@ from fractopo.general import (
 MERGE_COLUMN = "Merge"
 
 
+@beartype
 def is_within_buffer_distance(
-    trace: LineString, other: LineString, buffer_value: float
-):
+    trace: LineString, other: LineString, buffer_value: Number
+) -> bool:
     """
     Determine if `trace` and `other` are within buffer distance.
 
@@ -52,7 +54,8 @@ def is_within_buffer_distance(
     return trace.buffer(buffer_value / 2).intersects(other.buffer(buffer_value / 2))
 
 
-def is_similar_azimuth(trace: LineString, other: LineString, tolerance: float):
+@beartype
+def is_similar_azimuth(trace: LineString, other: LineString, tolerance: Number) -> bool:
     """
     Determine if azimuths of `trace` and `other` are close.
 
@@ -88,10 +91,11 @@ def is_similar_azimuth(trace: LineString, other: LineString, tolerance: float):
     )
 
 
+@beartype
 def determine_proximal_traces(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
-    buffer_value: float,
-    azimuth_tolerance: float,
+    buffer_value: Number,
+    azimuth_tolerance: Number,
 ) -> gpd.GeoDataFrame:
     """
     Determine proximal traces.

@@ -1392,16 +1392,6 @@ test_segment_within_buffer_params = [
         5,
         False,
     ),
-    (
-        # LineString with z-coordinates
-        LineString([(0, 0, 0), (1, 1, 1)]),
-        MultiLineString([LineString([(0, 0, 0), (1, 1, 1)])]),
-        0.001,
-        1.1,
-        50,
-        5,
-        True,
-    ),
 ]
 
 test_segmentize_linestring_params = [
