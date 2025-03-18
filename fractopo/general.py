@@ -16,6 +16,7 @@ from enum import Enum, unique
 from functools import wraps
 from io import StringIO
 from itertools import accumulate, chain, compress, zip_longest
+from numbers import Real
 from pathlib import Path
 
 import geopandas as gpd
@@ -90,7 +91,7 @@ RELATIVE_CENSORING = "Relative Censoring"
 
 GEOJSON_DRIVER = "GeoJSON"
 
-Number = Union[float, int]
+Number = Union[float, int, Real]
 SetRangeTuple = Tuple[Tuple[Number, Number], ...]
 BoundsTuple = Tuple[Number, Number, Number, Number]
 # PointTuple = Tuple[Number, Number]
