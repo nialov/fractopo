@@ -5,11 +5,12 @@ Analysis and plotting of geometric and topological parameters.
 import logging
 from itertools import compress
 from textwrap import fill
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import ternary
+from beartype import beartype
+from beartype.typing import Dict, List, Optional, Tuple
 from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -35,6 +36,7 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
+@beartype
 def determine_node_type_counts(
     node_types: np.ndarray, branches_defined: bool
 ) -> Dict[str, Number]:
@@ -51,6 +53,7 @@ def determine_node_type_counts(
     }
 
 
+@beartype
 def determine_branch_type_counts(
     branch_types: np.ndarray, branches_defined: bool
 ) -> Dict[str, Number]:
@@ -72,6 +75,7 @@ def determine_branch_type_counts(
     }
 
 
+@beartype
 def ternary_text(text: str, ax: Axes):
     """
     Add ternary text about counts.
@@ -91,6 +95,7 @@ def ternary_text(text: str, ax: Axes):
     )
 
 
+@beartype
 def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, counts: Dict[str, int]):
     """
     Decorate xyi plot.
@@ -98,7 +103,7 @@ def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, counts: Dict[str, int]):
     xcount, ycount, icount = _get_xyi_counts(counts)
     text = "\n".join(
         (
-            f"n: {xcount+ycount+icount}",
+            f"n: {xcount + ycount + icount}",
             f"X-nodes: {xcount}",
             f"Y-nodes: {ycount}",
             f"I-nodes: {icount}",
@@ -109,6 +114,7 @@ def decorate_xyi_ax(ax: Axes, tax: TernaryAxesSubplot, counts: Dict[str, int]):
     ternary_text(ax=ax, text=text)
 
 
+@beartype
 def decorate_count_ax(
     ax: Axes, tax: TernaryAxesSubplot, label_counts: Dict[str, int], is_nodes: bool
 ):
@@ -137,6 +143,7 @@ def decorate_count_ax(
     )
 
 
+@beartype
 def branches_intersect_boundary(branch_types: np.ndarray) -> np.ndarray:
     """
     Get array of if branches have E-component (intersects target area).
@@ -146,6 +153,7 @@ def branches_intersect_boundary(branch_types: np.ndarray) -> np.ndarray:
     return array_isin
 
 
+@beartype
 def plot_ternary_plot(
     counts_list: List[Dict[str, int]],
     labels: List[str],
@@ -257,6 +265,7 @@ def plot_ternary_plot(
     return fig, ax, tax
 
 
+@beartype
 def ternary_heatmapping(
     x_values: np.ndarray,
     y_values: np.ndarray,
@@ -293,6 +302,7 @@ def ternary_heatmapping(
     return fig, tax
 
 
+@beartype
 def counts_to_point(
     counts: Dict[str, int], is_nodes: bool, scale: int = 100
 ) -> Optional[Tuple[float, float, float]]:
@@ -318,6 +328,7 @@ def counts_to_point(
     return (first, second, third)
 
 
+@beartype
 def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
     """
     Return tuple of node counts from dict of node counts.
@@ -328,6 +339,7 @@ def _get_xyi_counts(node_counts: Dict[str, int]) -> Tuple[int, int, int]:
     return xcount, ycount, icount
 
 
+@beartype
 def _get_branch_class_counts(branch_counts: Dict[str, int]) -> Tuple[int, int, int]:
     """
     Return tuple of branch counts from dict of branch counts.
@@ -338,6 +350,7 @@ def _get_branch_class_counts(branch_counts: Dict[str, int]) -> Tuple[int, int, i
     return cc_count, ci_count, ii_count
 
 
+@beartype
 def plot_xyi_plot_ax(
     counts: Dict[str, int],
     label: str,
@@ -390,6 +403,7 @@ def ternary_point_kwargs(
     )
 
 
+@beartype
 def plot_branch_plot_ax(
     counts: Dict[str, int],
     label: str,
@@ -427,6 +441,7 @@ def plot_branch_plot_ax(
         )
 
 
+@beartype
 def decorate_branch_ax(
     ax: Axes,
     tax: TernaryAxesSubplot,
@@ -439,7 +454,7 @@ def decorate_branch_ax(
     cc_count, ci_count, ii_count = _get_branch_class_counts(counts)
     text = "\n".join(
         (
-            f"n: {cc_count+ci_count+ii_count}",
+            f"n: {cc_count + ci_count + ii_count}",
             f"CC-branches: {cc_count}",
             f"CI-branches: {ci_count}",
             f"II-branches: {ii_count}",
@@ -472,6 +487,7 @@ def decorate_branch_ax(
     # )
 
 
+@beartype
 def determine_topology_parameters(
     trace_length_array: np.ndarray,
     area: float,
@@ -627,6 +643,7 @@ def determine_topology_parameters(
     return all_parameters
 
 
+@beartype
 def plot_parameters_plot(
     topology_parameters_list: List[Dict[str, float]],
     labels: List[str],
@@ -726,6 +743,7 @@ def plot_parameters_plot(
     return figs, axes
 
 
+@beartype
 def determine_set_counts(
     set_names: Tuple[str, ...], set_array: np.ndarray
 ) -> Dict[str, int]:
@@ -734,12 +752,17 @@ def determine_set_counts(
     """
     return {
         set_name: (
-            sum(set_array == set_name) if sum(set_array == set_name) is not None else 0
+            int(
+                sum(set_array == set_name)
+                if sum(set_array == set_name) is not None
+                else 0
+            )
         )
         for set_name in set_names
     }
 
 
+@beartype
 def plot_set_count(
     set_counts: Dict[str, int],
     label: str,
@@ -783,6 +806,7 @@ def plot_set_count(
     return fig, ax
 
 
+@beartype
 def initialize_ternary_points(ax: Axes, tax: TernaryAxesSubplot):
     """
     Initialize ternary points figure ax and tax.
@@ -793,7 +817,10 @@ def initialize_ternary_points(ax: Axes, tax: TernaryAxesSubplot):
     ax.text(0.5, 1.07, "I", transform=ax.transAxes, fontdict=fdict, ha="center")
 
 
-def tern_plot_the_fing_lines(tax: TernaryAxesSubplot, cs_locs=(1.3, 1.5, 1.7, 1.9)):
+@beartype
+def tern_plot_the_fing_lines(
+    tax: TernaryAxesSubplot, cs_locs: Tuple[float, ...] = (1.3, 1.5, 1.7, 1.9)
+):
     """
     Plot *connections per branch* parameter to XYI-plot.
 
@@ -850,6 +877,7 @@ def tern_plot_the_fing_lines(tax: TernaryAxesSubplot, cs_locs=(1.3, 1.5, 1.7, 1.
         ax.text(x=76, y=17, s=r"$C_B = 1.9$", fontsize=10, rotation=rot2, ha="center")
 
 
+@beartype
 def initialize_ternary_ax(ax: Axes, tax: TernaryAxesSubplot) -> dict:
     """
     Decorate ternary ax for both XYI and branch types.
@@ -972,6 +1000,7 @@ def tern_yi_func(c, x):
     return x, i, y
 
 
+@beartype
 def convert_counts(counts: Dict[str, Number]) -> Dict[str, int]:
     """
     Convert float and int value in counts to ints only.

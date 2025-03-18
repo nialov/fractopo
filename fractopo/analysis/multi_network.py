@@ -2,9 +2,9 @@
 MultiNetwork implementation for handling multiple network analysis.
 """
 
-from typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
-
 import pandas as pd
+from beartype import beartype
+from beartype.typing import Dict, List, NamedTuple, Optional, Tuple, Type, Union
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
@@ -21,12 +21,14 @@ class MultiNetwork(NamedTuple):
 
     networks: Tuple[Network, ...]
 
+    @beartype
     def __hash__(self) -> int:
         """
         Implement hashing for MultiNetwork.
         """
         return hash(tuple(self.networks))
 
+    @beartype
     def subsample(
         self,
         min_radii: Union[float, Dict[str, float]],
@@ -51,6 +53,7 @@ class MultiNetwork(NamedTuple):
             samples=samples,
         )
 
+    @beartype
     def collective_azimuth_sets(self) -> Tuple[Tuple[str, ...], SetRangeTuple]:
         """
         Get collective azimuth set names.
@@ -66,11 +69,11 @@ class MultiNetwork(NamedTuple):
                 and set_ranges == network.azimuth_set_ranges
             ):
                 raise ValueError(
-                    "Expected azimuth sets and ranges to be the same"
-                    " in all networks."
+                    "Expected azimuth sets and ranges to be the same in all networks."
                 )
         return set_names, set_ranges
 
+    @beartype
     def network_length_distributions(
         self, using_branches: bool, using_azimuth_sets: bool
     ) -> Dict[str, Dict[str, length_distributions.LengthDistribution]]:
@@ -112,6 +115,7 @@ class MultiNetwork(NamedTuple):
             distributions[network.name] = network_distributions
         return distributions
 
+    @beartype
     def multi_length_distributions(
         self, using_branches: bool
     ) -> length_distributions.MultiLengthDistribution:
@@ -131,6 +135,7 @@ class MultiNetwork(NamedTuple):
         )
         return multi_distribution
 
+    @beartype
     def plot_multi_length_distribution(
         self,
         using_branches: bool,
@@ -163,6 +168,7 @@ class MultiNetwork(NamedTuple):
 
         return multi_distribution, polyfit, fig, ax
 
+    @beartype
     def plot_xyi(
         self,
         colors: Optional[List[Optional[str]]] = None,
@@ -179,6 +185,7 @@ class MultiNetwork(NamedTuple):
             colors=colors,
         )
 
+    @beartype
     def plot_branch(
         self,
         colors: Optional[List[Optional[str]]] = None,
@@ -195,6 +202,7 @@ class MultiNetwork(NamedTuple):
             colors=colors,
         )
 
+    @beartype
     def _plot_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
@@ -223,6 +231,7 @@ class MultiNetwork(NamedTuple):
 
         return mlds, polyfits, figs, axes
 
+    @beartype
     def plot_trace_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
@@ -242,6 +251,7 @@ class MultiNetwork(NamedTuple):
             plot_truncated_data=plot_truncated_data,
         )
 
+    @beartype
     def plot_branch_azimuth_set_lengths(
         self,
         automatic_cut_offs: bool,
@@ -261,6 +271,7 @@ class MultiNetwork(NamedTuple):
             plot_truncated_data=plot_truncated_data,
         )
 
+    @beartype
     def set_multi_length_distributions(
         self, using_branches: bool
     ) -> Dict[str, length_distributions.MultiLengthDistribution]:
@@ -284,6 +295,7 @@ class MultiNetwork(NamedTuple):
             mlds[set_name] = mld
         return mlds
 
+    @beartype
     def basic_network_descriptions_df(
         self,
         columns: Dict[str, Tuple[Optional[str], Type]],
