@@ -4,12 +4,13 @@ Trace and branch data analysis with LineData class abstraction.
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
+from beartype import beartype
+from beartype.typing import Any, Dict, List, Optional, Tuple
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -30,6 +31,7 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
+@beartype
 def _column_array_property(
     column: Col,
     gdf: gpd.GeoDataFrame,
@@ -86,6 +88,7 @@ class LineData:
         """
 
     @property
+    @beartype
     def azimuth_array(self) -> np.ndarray:
         """
         Array of trace or branch azimuths.
@@ -100,6 +103,7 @@ class LineData:
         return column_array
 
     @property
+    @beartype
     def azimuth_set_array(self) -> np.ndarray:
         """
         Array of trace or branch azimuth set ids.
@@ -148,6 +152,7 @@ class LineData:
         return column_array
 
     @property
+    @beartype
     def length_array_non_weighted(self) -> np.ndarray:
         """
         Array of trace or branch lengths not weighted by boundary conditions.
@@ -162,6 +167,7 @@ class LineData:
         return column_array
 
     @property
+    @beartype
     def length_array(self) -> np.ndarray:
         """
         Array of trace or branch lengths.
@@ -183,6 +189,7 @@ class LineData:
         return new_column_array
 
     @property
+    @beartype
     def length_set_array(self) -> np.ndarray:
         """
         Array of trace or branch length set ids.
@@ -211,6 +218,7 @@ class LineData:
         return column_array
 
     @property
+    @beartype
     def azimuth_set_counts(self) -> Dict[str, int]:
         """
         Get dictionary of azimuth set counts.
@@ -220,6 +228,7 @@ class LineData:
         )
 
     @property
+    @beartype
     def length_set_counts(self) -> Dict[str, int]:
         """
         Get dictionary of length set counts.
@@ -229,6 +238,7 @@ class LineData:
         )
 
     @property
+    @beartype
     def automatic_fit(self) -> Optional[powerlaw.Fit]:
         """
         Get automatic powerlaw Fit.
@@ -238,6 +248,7 @@ class LineData:
         return self._automatic_fit
 
     @property
+    @beartype
     def boundary_intersect_count(self) -> Dict[str, int]:
         """
         Get counts of line intersects with boundary.
@@ -255,18 +266,21 @@ class LineData:
         return key_counts
 
     @property
+    @beartype
     def geometry(self) -> gpd.GeoSeries:
         """
         Get line geometries.
         """
         return self._line_gdf.geometry
 
+    @beartype
     def determine_manual_fit(self, cut_off: float) -> Optional[powerlaw.Fit]:
         """
         Get manually determined Fit with set cut off.
         """
         return length_distributions.determine_fit(self.length_array, cut_off=cut_off)
 
+    @beartype
     def describe_fit(
         self, label: Optional[str] = None, cut_off: Optional[float] = None
     ):
@@ -282,6 +296,7 @@ class LineData:
             fit, label=label, length_array=self.length_array
         )
 
+    @beartype
     def plot_lengths(
         self,
         label: str,
@@ -303,6 +318,7 @@ class LineData:
             fits_to_plot=fits_to_plot,
         )
 
+    @beartype
     def plot_azimuth(
         self,
         label: str,
@@ -329,18 +345,21 @@ class LineData:
             add_abundance_order=add_abundance_order,
         )
 
+    @beartype
     def plot_azimuth_set_count(self, label: str) -> Tuple[Figure, Axes]:
         """
         Plot azimuth set counts.
         """
         return parameters.plot_set_count(self.azimuth_set_counts, label=label)
 
+    @beartype
     def plot_length_set_count(self, label: str) -> Tuple[Figure, Axes]:
         """
         Plot length set counts.
         """
         return parameters.plot_set_count(self.length_set_counts, label=label)
 
+    @beartype
     def boundary_intersect_count_desc(self, label: str) -> Dict[str, int]:
         """
         Get counts of line intersects with boundary.
@@ -353,6 +372,7 @@ class LineData:
         return intersect_key_counts
 
     @property
+    @beartype
     def azimuth_set_length_arrays(self) -> Dict[str, np.ndarray]:
         """
         Get length arrays of each azimuth set.
@@ -364,6 +384,7 @@ class LineData:
             for azimuth_set_name in self.azimuth_set_names
         }
 
+    @beartype
     def plot_azimuth_set_lengths(
         self,
         use_probability_density_function: bool = False,
