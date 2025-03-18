@@ -3,9 +3,11 @@ Miscellaneous utilities and scripts of fractopo.
 """
 
 from itertools import count
-from typing import List, Tuple, Union
+from numbers import Number
 
 import geopandas as gpd
+from beartype import beartype
+from beartype.typing import List, Tuple, Union
 from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, Point
 
@@ -25,8 +27,9 @@ class LineMerge:
     """
 
     @staticmethod
+    @beartype
     def conditional_linemerge(
-        first: LineString, second: LineString, tolerance: float, buffer_value: float
+        first: LineString, second: LineString, tolerance: Number, buffer_value: Number
     ) -> Union[None, LineString]:
         """
         Conditionally merge two LineStrings (first and second).
@@ -111,10 +114,11 @@ class LineMerge:
         return LineString(new_coords)
 
     @staticmethod
+    @beartype
     def conditional_linemerge_collection(
         traces: Union[gpd.GeoDataFrame, gpd.GeoSeries],
-        tolerance: float,
-        buffer_value: float,
+        tolerance: Number,
+        buffer_value: Number,
     ) -> Tuple[List[LineString], List[int]]:
         """
         Conditionally linemerge within a collection of LineStrings.
@@ -174,8 +178,9 @@ class LineMerge:
         return new_traces, modified_idx
 
     @staticmethod
+    @beartype
     def run_loop(
-        traces: gpd.GeoDataFrame, tolerance: float, buffer_value: float
+        traces: gpd.GeoDataFrame, tolerance: Number, buffer_value: Number
     ) -> gpd.GeoDataFrame:
         """
         Run multiple conditional linemerge iterations for GeoDataFrame.
@@ -209,6 +214,7 @@ class LineMerge:
                 return traces
 
     @staticmethod
+    @beartype
     def integrate_replacements(
         traces: gpd.GeoDataFrame, new_traces: List[LineString], modified_idx: List[int]
     ) -> gpd.GeoDataFrame:
@@ -240,6 +246,7 @@ class LineMerge:
         return gdf
 
 
+@beartype
 def remove_identical_sindex(
     geosrs: gpd.GeoSeries, snap_threshold: float
 ) -> gpd.GeoSeries:
