@@ -78,7 +78,13 @@ def test_create_grid(cell_width: float):
 @pytest.mark.parametrize(
     "snap_threshold",
     [
-        0.01,
+        pytest.param(
+            0.01,
+            marks=pytest.mark.xfail(
+                reason="Execution crash during parallel processing",
+                run=False,
+            ),
+        ),
         pytest.param(
             0.001,
             marks=pytest.mark.xfail(

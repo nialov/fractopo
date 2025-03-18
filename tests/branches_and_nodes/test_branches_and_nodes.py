@@ -138,14 +138,12 @@ def test_crop_to_target_area(keep_column_data: bool):
     valid_result = general.crop_to_target_areas(
         valid_geoseries,
         valid_areas_geoseries,
-        keep_column_data=keep_column_data,
     )
     result = None
     try:
         result = general.crop_to_target_areas(
             invalid_geoseries,
             invalid_areas_geoseries,
-            keep_column_data=keep_column_data,
         )
     except TypeError:
         pass
