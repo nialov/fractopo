@@ -1350,13 +1350,13 @@ troubling_lower = troubling_traces.geometry.values[2]
 test_simple_snap_params = [
     (
         troubling_upper,  # trace
-        gpd.GeoSeries([troubling_middle, troubling_lower]),  # trace_candidates
+        ([troubling_middle, troubling_lower]),  # trace_candidates
         0.001,  # snap_threshold
         0,  # intersects_idx
     ),
     (
         troubling_lower,  # trace
-        gpd.GeoSeries([troubling_middle, troubling_upper]),  # trace_candidates
+        ([troubling_middle, troubling_upper]),  # trace_candidates
         0.001,  # snap_threshold
         0,  # intersects_idx
     ),
