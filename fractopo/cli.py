@@ -9,13 +9,14 @@ import time
 from enum import Enum, unique
 from itertools import chain
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Type
 
 import click
 import geopandas as gpd
 import pandas as pd
 import pyogrio
 import typer
+from beartype import beartype
+from beartype.typing import Dict, Optional, Tuple, Type
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
@@ -68,6 +69,7 @@ def get_click_path_args(exists=True, **kwargs):
     return path_arguments
 
 
+@beartype
 def _check_for_wrong_geometries_cli(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
     try:
         check_for_wrong_geometries(traces=traces, area=area)
@@ -81,6 +83,7 @@ def _check_for_wrong_geometries_cli(traces: gpd.GeoDataFrame, area: gpd.GeoDataF
         raise
 
 
+@beartype
 def describe_results(
     validated: gpd.GeoDataFrame, error_column: str, console: Console = CONSOLE
 ):
@@ -105,6 +108,7 @@ def describe_results(
         console.print(Text.assemble((type_string, type_color)))
 
 
+@beartype
 def make_output_dir(base_path: Path) -> Path:
     """
     Make timestamped output dir.
@@ -122,6 +126,7 @@ def make_output_dir(base_path: Path) -> Path:
     return output_dir
 
 
+@beartype
 def rich_table_from_parameters(parameters: Dict[str, float]) -> Table:
     """
     Generate ``rich`` ``Table`` from network parameters.
@@ -142,6 +147,7 @@ def _version_callback(value: bool):
         CONSOLE.print(__version__)
 
 
+@beartype
 def _logging_callback(log_level: LogLevel):
     log_level_int = int(getattr(logging, log_level.value))
     log.info("Setting up log with basicConfig.")
@@ -444,6 +450,7 @@ def network(
     json_data_path.write_text(json.dumps(json_data_lists, sort_keys=True))
 
 
+@beartype
 def default_network_output_paths(
     network_name: str,
     general_output: Optional[Path],
