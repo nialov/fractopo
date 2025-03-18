@@ -4,15 +4,17 @@ Functions for plotting rose plots.
 
 import math
 from dataclasses import dataclass
+from numbers import Real
 from textwrap import fill
-from typing import Optional, Tuple
 
 import numpy as np
+from beartype import beartype
+from beartype.typing import Optional, Sequence, Tuple
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
-from fractopo.general import Number, SetRangeTuple
+from fractopo.general import SetRangeTuple
 
 
 @dataclass
@@ -26,7 +28,8 @@ class AzimuthBins:
     bin_heights: np.ndarray
 
 
-def _calc_ideal_bin_width(n: Number, axial=True) -> float:
+@beartype
+def _calc_ideal_bin_width(n: Real, axial=True) -> float:
     """
     Calculate ideal bin width. axial or vector data.
 
@@ -61,6 +64,7 @@ def _calc_ideal_bin_width(n: Number, axial=True) -> float:
     return result
 
 
+@beartype
 def _calc_bins(ideal_bin_width: float, axial: bool) -> Tuple[np.ndarray, float]:
     """
     Calculate bin edges and real bin width from ideal bin width.
@@ -81,7 +85,8 @@ def _calc_bins(ideal_bin_width: float, axial: bool) -> Tuple[np.ndarray, float]:
     return bin_edges, bin_width
 
 
-def _calc_locs(bin_width: float, axial: bool) -> np.ndarray:
+@beartype
+def _calc_locs(bin_width: Real, axial: bool) -> np.ndarray:
     """
     Calculate bar plot bar locations.
 
@@ -103,10 +108,11 @@ def _calc_locs(bin_width: float, axial: bool) -> np.ndarray:
     return locs
 
 
+@beartype
 def determine_azimuth_bins(
     azimuth_array: np.ndarray,
     length_array: Optional[np.ndarray] = None,
-    bin_multiplier: Number = 1,
+    bin_multiplier: Real = 1.0,
     axial: bool = True,
 ) -> AzimuthBins:
     """
@@ -143,6 +149,7 @@ def determine_azimuth_bins(
     return AzimuthBins(bin_width=bin_width, bin_locs=bin_locs, bin_heights=bin_heights)
 
 
+@beartype
 def plot_azimuth_ax(
     bin_width: float,
     bin_locs: np.ndarray,
@@ -150,7 +157,7 @@ def plot_azimuth_ax(
     bar_color: str,
     ax: PolarAxes,
     axial: bool = True,
-):
+) -> PolarAxes:
     """
     Plot azimuth rose plot to ax.
     """
@@ -205,10 +212,11 @@ def plot_azimuth_ax(
     return ax
 
 
+@beartype
 def _create_azimuth_set_text(
     length_array: np.ndarray,
     set_array: np.ndarray,
-    set_names: Tuple[str, ...],
+    set_names: Sequence[str],
     add_abundance_order: bool,
 ) -> str:
     """
@@ -253,6 +261,7 @@ def _create_azimuth_set_text(
     return t
 
 
+@beartype
 def decorate_azimuth_ax(
     ax: PolarAxes,
     label: str,
@@ -313,6 +322,7 @@ def decorate_azimuth_ax(
                 ax.axvline(np.deg2rad(edge), linestyle="dashed", color="black")
 
 
+@beartype
 def plot_azimuth_plot(
     azimuth_array: np.ndarray,
     length_array: np.ndarray,
