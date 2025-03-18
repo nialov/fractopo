@@ -3,6 +3,7 @@ Test azimuth.py azimuth rose plotting functions.
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -16,9 +17,6 @@ from fractopo.analysis.azimuth import AzimuthBins
     ",".join(
         [
             "azimuth_array",
-            "length_array",
-            "azimuth_set_array",
-            "azimuth_set_names",
             "label",
             "append_azimuth_set_text",
             "add_abundance_order",
@@ -32,9 +30,6 @@ from fractopo.analysis.azimuth import AzimuthBins
 @tests.plotting_test
 def test_plot_azimuth_plot(
     azimuth_array,
-    length_array,
-    azimuth_set_array,
-    azimuth_set_names,
     label,
     append_azimuth_set_text,
     add_abundance_order,
@@ -45,6 +40,9 @@ def test_plot_azimuth_plot(
     """
     Test plot_azimuth_plot.
     """
+    length_array = np.ones(len(azimuth_array))
+    azimuth_set_array = np.ones(len(azimuth_array))
+    azimuth_set_names = tuple(np.ones(len(azimuth_array)).astype(str))
     assert len(azimuth_array) == len(length_array)
     assert len(length_array) == len(azimuth_set_array)
     assert len(length_array) == len(azimuth_set_names)
