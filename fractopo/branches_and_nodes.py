@@ -7,10 +7,11 @@ branches_and_nodes is the main entrypoint.
 import logging
 import math
 from itertools import chain, compress
-from typing import Any, Dict, List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
+from beartype import beartype
+from beartype.typing import Any, Dict, List, Optional, Tuple, Union
 from geopandas.sindex import SpatialIndex
 from shapely.geometry import (
     LineString,
@@ -55,6 +56,7 @@ log = logging.getLogger(__name__)
 UNARY_ERROR_SIZE_THRESHOLD = 100
 
 
+@beartype
 def determine_branch_identity(
     number_of_i_nodes: int, number_of_xy_nodes: int, number_of_e_nodes: int
 ) -> str:
@@ -97,6 +99,7 @@ def determine_branch_identity(
     return branch_type
 
 
+@beartype
 def get_branch_identities(
     branches: gpd.GeoSeries,
     nodes: gpd.GeoSeries,
@@ -171,6 +174,7 @@ def get_branch_identities(
     return branch_identities
 
 
+@beartype
 def angle_to_point(
     point: Point, nearest_point: Point, comparison_point: Point
 ) -> float:
@@ -234,6 +238,7 @@ def angle_to_point(
     return degrees
 
 
+@beartype
 def insert_point_to_linestring(
     trace: LineString, point: Point, snap_threshold: float
 ) -> LineString:
@@ -309,13 +314,14 @@ def insert_point_to_linestring(
     return new_trace
 
 
+@beartype
 def determine_insert_approach(
     nearest_point_idx: int,
     trace_point_dists: List[Tuple[int, Point, float]],
     snap_threshold: float,
     point: Point,
     nearest_point: Point,
-):
+) -> Tuple[int, bool]:
     """
     Determine if to insert or replace point.
     """
@@ -365,6 +371,7 @@ def determine_insert_approach(
     return idx, insert
 
 
+@beartype
 def additional_snapping_func(
     trace: LineString, idx: int, additional_snapping: List[Tuple[int, Point]]
 ) -> LineString:
@@ -406,6 +413,7 @@ def additional_snapping_func(
     return trace
 
 
+@beartype
 def snap_traces(
     traces: List[LineString],
     snap_threshold: float,
@@ -462,6 +470,7 @@ def snap_traces(
     return list(snapped_traces), any(changes + simple_changes)
 
 
+@beartype
 def resolve_trace_candidates(
     trace: LineString,
     idx: int,
@@ -512,6 +521,7 @@ def resolve_trace_candidates(
     return trace_candidates
 
 
+@beartype
 def snap_trace_simple(
     idx: int,
     trace: LineString,
@@ -548,6 +558,7 @@ def snap_trace_simple(
     return trace, was_simple_snapped
 
 
+@beartype
 def snap_others_to_trace(
     idx: int,
     trace: LineString,
@@ -644,6 +655,7 @@ def snap_others_to_trace(
     return trace, was_snapped
 
 
+@beartype
 def simple_snap(
     trace: LineString, trace_candidates: List[LineString], snap_threshold: float
 ) -> Tuple[LineString, bool]:
@@ -653,7 +665,7 @@ def simple_snap(
     E.g.
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3, 0)])
-    >>> trace_candidates = gpd.GeoSeries(
+    >>> trace_candidates = (
     ...     [LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
     ... )
     >>> snap_threshold = 0.001
@@ -664,7 +676,7 @@ def simple_snap(
     Do not snap overlapping.
 
     >>> trace = LineString([(0, 0), (1, 0), (2, 0), (3.0002, 0)])
-    >>> trace_candidates = gpd.GeoSeries(
+    >>> trace_candidates = (
     ...     [LineString([(3.0001, -3), (3.0001, 0), (3, 3)])]
     ... )
     >>> snap_threshold = 0.001
@@ -754,6 +766,7 @@ def simple_snap(
     return modified, True
 
 
+@beartype
 def filter_non_unique_traces(
     traces: gpd.GeoSeries, snap_threshold: float
 ) -> gpd.GeoSeries:
@@ -784,6 +797,7 @@ def filter_non_unique_traces(
     return unique_traces
 
 
+@beartype
 def report_snapping_loop(loops: int, allowed_loops: int):
     """
     Report snapping looping.
@@ -804,6 +818,7 @@ def report_snapping_loop(loops: int, allowed_loops: int):
 
 
 @JOBLIB_CACHE.cache
+@beartype
 def branches_and_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -956,6 +971,7 @@ def branches_and_nodes(
     return branch_gdf, node_gdf
 
 
+@beartype
 def snap_trace_to_another(
     trace_endpoints: List[Point], another: LineString, snap_threshold: float
 ) -> Tuple[LineString, bool]:
@@ -985,6 +1001,7 @@ def snap_trace_to_another(
     return another, True
 
 
+@beartype
 def is_endpoint_close_to_boundary(
     endpoint: Point, areas: List[Union[Polygon, MultiPolygon]], snap_threshold: float
 ) -> bool:
@@ -998,6 +1015,7 @@ def is_endpoint_close_to_boundary(
     return False
 
 
+@beartype
 def node_identity(
     endpoint: Point,
     idx: int,
@@ -1050,6 +1068,7 @@ def node_identity(
     return node_type
 
 
+@beartype
 def node_identities_from_branches(
     branches: gpd.GeoSeries,
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
