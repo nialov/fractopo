@@ -4,11 +4,12 @@ Functions for plotting cross-cutting and abutting relationships.
 
 import logging
 from itertools import chain, combinations
-from typing import Dict, List, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from beartype import beartype
+from beartype.typing import Dict, List, Tuple, Union
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
@@ -16,6 +17,7 @@ from shapely import prepared
 from shapely.geometry import LineString, MultiPoint, Point
 
 from fractopo.general import (
+    Number,
     X_node,
     Y_node,
     get_trace_endpoints,
@@ -25,13 +27,14 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
+@beartype
 def determine_crosscut_abutting_relationships(
     trace_series: gpd.GeoSeries,
     node_series: gpd.GeoSeries,
     node_types: np.ndarray,
     set_array: np.ndarray,
     set_names: Tuple[str, ...],
-    buffer_value: float,
+    buffer_value: Number,
     label: str,
 ) -> pd.DataFrame:
     """
@@ -164,11 +167,12 @@ def determine_crosscut_abutting_relationships(
     return relations_df
 
 
+@beartype
 def determine_nodes_intersecting_sets(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
     set_names_two_sets: Tuple[str, str],
     node_series_xy: gpd.GeoSeries,
-    buffer_value: float,
+    buffer_value: Number,
 ) -> List[bool]:
     """
     Conduct a spatial intersect between nodes and traces.
@@ -191,11 +195,12 @@ def determine_nodes_intersecting_sets(
 
     """
 
+    @beartype
     def _intersects_both(
         point: Point,
         prep_traces_first: prepared.PreparedGeometry,
         prep_traces_second: prepared.PreparedGeometry,
-        buffer_value: float,
+        buffer_value: Number,
     ):
         return prep_traces_first.intersects(
             point.buffer(buffer_value)
@@ -216,12 +221,13 @@ def determine_nodes_intersecting_sets(
     return intersects_both_sets
 
 
+@beartype
 def determine_intersects(
     trace_series_two_sets: Tuple[gpd.GeoSeries, gpd.GeoSeries],
     set_names_two_sets: Tuple[str, str],
     node_series_xy_intersects: gpd.GeoSeries,
     node_types_xy_intersects: np.ndarray,
-    buffer_value: float,
+    buffer_value: Number,
 ) -> pd.DataFrame:
     """
     Determine how abutments and crosscuts occur between two sets.
@@ -324,6 +330,7 @@ def determine_intersects(
     return intersectframe
 
 
+@beartype
 def determine_intersect(
     node: Point,
     node_class: str,
@@ -332,7 +339,7 @@ def determine_intersect(
     first_set: str,
     second_set: str,
     first_setpointtree: prepared.PreparedGeometry,
-    buffer_value: float,
+    buffer_value: Number,
 ) -> Dict[str, Union[Point, str, Tuple[str, str], bool]]:
     """
     Determine what intersection the node represents.
@@ -414,6 +421,7 @@ def determine_intersect(
     return addition
 
 
+@beartype
 def plot_crosscut_abutting_relationships_plot(
     relations_df: pd.DataFrame, set_array: np.ndarray, set_names: Tuple[str, ...]
 ) -> Tuple[List[Figure], List[np.ndarray]]:
