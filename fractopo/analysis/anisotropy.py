@@ -3,17 +3,21 @@ Anisotropy of connectivity determination utilities.
 """
 
 import logging
-from typing import Tuple
+from numbers import Number
 
 import matplotlib
 import numpy as np
+from beartype import beartype
+from beartype.typing import Tuple
 from matplotlib import patches
 from matplotlib import pyplot as plt
+from matplotlib.projections import PolarAxes
 from scipy.interpolate import CubicSpline
 
 log = logging.getLogger(__name__)
 
 
+@beartype
 def determine_anisotropy_classification(branch_classification: str) -> int:
     """
     Return value based on branch classification.
@@ -33,17 +37,15 @@ def determine_anisotropy_classification(branch_classification: str) -> int:
     >>> determine_anisotropy_classification("C - E")
     0
     """
-    if branch_classification not in ("C - C", "C - I", "I - I"):
-        return 0
-    if branch_classification == "C - C":
-        return 1
-    if branch_classification == "C - I":
-        return 0
-    if branch_classification == "I - I":
-        return 0
-    return 0
+    mapping = {
+        "C - C": 1,
+        "C - I": 0,
+        "I - I": 0,
+    }
+    return mapping.get(branch_classification, 0)
 
 
+@beartype
 def determine_anisotropy_sum(
     azimuth_array: np.ndarray,
     branch_types: np.ndarray,
@@ -83,10 +85,11 @@ def determine_anisotropy_sum(
     return anisotropy_arrays.sum(axis=0), sample_intervals
 
 
+@beartype
 def determine_anisotropy_value(
-    azimuth: float,
+    azimuth: Number,
     branch_type: str,
-    length: float,
+    length: Number,
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ) -> np.ndarray:
     """
@@ -126,6 +129,7 @@ def determine_anisotropy_value(
     return np.array(results)
 
 
+@beartype
 def plot_anisotropy_plot(
     anisotropy_sum: np.ndarray,
     sample_intervals: np.ndarray,
@@ -142,9 +146,10 @@ def plot_anisotropy_plot(
     return fig, ax
 
 
+@beartype
 def plot_anisotropy_ax(
     anisotropy_sum: np.ndarray,
-    ax: plt.PolarAxes,
+    ax: PolarAxes,
     sample_intervals: np.ndarray = np.arange(0, 179, 30),
 ):
     """
