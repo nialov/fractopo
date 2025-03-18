@@ -63,7 +63,6 @@ class LineMerge:
         True
 
         """
-        assert isinstance(first, LineString) and isinstance(second, LineString)
         # Get trace endpoints
         first_start, first_end = get_trace_endpoints(first)
         second_start, second_end = get_trace_endpoints(second)
@@ -282,5 +281,4 @@ def remove_identical_sindex(
             assert all(isinstance(i, int) for i in index_to_list)
             identical_idxs.extend(index_to_list)
     geosrs_dropped = geosrs.drop(identical_idxs)
-    assert isinstance(geosrs_dropped, gpd.GeoSeries)
     return geosrs_dropped

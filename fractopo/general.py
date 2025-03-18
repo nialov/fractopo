@@ -902,7 +902,6 @@ def determine_valid_intersection_points(
                 "Expected (Multi)Point or (Multi)LineString geometries"
                 " in determine_valid_intersection_points."
             )
-    assert all(isinstance(p, Point) for p in valid_interaction_points)
     return valid_interaction_points
 
 
@@ -1092,7 +1091,6 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     if any(np.isnan(segment_vector)):
         return np.array([np.nan, np.nan])
     segment_unit_vector = segment_vector / np.linalg.norm(segment_vector)
-    assert isinstance(segment_unit_vector, np.ndarray)
     return segment_unit_vector
 
 
@@ -1353,7 +1351,6 @@ def dissolve_multi_part_traces(
     dissolved_rows_gdf = gpd.GeoDataFrame(dissolved_rows, crs=ls_traces.crs)
     assert ls_traces.crs == dissolved_rows_gdf.crs
     dissolved_traces = pd.concat([ls_traces, dissolved_rows_gdf])
-    assert isinstance(dissolved_traces, gpd.GeoDataFrame)
 
     if not all(isinstance(val, LineString) for val in dissolved_traces.geometry.values):
         raise TypeError("Expected all LineStrings in dissolved_traces.")
@@ -1383,12 +1380,18 @@ def resolve_split_to_ls(geom: LineString, splitter: LineString) -> List[LineStri
     """
     split_current = list(split(geom, splitter).geoms)
     linestrings = [
-        geom
-        for geom in split_current
-        if isinstance(geom, LineString) and not geom.is_empty
+        split_geom
+        for split_geom in split_current
+        if isinstance(split_geom, LineString) and not split_geom.is_empty
     ]
     linestrings.extend(
-        mls_to_ls([geom for geom in split_current if isinstance(geom, MultiLineString)])
+        mls_to_ls(
+            [
+                split_geom
+                for split_geom in split_current
+                if isinstance(split_geom, MultiLineString)
+            ]
+        )
     )
     return linestrings
 
@@ -1473,7 +1476,7 @@ def within_bounds(
 @beartype
 def geom_bounds(
     geom: Union[LineString, Polygon, MultiPolygon],
-) -> Tuple[float, float, float, float]:
+) -> Tuple[Number, Number, Number, Number]:
     """
     Get LineString or Polygon bounds.
 
@@ -1488,13 +1491,12 @@ def geom_bounds(
             raise TypeError("Expected numerical bounds.")
     if len(bounds) != 4:
         raise ValueError(f"Expected bounds of length 4. Got: {bounds}.")
-    bounds_tuple: Tuple[float, float, float, float] = (
+    return (
         bounds[0],
         bounds[1],
         bounds[2],
         bounds[3],
     )
-    return bounds_tuple
 
 
 @beartype
@@ -1544,7 +1546,6 @@ def determine_boundary_intersecting_lines(
     """
     Determine lines that intersect any target area boundary.
     """
-    assert isinstance(line_gdf, (gpd.GeoSeries, gpd.GeoDataFrame))
     # line_gdf = line_gdf.reset_index(inplace=False, drop=True)
     # spatial_index = line_gdf.sindex
     spatial_index = line_gdf.sindex
@@ -1696,7 +1697,6 @@ def calc_circle_radius(area: Number) -> float:
     """
     assert not area < 0
     radius = numpy_to_python_type(np.sqrt(area / np.pi))
-    assert isinstance(radius, float)
     return radius
 
 
@@ -1721,7 +1721,6 @@ def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
         )
         return np.array([np.nan, np.nan])
     normed_vector = vector / np.linalg.norm(vector)
-    assert isinstance(normed_vector, np.ndarray)
     return normed_vector
 
 
@@ -1938,7 +1937,6 @@ def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
     Changes the scoring to be best at a value of 0.
     """
     score = abs(1 - sklm.r2_score(y_true=y_true, y_pred=y_predicted))
-    assert isinstance(score, float)
     return score
 
 
@@ -2043,7 +2041,6 @@ def remove_z_coordinates_from_geodata(
     else:
         geodata_without_z = geodata_without_z_geometries
 
-    assert isinstance(geodata_without_z, (gpd.GeoDataFrame, gpd.GeoSeries))
     return geodata_without_z
 
 
