@@ -4,10 +4,11 @@ Scripts for creating sample grids for fracture trace, branch and node data.
 
 import logging
 import platform
-from typing import Any, Dict, Optional
 
 import geopandas as gpd
 import numpy as np
+from beartype import beartype
+from beartype.typing import Any, Dict, Optional, Union
 from geopandas.sindex import SpatialIndex
 from joblib import Parallel, delayed
 from shapely.geometry import LineString, Point, Polygon
@@ -31,7 +32,10 @@ from fractopo.general import (
 log = logging.getLogger(__name__)
 
 
-def create_grid(cell_width: float, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+@beartype
+def create_grid(
+    cell_width: float, lines: Union[gpd.GeoDataFrame, gpd.GeoSeries]
+) -> gpd.GeoDataFrame:
     """
     Create an empty polygon grid for sampling fracture line data.
 
@@ -98,6 +102,7 @@ def create_grid(cell_width: float, lines: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return grid
 
 
+@beartype
 def populate_sample_cell(
     sample_cell: Polygon,
     sample_cell_area: float,
@@ -237,6 +242,7 @@ def populate_sample_cell(
     return topology_parameters
 
 
+@beartype
 def sample_grid(
     grid: gpd.GeoDataFrame,
     traces: gpd.GeoDataFrame,
@@ -296,6 +302,7 @@ def sample_grid(
 
 
 @JOBLIB_CACHE.cache
+@beartype
 def run_grid_sampling(
     traces: gpd.GeoDataFrame,
     branches: gpd.GeoDataFrame,
