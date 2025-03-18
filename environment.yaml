@@ -20,6 +20,7 @@ dependencies:
   - shapely >=2.0.0,<3.0.0
   - typer
   - joblib
+  - beartype
   # Dependencies for testing
   - hypothesis
   - pytest

@@ -2,7 +2,7 @@
 , pandas, rich, scikit-learn, scipy, seaborn, shapely, typer, pytest-regressions
 , hypothesis, poetry-core, sphinxHook, pandoc, sphinx-autodoc-typehints
 , sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook, ipython, coverage
-, powerlaw, python-ternary, marimo, versionCheckHook
+, powerlaw, python-ternary, marimo, versionCheckHook, beartype
 
 }:
 
@@ -87,6 +87,7 @@ let
       seaborn
       shapely
       typer
+      beartype
     ];
 
     checkInputs =
