@@ -788,7 +788,7 @@ def report_snapping_loop(loops: int, allowed_loops: int):
     """
     Report snapping looping.
     """
-    log.info(f"Loop :{ loops }")
+    log.info(f"Loop :{loops}")
     if loops >= 10:
         log.warning(
             f"{loops} loops have passed without resolved snapped"
@@ -892,7 +892,6 @@ def branches_and_nodes(
         traces_geosrs = crop_to_target_areas(
             traces_geosrs,
             areas_geosrs,
-            keep_column_data=False,
         ).geometry
 
     # Remove too small geometries.

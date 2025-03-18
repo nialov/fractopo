@@ -293,7 +293,6 @@ class Network:
                 crop_to_target_areas(
                     self.trace_gdf,
                     self.area_gdf,
-                    keep_column_data=True,
                     allow_multilinestring_input=not self.determine_branches_nodes,
                 )
             )

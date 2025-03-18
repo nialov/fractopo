@@ -17,12 +17,13 @@ from functools import wraps
 from io import StringIO
 from itertools import accumulate, chain, compress, zip_longest
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union, overload
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import sklearn.metrics as sklm
+from beartype import beartype
+from beartype.typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union
 from geopandas.sindex import SpatialIndex
 from joblib import Memory
 from matplotlib import patheffects as path_effects
@@ -89,11 +90,11 @@ RELATIVE_CENSORING = "Relative Censoring"
 
 GEOJSON_DRIVER = "GeoJSON"
 
-SetRangeTuple = Tuple[Tuple[float, float], ...]
-BoundsTuple = Tuple[float, float, float, float]
-PointTuple = Tuple[float, float]
 Number = Union[float, int]
-ParameterValuesType = Dict[str, Union[float, int, str]]
+SetRangeTuple = Tuple[Tuple[Number, Number], ...]
+BoundsTuple = Tuple[Number, Number, Number, Number]
+# PointTuple = Tuple[Number, Number]
+ParameterValuesType = Dict[str, Union[Number, int, str]]
 ParameterListType = List[ParameterValuesType]
 
 MINIMUM_LINE_LENGTH = 1e-18
@@ -170,16 +171,6 @@ def fallback_aggregation(values) -> str:
     return str(values)
 
 
-@unique
-class Aggregator(Enum):
-    """
-    Define how to aggregate during subsample aggragation.
-    """
-
-    SUM = sum_aggregation
-    MEAN = mean_aggregation
-
-
 @dataclass
 class ParamInfo:
     """
@@ -191,7 +182,7 @@ class ParamInfo:
     unit: str
     # TODO: Currently not used.
     needs_topology: bool
-    aggregator: Aggregator
+    aggregator: Callable
 
 
 @unique
@@ -202,80 +193,81 @@ class Param(Enum):
     The ``ParamInfo`` instances contain additional metadata.
     """
 
-    AREA = ParamInfo("Area", False, r"$m^2$", False, Aggregator.SUM)
+    AREA = ParamInfo("Area", False, r"$m^2$", False, sum_aggregation)
     AREAL_FREQUENCY_B20 = ParamInfo(
-        "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
+        "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True, mean_aggregation
     )
     AREAL_FREQUENCY_P20 = ParamInfo(
-        "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
+        "Areal Frequency P20", True, r"$\frac{1}{m^2}$", True, mean_aggregation
     )
     BRANCH_MEAN_LENGTH = ParamInfo(
-        "Branch Mean Length", True, "$m$", True, Aggregator.MEAN
+        "Branch Mean Length", True, "$m$", True, mean_aggregation
     )
     BRANCH_MIN_LENGTH = ParamInfo(
-        "Branch Min Length", True, "$m$", True, Aggregator.MEAN
+        "Branch Min Length", True, "$m$", True, mean_aggregation
     )
     BRANCH_MAX_LENGTH = ParamInfo(
-        "Branch Max Length", True, "$m$", True, Aggregator.MEAN
+        "Branch Max Length", True, "$m$", True, mean_aggregation
     )
     CONNECTIONS_PER_BRANCH = ParamInfo(
-        "Connections per Branch", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
+        "Connections per Branch", False, r"$\frac{1}{n}$", True, mean_aggregation
     )
     CONNECTIONS_PER_TRACE = ParamInfo(
-        "Connections per Trace", False, r"$\frac{1}{n}$", True, Aggregator.MEAN
+        "Connections per Trace", False, r"$\frac{1}{n}$", True, mean_aggregation
     )
     CONNECTION_FREQUENCY = ParamInfo(
-        "Connection Frequency", False, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
+        "Connection Frequency", False, r"$\frac{1}{m^2}$", True, mean_aggregation
     )
     DIMENSIONLESS_INTENSITY_B22 = ParamInfo(
-        "Dimensionless Intensity B22", False, "-", True, Aggregator.MEAN
+        "Dimensionless Intensity B22", False, "-", True, mean_aggregation
     )
     DIMENSIONLESS_INTENSITY_P22 = ParamInfo(
-        "Dimensionless Intensity P22", False, "-", False, Aggregator.MEAN
+        "Dimensionless Intensity P22", False, "-", False, mean_aggregation
     )
     FRACTURE_DENSITY_MAULDON = ParamInfo(
-        "Fracture Density (Mauldon)", True, r"$\frac{1}{m^2}$", True, Aggregator.MEAN
+        "Fracture Density (Mauldon)", True, r"$\frac{1}{m^2}$", True, mean_aggregation
     )
     FRACTURE_INTENSITY_B21 = ParamInfo(
-        "Fracture Intensity B21", True, r"$\frac{m}{m^2}$", False, Aggregator.MEAN
+        "Fracture Intensity B21", True, r"$\frac{m}{m^2}$", False, mean_aggregation
     )
     FRACTURE_INTENSITY_MAULDON = ParamInfo(
-        "Fracture Intensity (Mauldon)", True, r"$\frac{m}{m^2}$", True, Aggregator.MEAN
+        "Fracture Intensity (Mauldon)", True, r"$\frac{m}{m^2}$", True, mean_aggregation
     )
     FRACTURE_INTENSITY_P21 = ParamInfo(
-        "Fracture Intensity P21", True, r"$\frac{m}{m^2}$", False, Aggregator.MEAN
+        "Fracture Intensity P21", True, r"$\frac{m}{m^2}$", False, mean_aggregation
     )
     NUMBER_OF_BRANCHES = ParamInfo(
-        "Number of Branches", False, "-", True, Aggregator.SUM
+        "Number of Branches", False, "-", True, sum_aggregation
     )
     NUMBER_OF_BRANCHES_TRUE = ParamInfo(
-        "Number of Branches (Real)", False, "-", True, Aggregator.SUM
+        "Number of Branches (Real)", False, "-", True, sum_aggregation
     )
-    NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True, Aggregator.SUM)
+    NUMBER_OF_TRACES = ParamInfo("Number of Traces", False, "-", True, sum_aggregation)
     NUMBER_OF_TRACES_TRUE = ParamInfo(
-        "Number of Traces (Real)", False, "-", True, Aggregator.SUM
+        "Number of Traces (Real)", False, "-", True, sum_aggregation
     )
     TRACE_MEAN_LENGTH = ParamInfo(
-        "Trace Mean Length", True, "$m$", False, Aggregator.MEAN
+        "Trace Mean Length", True, "$m$", False, mean_aggregation
     )
     TRACE_MIN_LENGTH = ParamInfo(
-        "Trace Min Length", True, "$m$", False, Aggregator.MEAN
+        "Trace Min Length", True, "$m$", False, mean_aggregation
     )
     TRACE_MAX_LENGTH = ParamInfo(
-        "Trace Max Length", True, "$m$", False, Aggregator.MEAN
+        "Trace Max Length", True, "$m$", False, mean_aggregation
     )
     TRACE_MEAN_LENGTH_MAULDON = ParamInfo(
-        "Trace Mean Length (Mauldon)", True, "$m$", True, Aggregator.MEAN
+        "Trace Mean Length (Mauldon)", True, "$m$", True, mean_aggregation
     )
     CIRCLE_COUNT = ParamInfo(
         "Circle Count",
         plot_as_log=False,
         unit="-",
         needs_topology=False,
-        aggregator=Aggregator.SUM,
+        aggregator=sum_aggregation,
     )
 
 
+@beartype
 def determine_set(
     value: float,
     value_ranges: SetRangeTuple,
@@ -290,12 +282,12 @@ def determine_set(
 
     E.g.
 
-    >>> determine_set(10.0, [(0, 20), (30, 160)], ["0-20", "30-160"], False)
+    >>> determine_set(10.0, ((0, 20), (30, 160)), ("0-20", "30-160"), False)
     '0-20'
 
     Example with
 
-    >>> determine_set(50.0, [(0, 20), (160, 60)], ["0-20", "160-60"], True)
+    >>> determine_set(50.0, ((0, 20), (160, 60)), ("0-20", "160-60"), True)
     '160-60'
 
     :param value: Value to determine set of.
@@ -319,7 +311,10 @@ def determine_set(
     raise ValueError("Expected set value ranges to not overlap.")
 
 
-def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -> bool:
+@beartype
+def is_set(
+    value: Number, value_range: Tuple[Number, Number], loop_around: bool
+) -> bool:
     """
     Determine if value fits within the given value_range.
 
@@ -348,9 +343,10 @@ def is_set(value: Number, value_range: Tuple[float, float], loop_around: bool) -
     return False
 
 
+@beartype
 def is_azimuth_close(
-    first: float, second: float, tolerance: float, halved: bool = True
-):
+    first: Number, second: Number, tolerance: Number, halved: bool = True
+) -> bool:
     """
     Determine are azimuths first and second within tolerance.
 
@@ -380,6 +376,7 @@ def is_azimuth_close(
     return diff < tolerance
 
 
+@beartype
 def determine_regression_azimuth(line: LineString) -> float:
     """
     Determine azimuth of line LineString with linear regression.
@@ -427,6 +424,7 @@ def determine_regression_azimuth(line: LineString) -> float:
     return float(azimuth)
 
 
+@beartype
 def determine_azimuth(line: LineString, halved: bool) -> float:
     """
     Calculate azimuth of given line.
@@ -469,6 +467,7 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
     return azimuth
 
 
+@beartype
 def calc_strike(dip_direction: float) -> float:
     """
     Calculate strike from dip direction. Right-handed rule.
@@ -490,6 +489,7 @@ def calc_strike(dip_direction: float) -> float:
     return strike
 
 
+@beartype
 def azimu_half(degrees: float) -> float:
     """
     Transform azimuth from 180-360 range to range 0-180.
@@ -539,8 +539,8 @@ def avg_calc(data):
     """
     Calculate average for radial data.
 
-    TODO: Should take length into calculations.......................... not
-    real average atm
+    TODO: Should take length into calculations.
+    Not real average atm
     """
     n, mean = len(data), 0.0
 
@@ -562,6 +562,7 @@ def avg_calc(data):
     return mean
 
 
+@beartype
 def define_length_set(length: float, set_df: pd.DataFrame) -> str:
     """
     Define sets based on the length of the traces or branches.
@@ -608,6 +609,7 @@ def define_length_set(length: float, set_df: pd.DataFrame) -> str:
 #     return azimu_std
 
 
+@beartype
 def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeometry:
     """
     Prepare trace_series geometries for a faster spatial analysis.
@@ -628,6 +630,7 @@ def prepare_geometry_traces(trace_series: gpd.GeoSeries) -> prepared.PreparedGeo
     return prepared_traces
 
 
+@beartype
 def match_crs(
     first: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     second: Union[gpd.GeoSeries, gpd.GeoDataFrame],
@@ -660,6 +663,7 @@ def match_crs(
     return first, second
 
 
+@beartype
 def replace_coord_in_trace(
     trace: LineString, index: int, replacement: Point
 ) -> LineString:
@@ -673,6 +677,7 @@ def replace_coord_in_trace(
     return new_linestring
 
 
+@beartype
 def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
     """
     Determine next coordinate point towards middle of LineString from point.
@@ -686,20 +691,18 @@ def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
     raise ValueError("Expected point to be a coord in trace.")
 
 
+@beartype
 def get_trace_endpoints(
     trace: LineString,
 ) -> Tuple[Point, Point]:
     """
     Return endpoints (shapely.geometry.Point) of a given LineString.
     """
-    if not isinstance(trace, LineString):
-        raise TypeError(
-            f"Non LineString geometry passed into get_trace_endpoints.\ntrace: {trace}"
-        )
     points = Point(trace.coords[0]), Point(trace.coords[-1])
     return points
 
 
+@beartype
 def get_trace_coord_points(trace: LineString) -> List[Point]:
     """
     Get all coordinate Points of a LineString.
@@ -710,10 +713,10 @@ def get_trace_coord_points(trace: LineString) -> List[Point]:
     ['POINT (0 0)', 'POINT (2 0)', 'POINT (3 0)']
 
     """
-    assert isinstance(trace, LineString)
     return [Point(xy) for xy in trace.coords]
 
 
+@beartype
 def point_to_xy(point: Point) -> Tuple[float, float]:
     """
     Get x and y coordinates of Point.
@@ -724,6 +727,7 @@ def point_to_xy(point: Point) -> Tuple[float, float]:
 
 
 @JOBLIB_CACHE.cache
+@beartype
 def determine_general_nodes(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
 ) -> Tuple[List[Tuple[Point, ...]], List[Tuple[Point, ...]]]:
@@ -794,6 +798,7 @@ def determine_general_nodes(
     return intersect_nodes, endpoint_nodes
 
 
+@beartype
 def determine_valid_intersection_points_no_vnode(
     trace_candidates: gpd.GeoSeries, geom: LineString
 ) -> List[Point]:
@@ -852,6 +857,7 @@ def determine_valid_intersection_points_no_vnode(
     return inter_filtered
 
 
+@beartype
 def determine_valid_intersection_points(
     intersection_geoms: gpd.GeoSeries,
 ) -> List[Point]:
@@ -864,7 +870,6 @@ def determine_valid_intersection_points(
     :param intersection_geoms: GeoSeries of intersection (Point) geometries.
     :return: The valid intersections (Points).
     """
-    assert isinstance(intersection_geoms, gpd.GeoSeries)
     valid_interaction_points = []
     for geom in intersection_geoms.geometry.values:
         assert isinstance(geom, (BaseGeometry, BaseMultipartGeometry))
@@ -900,6 +905,7 @@ def determine_valid_intersection_points(
     return valid_interaction_points
 
 
+@beartype
 def line_intersection_to_points(first: LineString, second: LineString) -> List[Point]:
     """
     Perform shapely intersection between two LineStrings.
@@ -919,6 +925,7 @@ def line_intersection_to_points(first: LineString, second: LineString) -> List[P
     return collect_points
 
 
+@beartype
 def flatten_tuples(
     list_of_tuples: List[Tuple[Any, ...]],
 ) -> Tuple[List[int], List[Any]]:
@@ -945,6 +952,7 @@ def flatten_tuples(
 
 
 @JOBLIB_CACHE.cache
+@beartype
 def determine_node_junctions(
     nodes: List[Tuple[Point, ...]],
     snap_threshold: float,
@@ -1064,6 +1072,7 @@ def zip_equal(*iterables):
         yield combo
 
 
+@beartype
 def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     """
     Create numpy unit vector from two shapely Points.
@@ -1086,8 +1095,9 @@ def create_unit_vector(start_point: Point, end_point: Point) -> np.ndarray:
     return segment_unit_vector
 
 
+@beartype
 def compare_unit_vector_orientation(
-    vec_1: np.ndarray, vec_2: np.ndarray, threshold_angle: float
+    vec_1: np.ndarray, vec_2: np.ndarray, threshold_angle: Number
 ) -> bool:
     """
     If vec_1 and vec_2 are too different in orientation, will return False.
@@ -1108,6 +1118,7 @@ def compare_unit_vector_orientation(
     return True
 
 
+@beartype
 def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polygon:
     """
     Create bounding polygon around GeoSeries.
@@ -1142,6 +1153,7 @@ def bounding_polygon(geoseries: Union[gpd.GeoSeries, gpd.GeoDataFrame]) -> Polyg
     return bounding_poly
 
 
+@beartype
 def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
     """
     Flattens a list of multilinestrings to a list of linestrings.
@@ -1175,11 +1187,11 @@ def mls_to_ls(multilinestrings: List[MultiLineString]) -> List[LineString]:
 
 
 @JOBLIB_CACHE.cache
+@beartype
 def crop_to_target_areas(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
     is_filtered: bool = False,
-    keep_column_data: bool = False,
     allow_multilinestring_input: bool = False,
 ) -> Union[gpd.GeoSeries, gpd.GeoDataFrame]:
     """
@@ -1238,7 +1250,6 @@ def crop_to_target_areas(
     else:
         candidate_traces = traces
 
-    # TODO: Remove environment check
     clipped_traces = gpd.clip(candidate_traces, areas)
 
     assert hasattr(clipped_traces, "geometry")
@@ -1297,22 +1308,6 @@ def crop_to_target_areas(
     clipped_and_dissolved_traces.reset_index(inplace=True, drop=True)
 
     return clipped_and_dissolved_traces
-
-
-@overload
-def dissolve_multi_part_traces(traces: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """
-    Overload for gpd.GeoDataFrame.
-    """
-    ...
-
-
-@overload
-def dissolve_multi_part_traces(traces: gpd.GeoSeries) -> gpd.GeoSeries:
-    """
-    Overload for gpd.GeoSeries.
-    """
-    ...
 
 
 def dissolve_multi_part_traces(
@@ -1437,8 +1432,9 @@ def random_points_within(poly: Polygon, num_points: int) -> List[Point]:
     return points
 
 
+@beartype
 def spatial_index_intersection(
-    spatial_index: Any, coordinates: Union[BoundsTuple, PointTuple]
+    spatial_index: Any, coordinates: Union[BoundsTuple, Tuple[Number, Number]]
 ) -> List[int]:
     """
     Type-checked spatial index intersection.
@@ -1449,20 +1445,21 @@ def spatial_index_intersection(
     if spatial_index is None:
         return []
     result = spatial_index.intersection(coordinates)
-    indexes = []
-    for idx in result:
-        if isinstance(idx, int):
-            indexes.append(idx)
-        elif idx == int(idx):
-            indexes.append(idx)
-        else:
-            raise TypeError("Expected integer results from intersection.")
+
+    def _handle_index(idx) -> int:
+        if idx == int(idx):
+            return int(idx)
+        raise TypeError("Expected integer results from intersection.")
+
+    indexes = [_handle_index(idx) for idx in result]
+
     return indexes
 
 
+@beartype
 def within_bounds(
-    x: float, y: float, min_x: float, min_y: float, max_x: float, max_y: float
-):
+    x: Number, y: Number, min_x: Number, min_y: Number, max_x: Number, max_y: Number
+) -> bool:
     """
     Are x and y within the bounds.
 
@@ -1472,6 +1469,7 @@ def within_bounds(
     return (min_x <= x <= max_x) and (min_y <= y <= max_y)
 
 
+@beartype
 def geom_bounds(
     geom: Union[LineString, Polygon, MultiPolygon],
 ) -> Tuple[float, float, float, float]:
@@ -1481,9 +1479,6 @@ def geom_bounds(
     >>> geom_bounds(LineString([(-10, -10), (10, 10)]))
     (-10.0, -10.0, 10.0, 10.0)
     """
-    types = (LineString, Polygon, MultiPolygon)
-    if not isinstance(geom, types):
-        raise TypeError(f"Expected {types} as geom type.")
     bounds = []
     for val in geom.bounds:
         if isinstance(val, (int, float)):
@@ -1501,6 +1496,7 @@ def geom_bounds(
     return bounds_tuple
 
 
+@beartype
 def total_bounds(
     geodata: Union[gpd.GeoSeries, gpd.GeoDataFrame],
 ) -> Tuple[float, float, float, float]:
@@ -1523,6 +1519,7 @@ def total_bounds(
     return float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3])
 
 
+@beartype
 def read_geofile(path: Path) -> gpd.GeoDataFrame:
     """
     Read a filepath for a ``GeoDataFrame`` representable geo-object.
@@ -1539,9 +1536,10 @@ def read_geofile(path: Path) -> gpd.GeoDataFrame:
     return data
 
 
+@beartype
 def determine_boundary_intersecting_lines(
     line_gdf: gpd.GeoDataFrame, area_gdf: gpd.GeoDataFrame, snap_threshold: float
-):
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Determine lines that intersect any target area boundary.
     """
@@ -1601,9 +1599,10 @@ def determine_boundary_intersecting_lines(
     return intersecting_lines, cuts_through_lines
 
 
+@beartype
 def extend_bounds(
-    min_x: float, min_y: float, max_x: float, max_y: float, extend_amount: float
-) -> Tuple[float, float, float, float]:
+    min_x: Number, min_y: Number, max_x: Number, max_y: Number, extend_amount: Number
+) -> Tuple[Number, Number, Number, Number]:
     """
     Extend bounds by addition and reduction.
 
@@ -1618,6 +1617,7 @@ def extend_bounds(
     )
 
 
+@beartype
 def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
     """
     Calculate integer sum of two arrays.
@@ -1639,6 +1639,7 @@ def bool_arrays_sum(arr_1: np.ndarray, arr_2: np.ndarray) -> np.ndarray:
     return np.array([int(val_1) + int(val_2) for val_1, val_2 in zip(arr_1, arr_2)])
 
 
+@beartype
 def intersection_count_to_boundary_weight(intersection_count: int) -> int:
     """
     Get actual weight factor for boundary intersection count.
@@ -1650,16 +1651,16 @@ def intersection_count_to_boundary_weight(intersection_count: int) -> int:
     >>> intersection_count_to_boundary_weight(1)
     2
     """
-    if not isinstance(intersection_count, int):
-        intersection_count = intersection_count.item()
-    assert isinstance(intersection_count, int)
-    if intersection_count == 0:
-        return 1
-    if intersection_count == 1:
-        return 2
-    if intersection_count == 2:
-        return 0
-    raise ValueError(f"Expected 0,1,2 as intersection_count. Got: {intersection_count}")
+    mapping = {
+        0: 1,
+        1: 2,
+        2: 0,
+    }
+    if intersection_count not in mapping:
+        raise ValueError(
+            f"Expected 0,1,2 as intersection_count. Got: {intersection_count}"
+        )
+    return mapping[intersection_count]
 
 
 def numpy_to_python_type(value: Any):
@@ -1672,7 +1673,8 @@ def numpy_to_python_type(value: Any):
         return value
 
 
-def calc_circle_area(radius: float) -> float:
+@beartype
+def calc_circle_area(radius: Number) -> float:
     """
     Calculate area of circle.
 
@@ -1682,7 +1684,8 @@ def calc_circle_area(radius: float) -> float:
     return np.pi * radius**2
 
 
-def calc_circle_radius(area: float) -> float:
+@beartype
+def calc_circle_radius(area: Number) -> float:
     """
     Calculate radius from area.
 
@@ -1696,6 +1699,7 @@ def calc_circle_radius(area: float) -> float:
     return radius
 
 
+@beartype
 def point_to_point_unit_vector(point: Point, other_point: Point) -> np.ndarray:
     """
     Create unit vector from point to other point.
@@ -1742,6 +1746,7 @@ def raise_determination_error(
     )
 
 
+@beartype
 def multiprocess(
     function_to_call: Callable,
     keyword_arguments: Sequence,
@@ -1789,6 +1794,7 @@ def multiprocess(
     return collect_results
 
 
+@beartype
 def save_fig(fig: Figure, results_dir: Path, name: str) -> List[Path]:
     """
     Save figure as svg image to results dir.
@@ -1850,6 +1856,7 @@ def wrap_silence(func):
     return wrapper
 
 
+@beartype
 def convert_list_columns(gdf: gpd.GeoDataFrame, allow: bool = True) -> gpd.GeoDataFrame:
     """
     Convert list type columns to string.
@@ -1872,6 +1879,7 @@ def convert_list_columns(gdf: gpd.GeoDataFrame, allow: bool = True) -> gpd.GeoDa
     return gdf
 
 
+@beartype
 def write_geodata(
     gdf: gpd.GeoDataFrame,
     path: Path,
@@ -1904,6 +1912,7 @@ def write_geodata(
     path.write_text(dumped_json)
 
 
+@beartype
 def write_topodata(gdf: gpd.GeoDataFrame, output_path: Path):
     """
     Write branch or nodes GeoDataFrame to `output_path`.
@@ -1911,6 +1920,7 @@ def write_topodata(gdf: gpd.GeoDataFrame, output_path: Path):
     write_geodata(gdf=gdf, path=output_path, allow_list_column_transform=False)
 
 
+@beartype
 def azimuth_to_unit_vector(azimuth: float) -> np.ndarray:
     """
     Convert azimuth to unit vector.
@@ -1919,6 +1929,7 @@ def azimuth_to_unit_vector(azimuth: float) -> np.ndarray:
     return np.array([np.sin(azimuth_rad), np.cos(azimuth_rad)])
 
 
+@beartype
 def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
     """
     Score fit with r2 metric.
@@ -1930,6 +1941,7 @@ def r2_scorer(y_true: np.ndarray, y_predicted: np.ndarray) -> float:
     return score
 
 
+@beartype
 def focus_plot_to_bounds(ax: Axes, total_bounds: np.ndarray) -> Axes:
     """
     Focus plot to given bounds.
@@ -1942,6 +1954,7 @@ def focus_plot_to_bounds(ax: Axes, total_bounds: np.ndarray) -> Axes:
     return ax
 
 
+@beartype
 def assign_branch_and_node_colors(feature_type: str) -> str:
     """
     Determine color for each branch and node type.
@@ -1960,6 +1973,7 @@ def assign_branch_and_node_colors(feature_type: str) -> str:
     return "red"
 
 
+@beartype
 def remove_duplicate_caseinsensitive_columns(columns) -> set:
     """
     Remove duplicate columns case-insensitively.
@@ -1972,6 +1986,7 @@ def remove_duplicate_caseinsensitive_columns(columns) -> set:
     return new_cols
 
 
+@beartype
 def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: Path):
     """
     Save geodataframe as GeoPackage, GeoJSON and shapefile.
@@ -2003,6 +2018,7 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
         log.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
 
 
+@beartype
 def check_for_z_coordinates(geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]) -> bool:
     """
     Check if geopandas data contains Z-coordinates.
@@ -2010,6 +2026,7 @@ def check_for_z_coordinates(geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries]) -> 
     return any(geom.has_z for geom in geodata.geometry.values if hasattr(geom, "has_z"))
 
 
+@beartype
 def remove_z_coordinates_from_geodata(
     geodata: Union[gpd.GeoDataFrame, gpd.GeoSeries],
 ) -> Union[gpd.GeoDataFrame, gpd.GeoSeries]:
@@ -2029,6 +2046,7 @@ def remove_z_coordinates_from_geodata(
     return geodata_without_z
 
 
+@beartype
 def remove_z_coordinates(geometry: Union[BaseGeometry, BaseMultipartGeometry]) -> Any:
     """
     Remove z-coordinates from a geometry.
@@ -2042,6 +2060,7 @@ def remove_z_coordinates(geometry: Union[BaseGeometry, BaseMultipartGeometry]) -
     return wkb.loads(wkb.dumps(geometry, output_dimension=2))
 
 
+@beartype
 def sanitize_name(name: str) -> str:
     """
     Return only alphanumeric parts of name string.
@@ -2050,6 +2069,7 @@ def sanitize_name(name: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]", "", name)
 
 
+@beartype
 def check_for_wrong_geometries(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
     """
     Check that traces are line geometries and area contains area geometries.
