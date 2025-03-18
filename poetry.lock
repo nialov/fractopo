@@ -4188,4 +4188,4 @@ dev = ["codespell", "cogapp", "coverage", "hypothesis", "ipython", "json5", "jup
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.13"
-content-hash = "a47e94416f7769913df673636886c2679300875d025f18258b19a942a55a9118"
+content-hash = "4599ea22db8da24631e68eb778565eab1bf23f1a4f9659268fb81a6da7041f62"
