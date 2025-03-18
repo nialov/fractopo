@@ -420,7 +420,7 @@ def determine_regression_azimuth(line: LineString) -> float:
     azimuth = np.rad2deg(np.arctan(1 / coef))  # type: ignore
     if azimuth < 0:
         azimuth = 90 - np.rad2deg(np.arctan(coef))  # type: ignore
-    assert isinstance(azimuth, float) and 0 <= azimuth <= 180
+    assert 0 <= azimuth <= 180
     return float(azimuth)
 
 
