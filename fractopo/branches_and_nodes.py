@@ -234,7 +234,6 @@ def angle_to_point(
         )
     degrees = numpy_to_python_type(np.rad2deg(rad_angle))
     assert 360.0 >= degrees >= 0.0
-    assert isinstance(degrees, float)
     return degrees
 
 
@@ -265,8 +264,6 @@ def insert_point_to_linestring(
     'LINESTRING (0 0, 1 0, 2 0, 2.25 0.1, 3 0)'
 
     """
-    assert isinstance(trace, LineString)
-    assert isinstance(point, Point)
     if trace.has_z:
         log.warning("Trace contains z-coordinates. These will be lost.")
     if point.has_z:
@@ -302,15 +299,16 @@ def insert_point_to_linestring(
     )
     # Closest points might not actually be the points which in between the
     # point is added. Have to use project and interpolate (?)
-    # print(t_coords)
     new_trace = LineString(t_coords)
-    # print(new_trace.wkt)
-    assert new_trace.intersects(point)
-    assert isinstance(new_trace, LineString)
-    assert new_trace.is_valid
-    # assert new_trace.is_simple
+    if not new_trace.intersects(point):
+        raise ValueError(
+            f"Expected new_trace ({new_trace.wkt})"
+            + f" to intersect point ({point.wkt})"
+        )
     if not new_trace.is_simple:
-        log.warning(f"Non-simple geometry detected.\n{new_trace.wkt}")
+        log.warning(f"Non-simple geometry detected: {new_trace.wkt}")
+    if not new_trace.is_valid:
+        raise ValueError(f"Invalid geometry detected: {new_trace.wkt}")
     return new_trace
 
 
@@ -409,7 +407,6 @@ def additional_snapping_func(
     filtered_points = compress(points_to_add, is_idx)
     for p in filtered_points:
         trace = insert_point_to_linestring(trace, p, snap_threshold=0.001)
-    assert isinstance(trace, LineString)
     return trace
 
 
@@ -425,9 +422,6 @@ def snap_traces(
     """
     if len(traces) == 0:
         return ([], False)
-    # Only handle LineStrings
-    assert all(isinstance(trace, LineString) for trace in traces)
-
     # Spatial index for traces
     traces_spatial_index = gpd.GeoSeries(traces).sindex
 
@@ -465,7 +459,6 @@ def snap_traces(
     )
 
     assert len(snapped_traces) == len(simply_snapped_traces)
-    assert all(isinstance(ls, LineString) for ls in snapped_traces)
 
     return list(snapped_traces), any(changes + simple_changes)
 
@@ -481,8 +474,6 @@ def resolve_trace_candidates(
     """
     Resolve spatial index intersection to actual intersection candidates.
     """
-    assert isinstance(trace, LineString)
-
     # Get trace bounds and extend them
     # minx, miny, maxx, maxy = trace.bounds
     minx, miny, maxx, maxy = geom_bounds(trace)
@@ -773,7 +764,6 @@ def filter_non_unique_traces(
     """
     Filter out traces that are not unique.
     """
-    assert isinstance(traces, gpd.GeoSeries)
     traces_set = set()
     idxs_to_keep = []
     for idx, geom in enumerate(traces.geometry.values):
@@ -787,7 +777,6 @@ def filter_non_unique_traces(
         idxs_to_keep.append(idx)
 
     unique_traces = traces.iloc[idxs_to_keep]
-    assert isinstance(unique_traces, gpd.GeoSeries)
 
     filter_count = len(traces) - len(unique_traces)
     log.info(
@@ -1009,7 +998,6 @@ def is_endpoint_close_to_boundary(
     Check if endpoint is within snap_threshold of areas boundaries.
     """
     for area in areas:
-        assert isinstance(area, (Polygon, MultiPolygon))
         if endpoint.distance(area.boundary) < snap_threshold:
             return True
     return False

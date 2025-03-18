@@ -214,12 +214,8 @@ def tracevalidate(
     MultiLineStrings to LineStrings.
     """
     # Assert that read files result in GeoDataFrames
-    traces: gpd.GeoDataFrame = read_geofile(trace_file)
-    areas: gpd.GeoDataFrame = read_geofile(area_file)
-    if not all(isinstance(val, gpd.GeoDataFrame) for val in (traces, areas)):
-        raise TypeError(
-            "Expected trace and area files to be readable as GeoDataFrames."
-        )
+    traces = read_geofile(trace_file)
+    areas = read_geofile(area_file)
 
     _check_for_wrong_geometries_cli(traces=traces, area=areas)
     log.info(f"Validating traces: {trace_file} area: {area_file}.")
