@@ -4,7 +4,6 @@ Functions for plotting rose plots.
 
 import math
 from dataclasses import dataclass
-from numbers import Real
 from textwrap import fill
 
 import numpy as np
@@ -14,7 +13,7 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
 
-from fractopo.general import SetRangeTuple
+from fractopo.general import Number, SetRangeTuple
 
 
 @dataclass
@@ -29,7 +28,7 @@ class AzimuthBins:
 
 
 @beartype
-def _calc_ideal_bin_width(n: Real, axial=True) -> float:
+def _calc_ideal_bin_width(n: Number, axial=True) -> float:
     """
     Calculate ideal bin width. axial or vector data.
 
@@ -86,7 +85,7 @@ def _calc_bins(ideal_bin_width: float, axial: bool) -> Tuple[np.ndarray, float]:
 
 
 @beartype
-def _calc_locs(bin_width: Real, axial: bool) -> np.ndarray:
+def _calc_locs(bin_width: Number, axial: bool) -> np.ndarray:
     """
     Calculate bar plot bar locations.
 
@@ -96,7 +95,7 @@ def _calc_locs(bin_width: Real, axial: bool) -> np.ndarray:
     array([  7.5,  22.5,  37.5,  52.5,  67.5,  82.5,  97.5, 112.5, 127.5,
            142.5, 157.5, 172.5])
 
-    :param bin_width: Real bin width
+    :param bin_width: Number bin width
     :type bin_width: float
     :return: Array of locations
     """
@@ -112,7 +111,7 @@ def _calc_locs(bin_width: Real, axial: bool) -> np.ndarray:
 def determine_azimuth_bins(
     azimuth_array: np.ndarray,
     length_array: Optional[np.ndarray] = None,
-    bin_multiplier: Real = 1.0,
+    bin_multiplier: Number = 1.0,
     axial: bool = True,
 ) -> AzimuthBins:
     """

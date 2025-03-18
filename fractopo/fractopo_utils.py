@@ -3,7 +3,6 @@ Miscellaneous utilities and scripts of fractopo.
 """
 
 from itertools import count
-from numbers import Number
 
 import geopandas as gpd
 from beartype import beartype
@@ -12,6 +11,7 @@ from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, Point
 
 from fractopo.general import (
+    Number,
     compare_unit_vector_orientation,
     create_unit_vector,
     geom_bounds,
