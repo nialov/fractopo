@@ -8,10 +8,10 @@ the traces for further analysis (``fractopo.analysis.network.Network``).
 import logging
 from dataclasses import dataclass
 from itertools import chain
-from textwrap import dedent
-from typing import Any, List, Optional, Set, Tuple
 
 import geopandas as gpd
+from beartype import beartype
+from beartype.typing import Any, List, Optional, Set, Tuple
 from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, MultiLineString, Point
 
@@ -83,13 +83,10 @@ class Validation:
 
         if check_for_z_coordinates(geodata=self.traces):
             log.warning(
-                dedent(
-                    """
-                Traces inputted into Validation contain Z-coordinates. They
-                will be removed from the input traces and subsuquently from all
-                outputs.
-                """
-                ).strip()
+                "Traces inputted into Validation contain Z-coordinates."
+                + " They will be removed from the input traces"
+                + " and subsuquently from all"
+                + " outputs.",
             )
             traces_with_removed_z = remove_z_coordinates_from_geodata(
                 geodata=self.traces
@@ -106,6 +103,7 @@ class Validation:
         )
 
     @property
+    @beartype
     def endpoint_nodes(self) -> List[Tuple[Point, ...]]:
         """
         Get endpoints of all traces.
@@ -121,6 +119,7 @@ class Validation:
         raise TypeError("Expected self._endpoint_nodes to not be None.")
 
     @property
+    @beartype
     def intersect_nodes(self) -> List[Tuple[Point, ...]]:
         """
         Get intersection nodes of all traces.
@@ -151,6 +150,7 @@ class Validation:
         return self._spatial_index
 
     @property
+    @beartype
     def faulty_junctions(self) -> Optional[Set[int]]:
         """
         Determine indexes with Multi Junctions.
@@ -168,6 +168,7 @@ class Validation:
         return self._faulty_junctions
 
     @property
+    @beartype
     def vnodes(self) -> Optional[Set[int]]:
         """
         Determine indexes with V-Nodes.
@@ -180,9 +181,10 @@ class Validation:
             )
         return self._vnodes
 
+    @beartype
     def run_validation(
         self,
-        first_pass=True,
+        first_pass: bool = True,
         choose_validators: Optional[Tuple[ValidatorClass]] = None,
         allow_empty_area: bool = True,
     ) -> gpd.GeoDataFrame:
@@ -297,6 +299,7 @@ class Validation:
         return validated_gdf
 
     @staticmethod
+    @beartype
     def _validate(
         geom: Any,
         validator: ValidatorClass,
