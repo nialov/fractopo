@@ -5,15 +5,17 @@ Utilities for randomly Network sampling traces.
 import logging
 from dataclasses import dataclass
 from enum import Enum, unique
-from typing import Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
+from beartype import beartype
+from beartype.typing import Optional, Tuple, Union
 from shapely.geometry import LineString, Point, Polygon
 
 from fractopo.analysis.network import Network
 from fractopo.general import (
     GEOMETRY_COLUMN,
+    Number,
     calc_circle_area,
     calc_circle_radius,
     numpy_to_python_type,
@@ -71,8 +73,9 @@ class NetworkRandomSampler:
         self.min_radius = self.value_should_be_positive(self.min_radius)
 
     @staticmethod
+    @beartype
     def random_choice_should_be_enum(
-        random_choice: Union[RandomChoice, str]
+        random_choice: Union[RandomChoice, str],
     ) -> RandomChoice:
         """
         Check that random_choice is valid.
@@ -90,6 +93,7 @@ class NetworkRandomSampler:
         return random_choice
 
     @staticmethod
+    @beartype
     def trace_gdf_should_contain_traces(
         trace_gdf: gpd.GeoDataFrame,
     ) -> gpd.GeoDataFrame:
@@ -103,6 +107,7 @@ class NetworkRandomSampler:
         return trace_gdf
 
     @staticmethod
+    @beartype
     def area_gdf_should_contain_polygon(area_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Check that area_gdf contains one Polygon.
@@ -115,7 +120,8 @@ class NetworkRandomSampler:
         return area_gdf
 
     @staticmethod
-    def value_should_be_positive(min_radius: float) -> float:
+    @beartype
+    def value_should_be_positive(min_radius: Number) -> Number:
         """
         Check that value is positive.
         """
@@ -124,6 +130,7 @@ class NetworkRandomSampler:
         return min_radius
 
     @property
+    @beartype
     def target_circle(self) -> Polygon:
         """
         Target circle Polygon from area_gdf.
@@ -131,6 +138,7 @@ class NetworkRandomSampler:
         return self.area_gdf.geometry.values[0]
 
     @property
+    @beartype
     def max_radius(self) -> float:
         """
         Calculate max radius from given area_gdf.
@@ -142,6 +150,7 @@ class NetworkRandomSampler:
         return radius
 
     @property
+    @beartype
     def min_area(self) -> float:
         """
         Calculate minimum area from min_radius.
@@ -149,12 +158,14 @@ class NetworkRandomSampler:
         return calc_circle_area(self.min_radius)
 
     @property
+    @beartype
     def max_area(self) -> float:
         """
         Calculate maximum area from max_radius.
         """
         return calc_circle_area(self.max_radius)
 
+    @beartype
     def random_radius(self) -> float:
         """
         Calculate random radius in range [min_radius, max_radius[.
@@ -163,6 +174,7 @@ class NetworkRandomSampler:
         radius = self.min_radius + np.random.random_sample() * radius_range
         return radius
 
+    @beartype
     def random_area(self) -> float:
         """
         Calculate random area in area range.
@@ -174,6 +186,7 @@ class NetworkRandomSampler:
         return area
 
     @property
+    @beartype
     def target_area_centroid(self) -> Point:
         """
         Get target area centroid.
@@ -183,6 +196,7 @@ class NetworkRandomSampler:
             raise TypeError("Expected Point as centroid.")
         return centroid
 
+    @beartype
     def random_target_circle(self) -> Tuple[Polygon, Point, float]:
         """
         Get random target area and its centroid and radius.
@@ -202,7 +216,10 @@ class NetworkRandomSampler:
 
         return random_target_circle, random_target_centroid, radius
 
-    def random_network_sample(self, determine_branches_nodes=True) -> RandomSample:
+    @beartype
+    def random_network_sample(
+        self, determine_branches_nodes: bool = True
+    ) -> RandomSample:
         """
         Get random Network sample with a random target area.
 
@@ -246,6 +263,7 @@ class NetworkRandomSampler:
         )
 
     @classmethod
+    @beartype
     def random_network_sampler(
         cls,
         network: Network,
