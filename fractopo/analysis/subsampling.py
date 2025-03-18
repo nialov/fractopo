@@ -6,22 +6,25 @@ import logging
 import platform
 import random
 from itertools import compress, groupby
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 
 import numpy as np
+from beartype import beartype
+from beartype.typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from joblib import Parallel, delayed
 from numpy.random import seed
 
-from fractopo import general
+import fractopo.general
 from fractopo.analysis.network import Network
 from fractopo.analysis.random_sampling import NetworkRandomSampler, RandomChoice
+from fractopo.general import NAME, Number
 
 log = logging.getLogger(__name__)
 
 
+@beartype
 def create_sample(
     sampler: NetworkRandomSampler,
-) -> Optional[Dict[str, Union[general.Number, str]]]:
+) -> Optional[Dict[str, Union[Number, str]]]:
     """
     Sample with ``NetworkRandomSampler`` and return ``Network`` description.
     """
@@ -46,12 +49,13 @@ def create_sample(
     return result
 
 
+@beartype
 def subsample_networks(
     networks: Sequence[Network],
-    min_radii: Union[float, Dict[str, float]],
+    min_radii: Union[Number, Dict[str, Number]],
     random_choice: RandomChoice = RandomChoice.radius,
     samples: int = 1,
-) -> List[Optional[Dict[str, Union[general.Number, str]]]]:
+) -> List[Optional[Dict[str, Union[Number, str]]]]:
     """
     Subsample given Sequence of Networks.
     """
@@ -78,9 +82,10 @@ def subsample_networks(
     return subsamples
 
 
+@beartype
 def gather_subsample_descriptions(
-    subsample_results: List[Optional[Dict[str, Union[general.Number, str]]]],
-) -> List[Dict[str, Union[general.Number, str]]]:
+    subsample_results: List[Optional[Dict[str, Union[Number, str]]]],
+) -> List[Dict[str, Union[Number, str]]]:
     """
     Gather results from a list of subsampling ProcessResults.
     """
@@ -127,9 +132,10 @@ def gather_subsample_descriptions(
 #     return indexes
 
 
+@beartype
 def choose_sample_from_group(
-    group: general.ParameterListType,
-) -> general.ParameterValuesType:
+    group: fractopo.general.ParameterListType,
+) -> fractopo.general.ParameterValuesType:
     """
     Choose single sample from group DataFrame.
     """
@@ -147,8 +153,9 @@ def choose_sample_from_group(
     return chosen_dict
 
 
+@beartype
 def area_weighted_index_choice(
-    idxs: List[int], areas: List[float], compressor: List[bool]
+    idxs: List[int], areas: List[Number], compressor: List[bool]
 ) -> int:
     """
     Make area-weighted choce from list of indexes.
@@ -159,8 +166,9 @@ def area_weighted_index_choice(
     return choice
 
 
+@beartype
 def collect_indexes_of_base_circles(
-    idxs: List[int], how_many: int, areas: List[float]
+    idxs: List[int], how_many: int, areas: List[Number]
 ) -> List[int]:
     """
     Collect indexes of base circles, area-weighted and randomly.
@@ -178,12 +186,13 @@ def collect_indexes_of_base_circles(
     return which_idxs
 
 
+@beartype
 def random_sample_of_circles(
-    grouped: Dict[str, general.ParameterListType],
-    circle_names_with_diameter: Dict[str, int],
+    grouped: Dict[str, fractopo.general.ParameterListType],
+    circle_names_with_diameter: Dict[str, Number],
     min_circles: int = 1,
     max_circles: Optional[int] = None,
-) -> general.ParameterListType:
+) -> fractopo.general.ParameterListType:
     """
     Get a random sample of circles from grouped subsampled data.
 
@@ -219,7 +228,7 @@ def random_sample_of_circles(
     )
 
     # Collect the Series that are chosen
-    chosen: general.ParameterListType = []
+    chosen: fractopo.general.ParameterListType = []
 
     # Iterate over the DataFrameGroupBy dataframe groups
     for idx, group in enumerate(grouped.values()):
@@ -236,9 +245,10 @@ def random_sample_of_circles(
     return chosen
 
 
+@beartype
 def aggregate_chosen(
-    chosen: general.ParameterListType,
-    default_aggregator: Callable = general.mean_aggregation,
+    chosen: fractopo.general.ParameterListType,
+    default_aggregator: Callable = fractopo.general.mean_aggregation,
 ) -> Dict[str, Any]:
     """
     Aggregate a collection of subsampled circles for params.
@@ -247,13 +257,13 @@ def aggregate_chosen(
     """
     columns = list(chosen[0].keys())
 
-    area_values = [params[general.Param.AREA.value.name] for params in chosen]
+    area_values = [params[fractopo.general.Param.AREA.value.name] for params in chosen]
     aggregated_values = dict()
     for column in columns:
         aggregator = default_aggregator
         assert callable(aggregator)
         column_values = [params[column] for params in chosen]
-        for param in general.Param:
+        for param in fractopo.general.Param:
             if column == param.value.name:
                 aggregator = param.value.aggregator
                 # assert isinstance(aggregator, Callable)
@@ -269,16 +279,17 @@ def aggregate_chosen(
                 ),
                 exc_info=True,
             )
-            aggregated = general.fallback_aggregation(values=column_values)
+            aggregated = fractopo.general.fallback_aggregation(values=column_values)
         assert isinstance(aggregated, (int, float, str))
         aggregated_values[column] = aggregated
 
     return aggregated_values
 
 
+@beartype
 def groupby_keyfunc(
-    item: Dict[str, Union[general.Number, str]],
-    groupby_column: str = general.NAME,
+    item: Dict[str, Union[Number, str]],
+    groupby_column: str = NAME,
 ) -> str:
     """
     Use groupby_column to group values.
@@ -288,10 +299,11 @@ def groupby_keyfunc(
     return val
 
 
+@beartype
 def group_gathered_subsamples(
-    subsamples: List[Dict[str, Union[general.Number, str]]],
-    groupby_column: str = general.NAME,
-) -> Dict[str, List[Dict[str, Union[general.Number, str]]]]:
+    subsamples: List[Dict[str, Union[Number, str]]],
+    groupby_column: str = NAME,
+) -> Dict[str, List[Dict[str, Union[Number, str]]]]:
     """
     Group gathered subsamples.
 
