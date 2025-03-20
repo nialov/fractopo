@@ -52,12 +52,20 @@ in {
           };
           release = {
             needs = [ "nix-fast-build" "nix-flake-check-no-build" "poetry" ];
-            steps = baseNixSteps ++ [
+            steps = let
+              isTag = lib.concatStringsSep " && " [
+                "github.event_name == 'push'"
+                "startsWith(github.ref, 'refs/tags')"
+              ];
+            in baseNixSteps ++ [
               runBuildPackageWithPoetry
               runCheckGitTagAndPyprojectToml
-              runPublishPackageWithPoetry
+
+              (lib.recursiveUpdate runPublishPackageWithPoetry {
+                "if" = isTag;
+              })
               runCreateIncrementalChangelog
-              softpropsActionGhRelease
+              (lib.recursiveUpdate softpropsActionGhRelease { "if" = isTag; })
             ];
           };
           docs = lib.recursiveUpdate publishDocsToGitHubPages {
@@ -95,7 +103,7 @@ in {
                   "\${{ github.actor }}"
                   rev
                 ];
-                env = { PUSHER_TOKEN = "'\${{ secrets.GITHUB_TOKEN }}'"; };
+                env = { PUSHER_TOKEN = "\${{ secrets.GITHUB_TOKEN }}"; };
               };
 
             in baseNixSteps ++ [
