@@ -1,160 +1,158 @@
-on:
-  push:
-  workflow_dispatch:
-
 jobs:
-  nix:
-    strategy:
-      matrix:
-        platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: cachix/cachix-action@v15
-        with:
-          name: nialov
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Check with nix
-        # This also builds documentation (fractopo-documentation) so docs job
-        # does not have to run every time
-        run: |
-          nix run .#nix-fast-build -- --skip-cached --no-nom
-  poetry:
-    strategy:
-      matrix:
-        platform: [ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-    runs-on: ${{ matrix.platform }}
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: cachix/cachix-action@v15
-        with:
-          name: nialov
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Test with poetry on Python ${{ matrix.python-version }}
-        run: |
-          nix run .#poetry-run -- ${{ matrix.python-version }} pytest
-
-  release:
-    runs-on: ubuntu-latest
-    needs: [nix, poetry]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: cachix/cachix-action@v15
-        with:
-          name: nialov
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Build package with poetry
-        run: |
-          nix run .#poetry -- check
-          nix run .#poetry -- build
-          nix run .#poetry -- publish --dry-run
-
-      - name: Check that version in pyproject.toml is equivalent to tag
-        if: >
-          github.event_name == 'push'
-          && startsWith(github.ref, 'refs/tags')
-        run: |
-          nix run .#sync-git-tag-with-poetry
-          git diff --exit-code
-
-      - name: Publish distribution 📦 to PyPI on tagged commit pushes
-        if: >
-          github.event_name == 'push'
-          && startsWith(github.ref, 'refs/tags')
-        # uses: pypa/gh-action-pypi-publish@v1.12.2
-        # with:
-        #   user: __token__
-        #   password: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          nix run .#poetry -- publish --username=__token__ --password=${{ secrets.PYPI_PASSWORD }} --no-interaction
-
-      - name: Create incremental changelog
-        run: |
-          nix run .#cut-release-changelog > RELEASE_CHANGELOG.md
-
-      - name: Echo RELEASE_CHANGELOG.md
-        run: cat RELEASE_CHANGELOG.md
-
-      - name: Publish release on GitHub
-        if: >
-          github.event_name == 'push'
-          && startsWith(github.ref, 'refs/tags')
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: RELEASE_CHANGELOG.md
-          files: |
-            dist/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  docs:
-    if: >
-      github.event_name == 'push'
-      && startsWith(github.ref, 'refs/heads/master')
-    needs: [nix]
+  docker:
+    needs:
+    - nix-fast-build
     permissions:
       contents: read
-      pages: write
-      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Load image to docker
+      run: nix run .#load-fractopo-image
+    - env:
+        PUSHER_TOKEN: '''${{ secrets.GITHUB_TOKEN }}'''
+      if: github.event_name == 'push'
+      name: Push to ghcr.io from all branches
+      run: nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor
+        }} $(git rev-parse --short HEAD)
+    - env:
+        PUSHER_TOKEN: '''${{ secrets.GITHUB_TOKEN }}'''
+      if: github.event_name == 'push' & github.ref == 'refs/heads/master'
+      name: Push to ghcr.io from default branch
+      run: nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor
+        }} latest
+    timeout-minutes: 60
+  docs:
     concurrency:
-      group: "pages"
       cancel-in-progress: false
+      group: pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: cachix/cachix-action@v15
-        with:
-          name: nialov
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Build documentation
-        run: |
-          nix build .#fractopo.passthru.documentation.doc
-          cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/html ./docs
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload folder with static docs
-          path: "docs/"
-      - uses: actions/configure-pages@v5
-      - id: deployment
-        uses: actions/deploy-pages@v4
-  docker:
-    runs-on: ubuntu-latest
-    needs: [nix]
-    timeout-minutes: 60
+    if: github.event_name == 'push' & startsWith(github.ref, 'refs/heads/master')
+    needs:
+    - nix-fast-build
     permissions:
-      packages: write
       contents: read
+      id-token: write
+      pages: write
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: cachix/cachix-action@v15
-        with:
-          name: nialov
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}"
-      - name: Load image to docker
-        run: |
-          nix run .#load-fractopo-image
-      - name: Push to ghcr.io from all branches
-        if: github.event_name == 'push'
-        env:
-          PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} "$(git rev-parse --short HEAD)"
-      - name: Push to ghcr.io from default branch
-        if: >
-          github.event_name == 'push'
-          && github.ref == 'refs/heads/master'
-        env:
-          PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor }} latest
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Build documentation
+      run: 'nix build .#fractopo.passthru.documentation.doc
+
+        cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix
+        eval --raw .#fractopo.name)"/html ./docs
+
+        '
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs/
+    - uses: actions/configure-pages@v5
+    - id: deployment
+      uses: actions/deploy-pages@v4
+    timeout-minutes: 60
+  nix-fast-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Run nix-fast-build
+      run: nix run .#nix-fast-build -- --skip-cached --no-nom
+    timeout-minutes: 60
+  nix-flake-check-no-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Check flake without building
+      run: nix -Lv flake check --no-build
+    timeout-minutes: 60
+  poetry:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Test with poetry on Python ${{ matrix.python-version }}
+      run: nix run .#poetry-run -- ${{ matrix.python-version }} pytest
+    strategy:
+      matrix:
+        python-version:
+        - '3.9'
+        - '3.10'
+        - '3.11'
+        - '3.12'
+    timeout-minutes: 60
+  release:
+    needs:
+    - nix-fast-build
+    - nix-flake-check-no-build
+    - poetry
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@v9
+    - uses: cachix/cachix-action@v15
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        name: nialov
+    - name: Build package with poetry
+      run: 'nix run .#poetry -- check
+
+        nix run .#poetry -- build
+
+        nix run .#poetry -- publish --dry-run
+
+        '
+    - if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      name: Check that version in pyproject.toml is equivalent to tag on tag
+      run: 'nix run .#sync-git-tag-with-poetry
+
+        nix run .#git -- diff --exit-code
+
+        '
+    - if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      name: Publish distribution to PyPI on tag
+      run: nix run .#poetry -- publish --username=__token__ --password=${{ secrets.PYPI_PASSWORD
+        }} --no-interaction
+    - name: Create incremental changelog
+      run: 'nix run .#cut-release-changelog > RELEASE_CHANGELOG.md
+
+        '
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      name: Publish release on GitHub on tag
+      uses: softprops/action-gh-release@v2
+      with:
+        body_path: RELEASE_CHANGELOG.md
+        files: 'dist/*
+
+          '
+    timeout-minutes: 60
+'on':
+  push: {}
+  workflow_dispatch: {}
