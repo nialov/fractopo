@@ -23,7 +23,7 @@ jobs:
         }} $(git rev-parse --short HEAD)
     - env:
         PUSHER_TOKEN: '''${{ secrets.GITHUB_TOKEN }}'''
-      if: github.event_name == 'push' & github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
       name: Push to ghcr.io from default branch
       run: nix run .#push-fractopo-image -- ghcr.io nialov "$PUSHER_TOKEN" ${{ github.actor
         }} latest
@@ -35,7 +35,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    if: github.event_name == 'push' & startsWith(github.ref, 'refs/heads/master')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master')
     needs:
     - nix-fast-build
     permissions:
