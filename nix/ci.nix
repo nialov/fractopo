@@ -61,7 +61,7 @@ in {
             ];
           };
           docs = lib.recursiveUpdate publishDocsToGitHubPages {
-            "if" = lib.concatStringsSep " & " [
+            "if" = lib.concatStringsSep " && " [
               "github.event_name == 'push'"
               "startsWith(github.ref, 'refs/heads/master')"
             ];
@@ -88,7 +88,7 @@ in {
 
               mkPushStep = { rev, name, ifConditions }: {
                 inherit name;
-                "if" = lib.concatStringsSep " & " ifConditions;
+                "if" = lib.concatStringsSep " && " ifConditions;
                 run = lib.concatStringsSep " " [
                   "nix run .#push-fractopo-image --"
                   ''ghcr.io nialov "$PUSHER_TOKEN"''
