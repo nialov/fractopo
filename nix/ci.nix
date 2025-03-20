@@ -24,7 +24,7 @@ let
   ];
 
 in {
-  flake.ci = {
+  flake.ci = { config, ... }: {
     pre-commit.enable = true;
     defaults = {
       step = { runs-on = "ubuntu-latest"; };
@@ -125,6 +125,60 @@ in {
                   "github.ref == 'refs/heads/master'"
                 ];
               })
+
+            ];
+          };
+        };
+      };
+      ".github/workflows/conda.yaml" = {
+        on = {
+          push.paths = [
+            "fractopo/**.py"
+            "tests/**.py"
+            ".github/workflows/conda.yaml"
+            "pyproject.toml"
+            "environment.yaml"
+          ];
+          workflow_dispatch = { };
+        };
+        jobs = {
+          conda = {
+            timeout-minutes = 30;
+            strategy = {
+              fail-fast = false;
+              matrix = {
+                inherit (config.workflows.".github/workflows/main.yaml".jobs.poetry.strategy.matrix)
+                  python-version;
+                platform = [ "ubuntu-latest" "macos-latest" "windows-latest" ];
+              };
+            };
+            runs-on = "\${{ matrix.platform }}";
+            defaults.run.shell = "bash -l {0}";
+            steps = [
+
+              actionsCheckout
+              {
+                uses = "mamba-org/setup-micromamba@v2";
+                "with" = {
+                  micromamba-version = "1.5.6-0";
+                  environment-file = "environment.yaml";
+                  init-shell = "bash powershell";
+                  cache-environment = true;
+                  cache-downloads = true;
+                  post-cleanup = "all";
+                  create-args = "python=\${{ matrix.python-version }}";
+                };
+              }
+              {
+                run = ''
+                  echo "Testing package import"
+                  python -c 'import fractopo'
+                  echo "Testing module entrypoint"
+                  python -m fractopo --help
+                  echo "Running unittests with pytest"
+                  pytest -v
+                '';
+              }
 
             ];
           };

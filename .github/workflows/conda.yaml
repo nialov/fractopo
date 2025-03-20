@@ -1,45 +1,52 @@
-on:
-  # run on all pushes to any branch
-  push:
-    paths:
-      # Only run on changes to source or test python files and environment.yml
-      - "fractopo/**.py"
-      - "tests/**.py"
-      - ".github/workflows/**.yaml"
-      - "pyproject.toml"
-      - "environment.yaml"
-
 jobs:
-  conda-environment-install:
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
-
-    runs-on: ${{ matrix.platform }}
+  conda:
     defaults:
       run:
         shell: bash -l {0}
+    runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: mamba-org/setup-micromamba@v2
-        with:
-          micromamba-version: "1.5.6-0"
-          environment-file: environment.yaml
-          init-shell: >-
-            bash
-            powershell
-          cache-environment: true
-          post-cleanup: "all"
-          create-args: >-
-            python=${{ matrix.python-version }}
-      - name: Run unit tests
-        run: |
-          # Test package import
-          python -c 'import fractopo'
-          # Test module entrypoint
-          python -m fractopo --help
-          # Run unittests with pytest
-          pytest -v
+    - uses: actions/checkout@v4
+    - uses: mamba-org/setup-micromamba@v2
+      with:
+        cache-downloads: true
+        cache-environment: true
+        create-args: python=${{ matrix.python-version }}
+        environment-file: environment.yaml
+        init-shell: bash powershell
+        micromamba-version: 1.5.6-0
+        post-cleanup: all
+    - run: 'echo "Testing package import"
+
+        python -c ''import fractopo''
+
+        echo "Testing module entrypoint"
+
+        python -m fractopo --help
+
+        echo "Running unittests with pytest"
+
+        pytest -v
+
+        '
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+        python-version:
+        - '3.9'
+        - '3.10'
+        - '3.11'
+        - '3.12'
+    timeout-minutes: 30
+'on':
+  push:
+    paths:
+    - fractopo/**.py
+    - tests/**.py
+    - .github/workflows/conda.yaml
+    - pyproject.toml
+    - environment.yaml
+  workflow_dispatch: {}
