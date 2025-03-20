@@ -11,7 +11,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Load image to docker
       run: nix run .#load-fractopo-image
@@ -48,7 +48,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Build documentation
       run: 'nix build .#fractopo.passthru.documentation.doc
@@ -71,7 +71,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Run nix-fast-build
       run: nix run .#nix-fast-build -- --skip-cached --no-nom
@@ -83,7 +83,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Check flake without building
       run: nix -Lv flake check --no-build
@@ -95,7 +95,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Test with poetry on Python ${{ matrix.python-version }}
       run: nix run .#poetry-run -- ${{ matrix.python-version }} pytest
@@ -118,7 +118,7 @@ jobs:
     - uses: DeterminateSystems/nix-installer-action@v9
     - uses: cachix/cachix-action@v15
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Build package with poetry
       run: 'nix run .#poetry -- check

@@ -18,7 +18,7 @@ let
       inherit (cachixCachixAction) uses;
       "with" = {
         name = "nialov";
-        authToken = "\${{ secrets.CACHIX_AUTH_TOKEN_NIALOV }}";
+        authToken = "\${{ secrets.CACHIX_AUTH_TOKEN }}";
       };
     }
   ];
