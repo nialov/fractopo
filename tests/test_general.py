@@ -8,12 +8,14 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pytest
+from beartype.typing import NamedTuple, Sequence
 from hypothesis import example, given
 from hypothesis.strategies import booleans, floats
 from shapely.geometry import LineString, Point, Polygon
 
 import tests
 from fractopo import general
+from fractopo.general import Number
 
 
 @pytest.mark.parametrize(
@@ -206,3 +208,41 @@ def test_total_bounds(geodata):
     result = general.total_bounds(geodata=geodata)
     assert isinstance(result, tuple)
     assert len(result) == 4
+
+
+class DetermineSetParam(NamedTuple):
+    value: Number = 50
+    value_ranges: Sequence = ((10, 20), (40, 90))
+    set_names: Sequence = ("1", "2")
+    loop_around: bool = True
+
+
+@pytest.mark.parametrize(
+    "param,expected_result",
+    [
+        (
+            DetermineSetParam(),
+            "2",
+        ),
+        (
+            DetermineSetParam(value=15),
+            "1",
+        ),
+        (
+            DetermineSetParam(value_ranges=list(DetermineSetParam().value_ranges)),
+            "2",
+        ),
+        (
+            DetermineSetParam(set_names=list(DetermineSetParam().set_names)),
+            "2",
+        ),
+    ],
+)
+def test_determine_set(param: DetermineSetParam, expected_result):
+    """
+    Test determine_set.
+    """
+    assert len(param) == 4, param
+    result = general.determine_set(*param)
+
+    assert result == expected_result
