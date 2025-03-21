@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import powerlaw
 from beartype import beartype
-from beartype.typing import Any, Dict, List, Optional, Tuple
+from beartype.typing import Any, Dict, List, Optional, Sequence, Tuple
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -62,10 +62,10 @@ class LineData:
     using_branches: bool
 
     azimuth_set_ranges: SetRangeTuple
-    azimuth_set_names: Tuple[str, ...]
+    azimuth_set_names: Sequence[str]
 
     length_set_ranges: SetRangeTuple = ()
-    length_set_names: Tuple[str, ...] = ()
+    length_set_names: Sequence[str] = ()
 
     area_boundary_intersects: np.ndarray = field(default_factory=lambda: np.array([]))
 

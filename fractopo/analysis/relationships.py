@@ -9,7 +9,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from beartype import beartype
-from beartype.typing import Dict, List, Tuple, Union
+from beartype.typing import Dict, List, Sequence, Tuple, Union
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
@@ -33,7 +33,7 @@ def determine_crosscut_abutting_relationships(
     node_series: gpd.GeoSeries,
     node_types: np.ndarray,
     set_array: np.ndarray,
-    set_names: Tuple[str, ...],
+    set_names: Sequence[str],
     buffer_value: Number,
     label: str,
 ) -> pd.DataFrame:

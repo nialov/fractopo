@@ -3,7 +3,7 @@ import zipfile
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import geopandas as gpd
 import marimo as mo
@@ -11,6 +11,7 @@ import marimo as mo
 import fractopo.tval.trace_validation
 from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
 from fractopo.analysis.network import Network
+from fractopo.general import Number
 
 ENABLE_VERBOSE_BASE = "Enable verbose debug output? {}"
 UPLOAD_TRACE_DATA_BASE = "## Upload trace data: {}"
@@ -106,8 +107,8 @@ def parse_network_app_args(
     gpd.GeoDataFrame,
     float,
     Optional[float],
-    Tuple[Tuple[float, float], ...],
-    Tuple[str, ...],
+    Sequence[Tuple[Number, Number]],
+    Sequence[str],
     Tuple[Dist, ...],
 ]:
     (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
@@ -128,7 +129,10 @@ def parse_network_app_args(
     )
     if input_define_azimuth_sets.value:
         print("Using user-defined azimuth sets")
-        azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
+        # azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
+        azimuth_set_ranges: List[Tuple[Number, Number]] = [
+            tuple(range_values) for range_values in input_azimuth_set_ranges.value
+        ]
         azimuth_set_names = tuple(input_azimuth_set_names.value)
     else:
         print("Using default azimuth sets")
