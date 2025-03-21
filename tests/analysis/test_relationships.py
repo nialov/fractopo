@@ -3,7 +3,7 @@ Tests for relationship detection.
 """
 
 from itertools import chain
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -111,7 +111,7 @@ def test_determine_crosscut_abutting_relationships(
     node_series: gpd.GeoSeries,
     node_types: np.ndarray,
     set_array: np.ndarray,
-    set_names: Tuple[str, ...],
+    set_names: Sequence[str],
     buffer_value: float,
     label: str,
 ):

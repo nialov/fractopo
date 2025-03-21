@@ -2,14 +2,15 @@
 Tests for Network.
 """
 
+from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import powerlaw
 import pytest
+from beartype.typing import Any, Dict, List, Sequence
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -22,7 +23,7 @@ import tests
 from fractopo.analysis import length_distributions
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
-from fractopo.general import SetRangeTuple, read_geofile
+from fractopo.general import Col, SetRangeTuple, read_geofile
 
 
 def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
@@ -68,7 +69,7 @@ def test_azimuth_set_relationships_regression(
     """
     Test for azimuth set relationship regression.
     """
-    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
+    azimuth_set_names: Sequence[str] = ("1", "2", "3")[0 : len(azimuth_set_ranges)]
     relations_df: pd.DataFrame = Network(
         tests.kb7_traces_50,  # type: ignore
         tests.kb7_area,  # type: ignore
@@ -95,7 +96,7 @@ def test_length_set_relationships_regression(num_regression):
         (2, 4),
         (4, 6),
     )
-    trace_length_set_names: Tuple[str, ...] = ("a", "b", "c")
+    trace_length_set_names: Sequence[str] = ("a", "b", "c")
     relations_df: pd.DataFrame = Network(
         tests.kb7_traces_50,  # type: ignore
         tests.kb7_area,  # type: ignore
@@ -139,6 +140,8 @@ def test_network(
     file_regression,
     data_regression,
     tmp_path,
+    azimuth_set_names=Network.azimuth_set_names,
+    azimuth_set_ranges=Network.azimuth_set_ranges,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -158,6 +161,8 @@ def test_network(
         branch_length_set_ranges=((0.1, 1), (1, 2)),
         circular_target_area=circular_target_area,
         remove_z_coordinates_from_inputs=remove_z_coordinates_from_inputs,
+        azimuth_set_names=azimuth_set_names,
+        azimuth_set_ranges=azimuth_set_ranges,
     )
 
     assert area.shape[0] == len(network.representative_points())
@@ -349,24 +354,16 @@ def network_extensive_testing(
         plt.close("all")
 
 
-def _test_network_kb11_manual():
-    """
-    Test Network analysis with KB11 data.
-
-    Returns the Network.
-    """
-    trace_gdf = tests.kb11_traces
-    area_gdf = tests.kb11_area
-    network = Network(
-        trace_gdf=trace_gdf,
-        area_gdf=area_gdf,
-        name="KB11 test",
-        determine_branches_nodes=True,
-        truncate_traces=True,
-        snap_threshold=0.001,
-        circular_target_area=False,
-    )
-    return network
+_test_network_kb11_manual = partial(
+    Network,
+    trace_gdf=tests.kb11_traces,
+    area_gdf=tests.kb11_area,
+    name="KB11 test",
+    determine_branches_nodes=True,
+    truncate_traces=True,
+    snap_threshold=0.001,
+    circular_target_area=False,
+)
 
 
 def test_network_kb11_manual():
@@ -509,3 +506,26 @@ def test_network_topology_reassignment(
     new_df = pd.DataFrame([new_description])
     assert_frame_equal(original_df, new_df)
     assert_frame_equal(new_network.branch_gdf, branches_gdf)
+
+
+@pytest.mark.parametrize(
+    "azimuth_set_names,azimuth_set_ranges",
+    [
+        (("1", "2"), ((10, 50), (60, 90))),
+        (["1", "2"], [(10, 50), (60, 90)]),
+    ],
+)
+def test_network_set_input_types(
+    azimuth_set_names,
+    azimuth_set_ranges,
+):
+    network = _test_network_kb11_manual(
+        azimuth_set_names=azimuth_set_names,
+        azimuth_set_ranges=azimuth_set_ranges,
+    )
+
+    assert len(network.trace_data.azimuth_set_counts) == len(azimuth_set_names)
+    assert len(network.branch_data.azimuth_set_counts) == len(azimuth_set_names)
+
+    for gdf in (network.trace_gdf, network.branch_gdf):
+        assert Col.AZIMUTH_SET.value in gdf.columns
