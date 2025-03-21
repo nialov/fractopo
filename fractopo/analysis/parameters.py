@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import ternary
 from beartype import beartype
-from beartype.typing import Dict, List, Optional, Tuple
+from beartype.typing import Dict, List, Optional, Sequence, Tuple
 from matplotlib import patheffects as path_effects
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
@@ -745,7 +745,7 @@ def plot_parameters_plot(
 
 @beartype
 def determine_set_counts(
-    set_names: Tuple[str, ...], set_array: np.ndarray
+    set_names: Sequence[str], set_array: np.ndarray
 ) -> Dict[str, int]:
     """
     Determine counts in for each set.

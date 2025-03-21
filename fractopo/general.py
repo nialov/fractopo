@@ -92,7 +92,7 @@ RELATIVE_CENSORING = "Relative Censoring"
 GEOJSON_DRIVER = "GeoJSON"
 
 Number = Union[float, int, Real]
-SetRangeTuple = Tuple[Tuple[Number, Number], ...]
+SetRangeTuple = Sequence[Tuple[Number, Number]]
 BoundsTuple = Tuple[Number, Number, Number, Number]
 # PointTuple = Tuple[Number, Number]
 ParameterValuesType = Dict[str, Union[Number, int, str]]
@@ -270,9 +270,9 @@ class Param(Enum):
 
 @beartype
 def determine_set(
-    value: float,
+    value: Number,
     value_ranges: SetRangeTuple,
-    set_names: Tuple[str, ...],
+    set_names: Sequence[str],
     loop_around: bool,
 ) -> str:
     """

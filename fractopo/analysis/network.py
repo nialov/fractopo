@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from functools import partial, wraps
 from pathlib import Path
 from textwrap import dedent
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -164,7 +164,7 @@ class Network:
 
     # Azimuth sets
     # ============
-    azimuth_set_names: Tuple[str, ...] = ("1", "2", "3")
+    azimuth_set_names: Sequence[str] = ("1", "2", "3")
     azimuth_set_ranges: SetRangeTuple = (
         (0, 60),
         (60, 120),
@@ -175,11 +175,11 @@ class Network:
     # ===========
 
     # Trace length
-    trace_length_set_names: Tuple[str, ...] = ()
+    trace_length_set_names: Sequence[str] = ()
     trace_length_set_ranges: SetRangeTuple = ()
 
     # Branch length
-    branch_length_set_names: Tuple[str, ...] = ()
+    branch_length_set_names: Sequence[str] = ()
     branch_length_set_ranges: SetRangeTuple = ()
 
     # Branches and nodes
