@@ -6,8 +6,7 @@
         mkNixpkgs = nixpkgs:
           import nixpkgs {
             inherit system;
-            overlays =
-              [ inputs.nix-extra.overlays.default (import ./overlay.nix) ];
+            overlays = [ inputs.self.overlays.default ];
             config = { allowUnfree = true; };
           };
 
