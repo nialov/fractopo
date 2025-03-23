@@ -9,7 +9,18 @@ let
         ./per-system.nix
         ./ci.nix
       ];
-      flake = { inherit self; };
+      flake = {
+        inherit self;
+        overlays = let overlays' = import ./overlays.nix;
+        in {
+          inherit (overlays') packageOverlay localOverlay;
+          default = inputs.nixpkgs.lib.composeManyExtensions [
+            inputs.nix-extra.overlays.default
+            self.overlays.packageOverlay
+            self.overlays.localOverlay
+          ];
+        };
+      };
     });
 
 in flakePart
