@@ -1,5 +1,38 @@
 # Changelog
 
+## v0.8.0 (2025-03-24)
+
+This release includes inclusion of
+[`marimo`](https://github.com/marimo-team/marimo) apps, packaged with
+`docker`, which can be used to expose a simple web interface where
+`fractopo` validation and network analysis can be conducted. The
+containers are found in
+[`ghcr.io`](https://github.com/nialov/fractopo/pkgs/container/fractopo-app).
+
+Besides that, much of the code is now being type-checked during runtime
+with [`beartype`](https://github.com/beartype/beartype). This might
+result in errors when trying to input data in a wrong type when
+`fractopo` is used as a library.
+
+### New Features
+
+-   *(marimos)*: Add `marimo` apps to `./marimos`
+-   *(network)*: Allow specifying cell size for export
+-   *(length_distributions)*: Allow specifying which fits to plot. E.g.,
+    you can now only plot a powerlaw fit.
+-   *(network)*: Export full network description, including length
+    distribution fit variables, in parameter point.
+-   *(length_distributions)*: Add calculation of an approximate
+    Kolmogorov-Smirnov critical value.
+
+### Fixes
+
+- *(general)*: Allow underscore in names
+- *(general)*: Stop `fractopo` from crashing on `joblib` cache initialisation failure.
+
+Full set of changes:
+[`v0.7.1...v0.8.0`](https://github.com/nialov/fractopo/compare/v0.7.1...v0.8.0)
+
 ## v0.7.1 (2025-02-05)
 
 Minor bug release.
