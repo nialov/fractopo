@@ -1,6 +1,6 @@
 [project]
 name = "fractopo"
-version = "0.7.1"
+version = "0.8.0"
 description = "Fracture Network Analysis"
 authors = [{name= "nialov", email = "nikolasovaskainen@gmail.com"}]
 readme = "README.rst"
