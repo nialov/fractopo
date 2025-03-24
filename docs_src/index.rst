@@ -50,7 +50,9 @@ Installation
 ------------
 
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
-operating systems. For Windows and MacOS install using `(ana)conda <#conda>`__.
+operating systems. For Windows and MacOS install using
+`(ana)conda <#conda>`__. A container exists for exposing a simplified
+web interface using `marimo <https://github.com/Benni-Math/marimo>`__.
 
 conda
 ~~~~~
@@ -91,7 +93,38 @@ supported:
 
    git clone https://github.com/nialov/fractopo
    cd fractopo
-   poetry install
+   poetry install --all-extras
+
+container
+~~~~~~~~~
+
+Two `marimo <https://github.com/Benni-Math/marimo>`__ apps exist in
+``./marimos``, ``validation.py`` and ``network.py``. These are both
+included in the ``ghcr.io/nialov/fractopo-app:latest`` image. By
+default, when the image is run, the network analysis app is run. To run
+the validation app, add an environment variable ``RUN_MODE`` to the
+container with a value of ``validation``.
+
+The app host and port can be chosen with ``HOST`` (default is
+``0.0.0.0``) and ``PORT`` (default is ``2718``) environment variables.
+With ``docker`` you can, of course, expose in whichever port you choose.
+
+Example ``docker`` invocations are below.
+
+To run network analysis:
+
+.. code:: bash
+
+   # RUN_MODE=network specified explicitly even if it is the default
+   docker run --rm --interactive --tty --publish 2718:2718 --env RUN_MODE=network ghcr.io/nialov/fractopo-app:latest
+
+To run validation:
+
+.. code:: bash
+
+   docker run --rm --interactive --tty --publish 2718:2718 --env RUN_MODE=validation ghcr.io/nialov/fractopo-app:latest
+
+The app should be available at http://localhost:2718
 
 Usage
 -----
@@ -404,7 +437,7 @@ Copyright © 2020-2025, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: eb7ba5c9e347076f001740dddd229e88)
+.. [[[end]]] (checksum: 9ee94541e5468355d4ea0498fcdda917)
 
 .. toctree::
    :hidden:
