@@ -5,9 +5,9 @@ let
   inherit (inputs.actions-nix.lib.steps)
     actionsCheckout DeterminateSystemsNixInstallerAction runNixFastBuild
     runNixFlakeCheckNoBuild cachixCachixAction runBuildPackageWithPoetry
-    runCheckGitTagAndPyprojectToml runPublishPackageWithPoetry
-    runCreateIncrementalChangelog softpropsActionGhRelease
-    actionsUploadPagesArtifact actionsConfigurePages actionsDeployPages;
+    runPublishPackageWithPoetry runCreateIncrementalChangelog
+    softpropsActionGhRelease actionsUploadPagesArtifact actionsConfigurePages
+    actionsDeployPages;
   inherit (inputs.actions-nix.lib.jobs)
     publishDocsToGitHubPages publishPackages;
 
@@ -59,7 +59,6 @@ in {
               ];
             in baseNixSteps ++ [
               runBuildPackageWithPoetry
-              runCheckGitTagAndPyprojectToml
 
               (lib.recursiveUpdate runPublishPackageWithPoetry {
                 "if" = isTag;
