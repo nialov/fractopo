@@ -52,7 +52,7 @@ Installation
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
 operating systems. For Windows and MacOS install using
 `(ana)conda <#conda>`__. A container exists for exposing a simplified
-web interface using `marimo <https://github.com/Benni-Math/marimo>`__.
+web interface using `marimo <https://github.com/marimo-team/marimo>`__.
 
 conda
 ~~~~~
@@ -98,7 +98,7 @@ supported:
 container
 ~~~~~~~~~
 
-Two `marimo <https://github.com/Benni-Math/marimo>`__ apps exist in
+Two `marimo <https://github.com/marimo-team/marimo>`__ apps exist in
 ``./marimos``, ``validation.py`` and ``network.py``. These are both
 included in the ``ghcr.io/nialov/fractopo-app:latest`` image. By
 default, when the image is run, the network analysis app is run. To run
@@ -437,7 +437,7 @@ Copyright © 2020-2025, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 9ee94541e5468355d4ea0498fcdda917)
+.. [[[end]]] (checksum: 1cc99229567da747869edfb07443524d)
 
 .. toctree::
    :hidden:

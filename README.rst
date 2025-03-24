@@ -35,7 +35,7 @@ Installation
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
 operating systems. For Windows and MacOS install using
 `(ana)conda <#conda>`__. A container exists for exposing a simplified
-web interface using `marimo <https://github.com/Benni-Math/marimo>`__.
+web interface using `marimo <https://github.com/marimo-team/marimo>`__.
 
 conda
 ~~~~~
@@ -81,7 +81,7 @@ supported:
 container
 ~~~~~~~~~
 
-Two `marimo <https://github.com/Benni-Math/marimo>`__ apps exist in
+Two `marimo <https://github.com/marimo-team/marimo>`__ apps exist in
 ``./marimos``, ``validation.py`` and ``network.py``. These are both
 included in the ``ghcr.io/nialov/fractopo-app:latest`` image. By
 default, when the image is run, the network analysis app is run. To run
