@@ -12,7 +12,6 @@ from pathlib import Path
 
 import click
 import geopandas as gpd
-import pandas as pd
 import pyogrio
 import typer
 from beartype import beartype
@@ -24,7 +23,7 @@ from typer import Typer
 
 from fractopo import __version__
 from fractopo.analysis.network import Network
-from fractopo.general import check_for_wrong_geometries, read_geofile, save_fig
+from fractopo.general import check_for_wrong_geometries, read_geofile
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
@@ -319,15 +318,8 @@ def network(
         None,
         help="Path to area data that delineates censored areas within target areas.",
     ),
-    branches_output: Optional[Path] = typer.Option(
-        None, help="Where to save branch data."
-    ),
-    nodes_output: Optional[Path] = typer.Option(None, help="Where to save node data."),
-    general_output: Optional[Path] = typer.Option(
-        None, help="Where to save general network analysis outputs e.g. plots."
-    ),
-    parameters_output: Optional[Path] = typer.Option(
-        None, help="Where to save numerical parameter data from analysis."
+    output_path: Optional[Path] = typer.Option(
+        None, help="Where to save analysis outputs."
     ),
 ):
     """
@@ -358,92 +350,21 @@ def network(
             else gpd.GeoDataFrame()
         ),
     )
-    (
-        general_output_path,
-        branches_output_path,
-        nodes_output_path,
-        parameters_output_path,
-    ) = default_network_output_paths(
-        network_name=network_name,
-        general_output=general_output,
-        branches_output=branches_output,
-        nodes_output=nodes_output,
-        parameters_output=parameters_output,
-    )
-    if determine_branches_nodes:
-        # Save branches and nodes
-        CONSOLE.print(
-            Text.assemble(
-                "Saving branches to ",
-                (str(branches_output_path), "bold green"),
-                " and nodes to ",
-                (str(nodes_output_path), "bold green"),
-                ".",
-            )
-        )
-        network.branch_gdf.to_file(branches_output_path, driver="GPKG")
-        network.node_gdf.to_file(nodes_output_path, driver="GPKG")
 
     base_parameters = network.parameters
 
     # Print pretty table of basic network parameters
     CONSOLE.print(rich_table_from_parameters(base_parameters))
 
-    parameters = (
-        network.numerical_network_description()
-        if determine_branches_nodes
-        else base_parameters
-    )
+    if output_path is None:
+        if name is None:
+            output_path = Path(trace_file.stem)
+        else:
+            output_path = Path(name)
 
-    pd.DataFrame([parameters]).to_csv(parameters_output_path)
-
-    CONSOLE.print(
-        Text.assemble(
-            "Saving network parameter csv to path:\n",
-            (str(parameters_output_path), "bold green"),
-        )
-    )
-
-    if determine_branches_nodes:
-        # Plot ternary XYI-node proportion plot
-        fig, _, _ = network.plot_xyi()
-        save_fig(fig=fig, results_dir=general_output_path, name="xyi_ternary_plot")
-
-        # Plot ternary branch proportion plot
-        fig, _, _ = network.plot_branch()
-        save_fig(fig=fig, results_dir=general_output_path, name="branch_ternary_plot")
-
-    # Plot trace azimuth rose plot
-    _, fig, _ = network.plot_trace_azimuth()
-    save_fig(fig=fig, results_dir=general_output_path, name="trace_azimuth")
-
-    # Plot trace length distribution plot
-    _, fig, _ = network.plot_trace_lengths()
-    save_fig(fig=fig, results_dir=general_output_path, name="trace_length_distribution")
-
-    # Save additional numerical data for possible post-processing needs in a
-    # json file
-    json_data_arrays = {
-        "trace_length_array": network.trace_length_array,
-        "branch_length_array": (
-            network.branch_length_array if determine_branches_nodes else None
-        ),
-        "trace_azimuth_array": network.trace_azimuth_array,
-        "branch_azimuth_array": (
-            network.branch_azimuth_array if determine_branches_nodes else None
-        ),
-        "trace_azimuth_set_array": network.trace_azimuth_set_array,
-        "branch_azimuth_set_array": (
-            network.branch_azimuth_set_array if determine_branches_nodes else None
-        ),
-    }
-    json_data_lists = {
-        key: (item.tolist() if item is not None else None)
-        for key, item in json_data_arrays.items()
-    }
-    json_data_path = general_output_path / "additional_numerical_data.json"
-
-    json_data_path.write_text(json.dumps(json_data_lists, sort_keys=True))
+    # Export all results if topology was determined or subset if not
+    CONSOLE.print(f"Exporting network analysis results to {output_path}")
+    network.export_network_analysis(output_path=output_path)
 
 
 @beartype
