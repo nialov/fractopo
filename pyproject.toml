@@ -100,7 +100,9 @@ filterwarnings =[
     # joblib >=1.2.0 upstream issues
     "ignore:ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead:DeprecationWarning",
     "ignore:Attribute n is deprecated and will be removed in Python 3.14; use value instead:DeprecationWarning",
-    ]
+    "ignore:Column names longer than 10 characters will be truncated when saved to ESRI Shapefile:UserWarning",
+    "ignore:Normalized/laundered field name:RuntimeWarning",
+]
 
 [tool.isort]
 profile = "black"
