@@ -11,7 +11,7 @@ import marimo as mo
 import fractopo.tval.trace_validation
 from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
 from fractopo.analysis.network import Network
-from fractopo.general import Number
+from fractopo.general import Number, write_geodataframe
 
 ENABLE_VERBOSE_BASE = "Enable verbose debug output? {}"
 UPLOAD_TRACE_DATA_BASE = "## Upload trace data: {}"
@@ -176,9 +176,25 @@ def capture_function_outputs(
     return results, exc, stderr_and_stdout
 
 
+def _write_dir_contents_to_zip(tmp_dir_path: Path) -> BytesIO:
+    zip_io = BytesIO()
+    # Open an in-memory zip file
+    with zipfile.ZipFile(zip_io, mode="a") as zip_file:
+        for path in tmp_dir_path.rglob("*"):
+            # Do not add directories, only files
+            if path.is_dir():
+                continue
+            path_rel = path.relative_to(tmp_dir_path)
+
+            # Write file in-memory to zip file
+            zip_file.write(path, arcname=path_rel)
+    # Move to start of file
+    zip_io.seek(0)
+    return zip_io
+
+
 def network_results_to_download_element(
     network: Optional[Network],
-    determine_branches_nodes: bool,
     name: str,
     contour_grid_cell_size: float,
     fits_to_plot: Tuple[Dist, ...],
@@ -189,33 +205,13 @@ def network_results_to_download_element(
         tmp_dir_path = Path(tmp_dir)
 
         # Create and write plots to tmp_dir
-        if determine_branches_nodes:
-            network.export_network_analysis(
-                output_path=tmp_dir_path,
-                contour_grid_cell_size=contour_grid_cell_size,
-                fits_to_plot=fits_to_plot,
-            )
-        else:
-            _, fig, _ = network.plot_trace_azimuth()
-            fig.savefig(tmp_dir_path / "trace_azimuth.png", bbox_inches="tight")
-            _, fig, _ = network.plot_trace_lengths(fits_to_plot=fits_to_plot)
-            fig.savefig(tmp_dir_path / "trace_lengths.png", bbox_inches="tight")
+        network.export_network_analysis(
+            output_path=tmp_dir_path,
+            contour_grid_cell_size=contour_grid_cell_size,
+            fits_to_plot=fits_to_plot,
+        )
 
-        zip_io = BytesIO()
-
-        # Open an in-memory zip file
-        with zipfile.ZipFile(zip_io, mode="a") as zip_file:
-            for path in tmp_dir_path.rglob("*"):
-                # Do not add directories, only files
-                if path.is_dir():
-                    continue
-                path_rel = path.relative_to(tmp_dir_path)
-
-                # Write file in-memory to zip file
-                zip_file.write(path, arcname=path_rel)
-
-    # Move to start of file
-    zip_io.seek(0)
+        zip_io = _write_dir_contents_to_zip(tmp_dir_path=tmp_dir_path)
 
     download_element = mo.download(
         data=zip_io,
@@ -305,12 +301,15 @@ def parse_validation_app_args(
 def validated_clean_to_download_element(validated_clean, name):
     if validated_clean is None:
         return None
-    validated_clean_file = BytesIO()
-    validated_clean.to_file(validated_clean_file, driver="GPKG", layer=name)
-    validated_clean_file.seek(0)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir_path = Path(tmp_dir)
+        write_geodataframe(
+            geodataframe=validated_clean, name=name, results_dir=tmp_dir_path
+        )
+        zip_io = _write_dir_contents_to_zip(tmp_dir_path=tmp_dir_path)
     download_element = mo.download(
-        data=validated_clean_file,
-        filename=f"{name}_validated.gpkg",
+        data=zip_io,
+        filename=f"{name}_validated.zip",
         mimetype="application/octet-stream",
     )
     return download_element

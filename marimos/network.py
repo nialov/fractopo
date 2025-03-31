@@ -26,6 +26,7 @@ def _():
     import fractopo.general
     import fractopo.tval.trace_validation
     from fractopo.analysis.network import Network
+
     return (
         BytesIO,
         Network,
@@ -278,6 +279,7 @@ def _(
         )
 
         return network, name, contour_grid_cell_size, fits_to_plot
+
     return (execute,)
 
 
@@ -330,7 +332,6 @@ def _(mo, network):
 def _(
     contour_grid_cell_size,
     fits_to_plot,
-    input_determine_branches_nodes,
     mo,
     name,
     network,
@@ -342,7 +343,6 @@ def _(
             partial(
                 utils.network_results_to_download_element,
                 network=network,
-                determine_branches_nodes=input_determine_branches_nodes.value,
                 name=name,
                 contour_grid_cell_size=contour_grid_cell_size,
                 fits_to_plot=fits_to_plot,
