@@ -96,14 +96,16 @@ def test_fractopo_network_cli(
     """
     Test fractopo network cli entrypoint.
     """
-    tmp_path.mkdir(exist_ok=True)
+    if tmp_path.is_dir():
+        tmp_path.rmdir()
+
     result = typer_cli_runner.invoke(
         cli.APP,
         [
             "network",
             str(traces_path),
             str(area_path),
-            "--general-output",
+            "--output-path",
             str(tmp_path),
         ]
         + ([] if determine_branches_nodes else ["--no-determine-branches-nodes"]),

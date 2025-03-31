@@ -228,9 +228,17 @@ def test_network(
     # Test export_network_analysis
     # But only with small amount of traces as processing is time-consuming
     if try_export_of_data:
+        output_path = tmp_path.joinpath("export_network_analysis_results")
         network.export_network_analysis(
-            output_path=tmp_path, include_contour_grid=network.trace_gdf.shape[0] < 250
+            output_path=output_path,
+            include_contour_grid=network.trace_gdf.shape[0] < 250,
         )
+        assert output_path.exists()
+        for extension in ("geojson", "gpkg", "gdb"):
+            data_paths = list(output_path.glob(f"*.{extension}"))
+            assert len(data_paths) > 0
+            for data_path in data_paths:
+                assert isinstance(gpd.read_file(data_path), gpd.GeoDataFrame)
 
 
 @tests.plotting_test
