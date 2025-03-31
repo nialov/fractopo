@@ -2004,17 +2004,21 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
     try:
         geodataframe.to_file(results_dir / f"{name}.gpkg", driver="GPKG")
     except Exception:
-        log.error(error_base.format(name, "GeoPackage"), exc_info=True)
+        log.error(error_base.format(name, "GeoPackage (.gpkg)"), exc_info=True)
     try:
         geodataframe.to_file(results_dir / f"{name}.geojson", driver="GeoJSON")
     except Exception:
-        log.error(error_base.format(name, "GeoJSON"), exc_info=True)
+        log.error(error_base.format(name, "GeoJSON (.geojson)"), exc_info=True)
     try:
         shp_dir = results_dir / f"{name}_as_shp"
         shp_dir.mkdir(exist_ok=False)
         geodataframe.to_file(shp_dir / f"{name}.shp")
     except Exception:
-        log.error(error_base.format(name, "ESRI Shapefile"), exc_info=True)
+        log.error(error_base.format(name, "ESRI Shapefile (.shp)"), exc_info=True)
+    try:
+        geodataframe.to_file(results_dir / f"{name}.gdb", driver="OpenFileGDB")
+    except Exception:
+        log.error(error_base.format(name, "FileGeoDatabase (.gdb)"), exc_info=True)
 
 
 @beartype
