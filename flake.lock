@@ -7,11 +7,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1742471252,
-        "narHash": "sha256-HxhHmMumKlOY5HvPyltSeHw4lJZRMQceMQuVHANcbkA=",
+        "lastModified": 1743669844,
+        "narHash": "sha256-P/NSBRXOGFWaiAygX9/JLsltRKR/Dh2Z7fcuMN7iJwQ=",
         "owner": "nialov",
         "repo": "actions.nix",
-        "rev": "5801db642f3bf6687fc7b898b0333276b447fd15",
+        "rev": "26577477c7a95e8bea7496489026f77e9e7f2c2a",
         "type": "github"
       },
       "original": {
