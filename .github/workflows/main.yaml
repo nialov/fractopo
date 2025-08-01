@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -45,18 +45,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Build documentation
-      run: 'nix build .#fractopo.passthru.documentation.doc
-
-        cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix
-        eval --raw .#fractopo.name)"/html ./docs
-
-        '
+      run: |-
+        nix build .#fractopo.passthru.documentation.doc
+        cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/html ./docs
     - uses: actions/upload-pages-artifact@v3
       with:
         path: docs/
@@ -68,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -80,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -92,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -115,27 +112,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: DeterminateSystems/nix-installer-action@v19
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         name: nialov
     - name: Build package with poetry
-      run: 'nix run .#poetry -- check
-
+      run: |-
+        nix run .#poetry -- check
         nix run .#poetry -- build
-
         nix run .#poetry -- publish --dry-run
-
-        '
     - if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       name: Publish distribution to PyPI on tag
       run: nix run .#poetry -- publish --username=__token__ --password=${{ secrets.PYPI_PASSWORD
         }} --no-interaction
     - name: Create incremental changelog
-      run: 'nix run .#cut-release-changelog > RELEASE_CHANGELOG.md
-
-        '
+      run: nix run .#cut-release-changelog > RELEASE_CHANGELOG.md
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
@@ -143,9 +135,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         body_path: RELEASE_CHANGELOG.md
-        files: 'dist/*
-
-          '
+        files: dist/*
     timeout-minutes: 60
 'on':
   push: {}

@@ -15,19 +15,13 @@ jobs:
         init-shell: bash powershell
         micromamba-version: 1.5.6-0
         post-cleanup: all
-    - run: 'echo "Testing package import"
-
-        python -c ''import fractopo''
-
+    - run: |-
+        echo "Testing package import"
+        python -c 'import fractopo'
         echo "Testing module entrypoint"
-
         python -m fractopo --help
-
         echo "Running unittests with pytest"
-
         pytest -v
-
-        '
     strategy:
       fail-fast: false
       matrix:
