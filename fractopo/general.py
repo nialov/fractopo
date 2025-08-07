@@ -2016,7 +2016,15 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
     except Exception:
         log.error(error_base.format(name, "ESRI Shapefile (.shp)"), exc_info=True)
     try:
-        geodataframe.to_file(results_dir / f"{name}.gdb", driver="OpenFileGDB")
+        geodataframe.to_file(
+            results_dir / f"{name}.gdb",
+            driver="OpenFileGDB",
+            # Fixes RuntimeWarning: Field Number of Traces (Real) of type
+            # Integer64 will be written as a Float64. To get Integer64, use
+            # layer creation option
+            # TARGET_ARCGIS_VERSION=ARCGIS_PRO_3_2_OR_LATER
+            layer_options={"TARGET_ARCGIS_VERSION": "ARCGIS_PRO_3_2_OR_LATER"},
+        )
     except Exception:
         log.error(error_base.format(name, "FileGeoDatabase (.gdb)"), exc_info=True)
 
