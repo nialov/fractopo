@@ -54,7 +54,7 @@ jobs:
       run: |-
         nix build .#fractopo.passthru.documentation.doc
         cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/html ./docs
-    - uses: actions/upload-pages-artifact@v3
+    - uses: actions/upload-pages-artifact@v4
       with:
         path: docs/
     - uses: actions/configure-pages@v5
