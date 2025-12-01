@@ -7,8 +7,8 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -44,8 +44,8 @@ jobs:
       pages: write
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -64,8 +64,8 @@ jobs:
   nix-fast-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -76,8 +76,8 @@ jobs:
   nix-flake-check-no-build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -88,8 +88,8 @@ jobs:
   poetry:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -111,8 +111,8 @@ jobs:
     - poetry
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - uses: DeterminateSystems/nix-installer-action@v19
+    - uses: actions/checkout@v6
+    - uses: DeterminateSystems/nix-installer-action@v21
     - uses: cachix/cachix-action@v16
       with:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
