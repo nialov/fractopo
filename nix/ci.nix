@@ -44,7 +44,7 @@ in {
             steps = baseNixSteps ++ [ runNixFlakeCheckNoBuild ];
           };
           poetry = {
-            strategy.matrix.python-version = [ "3.9" "3.10" "3.11" "3.12" ];
+            strategy.matrix.python-version = [ "3.11" "3.12" "3.13" "3.14" ];
             steps = baseNixSteps ++ [{
 
               name = "Test with poetry on Python \${{ matrix.python-version }}";
@@ -95,7 +95,7 @@ in {
             needs = [ "nix-fast-build" ];
             steps = let
 
-              mkPushStep = { rev, name, ifConditions }: {
+              mkPushStep = { rev, name, ifConditions, }: {
                 inherit name;
                 "if" = lib.concatStringsSep " && " ifConditions;
                 run = lib.concatStringsSep " " [
