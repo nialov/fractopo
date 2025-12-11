@@ -179,3 +179,4 @@ dmypy.json
 examples/validation_errors.png
 /result*
 /.pre-commit-config.yaml
+.aider*
