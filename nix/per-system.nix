@@ -55,7 +55,7 @@
             isort = {
               enable = true;
             };
-            shellcheck.enable = true;
+            shellcheck = {enable = true;};
             statix.enable = true;
             deadnix.enable = true;
             rstcheck.enable = true;
