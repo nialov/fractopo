@@ -94,13 +94,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - uses: DeterminateSystems/nix-installer-action@v21
-    - uses: cachix/cachix-action@v16
+    - uses: actions/setup-python@v5
       with:
-        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        name: nialov
-    - name: Test with poetry on Python ${{ matrix.python-version }}
-      run: nix run .#poetry-run -- ${{ matrix.python-version }} pytest
+        python-version: ${{ matrix.python-version }}
+    - uses: abatilo/actions-poetry@v4
+    - name: Install project depencencies
+      run: poetry install --all-extras --all-groups
+    - name: Run pytest
+      run: poetry run pytest
     strategy:
       matrix:
         python-version:
