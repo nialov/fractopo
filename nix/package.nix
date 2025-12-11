@@ -1,18 +1,55 @@
-{ buildPythonPackage, lib, click, pytest, geopandas, joblib, matplotlib, numpy
-, pandas, pandas-stubs, rich, scikit-learn, scipy, seaborn, shapely, typer
-, pytest-regressions, hypothesis, poetry-core, sphinxHook, pandoc
-, sphinx-autodoc-typehints, sphinx-rtd-theme, sphinx-gallery, nbsphinx, notebook
-, ipython, coverage, powerlaw, python-ternary, marimo, versionCheckHook
-, beartype
+{
+  buildPythonPackage,
+  lib,
+  click,
+  pytest,
+  geopandas,
+  joblib,
+  matplotlib,
+  numpy,
+  pandas,
+  pandas-stubs,
+  rich,
+  scikit-learn,
+  scipy,
+  seaborn,
+  shapely,
+  typer,
+  pytest-regressions,
+  hypothesis,
+  poetry-core,
+  sphinxHook,
+  pandoc,
+  sphinx-autodoc-typehints,
+  sphinx-rtd-theme,
+  sphinx-gallery,
+  nbsphinx,
+  notebook,
+  ipython,
+  coverage,
+  powerlaw,
+  python-ternary,
+  marimo,
+  versionCheckHook,
+  beartype,
 
 }:
 
 let
 
-  baseFiles =
-    [ ../pyproject.toml ../fractopo ../README.rst ../tests ../marimos ];
-  docFiles = baseFiles ++ [ ../docs_src ../examples ];
-  mkSrc = files:
+  baseFiles = [
+    ../pyproject.toml
+    ../fractopo
+    ../README.rst
+    ../tests
+    ../marimos
+  ];
+  docFiles = baseFiles ++ [
+    ../docs_src
+    ../examples
+  ];
+  mkSrc =
+    files:
     let
       fs = lib.fileset;
       sourceFiles = fs.intersection (fs.gitTracked ../.) (fs.unions files);
@@ -20,7 +57,8 @@ let
         root = ../.;
         fileset = sourceFiles;
       };
-    in src;
+    in
+    src;
   self = buildPythonPackage {
     pname = "fractopo";
     version = "0.8.0";
@@ -48,7 +86,9 @@ let
     passthru = {
       # Enables building package without tests
       # nix build .#fractopo.passthru.no-check
-      no-check = self.overridePythonAttrs (_: { doCheck = false; });
+      no-check = self.overridePythonAttrs (_: {
+        doCheck = false;
+      });
       # Documentation without tests
       documentation = self.overridePythonAttrs (prevAttrs: {
         src = mkSrc docFiles;
@@ -65,11 +105,14 @@ let
           ipython
         ];
         sphinxRoot = "docs_src";
-        outputs = [ "out" "doc" ];
+        outputs = [
+          "out"
+          "doc"
+        ];
       });
       optional-dependencies = {
-        dev = self.propagatedBuildInputs ++ self.buildInputs
-          ++ self.passthru.documentation.nativeBuildInputs;
+        dev =
+          self.propagatedBuildInputs ++ self.buildInputs ++ self.passthru.documentation.nativeBuildInputs;
       };
     };
 
@@ -92,8 +135,14 @@ let
       beartype
     ];
 
-    checkInputs =
-      [ pytest pytest-regressions hypothesis coverage marimo versionCheckHook ];
+    checkInputs = [
+      pytest
+      pytest-regressions
+      hypothesis
+      coverage
+      marimo
+      versionCheckHook
+    ];
 
     versionCheckProgramArg = "--version";
 
@@ -117,4 +166,5 @@ let
       maintainers = [ maintainers.nialov ];
     };
   };
-in self
+in
+self

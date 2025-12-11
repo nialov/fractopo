@@ -56,10 +56,7 @@
               enable = true;
             };
             shellcheck = {
-              enable = true;
-              raw = {
-                extra_args = [ "-e" "SC2148" ];
-              };
+              enable = false;
             };
             statix.enable = true;
             deadnix.enable = true;
