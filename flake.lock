@@ -1697,11 +1697,11 @@
         "tracerepo-src": "tracerepo-src_2"
       },
       "locked": {
-        "lastModified": 1765182741,
-        "narHash": "sha256-HNrUacGvwMRctfPrCU9I1tX7RsnYegiI3diAl9gE8Po=",
+        "lastModified": 1765441243,
+        "narHash": "sha256-KQXrh3W17fZoVUdUbBwXbaCG9UFPRxWhuiMTMNyORRI=",
         "owner": "nialov",
         "repo": "nix-extra",
-        "rev": "a3a7b3a74e31a711c417158313c08416dc29b8f1",
+        "rev": "5cff73ed4796f6afe96df546c9dd9e251be8416d",
         "type": "github"
       },
       "original": {
