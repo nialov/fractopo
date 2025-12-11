@@ -13,13 +13,37 @@ Subpackages
 Submodules
 ----------
 
-.. toctree::
-   :maxdepth: 4
+fractopo.branches\_and\_nodes module
+------------------------------------
 
-   fractopo.branches_and_nodes
-   fractopo.cli
-   fractopo.fractopo_utils
-   fractopo.general
+.. automodule:: fractopo.branches_and_nodes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fractopo.cli module
+-------------------
+
+.. automodule:: fractopo.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fractopo.fractopo\_utils module
+-------------------------------
+
+.. automodule:: fractopo.fractopo_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fractopo.general module
+-----------------------
+
+.. automodule:: fractopo.general
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
