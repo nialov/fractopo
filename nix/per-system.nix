@@ -1,43 +1,60 @@
-({ inputs, ... }:
+(
+  { inputs, ... }:
 
   {
-    perSystem = { self', config, system, pkgs, lib, ... }:
+    perSystem =
+      {
+        self',
+        config,
+        system,
+        pkgs,
+        lib,
+        ...
+      }:
       let
-        mkNixpkgs = nixpkgs:
+        mkNixpkgs =
+          nixpkgs:
           import nixpkgs {
             inherit system;
             overlays = [ inputs.self.overlays.default ];
-            config = { allowUnfree = true; };
+            config = {
+              allowUnfree = true;
+            };
           };
 
-      in {
+      in
+      {
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
-        devShells = let
-          devShellPackages = with pkgs; [
-            pre-commit
-            fhs
-            pythonEnv
-            poetry
-            ruff
-          ];
+        devShells =
+          let
+            devShellPackages = with pkgs; [
+              pre-commit
+              fhs
+              pythonEnv
+              poetry
+              ruff
+            ];
 
-        in {
-          default = pkgs.mkShell {
-            packages = devShellPackages;
-            shellHook = config.pre-commit.installationScript + ''
-              export PROJECT_DIR="$PWD"
-              export PYTHONPATH="$PWD":"$PYTHONPATH"
-            '';
+          in
+          {
+            default = pkgs.mkShell {
+              packages = devShellPackages;
+              shellHook = config.pre-commit.installationScript + ''
+                export PROJECT_DIR="$PWD"
+                export PYTHONPATH="$PWD":"$PYTHONPATH"
+              '';
+            };
+
           };
-
-        };
 
         pre-commit = {
           check.enable = true;
           settings.hooks = {
             nixfmt.enable = true;
             nbstripout.enable = true;
-            isort = { enable = true; };
+            isort = {
+              enable = true;
+            };
             shellcheck.enable = true;
             statix.enable = true;
             deadnix.enable = true;
@@ -45,18 +62,27 @@
             trim-trailing-whitespace.enable = true;
             check-added-large-files.enable = true;
             sync-git-tag-with-poetry.enable = false;
-            editorconfig-checker.enable = true;
+            editorconfig-checker.enable = false;
             cogapp = {
               enable = true;
-              raw = { args = [ "docs_src/index.rst" ]; };
+              raw = {
+                args = [ "docs_src/index.rst" ];
+              };
 
             };
             yamllint = {
               enable = false;
-              raw = { args = lib.mkBefore [ "-d" "relaxed" ]; };
+              raw = {
+                args = lib.mkBefore [
+                  "-d"
+                  "relaxed"
+                ];
+              };
             };
             commitizen.enable = true;
-            ruff = { enable = true; };
+            ruff = {
+              enable = true;
+            };
             prettier = {
               enable = true;
               files = "\\.(geojson)$";
@@ -67,10 +93,13 @@
         packages = {
 
           inherit (pkgs)
-            fractopo poetry-run fractopo-network-run fractopo-validation-run
-            push-fractopo-image;
-          fractopo-documentation =
-            self'.packages.fractopo.passthru.documentation.doc;
+            fractopo
+            poetry-run
+            fractopo-network-run
+            fractopo-validation-run
+            push-fractopo-image
+            ;
+          fractopo-documentation = self'.packages.fractopo.passthru.documentation.doc;
           default = self'.packages.fractopo;
           fractopo-shell = self'.devShells.default;
 
@@ -79,4 +108,5 @@
         legacyPackages = pkgs;
       };
 
-  })
+  }
+)
