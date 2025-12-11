@@ -10,7 +10,8 @@
       ];
     };
 
-    localOverlay = final: prev:
+    localOverlay =
+      final: prev:
       let
         inherit (prev) lib;
         fractopoImageConfig = {
@@ -25,7 +26,10 @@
             chmod -R 777 ./app
           '';
           # Add for debugging
-          contents = [ prev.bashInteractive prev.busybox ];
+          contents = [
+            prev.bashInteractive
+            prev.busybox
+          ];
           config = {
             Entrypoint = [
               "/bin/bash"
@@ -42,41 +46,61 @@
               ])
             ];
             WorkingDir = "/app";
-            Env = [ "HOME=/app" "HOST=0.0.0.0" "PORT=2718" "RUN_MODE=network" ];
+            Env = [
+              "HOME=/app"
+              "HOST=0.0.0.0"
+              "PORT=2718"
+              "RUN_MODE=network"
+            ];
           };
         };
-        mkMarimoRun = { name, script, marimosDir ? ../marimos }:
+        mkMarimoRun =
+          {
+            name,
+            script,
+            marimosDir ? ../marimos,
+          }:
           prev.writeShellApplication {
             inherit name;
             runtimeInputs = [ final.fractopoEnv ];
-            text = let scriptPath = "${marimosDir}/${script}";
-            in ''
-              marimo run ${scriptPath} "$@"
-            '';
+            text =
+              let
+                scriptPath = "${marimosDir}/${script}";
+              in
+              ''
+                marimo run ${scriptPath} "$@"
+              '';
 
           };
 
-      in {
+      in
+      {
         inherit (final.python3Packages) fractopo;
-        fractopo-fhs = let
-          base = prev.fhs.passthru.args;
-          config = {
-            name = "fhs";
-            targetPkgs = fhsPkgs:
-              (base.targetPkgs fhsPkgs)
-              ++ [ fhsPkgs.gdal fhsPkgs.stdenv.cc.cc.lib ];
-            profile = ''
-              export LD_LIBRARY_PATH=${prev.stdenv.cc.cc.lib}/lib/
-            '';
-          };
-        in prev.buildFHSEnv (lib.recursiveUpdate base config);
+        fractopo-fhs =
+          let
+            base = prev.fhs.passthru.args;
+            config = {
+              name = "fhs";
+              targetPkgs =
+                fhsPkgs:
+                (base.targetPkgs fhsPkgs)
+                ++ [
+                  fhsPkgs.gdal
+                  fhsPkgs.stdenv.cc.cc.lib
+                ];
+              profile = ''
+                export LD_LIBRARY_PATH=${prev.stdenv.cc.cc.lib}/lib/
+              '';
+            };
+          in
+          prev.buildFHSEnv (lib.recursiveUpdate base config);
 
-        pythonEnv = final.python3.withPackages
-          (p: p.fractopo.passthru.optional-dependencies.dev);
-        fractopoEnv = final.python3.withPackages (p:
+        pythonEnv = final.python3.withPackages (p: p.fractopo.passthru.optional-dependencies.dev);
+        fractopoEnv = final.python3.withPackages (
+          p:
           # TODO: Should check.
-          [ p.fractopo.passthru.no-check ]
-          ++ p.fractopo.passthru.optional-dependencies.dev);
+          [ p.fractopo.passthru.no-check ] ++ p.fractopo.passthru.optional-dependencies.dev
+        );
         fractopo-validation-run = mkMarimoRun {
           name = "fractopo-validation-run";
           script = "validation.py";
@@ -87,10 +111,8 @@
           script = "network.py";
         };
 
-        fractopo-app-image =
-          prev.dockerTools.buildLayeredImage fractopoImageConfig;
-        fractopo-app-image-stream =
-          prev.dockerTools.streamLayeredImage fractopoImageConfig;
+        fractopo-app-image = prev.dockerTools.buildLayeredImage fractopoImageConfig;
+        fractopo-app-image-stream = prev.dockerTools.streamLayeredImage fractopoImageConfig;
 
         load-fractopo-image = prev.writeShellApplication {
           name = "load-fractopo-image";
@@ -104,32 +126,33 @@
         };
         push-fractopo-image = prev.writeShellApplication {
           name = "push-fractopo-image";
-          text = let
+          text =
+            let
 
-            mkTagCmd = { imageName, imageTag }:
-              ''
-                docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:"$5"'';
+              mkTagCmd =
+                { imageName, imageTag }: ''docker tag ${imageName}:${imageTag} "$1"/"$2"/${imageName}:"$5"'';
 
-            tagCmd = mkTagCmd {
-              inherit (final.fractopo-app-image-stream) imageName imageTag;
-            };
+              tagCmd = mkTagCmd {
+                inherit (final.fractopo-app-image-stream) imageName imageTag;
+              };
 
-            mkPushCmd = imageName: ''docker push "$1"/"$2"/${imageName}:"$5"'';
-            pushCmd = mkPushCmd final.fractopo-app-image-stream.imageName;
+              mkPushCmd = imageName: ''docker push "$1"/"$2"/${imageName}:"$5"'';
+              pushCmd = mkPushCmd final.fractopo-app-image-stream.imageName;
 
-          in ''
-            echo "Logging in to $1 with user $4"
-            docker login -p "$3" -u "$4" "$1"
+            in
+            ''
+              echo "Logging in to $1 with user $4"
+              docker login -p "$3" -u "$4" "$1"
 
-            echo "Listing images"
-            docker image list
+              echo "Listing images"
+              docker image list
 
-            echo "Tagging new image version to $1/$2"
-            ${tagCmd}
+              echo "Tagging new image version to $1/$2"
+              ${tagCmd}
 
-            echo "Pushing new image version to $1/$2"
-            ${pushCmd}
-          '';
+              echo "Pushing new image version to $1/$2"
+              ${pushCmd}
+            '';
         };
         cut-release-changelog = prev.writeShellApplication {
           name = "cut-release-changelog";
@@ -139,4 +162,8 @@
         };
       };
 
-  in { inherit packageOverlay localOverlay; })
+  in
+  {
+    inherit packageOverlay localOverlay;
+  }
+)
