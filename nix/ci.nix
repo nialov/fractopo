@@ -63,8 +63,7 @@ in
                 "3.11"
                 "3.12"
                 "3.13"
-                # TODO: pyzmq does not install properly on 3.14
-                # "3.14"
+                "3.14"
               ];
               steps = [
                 actionsCheckout
