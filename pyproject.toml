@@ -28,7 +28,8 @@ dependencies = [
     "matplotlib >=3.5.3",
     "numpy >=1.26.0,<3.0.0",
     "pandas >=2.1.0,<3.0.0",
-    "powerlaw",
+    # 2.0.0 changes results. Needs a review before updating.
+    "powerlaw>=1.4.6,<2.0.0",
     "python-ternary",
     "rich >=11.0.0",
     "scikit-learn",
@@ -108,6 +109,8 @@ filterwarnings =[
     "ignore:Column names longer than 10 characters will be truncated when saved to ESRI Shapefile:UserWarning",
     "ignore:Normalized/laundered field name:RuntimeWarning",
     "ignore:'mode' parameter is deprecated and will be removed in Pillow 13:DeprecationWarning",
+    # upstream powerlaw error
+    "ignore:Standard error for the MLE should be accessed using the 'standard_err' property.:DeprecationWarning",
 ]
 
 [tool.isort]
