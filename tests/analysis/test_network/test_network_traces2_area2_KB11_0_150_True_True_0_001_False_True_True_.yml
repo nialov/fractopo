@@ -1,15 +1,15 @@
 Area: 1237.9
 Areal Frequency B20: 0.33
 Areal Frequency P20: 0.11
-Branch Boundary 0 Intersect Count: 427
+Branch Boundary 0 Intersect Count: 426
 Branch Boundary 1 Intersect Count: 0
 Branch Boundary 2 Intersect Count: 0
 Branch Max Length: 12.77
 Branch Mean Length: 0.93
-Branch Min Length: 0.01
+Branch Min Length: 0.02
 C - C: 299
 C - E: 31
-C - I: 96
+C - I: 95
 Censoring: .nan
 Connection Frequency: 0.18
 Connections per Branch: 1.76
@@ -22,11 +22,11 @@ Fracture Density (Mauldon): .nan
 Fracture Intensity (Mauldon): .nan
 Fracture Intensity B21: 0.31
 Fracture Intensity P21: 0.31
-I: 98
+I: 97
 I - E: 0
 I - I: 1
-Number of Branches: 411.5
-Number of Branches (Real): 427
+Number of Branches: 410.5
+Number of Branches (Real): 426
 Number of Traces: 134.5
 Number of Traces (Real): 150
 Radius: .nan
@@ -38,8 +38,8 @@ Trace Max Length: 24.57
 Trace Mean Length: 2.55
 Trace Mean Length (Mauldon): .nan
 Trace Min Length: 0.08
-X: 53
-Y: 171
+X: 52
+Y: 172
 branch Kolmogorov-Smirnov critical distance value: 0.13
 branch exponential Kolmogorov-Smirnov distance D: 0.2
 branch exponential lambda: 0.87
@@ -73,7 +73,7 @@ trace exponential lambda: 0.3
 trace exponential loglikelihood: -100.9
 trace lengths cut off proportion: 0.69
 trace lognormal Kolmogorov-Smirnov distance D: 0.06
-trace lognormal loglikelihood: -97.22
+trace lognormal loglikelihood: -97.21
 trace lognormal mu: -1.56
 trace lognormal sigma: 1.47
 trace lognormal vs. exponential R: 1.46
