@@ -417,7 +417,7 @@ Development
 License
 ~~~~~~~
 
-Copyright © 2020-2025, Nikolas Ovaskainen.
+Copyright © 2020-2026, Nikolas Ovaskainen.
 
 -----
 
@@ -437,7 +437,7 @@ Copyright © 2020-2025, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 1cc99229567da747869edfb07443524d)
+.. [[[end]]] (checksum: 03b8bc905d987b2f0346263e2055bca2)
 
 .. toctree::
    :hidden:
