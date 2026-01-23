@@ -400,7 +400,7 @@ Development
 License
 ~~~~~~~
 
-Copyright © 2020-2025, Nikolas Ovaskainen.
+Copyright © 2020-2026, Nikolas Ovaskainen.
 
 -----
 
