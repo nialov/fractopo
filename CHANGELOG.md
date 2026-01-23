@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.9.0 (2026-01-23)
+
+Improved exporting of results from ``network`` cli interface and from
+``marimo`` apps and added support and CI for Python 3.13 and 3.14. However,
+support was removed for Python 3.9 and 3.10.
+
+### 🚀 Features
+
+- *(network)* Improve and unify network export function
+- *(cli,network)* [**breaking**] The command-line ``network`` command has been altered. Output path is now only given using ``--output-path`` flag.
+- *(general,write_geodataframe)* Export also as FileGeoDatabase
+- *(marimos)* Improve exports from marimo app
+
+### 🐛 Bug Fixes
+
+- *(general)* Specify TARGET_ARCGIS_VERSION
+
+### 📚 Documentation
+
+- Update api docs and config
+- *(fractopo_validation_1)* Fix new KB11_traces validation errors
+
+### 🧪 Testing
+
+- Update tests for new unified export function
+
+Full set of changes:
+[`v0.8.0...v0.9.0`](https://github.com/nialov/fractopo/compare/v0.8.0...v0.9.0)
+
 ## v0.8.0 (2025-03-24)
 
 This release includes inclusion of
