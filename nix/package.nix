@@ -111,12 +111,11 @@ let
         ];
       });
       optional-dependencies = {
-        dev =
-          self.propagatedBuildInputs ++ self.buildInputs ++ self.passthru.documentation.nativeBuildInputs;
+        dev = self.dependencies ++ self.buildInputs ++ self.passthru.documentation.nativeBuildInputs;
       };
     };
 
-    propagatedBuildInputs = [
+    dependencies = [
       click
       geopandas
       joblib
@@ -135,7 +134,7 @@ let
       beartype
     ];
 
-    checkInputs = [
+    nativeCheckInputs = [
       pytest
       pytest-regressions
       hypothesis
