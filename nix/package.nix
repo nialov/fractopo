@@ -61,7 +61,7 @@ let
     src;
   self = buildPythonPackage {
     pname = "fractopo";
-    version = "0.8.0";
+    version = "0.9.0";
 
     src = mkSrc baseFiles;
 
