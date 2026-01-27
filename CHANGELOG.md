@@ -4,6 +4,10 @@
 
 Added back support for Python 3.10.
 
+### 📚 Documentation
+
+- Add gallery example of extracting parameters from multiple networks (``MultiNetwork``)
+
 Full set of changes:
 [`v0.9.0...v0.9.1`](https://github.com/nialov/fractopo/compare/v0.9.0...v0.9.1)
 
