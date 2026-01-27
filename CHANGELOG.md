@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.9.1 (2026-01-27)
+
+Added back support for Python 3.10.
+
+Full set of changes:
+[`v0.9.0...v0.9.1`](https://github.com/nialov/fractopo/compare/v0.9.0...v0.9.1)
+
 ## v0.9.0 (2026-01-23)
 
 Improved exporting of results from ``network`` cli interface and from
