@@ -61,7 +61,7 @@ let
     src;
   self = buildPythonPackage {
     pname = "fractopo";
-    version = "0.9.0";
+    inherit ((builtins.fromTOML (builtins.readFile ../pyproject.toml)).project) version;
 
     src = mkSrc baseFiles;
 
