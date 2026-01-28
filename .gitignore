@@ -36,6 +36,7 @@ trace_validator.egg-info
 venv/
 paper/allrefs.bib
 .null-ls_*
+__marimo__
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs

@@ -97,8 +97,8 @@
           inherit (pkgs)
             fractopo
             poetry-run
-            fractopo-network-run
-            fractopo-validation-run
+            fractopo-api-run
+            # Contains building of container using defined configuration
             push-fractopo-image
             ;
           fractopo-documentation = self'.packages.fractopo.passthru.documentation.doc;

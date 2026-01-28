@@ -32,6 +32,7 @@
   marimo,
   versionCheckHook,
   beartype,
+  fastapi,
 
 }:
 
@@ -81,6 +82,7 @@ let
     nativeBuildInputs = [
       # Uses poetry for install
       poetry-core
+      pandoc
     ];
 
     passthru = {
@@ -93,26 +95,17 @@ let
       documentation = self.overridePythonAttrs (prevAttrs: {
         src = mkSrc docFiles;
         doCheck = false;
-        nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
-          # Documentation dependencies
-          sphinxHook
-          pandoc
-          sphinx-autodoc-typehints
-          sphinx-rtd-theme
-          sphinx-gallery
-          nbsphinx
-          notebook
-          ipython
-        ];
+        dependencies = [ prevAttrs.dependencies ] ++ prevAttrs.optional-dependencies.dev;
         sphinxRoot = "docs_src";
         outputs = [
           "out"
           "doc"
         ];
+        # Normal Python package build expects dist/
+        preConfigure = ''
+          pythonOutputDistPhase() { touch $dist; }
+        '';
       });
-      optional-dependencies = {
-        dev = self.dependencies ++ self.buildInputs ++ self.passthru.documentation.nativeBuildInputs;
-      };
     };
 
     dependencies = [
@@ -133,6 +126,24 @@ let
       typer
       beartype
     ];
+
+    optional-dependencies = {
+      dev = [
+        sphinxHook
+        sphinx-autodoc-typehints
+        sphinx-rtd-theme
+        sphinx-gallery
+        nbsphinx
+        notebook
+        ipython
+        marimo
+      ]
+      ++ self.nativeBuildInputs;
+      api = [
+        fastapi
+        marimo
+      ];
+    };
 
     nativeCheckInputs = [
       pytest
@@ -163,6 +174,7 @@ let
       description = "Fracture Network analysis";
       license = licenses.mit;
       maintainers = [ maintainers.nialov ];
+      mainProgram = "fractopo";
     };
   };
 in

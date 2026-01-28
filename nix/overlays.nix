@@ -23,6 +23,7 @@
             cp ${../marimos/utils.py} ./app/marimos/utils.py
             cp ${../marimos/validation.py} ./app/marimos/validation.py
             cp ${../marimos/network.py} ./app/marimos/network.py
+            cp ${../marimos/api.py} ./app/marimos/api.py
             chmod -R 777 ./app
           '';
           # Add for debugging
@@ -35,14 +36,11 @@
               "/bin/bash"
               "-c"
               (lib.concatStringsSep " " [
-                "${final.fractopoEnv}/bin/marimo"
-                "run"
+                "${final.fractopo-api-run}/bin/fractopo-api-run"
                 "--host"
                 "$HOST"
                 "--port"
                 "$PORT"
-                "--redirect-console-to-browser"
-                "/app/marimos/$RUN_MODE.py"
               ])
             ];
             WorkingDir = "/app";
@@ -50,28 +48,9 @@
               "HOME=/app"
               "HOST=0.0.0.0"
               "PORT=2718"
-              "RUN_MODE=network"
             ];
           };
         };
-        mkMarimoRun =
-          {
-            name,
-            script,
-            marimosDir ? ../marimos,
-          }:
-          prev.writeShellApplication {
-            inherit name;
-            runtimeInputs = [ final.fractopoEnv ];
-            text =
-              let
-                scriptPath = "${marimosDir}/${script}";
-              in
-              ''
-                marimo run ${scriptPath} "$@"
-              '';
-
-          };
 
       in
       {
@@ -95,20 +74,22 @@
           in
           prev.buildFHSEnv (lib.recursiveUpdate base config);
 
-        pythonEnv = final.python3.withPackages (p: p.fractopo.passthru.optional-dependencies.dev);
-        fractopoEnv = final.python3.withPackages (
+        pythonEnv = final.python3.withPackages (
           p:
-          # TODO: Should check.
-          [ p.fractopo.passthru.no-check ] ++ p.fractopo.passthru.optional-dependencies.dev
+          [ p.fractopo.passthru.no-check ]
+          ++ p.fractopo.optional-dependencies.dev
+          ++ p.fractopo.optional-dependencies.api
         );
-        fractopo-validation-run = mkMarimoRun {
-          name = "fractopo-validation-run";
-          script = "validation.py";
-        };
 
-        fractopo-network-run = mkMarimoRun {
-          name = "fractopo-network-run";
-          script = "network.py";
+        fractopo-api-env = final.python3.withPackages (
+          p: [ p.fractopo.passthru.no-check ] ++ p.fractopo.passthru.optional-dependencies.api
+        );
+
+        fractopo-api-run = prev.writeShellApplication {
+          name = "fractopo-api-run";
+          text = ''
+            ${final.fractopo-api-env}/bin/uvicorn marimos.api:app "$@"
+          '';
         };
 
         fractopo-app-image = prev.dockerTools.buildLayeredImage fractopoImageConfig;
