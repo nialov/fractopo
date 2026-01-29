@@ -20,6 +20,21 @@ jobs:
         name: nialov
     - name: Load image to docker
       run: nix run .#load-fractopo-image
+    - name: Test run of loaded fractopo-app container
+      run: nix run .#run-fractopo-image -- -d --name fractopo-test -p 2718:2718
+    - name: Wait for API to be ready
+      run: |-
+        for i in {1..60}; do
+          if curl -s http://localhost:2718/; then
+            echo "API is up!"
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "API did not start in time" >&2
+        exit 1
+    - name: Test API root endpoint
+      run: curl -f http://localhost:2718/
     - env:
         PUSHER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: github.event_name == 'push'

@@ -71,6 +71,7 @@ dev = [
     "nbsphinx",
     "ipython",
 ]
+api = ["fastapi", "marimo"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

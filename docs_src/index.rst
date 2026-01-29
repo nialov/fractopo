@@ -98,12 +98,13 @@ supported:
 container
 ~~~~~~~~~
 
-Two `marimo <https://github.com/marimo-team/marimo>`__ apps exist in
-``./marimos``, ``validation.py`` and ``network.py``. These are both
-included in the ``ghcr.io/nialov/fractopo-app:latest`` image. By
-default, when the image is run, the network analysis app is run. To run
-the validation app, add an environment variable ``RUN_MODE`` to the
-container with a value of ``validation``.
+A `marimo <https://github.com/marimo-team/marimo>`__ +
+`FastAPI <https://github.com/fastapi/fastapi>`__ app exists in
+``./marimos``, ``api.py``. This is included in the
+``ghcr.io/nialov/fractopo-app:latest`` image. By default, when the image
+is run, the network analysis app is run accessible at root (``/``). To
+access validation functinality, use path ``/validation``. Network
+analysis is also available at ``/network``.
 
 The app host and port can be chosen with ``HOST`` (default is
 ``0.0.0.0``) and ``PORT`` (default is ``2718``) environment variables.
@@ -111,20 +112,15 @@ With ``docker`` you can, of course, expose in whichever port you choose.
 
 Example ``docker`` invocations are below.
 
-To run network analysis:
+To run app:
 
 .. code:: bash
 
-   # RUN_MODE=network specified explicitly even if it is the default
-   docker run --rm --interactive --tty --publish 2718:2718 --env RUN_MODE=network ghcr.io/nialov/fractopo-app:latest
+   docker run --rm --interactive --tty --publish 2718:2718 ghcr.io/nialov/fractopo-app:latest
 
-To run validation:
-
-.. code:: bash
-
-   docker run --rm --interactive --tty --publish 2718:2718 --env RUN_MODE=validation ghcr.io/nialov/fractopo-app:latest
-
-The app should be available at http://localhost:2718
+The network analysis functionality should be available at
+http://localhost:2718/network and validation functionality at
+http://localhost:2718/validation.
 
 Usage
 -----
@@ -437,7 +433,7 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 03b8bc905d987b2f0346263e2055bca2)
+.. [[[end]]] (checksum: 0fed91a430072b847114ba600a6aec78)
 
 .. toctree::
    :hidden:
