@@ -21,7 +21,7 @@ jobs:
     - name: Load image to docker
       run: nix run .#load-fractopo-image
     - name: Test run of loaded fractopo-app container
-      run: docker run -d --name fractopo-test -p 2718:2718 fractopo-app:vsrjfhp7gd4pgxxzhdrmnr4xglwyln35
+      run: nix run .#run-fractopo-image -- -d --name fractopo-test -p 2718:2718
     - name: Wait for API to be ready
       run: |-
         for i in {1..60}; do

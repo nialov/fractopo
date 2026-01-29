@@ -105,6 +105,16 @@
             docker image list
           '';
         };
+        run-fractopo-image = prev.writeShellApplication {
+          name = "run-fractopo-image";
+          text =
+            let
+              inherit (final.fractopo-app-image-stream) imageName imageTag;
+            in
+            ''
+              docker run "$@" ${imageName}:${imageTag}
+            '';
+        };
         push-fractopo-image = prev.writeShellApplication {
           name = "push-fractopo-image";
           text =
