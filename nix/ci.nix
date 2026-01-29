@@ -157,6 +157,8 @@ in
                       };
                     };
 
+                  dockerPort = builtins.toString 2718;
+
                 in
                 baseNixSteps
                 ++ [
@@ -164,6 +166,32 @@ in
                     name = "Load image to docker";
                     run = "nix run .#load-fractopo-image";
 
+                  }
+                  {
+                    name = "Test run of loaded fractopo-app container";
+                    run =
+                      let
+                        inherit (inputs.self.legacyPackages.x86_64-linux.fractopo-app-image-stream) imageName imageTag;
+                      in
+                      "docker run -d --name fractopo-test -p ${dockerPort}:${dockerPort} ${imageName}:${imageTag}";
+                  }
+                  {
+                    name = "Wait for API to be ready";
+                    run = ''
+                      for i in {1..60}; do
+                        if curl -s http://localhost:${dockerPort}/; then
+                          echo "API is up!"
+                          exit 0
+                        fi
+                        sleep 1
+                      done
+                      echo "API did not start in time" >&2
+                      exit 1
+                    '';
+                  }
+                  {
+                    name = "Test API root endpoint";
+                    run = "curl -f http://localhost:${dockerPort}/";
                   }
                   (mkPushStep {
                     rev = "$(git rev-parse --short HEAD)";
@@ -200,6 +228,7 @@ in
               strategy = {
                 fail-fast = false;
                 matrix = {
+                  # Test same Python versions as for poetry job
                   inherit (config.workflows.".github/workflows/main.yaml".jobs.poetry.strategy.matrix)
                     python-version
                     ;
@@ -228,12 +257,20 @@ in
                   };
                 }
                 {
+                  name = "Test package import";
                   run = ''
-                    echo "Testing package import"
                     python -c 'import fractopo'
-                    echo "Testing module entrypoint"
+                  '';
+                }
+                {
+                  name = "Test module entrypoint";
+                  run = ''
                     python -m fractopo --help
-                    echo "Running unittests with pytest"
+                  '';
+                }
+                {
+                  name = "Run unittests with pytest";
+                  run = ''
                     pytest -v
                   '';
                 }
