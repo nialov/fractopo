@@ -169,11 +169,7 @@ in
                   }
                   {
                     name = "Test run of loaded fractopo-app container";
-                    run =
-                      let
-                        inherit (inputs.self.legacyPackages.x86_64-linux.fractopo-app-image-stream) imageName imageTag;
-                      in
-                      "docker run -d --name fractopo-test -p ${dockerPort}:${dockerPort} ${imageName}:${imageTag}";
+                    run = "nix run .#run-fractopo-image -- -d --name fractopo-test -p ${dockerPort}:${dockerPort}";
                   }
                   {
                     name = "Wait for API to be ready";
