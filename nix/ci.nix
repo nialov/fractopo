@@ -69,7 +69,7 @@ in
               steps = [
                 actionsCheckout
                 {
-                  uses = "actions/setup-python@v5";
+                  uses = "actions/setup-python@v6";
                   "with".python-version = "\${{ matrix.python-version }}";
                 }
                 {
