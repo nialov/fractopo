@@ -42,7 +42,7 @@ KB11_AREA_GDF = gpd.read_file(
 )
 
 # %%
-# 1. Use of builtin ``Network`` functionality
+# 1. Call of ``fractopo`` provided functions
 # ------------------------------------------------------------------
 # This method will not modify the trace geometries in any way.
 # Only the attributes are calculated.
@@ -77,7 +77,7 @@ with TemporaryDirectory() as tmp_dir:
 
 
 # %%
-# 2. Call of ``fractopo`` provided functions
+# 2. Use of builtin ``Network`` functionality
 # ------------------------------------------------------------------
 # This method can modify the traces by, e.g., truncating them to
 # the target area (``truncate_traces=True``).
