@@ -4,7 +4,7 @@ let
 
   inherit (inputs.actions-nix.lib.steps)
     actionsCheckout
-    DeterminateSystemsNixInstallerAction
+    cachixNixInstallerAction
     runNixFastBuild
     runNixFlakeCheckNoBuild
     cachixCachixAction
@@ -23,7 +23,7 @@ let
 
   baseNixSteps = [
     actionsCheckout
-    DeterminateSystemsNixInstallerAction
+    cachixNixInstallerAction
     {
       inherit (cachixCachixAction) uses;
       "with" = {
