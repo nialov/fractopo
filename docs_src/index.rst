@@ -52,18 +52,20 @@ Installation
 ``pip`` and ``poetry`` installation only supported for ``linux`` -based
 operating systems. For Windows and MacOS install using
 `(ana)conda <#conda>`__. A container exists for exposing a simplified
-web interface using `marimo <https://github.com/marimo-team/marimo>`__.
+web interface, created with `marimo <https://github.com/marimo-team/marimo>`__.
 
 conda
 ~~~~~
 
--  Only (supported) installation method for ``Windows`` and ``MacOS``!
+-  This is the only supported installation method for ``Windows`` and
+   ``MacOS``!
 
 .. code:: bash
 
    # Create new environment for fractopo (recommended but optional)
    conda env create -n fractopo-env
    conda activate fractopo-env
+   # Install to the newly created environment
    # Available on conda-forge channel
    conda install -c conda-forge fractopo
 
@@ -74,7 +76,6 @@ The module is on `PyPI <https://www.pypi.org>`__.
 
 .. code:: bash
 
-   # Non-development installation
    pip install fractopo
 
 poetry
@@ -86,8 +87,8 @@ For usage:
 
    poetry add fractopo
 
-For development, only ``poetry`` installation of ``fractopo`` is
-supported:
+For development, use ``poetry`` to install the latest development
+version of ``fractopo``:
 
 .. code:: bash
 
@@ -103,8 +104,9 @@ A `marimo <https://github.com/marimo-team/marimo>`__ +
 ``./marimos``, ``api.py``. This is included in the
 ``ghcr.io/nialov/fractopo-app:latest`` image. By default, when the image
 is run, the network analysis app is run accessible at root (``/``). To
-access validation functinality, use path ``/validation``. Network
-analysis is also available at ``/network``.
+access validation functinality, use path ``/validation`` when accessing
+the container (e.g. `localhost:2718/validation``). Network
+analysis is also explicitly available at ``/network``.
 
 The app host and port can be chosen with ``HOST`` (default is
 ``0.0.0.0``) and ``PORT`` (default is ``2718``) environment variables.
@@ -118,9 +120,9 @@ To run app:
 
    docker run --rm --interactive --tty --publish 2718:2718 ghcr.io/nialov/fractopo-app:latest
 
-The network analysis functionality should be available at
-http://localhost:2718/network and validation functionality at
-http://localhost:2718/validation.
+After running the above command, the network analysis functionality
+should be available at ``http://localhost:2718/network`` and validation
+functionality at ``http://localhost:2718/validation``.
 
 Usage
 -----
@@ -180,7 +182,7 @@ Multi-scale length distributions                          `Multi-scale`_
 .. _Multi-scale:
    https://nialov.github.io/fractopo/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
 
-For a short tutorial on use of ``fractopo`` continue reading:
+For a short tutorial on use of ``fractopo``, continue reading:
 
 Input data
 ~~~~~~~~~~
@@ -251,7 +253,7 @@ data.
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --output /path/to/validated_trace_data.shp
 
-   # Or with automatic saving to validated/ directory
+   # Or with a printed summary and automatic saving to validated/ directory
    fractopo tracevalidate /path/to/trace_data.shp /path/to/target_area.shp\
       --summary
 
@@ -303,19 +305,20 @@ visualizing different parameters and attributes of trace data.
    network.plot_trace_lengths()
 
 Network analysis is also available through the ``fractopo`` command-line
-interface but using the Python interface (e.g. ``jupyter lab``,
-``ipython``) is recommended when analysing ``Networks`` to have access
-to all available analysis and plotting methods. The command-line
-entrypoint is **opinionated** in what outputs it produces. Brief example
-of command-line entrypoint:
+interface but using the Python interface (e.g. ``marimo``,
+``jupyter lab``, ``ipython``) is recommended when analysing ``Networks``
+to have access to all available analysis and plotting methods. The
+command-line entrypoint is **opinionated** in what outputs it produces.
+Brief example of command-line entrypoint:
 
 .. code:: bash
+
+   # Use --help to see all up-to-date arguments and help
+   fractopo network --help
 
    fractopo network /path/to/trace_data.shp /path/to/area_data.shp\
       --name mynetwork
 
-   # Use --help to see all up-to-date arguments and help
-   fractopo network --help
 
 .. figure:: /imgs/fractopo_workflow_visualisation.jpg
    :alt: Data analysis workflow visualisation for fracture trace data.
@@ -369,6 +372,10 @@ are referred to multiple sources:
 -  `Ovaskainen et al, 2022 <https://doi.org/10.1016/j.jsg.2022.104528>`__
 
    -  Application of ``fractopo`` for subsampling analysis of fracture networks.
+
+-  `Ovaskainen et al, 2023 <https://doi.org/10.5194/se-14-603-2023>`__
+
+   -  Application of ``fractopo`` for multi-scale lineament and fracture analysis
 
 -  `Nyberg et al., 2018 <https://doi.org/10.1130/GES01595.1>`__
 
@@ -433,7 +440,7 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 0fed91a430072b847114ba600a6aec78)
+.. [[[end]]] (checksum: 30fa4ce9db93537eaf15a03562daebb9)
 
 .. toctree::
    :hidden:
