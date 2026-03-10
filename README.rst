@@ -92,7 +92,7 @@ A `marimo <https://github.com/marimo-team/marimo>`__ +
 ``ghcr.io/nialov/fractopo-app:latest`` image. By default, when the image
 is run, the network analysis app is run accessible at root (``/``). To
 access validation functinality, use path ``/validation`` when accessing
-the container (e.g. `localhost:2718/validation``). Network
+the container (e.g. ``localhost:2718/validation``). Network
 analysis is also explicitly available at ``/network``.
 
 The app host and port can be chosen with ``HOST`` (default is
