@@ -24,19 +24,23 @@ sys.path.insert(0, os.path.abspath("."))
 # -- Project information -----------------------------------------------------
 
 project = "fractopo"
-copyright = "2023, Nikolas Ovaskainen"
+copyright = "2020-%Y"
 author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
 imported_package = import_module("fractopo")  # noqa
-release = imported_package.__version__  # type: ignore
+version = imported_package.__version__  # type: ignore
+release = version
 
 
 # -- General configuration ---------------------------------------------------
 
+needs_sphinx = "8.0.0"
+
 extensions = [
+    "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
-    # "sphinx_autodoc_typehints",
+    "sphinx_autodoc_typehints",
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",
     "nbsphinx",
@@ -94,3 +98,13 @@ nbsphinx_execute_arguments = [
 ]
 
 nbsphinx_execute = "always"
+
+# -- Options for apidoc ---------------------------------------------
+
+apidoc_modules = [
+    {
+        "path": "../fractopo",
+        "destination": "./apidoc/",
+        "max_depth": 4,
+    }
+]

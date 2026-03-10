@@ -18,37 +18,37 @@ fractopo.branches\_and\_nodes module
 
 .. automodule:: fractopo.branches_and_nodes
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 fractopo.cli module
 -------------------
 
 .. automodule:: fractopo.cli
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 fractopo.fractopo\_utils module
 -------------------------------
 
 .. automodule:: fractopo.fractopo_utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 fractopo.general module
 -----------------------
 
 .. automodule:: fractopo.general
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: fractopo
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

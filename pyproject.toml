@@ -68,6 +68,7 @@ dev = [
     "sphinx >=7.0.0,<8.0.0",
     "sphinx-gallery",
     "sphinx-rtd-theme >2.0",
+    "sphinx-autodoc-typehints >2.0.0",
     "nbsphinx",
     "ipython",
 ]
