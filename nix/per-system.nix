@@ -21,6 +21,7 @@
               allowUnfree = true;
             };
           };
+        inherit (config.pre-commit.settings) hooks;
 
       in
       {
@@ -88,6 +89,16 @@
             prettier = {
               enable = true;
               files = "\\.(geojson)$";
+            };
+            sphinx-lint = {
+              enable = true;
+              name = "sphinx-lint";
+              description = "Lint sphinx rst files";
+              package = pkgs.sphinx-lint;
+              entry = ''
+                ${hooks.sphinx-lint.package}/bin/sphinx-lint
+              '';
+              files = "\\.(py|rst)$";
             };
           };
 
