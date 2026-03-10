@@ -1025,29 +1025,6 @@ tests = ["asttokens (>=2.1.0)", "coverage", "coverage-enable-subprocess", "ipyth
 
 [[package]]
 name = "fastapi"
-version = "0.1.17"
-description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
-optional = true
-python-versions = ">=3.6"
-groups = ["main"]
-markers = "extra == \"api\""
-files = [
-    {file = "fastapi-0.1.17-py3-none-any.whl", hash = "sha256:a6aaad2f60684477480ac9d7a1c95e67f4696a722f184db467494bfdd5b8f29d"},
-    {file = "fastapi-0.1.17.tar.gz", hash = "sha256:a9a9b6cc32c38bab27a6549b94c44a30c70b485bc789d03de3aa8725f3394be5"},
-]
-
-[package.dependencies]
-pydantic = ">=0.17"
-starlette = ">=0.9.7"
-
-[package.extras]
-all = ["aiofiles", "email_validator", "graphene", "itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests", "ujson", "ujson", "uvicorn"]
-dev = ["passlib[bcrypt]", "pyjwt"]
-doc = ["markdown-include", "mkdocs", "mkdocs-material"]
-test = ["black", "email_validator", "isort", "mypy", "pytest (>=4.0.0)", "pytest-cov", "requests"]
-
-[[package]]
-name = "fastapi"
 version = "0.128.0"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
 optional = true
@@ -4897,6 +4874,27 @@ lint = ["flake8 (>=6.0)", "importlib-metadata (>=6.0)", "mypy (==1.10.1)", "pyte
 test = ["cython (>=3.0)", "defusedxml (>=0.7.1)", "pytest (>=8.0)", "setuptools (>=70.0)", "typing_extensions (>=4.9)"]
 
 [[package]]
+name = "sphinx-autodoc-typehints"
+version = "2.3.0"
+description = "Type hints (PEP 484) support for the Sphinx autodoc extension"
+optional = true
+python-versions = ">=3.9"
+groups = ["main"]
+markers = "extra == \"dev\""
+files = [
+    {file = "sphinx_autodoc_typehints-2.3.0-py3-none-any.whl", hash = "sha256:3098e2c6d0ba99eacd013eb06861acc9b51c6e595be86ab05c08ee5506ac0c67"},
+    {file = "sphinx_autodoc_typehints-2.3.0.tar.gz", hash = "sha256:535c78ed2d6a1bad393ba9f3dfa2602cf424e2631ee207263e07874c38fde084"},
+]
+
+[package.dependencies]
+sphinx = ">=7.3.5"
+
+[package.extras]
+docs = ["furo (>=2024.1.29)"]
+numpy = ["nptyping (>=2.5)"]
+testing = ["covdefaults (>=2.3)", "coverage (>=7.4.4)", "defusedxml (>=0.7.1)", "diff-cover (>=9)", "pytest (>=8.1.1)", "pytest-cov (>=5)", "sphobjinv (>=2.3.1)", "typing-extensions (>=4.11)"]
+
+[[package]]
 name = "sphinx-gallery"
 version = "0.20.0"
 description = "A Sphinx extension that builds an HTML gallery of examples from any set of Python scripts."
@@ -5093,30 +5091,10 @@ description = "The little ASGI library that shines."
 optional = true
 python-versions = ">=3.10"
 groups = ["main"]
-markers = "extra == \"api\""
+markers = "extra == \"dev\" or extra == \"api\""
 files = [
     {file = "starlette-0.50.0-py3-none-any.whl", hash = "sha256:9e5391843ec9b6e472eed1365a78c8098cfceb7a74bfd4d6b1c0c0095efb3bca"},
     {file = "starlette-0.50.0.tar.gz", hash = "sha256:a2a17b22203254bcbc2e1f926d2d55f3f9497f769416b3190768befe598fa3ca"},
-]
-
-[package.dependencies]
-anyio = ">=3.6.2,<5"
-typing-extensions = {version = ">=4.10.0", markers = "python_version < \"3.13\""}
-
-[package.extras]
-full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart (>=0.0.18)", "pyyaml"]
-
-[[package]]
-name = "starlette"
-version = "0.52.1"
-description = "The little ASGI library that shines."
-optional = true
-python-versions = ">=3.10"
-groups = ["main"]
-markers = "extra == \"dev\" or extra == \"api\""
-files = [
-    {file = "starlette-0.52.1-py3-none-any.whl", hash = "sha256:0029d43eb3d273bc4f83a08720b4912ea4b071087a3b48db01b7c839f7954d74"},
-    {file = "starlette-0.52.1.tar.gz", hash = "sha256:834edd1b0a23167694292e94f597773bc3f89f362be6effee198165a35d62933"},
 ]
 
 [package.dependencies]
@@ -5573,9 +5551,9 @@ files = [
 
 [extras]
 api = ["fastapi", "marimo"]
-dev = ["codespell", "cogapp", "coverage", "hypothesis", "ipython", "ipython", "json5", "jupyterlab", "marimo", "nbsphinx", "nbstripout", "pre-commit", "pyinstrument", "pytest", "pytest-regressions", "sphinx", "sphinx-gallery", "sphinx-rtd-theme", "toml"]
+dev = ["codespell", "cogapp", "coverage", "hypothesis", "ipython", "ipython", "json5", "jupyterlab", "marimo", "nbsphinx", "nbstripout", "pre-commit", "pyinstrument", "pytest", "pytest-regressions", "sphinx", "sphinx-autodoc-typehints", "sphinx-gallery", "sphinx-rtd-theme", "toml"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "ad7a94834355db9c8ef972b180ab520e778b6e4d133d7bd84b0c5bbb33d18334"
+content-hash = "90152d0759fbbea1c09407729073375ccda0671013f5072321f93ab06ecbf879"

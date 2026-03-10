@@ -29,6 +29,10 @@ command-line interfaces in your operating system of choice.
    (=fractures) or from digital elevation models (=lineaments). The
    displayed branches and nodes are extracted with ``fractopo``.
 
+.. contents:: Quick navigation
+   :depth: 2
+   :local:
+
 Installation
 ------------
 

@@ -46,6 +46,10 @@ command-line interfaces in your operating system of choice.
    (=fractures) or from digital elevation models (=lineaments). The
    displayed branches and nodes are extracted with ``fractopo``.
 
+.. contents:: Quick navigation
+   :depth: 2
+   :local:
+
 Installation
 ------------
 
@@ -440,7 +444,33 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 30fa4ce9db93537eaf15a03562daebb9)
+.. [[[end]]] (checksum: e86d1df3338a032b9f547be226df0456)
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+   :hidden:
+
+   notebooks/fractopo_network_1
+   notebooks/fractopo_validation_1
+   notebooks/fractopo_validation_2
+   auto_examples/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: How-to guides
+   :hidden:
+
+   guides/how_to_digitize_fractures_and_lineaments
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Explanation
+   :hidden:
+
+   validation/basics
+   validation/errors
+   misc
 
 .. toctree::
    :hidden:
@@ -450,40 +480,11 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    Homepage (GitHub) <https://github.com/nialov/fractopo>
    Bug & Issue Reporting (GitHub) <https://github.com/nialov/fractopo/issues>
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Notebooks
-   :hidden:
-
-   notebooks/fractopo_network_1
-   notebooks/fractopo_validation_1
-   notebooks/fractopo_validation_2
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Gallery
-   :hidden:
-
-   auto_examples/index
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Advanced
-   :hidden:
-
-   validation/basics
-   validation/errors
-   misc
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Development
-   :hidden:
 
    CONTRIBUTING
 
 .. toctree::
    :maxdepth: 1
-   :caption: Module documentation
+   :caption: Reference
 
    apidoc/fractopo
