@@ -109,7 +109,7 @@ A `marimo <https://github.com/marimo-team/marimo>`__ +
 ``ghcr.io/nialov/fractopo-app:latest`` image. By default, when the image
 is run, the network analysis app is run accessible at root (``/``). To
 access validation functinality, use path ``/validation`` when accessing
-the container (e.g. `localhost:2718/validation``). Network
+the container (e.g. ``localhost:2718/validation``). Network
 analysis is also explicitly available at ``/network``.
 
 The app host and port can be chosen with ``HOST`` (default is
@@ -444,7 +444,7 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: e86d1df3338a032b9f547be226df0456)
+.. [[[end]]] (checksum: 889300e4941cf878c5efa075f82f1cb4)
 
 .. toctree::
    :maxdepth: 1
