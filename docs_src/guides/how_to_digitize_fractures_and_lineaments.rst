@@ -77,7 +77,14 @@ Moving the raster data you are going to use to the ``data/rasters/``
 folder of the project directory is recommended as the data will then be
 easily accessible in QGIS.
 
-To add raster data to QGIS, i.e. the basis on which digitization is done, go to TODO
+.. note::
+
+   If you use the same raster data in multiple projects, it might be
+   better to store it in a central location rather than copying it to
+   each individual project folder, as the raster data itself is never
+   edited during digitization.
+
+To add raster data to QGIS go to TODO
 
 Check that the added raster data uses the same CRS as the project.
 
@@ -85,7 +92,7 @@ Vector data
 ^^^^^^^^^^^
 
 The rasters can cover large areas and digitizing the whole extent might
-not be needed. Consequently, it is a good idea to already create a preliminary
+not be needed. Consequently, it is a good idea to create a preliminary
 target area for digitizing at this point.
 
 Create a new polygon vector layer for the target area by TODO
@@ -93,7 +100,6 @@ Create a new polygon vector layer for the target area by TODO
 Create a new ``LineString`` layer for the traces to be digitized.
 At its simpltest, the trace layer can only consist of the trace geometries
 without any attribute information.
-
 
 How to digitize fractures and lineaments using ArcGIS Pro
 ---------------------------------------------------------
