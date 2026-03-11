@@ -8,6 +8,10 @@ How to digitize geological fractures and lineaments
 Introduction
 ------------
 
+Though drawing lines on a map might not seem complex, there are still
+rules to follow to make the data you produce is analyzable without
+inconsistencies.
+
 How to digitize fractures and lineaments using QGIS
 ---------------------------------------------------
 
@@ -31,7 +35,8 @@ project directory (``brittle_course_fracture_digitization_2026``) for
 data. Make a ``data`` directory with subdirectories ``raster`` and
 ``vector``.
 
-In the following text, I will refer to the project directory with the name ``brittle_course_fracture_digitization_2026`` and yours may differ.
+In the following text, I will refer to the project directory with the
+name ``brittle_course_fracture_digitization_2026`` and yours may differ.
 
 Tree-view of the project folder:
 
@@ -42,8 +47,9 @@ Tree-view of the project folder:
        ├── raster
        └── vector
 
-Now start up QGIS. Make a new project and save the project file in ``brittle_course_fracture_digitization_2026``. I would recommend
-using the same name for the project file as you have for the project
+Now start up QGIS. Make a new project and save the project file in
+``brittle_course_fracture_digitization_2026``. I would recommend using
+the same name for the project file as you have for the project
 directory. After saving the project file in the directory, you should
 have a new ``brittle_course_fracture_digitization_2026.qgz`` file there.
 
@@ -84,7 +90,7 @@ easily accessible in QGIS.
    each individual project folder, as the raster data itself is never
    edited during digitization.
 
-To add raster data to QGIS go to TODO
+To add raster data in QGIS go to TODO
 
 Check that the added raster data uses the same CRS as the project.
 
@@ -98,8 +104,53 @@ target area for digitizing at this point.
 Create a new polygon vector layer for the target area by TODO
 
 Create a new ``LineString`` layer for the traces to be digitized.
-At its simpltest, the trace layer can only consist of the trace geometries
-without any attribute information.
+At its simplest, the trace layer can only consist of the trace geometries
+without any attribute information. When creating your trace layer, select **LineString** as the geometry type.
+
+.. note::
+
+   Avoid using MultiLineString geometry type. If your lines are
+   accidentally stored as MultiLineStrings, use QGIS’s “Explode Lines”
+   tool (Processing Toolbox > Vector geometry > Explode lines) to
+   convert them to individual LineStrings.
+
+Digitizing fracture and lineament traces in QGIS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**1. Enable and configure snapping**
+
+-  Click the magnet icon in the QGIS toolbar or go to Project > Snapping
+   Options.
+-  Set snapping to “Vertex” and “Segment” for your trace layer, and
+   choose a small tolerance (e.g., TODO).
+-  This helps ensure that line endpoints connect precisely, which is
+   important for accurate network analysis, i.e., determining which
+   trace abuts another and which crosscuts.
+
+**2. Avoid unintended intersections**
+
+-  Do not let more than two lines intersect at a single point. If
+   multiple lines cross at one spot, edit them so only two intersect.
+-  When two lines are meant to connect, make sure their endpoints are
+   snapped together. Use the “Vertex Tool” to adjust endpoints as
+   needed.
+
+**3. Prevent self-intersections and duplicate lines**
+
+-  Make sure each line does not cross itself. Use the “Check Geometry
+   Validity” tool (Processing Toolbox > Vector geometry > Check
+   validity) to identify and fix self-intersections.
+-  Avoid drawing duplicate lines directly on top of each other. If you
+   find duplicates, delete them.
+
+**4. Trace length and target area**
+
+-  If you have created a target area to control where you are going to
+   digitize, make sure you do not stop your traces at the boundary.
+   Rather, continue them outside the boundary as far as they can be
+   interpreted to continue. Otherwise trace lengths might be improperly
+   samples. Furthermore, the target area you currently have might be
+   extended in the future.
 
 How to digitize fractures and lineaments using ArcGIS Pro
 ---------------------------------------------------------
