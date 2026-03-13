@@ -25,10 +25,7 @@ def test_match_crs(first, second, same: bool, from_first: bool, is_none: bool):
     """
     Test match_crs with pytest params.
     """
-    if from_first:
-        original_crs = first.crs
-    else:
-        original_crs = second.crs
+    original_crs = first.crs if from_first else second.crs
     first_matched, second_matched = general.match_crs(first, second)
     if same:
         assert first_matched.crs == original_crs

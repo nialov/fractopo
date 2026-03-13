@@ -9,6 +9,7 @@ if os.environ.get("FRACTOPO_DISABLE_CACHE") is None:
     # Value of "0" means it is NOT disabled
     os.environ["FRACTOPO_DISABLE_CACHE"] = "1"
 
+import contextlib
 import logging
 import sys
 from functools import lru_cache, wraps
@@ -1675,14 +1676,10 @@ def get_all_errors():
     )
     all_errs = []
     for err in all_error_types:
-        try:
+        with contextlib.suppress(KeyError):
             all_errs.extend(generate_known_params(err, false_positive=False))
-        except KeyError:
-            pass
-        try:
+        with contextlib.suppress(KeyError):
             all_errs.extend(generate_known_params(err, false_positive=True))
-        except KeyError:
-            pass
 
     assert len(all_errs) > 0
     return all_errs
