@@ -166,13 +166,13 @@ def plot_anisotropy_ax(
     ax.set_theta_direction(-1)
     max_aniso = max(anisotropy_sum)
 
-    for theta, r in zip(angles, double_anisotropy):
-        theta = np.deg2rad(theta)  # type: ignore
+    for theta_deg, r in zip(angles, double_anisotropy):
+        theta_rad = np.deg2rad(theta_deg)  # type: ignore
         arrowstyle = patches.ArrowStyle.CurveB(head_length=1, head_width=0.5)
         ax.annotate(
             "",
-            xy=(theta, r),
-            xytext=(theta, 0),
+            xy=(theta_rad, r),
+            xytext=(theta_rad, 0),
             arrowprops=dict(
                 edgecolor="black", facecolor="seashell", arrowstyle=arrowstyle
             ),

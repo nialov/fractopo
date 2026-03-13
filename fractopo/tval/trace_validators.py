@@ -430,23 +430,20 @@ class TargetAreaSnapValidator(BaseValidator):
         endpoints = get_trace_endpoints(geom)
         for endpoint in endpoints:
             for area_polygon in area.geometry.values:
-                if TargetAreaSnapValidator.is_candidate_underlapping(
-                    endpoint,
-                    geom,
-                    area_polygon,
-                    snap_threshold=snap_threshold,
+                if (
+                    TargetAreaSnapValidator.is_candidate_underlapping(
+                        endpoint,
+                        geom,
+                        area_polygon,
+                        snap_threshold=snap_threshold,
+                    )
+                    and snap_threshold
+                    <= endpoint.distance(area_polygon.boundary)
+                    < snap_threshold
+                    * snap_threshold_error_multiplier
+                    * area_edge_snap_multiplier
                 ):
-                    # if endpoint.within(area_polygon) and geom.within(area_polygon):
-                    # Point and trace completely within the area, does not
-                    # intersect its edge.
-                    if (
-                        snap_threshold
-                        <= endpoint.distance(area_polygon.boundary)
-                        < snap_threshold
-                        * snap_threshold_error_multiplier
-                        * area_edge_snap_multiplier
-                    ):
-                        return False
+                    return False
         return True
 
     @staticmethod
@@ -526,9 +523,7 @@ class TargetAreaSnapValidator(BaseValidator):
             return False
 
         # If the LineString intersects polygon boundary -> not a candidate
-        if endpoint_segment.distance(area_polygon.boundary) < snap_threshold:
-            return False
-        return True
+        return not endpoint_segment.distance(area_polygon.boundary) < snap_threshold
 
 
 class GeomNullValidator(BaseValidator):
@@ -562,9 +557,7 @@ class GeomNullValidator(BaseValidator):
             return False
         if geom is None:
             return False
-        if geom.is_empty:
-            return False
-        return True
+        return not geom.is_empty
 
 
 class StackedTracesValidator(BaseValidator):

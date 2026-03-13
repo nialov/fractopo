@@ -718,12 +718,12 @@ def plot_parameters_plot(
         plt.xticks(locs, labels, fontsize="xx-large", color="black")
         # VALUES ABOVE BARS WITH TEXTS
         rects = ax.patches
-        for value, rect in zip(topology_concat[column.value.name].values, rects):
+        for bar_value, rect in zip(topology_concat[column.value.name].values, rects):
             height = rect.get_height()
-            if value > 0.01:
-                value = round(value, 2)
+            if bar_value > 0.01:
+                display_value = round(bar_value, 2)
             else:
-                value = f"{value:.2e}"
+                display_value = f"{bar_value:.2e}"
             if column.value.plot_as_log:
                 height = height + height / 10
             else:
@@ -732,7 +732,7 @@ def plot_parameters_plot(
             ax.text(
                 rect.get_x() + rect.get_width() / 2,
                 height,
-                value,
+                display_value,
                 ha="center",
                 va="bottom",
                 zorder=15,

@@ -356,15 +356,7 @@ def determine_intersect(
                 "error": False,
             }
 
-        elif l1 and not l2:  # It's an x-node inside set 1
-            raise ValueError(
-                f"Node {node} does not intersect both sets"
-                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-            )
-            # sets = (first_set, first_set)
-            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-
-        elif not l1 and l2:  # It's an x-node inside set 2
+        elif l1 and not l2 or not l1 and l2:  # It's an x-node inside set 1
             raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
@@ -384,10 +376,7 @@ def determine_intersect(
             # that intersect with X- or Y-node
             # p1 = len(first_setpointtree.query(node.buffer(buffer_value)))
             p1 = first_setpointtree.intersects(node.buffer(buffer_value))
-            if p1:  # set 1 ends in set 2
-                sets = (first_set, second_set)
-            else:  # set 2 ends in set 1
-                sets = (second_set, first_set)
+            sets = (first_set, second_set) if p1 else (second_set, first_set)
             addition = {
                 "node": node,
                 "nodeclass": node_class,
@@ -395,15 +384,7 @@ def determine_intersect(
                 "error": False,
             }
 
-        elif (l1 is True) and (l2 is False):  # It's a y-node inside set 1
-            raise ValueError(
-                f"Node {node} does not intersect both sets"
-                f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
-            )
-            # sets = (first_set, first_set)
-            # addition = {'node': node, 'nodeclass': c, 'sets': sets}
-
-        elif (l1 is False) and (l2 is True):  # It's a y-node inside set 2
+        elif (l1 is True) and (l2 is False) or (l1 is False) and (l2 is True):  # It's a y-node inside set 1
             raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
@@ -539,7 +520,7 @@ def plot_crosscut_abutting_relationships_plot(
                     prop = dict(boxstyle="square", facecolor="linen", alpha=1, pad=0.45)
                     for set_label, set_len in zip(set_names, set_counts):
                         text += f"Set {set_label} trace count: {set_len}"
-                        if not set_label == set_names[-1]:
+                        if set_label != set_names[-1]:
                             text += "\n"
                     ax.text(
                         1.1,
