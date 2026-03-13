@@ -3,6 +3,9 @@ fractopo
 
 |PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
 
+-  `Full Documentation is hosted on GitHub
+   <https://nialov.github.io/fractopo/index.html#full-documentation>`__
+
 ``fractopo`` is a Python library/application that contains tools for
 validating and analysing lineament and fracture trace maps (fracture
 networks). It is targeted at structural geologists working on the
@@ -12,9 +15,6 @@ command-line interface. As a Python library, the use of ``fractopo``
 requires prior (Python) programming knowledge. However, if used through
 the command-line, using ``fractopo`` only requires general knowledge of
 command-line interfaces in your operating system of choice.
-
--  `Full Documentation is hosted on GitHub
-   <https://nialov.github.io/fractopo/index.html#full-documentation>`__
 
 .. figure:: https://git.io/JBRuK
    :alt: Overview of fractopo
@@ -29,7 +29,7 @@ command-line interfaces in your operating system of choice.
    (=fractures) or from digital elevation models (=lineaments). The
    displayed branches and nodes are extracted with ``fractopo``.
 
-.. contents:: Quick navigation
+.. contents:: **Quick navigation**
    :depth: 2
    :local:
 
@@ -319,6 +319,16 @@ Brief example of command-line entrypoint:
    through topological analysis. G. Cross-cut and abutting relationships
    between chosen azimuth sets. H. Ternary plot of node (X, Y and I)
    proportions. I. Ternary plot of branch (C-C, C-I, I-I) proportions.
+
+Documentation
+-------------
+
+Please visit the full documentation at:
+https://nialov.github.io/fractopo/index.html. I recommend starting with
+the tutorial notebook demonstrating network analysis functionality at
+https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html. The
+documentation source is in ``docs_src`` and ``examples`` directories and
+is built with ``sphinx``.
 
 Citing
 ------
