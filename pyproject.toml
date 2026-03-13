@@ -153,8 +153,9 @@ fix = true
 extend-include = ["*.ipynb"]
 
 [tool.ruff.lint]
-extend-select = [ "Q", "PL" ]
-extend-ignore = ["E402", "PLR2004", "PLR0913"]
+extend-select = [ "Q", "PL", "TC", "SIM", "PTH", "I" ]
+# These should be gone over at some point
+extend-ignore = ["E402", "PLR2004", "PLR0913", "PLR0912", "S101"]
 
 [tool.marimo.runtime]
 on_cell_change = "autorun"
