@@ -1,3 +1,4 @@
+# ruff: noqa: PLC0415
 # /// script
 # [tool.marimo.runtime]
 # on_cell_change = "autorun"
@@ -161,7 +162,6 @@ def _(execute, input_debug, mo, partial, utils):
 @app.cell
 def __(mo):
     mo.md("""## Results""")
-    return
 
 
 @app.cell
@@ -177,14 +177,12 @@ def _(fractopo, mo, validated_clean):
                 fractopo.tval.trace_validation.Validation.ERROR_COLUMN
             ].value_counts()
         )
-    return
 
 
 @app.cell
 def _(mo, validated_clean):
     if validated_clean is not None:
         mo.output.replace(validated_clean.drop(columns=["geometry"]))
-    return
 
 
 @app.cell
@@ -212,7 +210,6 @@ def _(execute_exception, mo, to_file_exception):
             raise execute_exception
         if to_file_exception is not None:
             raise to_file_exception
-    return
 
 
 @app.cell
@@ -225,7 +222,6 @@ def __(download_element, mo):
                 "### Failed to validate or write validated to file. Nothing to download."
             )
         )
-    return
 
 
 if __name__ == "__main__":

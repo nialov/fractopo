@@ -62,26 +62,28 @@ Console().print(extracted_multi_network_param_df)
 # Transpose and reset index so 'Name' is a column
 df_t = extracted_multi_network_param_df.T.reset_index()
 df_t.columns.name = None
-df_t = df_t.rename(columns={'index': 'Name'})
+df_t = df_t.rename(columns={"index": "Name"})
 
 # Melt the data so each parameter is a row
-df_melted = df_t.melt(id_vars='Name', var_name='Parameter', value_name='Value')
+df_melted = df_t.melt(id_vars="Name", var_name="Parameter", value_name="Value")
 
 # Create the FacetGrid with col_wrap
 # We use col_wrap=3 to force a 2-row layout for the chosen variables
-g = sns.FacetGrid(df_melted,
-                  col="Parameter",
-                  col_wrap=3,
-                  sharey=False,
-                  sharex=False,
-                  height=4,
-                  aspect=1.2)
+g = sns.FacetGrid(
+    df_melted,
+    col="Parameter",
+    col_wrap=3,
+    sharey=False,
+    sharex=False,
+    height=4,
+    aspect=1.2,
+)
 
 # Map the barplot
 g.map_dataframe(sns.barplot, x="Name", y="Value", hue="Name", palette="muted")
 
 # Refine formatting
-g.set_titles("{col_name}", weight='bold')
+g.set_titles("{col_name}", weight="bold")
 g.add_legend()
 
 # Tighten layout so titles don't overlap

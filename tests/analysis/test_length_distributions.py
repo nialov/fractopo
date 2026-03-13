@@ -178,7 +178,7 @@ def test_normalize_fit_to_area(
 
     assert len(truncated_length_array) == len(ccm_array_normed)
     assert all(truncated_length_array > fit.xmin)
-    assert all(1.0 >= ccm_array_normed) and all(ccm_array_normed > 0.0)
+    assert all(ccm_array_normed <= 1.0) and all(ccm_array_normed > 0.0)
 
     num_regression.check(
         {

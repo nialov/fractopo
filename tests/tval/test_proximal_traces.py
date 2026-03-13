@@ -39,7 +39,9 @@ def test_determine_proximal_traces_regression(file_regression):
     buffer_value = 1
     azimuth_tolerance = 30
     result = proximal_traces.determine_proximal_traces(
-        traces, buffer_value, azimuth_tolerance  # type: ignore
+        traces,
+        buffer_value,
+        azimuth_tolerance,  # type: ignore
     )
     assert proximal_traces.MERGE_COLUMN in result.columns
     assert isinstance(result, gpd.GeoDataFrame)

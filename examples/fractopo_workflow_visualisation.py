@@ -287,8 +287,5 @@ def main(output_path: Optional[Path] = None):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        output_path = Path(sys.argv[1])
-    else:
-        output_path = None
+    output_path = Path(sys.argv[1]) if len(sys.argv) > 1 else None
     main(output_path=output_path)

@@ -167,9 +167,11 @@ def capture_function_outputs(
     exc = None
     results = None
     try:
-        with redirect_stdout(tmp_io_stdout_and_stderr):
-            with redirect_stderr(tmp_io_stdout_and_stderr):
-                results = func()
+        with (
+            redirect_stdout(tmp_io_stdout_and_stderr),
+            redirect_stderr(tmp_io_stdout_and_stderr),
+        ):
+            results = func()
     except Exception as exception:
         exc = exception
     stderr_and_stdout = tmp_io_stdout_and_stderr.getvalue()

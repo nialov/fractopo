@@ -157,5 +157,10 @@ extend-select = [ "Q", "PL", "TC", "SIM", "PTH", "I" ]
 # These should be gone over at some point
 extend-ignore = ["E402", "PLR2004", "PLR0913", "PLR0912", "S101"]
 
+[tool.ruff.lint.per-file-ignores]
+"examples/*.py" = ["PLC0415"]
+"marimos/network.py" = ["PLC0415"]
+"marimos/validation.py" = ["PLC0415"]
+
 [tool.marimo.runtime]
 on_cell_change = "autorun"

@@ -1,3 +1,4 @@
+# ruff: noqa: PLC0415
 # /// script
 # [tool.marimo.runtime]
 # on_cell_change = "autorun"
@@ -150,7 +151,6 @@ def _(
 @app.cell
 def _(input_define_azimuth_sets, mo):
     mo.md(f"Define azimuth sets? {input_define_azimuth_sets}")
-    return
 
 
 @app.cell
@@ -205,7 +205,6 @@ def _(
 @app.cell
 def _(input_button, mo):
     mo.md(f"Press to (re)start analysis: {input_button}")
-    return
 
 
 @app.cell
@@ -316,7 +315,6 @@ def _(execute, input_debug, mo, partial, utils):
 @app.cell
 def _(mo):
     mo.md("""## Results""")
-    return
 
 
 @app.cell
@@ -325,7 +323,6 @@ def _(mo, network):
         mo.output.replace("")
     else:
         mo.output.replace(network.parameters)
-    return
 
 
 @app.cell
@@ -363,7 +360,6 @@ def _(execute_exception, mo, to_file_exception):
             raise execute_exception
         if to_file_exception is not None:
             raise to_file_exception
-    return
 
 
 @app.cell
@@ -376,7 +372,6 @@ def _(download_element, mo):
         mo.output.replace(
             mo.md("### Failed to analyze trace data. Nothing to download.")
         )
-    return
 
 
 if __name__ == "__main__":
