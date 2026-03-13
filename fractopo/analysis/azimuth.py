@@ -54,10 +54,7 @@ def _calc_ideal_bin_width(n: Number, axial=True) -> float:
     """
     if n <= 0:
         raise ValueError("Sample size cannot be 0 or lower")
-    if axial:
-        degree_range = 180
-    else:
-        degree_range = 360
+    degree_range = 180 if axial else 360
     result = degree_range / (2 * n ** (1 / 3))
     assert isinstance(result, float)
     return result

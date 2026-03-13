@@ -260,7 +260,7 @@ def tracevalidate(
 
     # Resolve output if not explicitly given
     if output is None:
-        output_dir = make_output_dir(Path(".")).resolve()
+        output_dir = make_output_dir(Path()).resolve()
         output_path = output_dir / f"{trace_file.stem}_validated{trace_file.suffix}"
         CONSOLE.print(
             Text.assemble(
@@ -357,10 +357,7 @@ def network(
     CONSOLE.print(rich_table_from_parameters(base_parameters))
 
     if output_path is None:
-        if name is None:
-            output_path = Path(trace_file.stem)
-        else:
-            output_path = Path(name)
+        output_path = Path(trace_file.stem) if name is None else Path(name)
 
     # Export all results if topology was determined or subset if not
     CONSOLE.print(f"Exporting network analysis results to {output_path}")

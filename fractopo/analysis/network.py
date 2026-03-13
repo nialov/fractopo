@@ -8,14 +8,13 @@ from dataclasses import dataclass, field
 from functools import partial, wraps
 from pathlib import Path
 from textwrap import dedent
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import powerlaw
-from geopandas.sindex import SpatialIndex
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.projections import PolarAxes
@@ -75,6 +74,9 @@ from fractopo.general import (
     write_geodata,
     write_geodataframe,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 log = logging.getLogger(__name__)
 
@@ -244,13 +246,12 @@ class Network:
                 "fractopo.general.bounding_polygon to create an enveloping\n"
                 "non-intersecting Polygon around your trace_gdf."
             )
-        if self.circular_target_area:
-            if not self.truncate_traces:
-                raise ValueError(
-                    "Traces must be truncated to the target area"
-                    " to perform circular area trace weighting. "
-                    "\n(To fix: pass truncate_traces=True.)"
-                )
+        if self.circular_target_area and not self.truncate_traces:
+            raise ValueError(
+                "Traces must be truncated to the target area"
+                " to perform circular area trace weighting. "
+                "\n(To fix: pass truncate_traces=True.)"
+            )
         # Copy geodataframes instead of using pointers
         # Traces
         self.trace_gdf = self.trace_gdf.copy()

@@ -8,11 +8,11 @@ the traces for further analysis (``fractopo.analysis.network.Network``).
 import logging
 from dataclasses import dataclass
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import geopandas as gpd
 from beartype import beartype
 from beartype.typing import Any, List, Optional, Set, Tuple
-from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, MultiLineString, Point
 
 from fractopo.general import (
@@ -31,6 +31,9 @@ from fractopo.tval.trace_validators import (
     MultiJunctionValidator,
     ValidatorClass,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 log = logging.getLogger(__name__)
 
@@ -248,7 +251,10 @@ class Validation:
                     # trace candidates that are nearby to geom based on spatial index
                     trace_candidates = (
                         determine_trace_candidates(
-                            geom_in_loop, idx, self.traces, spatial_index=self.spatial_index
+                            geom_in_loop,
+                            idx,
+                            self.traces,
+                            spatial_index=self.spatial_index,
                         )
                         if trace_candidates is None
                         else trace_candidates

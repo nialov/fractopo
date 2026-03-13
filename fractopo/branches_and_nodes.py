@@ -7,12 +7,12 @@ branches_and_nodes is the main entrypoint.
 import logging
 import math
 from itertools import chain, compress
+from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import numpy as np
 from beartype import beartype
 from beartype.typing import Any, Dict, List, Optional, Tuple, Union
-from geopandas.sindex import SpatialIndex
 from shapely.geometry import (
     LineString,
     MultiLineString,
@@ -50,6 +50,9 @@ from fractopo.general import (
     remove_z_coordinates_from_geodata,
     spatial_index_intersection,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 log = logging.getLogger(__name__)
 
@@ -747,10 +750,7 @@ def simple_snap(
 
     # Replace one of the endpoints based on replace_endpoint
     trace_coords = get_trace_coord_points(trace)
-    trace_coords = [
-        point if point.wkt not in replace_endpoint else replace_endpoint[point.wkt]
-        for point in trace_coords
-    ]
+    trace_coords = [replace_endpoint.get(point.wkt, point) for point in trace_coords]
 
     # Return modified
     modified = LineString(trace_coords)
@@ -997,10 +997,7 @@ def is_endpoint_close_to_boundary(
     """
     Check if endpoint is within snap_threshold of areas boundaries.
     """
-    for area in areas:
-        if endpoint.distance(area.boundary) < snap_threshold:
-            return True
-    return False
+    return any(endpoint.distance(area.boundary) < snap_threshold for area in areas)
 
 
 @beartype
