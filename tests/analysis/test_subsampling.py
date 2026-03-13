@@ -25,10 +25,9 @@ def test_aggregate_chosen(
     for value in result.values():
         assert isinstance(value, value_type)
 
-    for col in assumed_results:
+    for col, assumed_result_value in assumed_results.items():
         assert col in result
         result_value = result[col]
-        assumed_result_value = assumed_results[col]
         if isinstance(result_value, str):
             assert result_value == assumed_result_value
         else:

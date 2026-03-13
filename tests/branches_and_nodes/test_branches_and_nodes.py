@@ -2,6 +2,7 @@
 Tests for branch and node determination.
 """
 
+import contextlib
 from typing import List
 
 import geopandas as gpd
@@ -140,13 +141,11 @@ def test_crop_to_target_area(keep_column_data: bool):
         valid_areas_geoseries,
     )
     result = None
-    try:
+    with contextlib.suppress(TypeError):
         result = general.crop_to_target_areas(
             invalid_geoseries,
             invalid_areas_geoseries,
         )
-    except TypeError:
-        pass
     assert result is None
     assert isinstance(valid_result, (gpd.GeoDataFrame, gpd.GeoSeries))
     assert valid_geoseries.geometry.length.mean() > valid_result.geometry.length.mean()

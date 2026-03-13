@@ -242,7 +242,7 @@ def test_network(
 
 
 @tests.plotting_test
-def network_extensive_testing(
+def network_extensive_testing(  # noqa: PLR0915
     network: Network,
     traces: gpd.GeoDataFrame,
     area: gpd.GeoDataFrame,
@@ -420,7 +420,7 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
     )
 
     # test both traces and branches for right boundary_intersect_counts
-    for boundary_intersect_count, gdf, name in zip(
+    for boundary_intersect_count, gdf, type_name in zip(
         (
             # network_circular.trace_boundary_intersect_count,
             # network_circular.branch_boundary_intersect_count,
@@ -435,8 +435,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         assert sum(boundary_intersect_count.values()) == gdf.shape[0]
         assert sum(gdf.geometry.intersects(area_gdf.geometry.iloc[0].boundary)) == sum(
             (
-                boundary_intersect_count[f"{name} Boundary 1 Intersect Count"],
-                boundary_intersect_count[f"{name} Boundary 2 Intersect Count"],
+                boundary_intersect_count[f"{type_name} Boundary 1 Intersect Count"],
+                boundary_intersect_count[f"{type_name} Boundary 2 Intersect Count"],
             )
         )
 
