@@ -112,13 +112,13 @@ try:
             if os.environ.get("FRACTOPO_DISABLE_CACHE") in (None, "0")
             else None
         ),
-        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
+        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", "0")),
     )
 
 except Exception:
     log.error("Failed to generate joblib cache for fractopo.", exc_info=True)
     JOBLIB_CACHE = Memory(
-        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", 0)),
+        verbose=int(os.environ.get("FRACTOPO_JOBLIB_CACHE_VERBOSITY", "0")),
     )
 
 
@@ -334,14 +334,9 @@ def is_set(
         radial data such as azimuths but not the case for length data.
     :return: Is it within range.
     """
-    if loop_around:
-        if value_range[0] > value_range[1]:
-            # Loops around case
-            if (value >= value_range[0]) | (value <= value_range[1]):
-                return True
-    if value_range[0] <= value <= value_range[1]:
+    if loop_around and value_range[0] > value_range[1] and ((value >= value_range[0]) | (value <= value_range[1])):
         return True
-    return False
+    return bool(value_range[0] <= value <= value_range[1])
 
 
 @beartype
@@ -1111,10 +1106,7 @@ def compare_unit_vector_orientation(
         return False
     rad_angle = np.arccos(dot_product)
     deg_angle = np.rad2deg(rad_angle)
-    if deg_angle > threshold_angle:
-        # If angle between more than threshold_angle -> False
-        return False
-    return True
+    return not deg_angle > threshold_angle
 
 
 @beartype
@@ -1582,10 +1574,7 @@ def determine_boundary_intersecting_lines(
                 if all(
                     endpoint.distance(target_area.boundary) < snap_threshold
                     for endpoint in endpoints
-                ):
-                    cuts_through_idxs.append(candidate_idx)
-
-                elif not any(
+                ) or not any(
                     endpoint.within(target_area) for endpoint in endpoints
                 ) and np.isclose(line.distance(target_area), 0):
                     cuts_through_idxs.append(candidate_idx)
@@ -1820,9 +1809,8 @@ def silent_output(name: str):
 
     # Use double context managers and yield within both
     try:
-        with redirect_stdout(tmp_io_stdout):
-            with redirect_stderr(tmp_io_stderr):
-                yield
+        with redirect_stdout(tmp_io_stdout), redirect_stderr(tmp_io_stderr):
+            yield
 
     # Report stdout and stderr to log.info
     finally:

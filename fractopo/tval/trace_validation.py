@@ -227,7 +227,7 @@ class Validation:
 
         all_errors: List[List[str]] = []
         all_geoms: List[LineString] = []
-        for idx, geom in enumerate(self.traces.geometry.values):
+        for idx, geom_in_loop in enumerate(self.traces.geometry.values):
             # Collect errors from each validator for each geom
             current_errors: List[str] = []
 
@@ -243,12 +243,12 @@ class Validation:
                     # Break out of validation loop. See above comments
                     break
 
-                if isinstance(geom, LineString) and not geom.is_empty:
+                if isinstance(geom_in_loop, LineString) and not geom_in_loop.is_empty:
                     # Some conditionals to avoid try-except loop
                     # trace candidates that are nearby to geom based on spatial index
                     trace_candidates = (
                         determine_trace_candidates(
-                            geom, idx, self.traces, spatial_index=self.spatial_index
+                            geom_in_loop, idx, self.traces, spatial_index=self.spatial_index
                         )
                         if trace_candidates is None
                         else trace_candidates
@@ -257,8 +257,8 @@ class Validation:
                 # Overwrites geom if fix was executed
                 # current_errors either contains new error or is unchanged
                 # ignore_geom overwritten with True when geom must be ignored.
-                geom, current_errors, ignore_geom = self._validate(
-                    geom=geom,
+                validated_geom, current_errors, ignore_geom = self._validate(
+                    geom=geom_in_loop,
                     validator=validator,
                     current_errors=current_errors,
                     allow_fix=self.allow_fix,
@@ -277,8 +277,9 @@ class Validation:
                     vnodes=self.vnodes,
                     faulty_junctions=self.faulty_junctions,
                 )
+                validated_geom_in_loop = validated_geom
             all_errors.append(current_errors)
-            all_geoms.append(geom)
+            all_geoms.append(validated_geom_in_loop)
 
         assert len(all_errors) == len(all_geoms)
         validated_gdf = self.traces.copy()
