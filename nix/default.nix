@@ -1,7 +1,7 @@
 inputs:
 let
   flakePart = inputs.flake-parts.lib.mkFlake { inherit inputs; } (
-    { self, inputs, ... }:
+    { self, inputs, config, ... }:
     {
       systems = [ "x86_64-linux" ];
       imports = [
@@ -12,6 +12,7 @@ let
       ];
       flake = {
         inherit self;
+        flakeConfig = config;
         overlays =
           let
             overlays' = import ./overlays.nix;

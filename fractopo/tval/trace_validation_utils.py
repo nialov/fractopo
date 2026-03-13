@@ -244,7 +244,7 @@ def determine_middle_in_triangle(
             )
             >= 2
         ):
-            candidates.append(segments[idx])
+            candidates.append(linestring)
     return candidates
 
 

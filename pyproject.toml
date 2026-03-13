@@ -115,35 +115,33 @@ filterwarnings =[
     "ignore:Standard error for the MLE should be accessed using the 'standard_err' property.:DeprecationWarning",
 ]
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-src_paths = ["fractopo", "tests"]
+# [tool.isort]
+# profile = "black"
+# multi_line_output = 3
+# src_paths = ["fractopo", "tests"]
 
-[tool.pylint.master]
-fail-under = "9.5"
-ignore = ["examples"]
+# [tool.pylint.master]
+# fail-under = "9.5"
+# ignore = ["examples"]
 
-[tool.pylint.report]
-output-format = "text"
+# [tool.pylint.report]
+# output-format = "text"
 
-[tool.pylint.messages_control]
-max-line-length = 100
-disable = [
-    "C0103",
-    "C0302",
-    "R0902",
-    "R0913",
-    "R0914",
-    "R1735",
-    "W0212",
-    "W0621",
-    "W0703",
-    "W1203",
-    ]
+# [tool.pylint.messages_control]
+# max-line-length = 100
+# disable = [
+#     "C0103",
+#     "C0302",
+#     "R0902",
+#     "R0913",
+#     "R0914",
+#     "R1735",
+#     "W0212",
+#     "W0621",
+#     "W0703",
+#     "W1203",
+#     ]
 
-[tool.pylint.similarities]
-ignore-imports = true
 
 [tool.codespell]
 ignore_words_list = [
@@ -151,11 +149,12 @@ ignore_words_list = [
 ]
 
 [tool.ruff]
+fix = true
 extend-include = ["*.ipynb"]
-lint.ignore = ["E402"]
+
+[tool.ruff.lint]
+extend-select = [ "Q", "PL" ]
+extend-ignore = ["E402", "PLR2004", "PLR0913"]
 
 [tool.marimo.runtime]
 on_cell_change = "autorun"
-
-
-

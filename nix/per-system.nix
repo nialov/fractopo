@@ -53,9 +53,6 @@
           settings.hooks = {
             nixfmt-rfc-style.enable = true;
             nbstripout.enable = true;
-            isort = {
-              enable = true;
-            };
             shellcheck = {
               enable = false;
             };
@@ -84,6 +81,9 @@
             };
             commitizen.enable = true;
             ruff = {
+              enable = true;
+            };
+            ruff-format = {
               enable = true;
             };
             prettier = {

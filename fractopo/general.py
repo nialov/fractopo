@@ -2,7 +2,6 @@
 Contains general calculation and plotting tools.
 """
 
-import json
 import logging
 import math
 import os
@@ -45,6 +44,7 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
+import json
 
 log = logging.getLogger(__name__)
 

@@ -31,15 +31,19 @@ In particular, when submitting a pull request:
 Style
 -----
 
--  See ``pyproject.toml`` for the supported Python versions
-
--  You should set up `pre-commit hooks <https://pre-commit.com/>`__ to
-   automatically run a number of style and syntax checks on the code.
-   The ``pre-commit`` checks are the primary validation for the style of
-   the code.
+-  Use ``ruff`` to lint and format contributed Python code.
 
 -  New code should be documented following the style of the code base i.e.,
    using the ``sphinx`` style.
+
+-  See ``pyproject.toml`` for the supported Python versions (``requires-python =``).
+
+-  To run all lints and formatting tools, you need to install ``nix`` to
+   use the provided development shell and configured ``pre-commit``
+   hooks. After installing, run in the root of this project:
+   ``nix develop --extra-experimental-features "nix-command flakes" -c pre-commit run --all-files``.
+   However, this is not required for contributions and the tools will be
+   run as part of CI during pull requests.
 
 Development dependencies
 ------------------------
