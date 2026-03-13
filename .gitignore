@@ -37,6 +37,11 @@ venv/
 paper/allrefs.bib
 .null-ls_*
 __marimo__
+examples/validation_errors.png
+result*
+/.pre-commit-config.yaml
+.aider*
+.lycheecache
 
 # We do not want to include requirements.txt
 # It is merely for backwards compatible pip installs
@@ -177,7 +182,3 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
-examples/validation_errors.png
-result*
-/.pre-commit-config.yaml
-.aider*
