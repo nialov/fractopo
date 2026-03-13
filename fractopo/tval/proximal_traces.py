@@ -7,10 +7,11 @@ column `Merge` which has values of True or False depending on if
 nearby proximal traces were found.
 """
 
+from typing import TYPE_CHECKING
+
 import geopandas as gpd
 from beartype import beartype
 from beartype.typing import List, Union
-from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString
 
 from fractopo.general import (
@@ -22,6 +23,9 @@ from fractopo.general import (
     safe_buffer,
     spatial_index_intersection,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 MERGE_COLUMN = "Merge"
 

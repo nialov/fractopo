@@ -2,6 +2,7 @@
 Contains general calculation and plotting tools.
 """
 
+import json
 import logging
 import math
 import os
@@ -44,7 +45,6 @@ from shapely.geometry import (
 from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 from shapely.ops import split
 from sklearn.linear_model import LinearRegression
-import json
 
 log = logging.getLogger(__name__)
 
@@ -334,7 +334,11 @@ def is_set(
         radial data such as azimuths but not the case for length data.
     :return: Is it within range.
     """
-    if loop_around and value_range[0] > value_range[1] and ((value >= value_range[0]) | (value <= value_range[1])):
+    if (
+        loop_around
+        and value_range[0] > value_range[1]
+        and ((value >= value_range[0]) | (value <= value_range[1]))
+    ):
         return True
     return bool(value_range[0] <= value <= value_range[1])
 
@@ -1571,12 +1575,14 @@ def determine_boundary_intersecting_lines(
             if line.distance(target_area.boundary) < snap_threshold:
                 intersecting_idxs.append(candidate_idx)
                 endpoints = get_trace_endpoints(line)
-                if all(
-                    endpoint.distance(target_area.boundary) < snap_threshold
-                    for endpoint in endpoints
-                ) or not any(
-                    endpoint.within(target_area) for endpoint in endpoints
-                ) and np.isclose(line.distance(target_area), 0):
+                if (
+                    all(
+                        endpoint.distance(target_area.boundary) < snap_threshold
+                        for endpoint in endpoints
+                    )
+                    or not any(endpoint.within(target_area) for endpoint in endpoints)
+                    and np.isclose(line.distance(target_area), 0)
+                ):
                     cuts_through_idxs.append(candidate_idx)
 
     intersecting_lines = np.array(

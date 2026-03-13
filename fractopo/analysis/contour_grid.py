@@ -4,12 +4,12 @@ Scripts for creating sample grids for fracture trace, branch and node data.
 
 import logging
 import platform
+from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import numpy as np
 from beartype import beartype
 from beartype.typing import Any, Dict, Optional, Union
-from geopandas.sindex import SpatialIndex
 from joblib import Parallel, delayed
 from shapely.geometry import LineString, Point, Polygon
 
@@ -28,6 +28,9 @@ from fractopo.general import (
     safe_buffer,
     spatial_index_intersection,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 log = logging.getLogger(__name__)
 
@@ -274,9 +277,7 @@ def sample_grid(
 
     # Use all CPUs with n_jobs=-1
     # Use only one process on Windows
-    params_for_cells = Parallel(
-        n_jobs=(-1 if not platform.system() == "Windows" else 1)
-    )(
+    params_for_cells = Parallel(n_jobs=(-1 if platform.system() != "Windows" else 1))(
         delayed(populate_sample_cell)(
             sample_cell=sample_cell,
             sample_cell_area=sample_cell_area,
@@ -335,10 +336,7 @@ def run_grid_sampling(
                 "Expected cell_width to be non-close-to-zero positive number."
             )
         is_topology_defined = branches.shape[0] > 0
-        if is_topology_defined:
-            lines = branches
-        else:
-            lines = traces
+        lines = branches if is_topology_defined else traces
         grid = create_grid(cell_width, lines=lines)
     sampled_grid = sample_grid(
         grid,

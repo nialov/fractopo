@@ -3,11 +3,11 @@ Miscellaneous utilities and scripts of fractopo.
 """
 
 from itertools import count
+from typing import TYPE_CHECKING
 
 import geopandas as gpd
 from beartype import beartype
 from beartype.typing import List, Tuple, Union
-from geopandas.sindex import SpatialIndex
 from shapely.geometry import LineString, Point
 
 from fractopo.general import (
@@ -19,6 +19,9 @@ from fractopo.general import (
     safe_buffer,
     spatial_index_intersection,
 )
+
+if TYPE_CHECKING:
+    from geopandas.sindex import SpatialIndex
 
 
 class LineMerge:
