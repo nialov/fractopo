@@ -5,8 +5,8 @@ Test trace_validation_utils.
 import pytest
 from shapely.geometry import LineString
 
-import fractopo.tval.trace_validation_utils as trace_validation_utils
 import tests
+from fractopo.tval import trace_validation_utils
 
 
 @pytest.mark.parametrize(
@@ -53,8 +53,7 @@ def test_segmentize_linestring(linestring, threshold_length, assume_result_size)
 
 
 @pytest.mark.parametrize(
-    "trace,splitter_trace,snap_threshold,"
-    "triangle_error_snap_multiplier,assumed_result",
+    "trace,splitter_trace,snap_threshold,triangle_error_snap_multiplier,assumed_result",
     tests.test_split_to_determine_triangle_errors_params,
 )
 def test_split_to_determine_triangle_errors(
@@ -78,7 +77,7 @@ def test_split_to_determine_triangle_errors(
 
 
 @pytest.mark.parametrize(
-    "segments,snap_threshold," "snap_threshold_error_multiplier,assumed_result",
+    "segments,snap_threshold,snap_threshold_error_multiplier,assumed_result",
     tests.test_determine_middle_in_triangle_params,
 )
 def test_determine_middle_in_triangle(

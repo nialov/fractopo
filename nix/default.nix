@@ -1,7 +1,12 @@
 inputs:
 let
   flakePart = inputs.flake-parts.lib.mkFlake { inherit inputs; } (
-    { self, inputs, config, ... }:
+    {
+      self,
+      inputs,
+      config,
+      ...
+    }:
     {
       systems = [ "x86_64-linux" ];
       imports = [

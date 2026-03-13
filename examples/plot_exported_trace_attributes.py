@@ -31,14 +31,10 @@ from fractopo.general import Col, determine_azimuth
 BASE_DIR_PATH = Path("..")
 
 KB11_TRACE_GDF = gpd.read_file(
-    BASE_DIR_PATH.joinpath(
-        Path("tests/sample_data/KB11/KB11_traces.geojson")
-    )
+    BASE_DIR_PATH.joinpath(Path("tests/sample_data/KB11/KB11_traces.geojson"))
 )
 KB11_AREA_GDF = gpd.read_file(
-    BASE_DIR_PATH.joinpath(
-        Path("tests/sample_data/KB11/KB11_area.geojson")
-    )
+    BASE_DIR_PATH.joinpath(Path("tests/sample_data/KB11/KB11_area.geojson"))
 )
 
 # %%

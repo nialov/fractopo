@@ -384,7 +384,9 @@ def determine_intersect(
                 "error": False,
             }
 
-        elif (l1 is True) and (l2 is False) or (l1 is False) and (l2 is True):  # It's a y-node inside set 1
+        elif (
+            (l1 is True) and (l2 is False) or (l1 is False) and (l2 is True)
+        ):  # It's a y-node inside set 1
             raise ValueError(
                 f"Node {node} does not intersect both sets"
                 f" {first_set} and {second_set}\n l1 is {l1} and l2 is {l2}"
