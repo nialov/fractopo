@@ -726,7 +726,7 @@ class SharpCornerValidator(BaseValidator):
             if idx != 0:
                 # Cannot get previous if node is first
                 prev_segment_unit_vector = create_unit_vector(
-                    geom_coords[idx - 1], geom_coords[idx]
+                    geom_coords[idx - 1], segment_start
                 )
                 if any(
                     np.isnan(prev_segment_unit_vector)
