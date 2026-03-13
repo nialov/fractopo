@@ -90,6 +90,7 @@ def test_tracevalidate_only_area(args, tmp_path):
         (tests.kb7_trace_50_path, tests.kb7_area_path, False),
     ],
 )
+@tests.plotting_test
 def test_fractopo_network_cli(
     traces_path, area_path, determine_branches_nodes, tmp_path
 ):
