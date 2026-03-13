@@ -76,7 +76,7 @@
 
         pythonEnv = final.python3.withPackages (
           p:
-          [ p.fractopo.passthru.no-check ]
+          p.fractopo.dependencies
           ++ p.fractopo.optional-dependencies.dev
           ++ p.fractopo.optional-dependencies.api
         );
