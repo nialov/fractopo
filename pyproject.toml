@@ -71,6 +71,7 @@ dev = [
     "sphinx-autodoc-typehints >2.0.0",
     "nbsphinx",
     "sphinx-design",
+    "sphinx-sitemap",
     "ipython",
 ]
 api = ["fastapi", "marimo"]

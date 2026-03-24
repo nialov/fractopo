@@ -45,6 +45,7 @@ extensions = [
     "sphinx_rtd_theme",
     "nbsphinx",
     "sphinx_design",
+    "sphinx_sitemap",
 ]
 
 # Add .md markdown files as sources.
@@ -109,3 +110,9 @@ apidoc_modules = [
         "max_depth": 4,
     }
 ]
+
+# -- Options for sphinx-sitemap -------------------------------------
+
+html_baseurl = "https://nialov.github.io/fractopo/"
+sitemap_url_scheme = "{link}"
+html_extra_path = ["robots.txt"]
