@@ -70,6 +70,7 @@ dev = [
     "sphinx-rtd-theme >2.0",
     "sphinx-autodoc-typehints >2.0.0",
     "nbsphinx",
+    "sphinx-design",
     "ipython",
 ]
 api = ["fastapi", "marimo"]

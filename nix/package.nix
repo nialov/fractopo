@@ -24,6 +24,7 @@
   sphinx-rtd-theme,
   sphinx-gallery,
   nbsphinx,
+  sphinx-design,
   notebook,
   ipython,
   coverage,
@@ -134,6 +135,7 @@ let
         sphinx-rtd-theme
         sphinx-gallery
         nbsphinx
+        sphinx-design
         notebook
         ipython
         marimo

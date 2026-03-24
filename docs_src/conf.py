@@ -44,6 +44,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",
     "nbsphinx",
+    "sphinx_design",
 ]
 
 # Add .md markdown files as sources.
