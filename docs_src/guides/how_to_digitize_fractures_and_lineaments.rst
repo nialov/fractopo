@@ -225,8 +225,11 @@ Digitizing new traces
 Modifying existing traces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+How to digitize fractures and lineaments using ArcGIS Pro
+---------------------------------------------------------
+
 Things to keep in mind while digitizing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
 
 -  Avoid unintended intersections
 
@@ -253,8 +256,20 @@ Things to keep in mind while digitizing
       be improperly samples. Furthermore, the target area you currently
       have might be extended in the future.
 
-How to digitize fractures and lineaments using ArcGIS Pro
----------------------------------------------------------
+For more detailed instructions regarding the different digitization
+errors, go to the :doc:`/validation/errors` page.
 
 How to collect metadata for digitized fractures
 -----------------------------------------------
+
+Next steps
+----------
+
+If you want to validate your data using ``fractopo``, you can do so
+using the command-line interface (See :doc:`/index`) or using Python
+code in a script or a notebook (See
+:doc:`/notebooks/fractopo_validation_1`).
+
+Similarly, to analyze data using ``fractopo``, you can use the
+command-line interface or follow a notebook
+(:doc:`/notebooks/fractopo_network_1`).
