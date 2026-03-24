@@ -25,6 +25,7 @@
   sphinx-gallery,
   nbsphinx,
   sphinx-design,
+  sphinx-sitemap,
   notebook,
   ipython,
   coverage,
@@ -136,6 +137,7 @@ let
         sphinx-gallery
         nbsphinx
         sphinx-design
+        sphinx-sitemap
         notebook
         ipython
         marimo
