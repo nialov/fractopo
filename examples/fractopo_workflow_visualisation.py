@@ -1,5 +1,7 @@
 """
 Script to create a workflow visualization of ``fractopo``.
+==========================================================
+
 """
 
 import sys

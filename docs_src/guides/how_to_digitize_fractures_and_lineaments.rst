@@ -156,21 +156,31 @@ layer for the target area by going to ``Layer`` -> ``Create layer`` ->
        Usage of GeoPackages for storing vector data is recommended due to their
        high compatibility and single-file database structure.
 
-.. dropdown:: Screenshot of vector layer creation screen with options selected for creating a GeoPackage file for storing target are Polygon data.
+.. dropdown:: Screenshot of vector layer creation screen with options selected for creating a GeoPackage file for storing target area Polygon data.
    :animate: fade-in
 
    .. figure:: screenshots/qgis_add_vector_area_layer.jpg
-      :alt: screenshots/qgis_add_vector_area_layer.jpg
+      :alt: Screenshot of vector layer creation screen with options selected for creating a GeoPackage file for storing target area Polygon data.
 
       Please carefully check 1. that the ``Table name`` is the same as
       the filename, without the extension (``.gpkg``) as seen in
       ``File name``, 2. ``Geometry type`` is ``Polygon`` and 3. the CRS
       is the same as the project.
 
-
 Create a new ``LineString`` layer for the traces to be digitized.
 At its simplest, the trace layer can only consist of the trace geometries
 without any attribute information. When creating your trace layer, select **LineString** as the geometry type.
+
+.. dropdown:: Screenshot of vector layer creation screen with options selected for creating a GeoPackage file for storing ``LineString`` trace data.
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_add_vector_traces_layer.jpg
+      :alt: Screenshot of vector layer creation screen with options selected for creating a GeoPackage file for storing ``LineString`` trace data.
+
+      Please carefully check 1. that the ``Table name`` is the same as
+      the filename, without the extension (``.gpkg``) as seen in
+      ``File name``, 2. ``Geometry type`` is ``LineString`` and 3. the CRS
+      is the same as the project.
 
 .. note::
 
@@ -182,40 +192,66 @@ without any attribute information. When creating your trace layer, select **Line
 Digitizing fracture and lineament traces in QGIS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**1. Enable and configure snapping**
+Enable and configure snapping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--  Click the magnet icon in the QGIS toolbar or go to Project > Snapping
-   Options.
--  Set snapping to “Vertex” and “Segment” for your trace layer, and
-   choose a small tolerance (e.g., TODO).
--  This helps ensure that line endpoints connect precisely, which is
-   important for accurate network analysis, i.e., determining which
-   trace abuts another and which crosscuts.
+Click the magnet icon in the QGIS toolbar or go to Project > Snapping
+Options. Set snapping to “Vertex” and “Segment” for your trace layer,
+and choose a small snapping tolerance (e.g., 12 ``px``). Snapping helps
+to ensure that traces precisely abut to other traces, which is important
+for accurate network analysis, i.e., determining which trace abuts
+another and which crosscuts.
 
-**2. Avoid unintended intersections**
+.. dropdown:: Configuring snapping in the toolbar
+   :animate: fade-in
 
--  Do not let more than two lines intersect at a single point. If
-   multiple lines cross at one spot, edit them so only two intersect.
--  When two lines are meant to connect, make sure their endpoints are
-   snapped together. Use the “Vertex Tool” to adjust endpoints as
-   needed.
+   .. figure:: screenshots/qgis_configure_snapping_1.jpg
+      :alt: Screenshot
 
-**3. Prevent self-intersections and duplicate lines**
+   Toggle  ``Enable Snapping`` and set snapping to ``Vertex`` and ``Segment``.
 
--  Make sure each line does not cross itself. Use the “Check Geometry
-   Validity” tool (Processing Toolbox > Vector geometry > Check
-   validity) to identify and fix self-intersections.
--  Avoid drawing duplicate lines directly on top of each other. If you
-   find duplicates, delete them.
+   .. figure:: screenshots/qgis_configure_snapping_2.jpg
+      :alt: Screenshot
 
-**4. Trace length and target area**
+   1. Configure that new features snap to ``Active Layer`` so that when
+   you create new features, they only snap to features in the same
+   layer. 2. Set ``Snapping Tolerance`` to 12 ``px``. This determines
+   how far the cursor will try to snap to old features when creating new
+   ones.
 
--  If you have created a target area to control where you are going to
-   digitize, make sure you do not stop your traces at the boundary.
-   Rather, continue them outside the boundary as far as they can be
-   interpreted to continue. Otherwise trace lengths might be improperly
-   samples. Furthermore, the target area you currently have might be
-   extended in the future.
+Digitizing new traces
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Modifying existing traces
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Things to keep in mind while digitizing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-  Avoid unintended intersections
+
+   -  Do not let more than two lines intersect at a single point. If
+      multiple lines cross at one spot, edit them so only two intersect.
+   -  When two lines are meant to connect, make sure their endpoints are
+      snapped together. Use the “Vertex Tool” to adjust endpoints as
+      needed.
+
+-  Prevent self-intersections and duplicate lines
+
+   -  Make sure each line does not cross itself. Use the “Check Geometry
+      Validity” tool (Processing Toolbox > Vector geometry > Check
+      validity) to identify and fix self-intersections.
+   -  Avoid drawing duplicate lines directly on top of each other. If
+      you find duplicates, delete them.
+
+-  Trace length and target area
+
+   -  If you have created a target area to control where you are going
+      to digitize, make sure you do not stop your traces at the
+      boundary. Rather, continue them outside the boundary as far as
+      they can be interpreted to continue. Otherwise trace lengths might
+      be improperly samples. Furthermore, the target area you currently
+      have might be extended in the future.
 
 How to digitize fractures and lineaments using ArcGIS Pro
 ---------------------------------------------------------
