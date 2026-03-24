@@ -470,6 +470,7 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :maxdepth: 1
    :caption: How-to guides
    :hidden:
+   :numbered:
 
    guides/how_to_digitize_fractures_and_lineaments
 
