@@ -222,6 +222,36 @@ another and which crosscuts.
 Digitizing new traces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Before starting to digitize traces, you set disable the pop-up that
+appears for inputting attribute data after each feature is digitized.
+Go to ``Settings`` -> ``Options`` -> ``Map Tools`` -> ``Digitizing``.
+Check ``Suppress attribute form ...`` to disable the pop-up.
+
+.. dropdown:: Suppressing attribute form
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_digitize_features_option.jpg
+      :alt: Screenshot
+
+   Toggle ``Suppress attribute form ...`` on to disable the pop-up.
+
+To start digitizing new features TODO
+
+.. dropdown:: Digitizing new features
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_digitize_features_1.jpg
+      :alt: Screenshot
+
+   Toggle editing (pen icon) on, then click the create feature button.
+   Make sure that snapping is turned on (magnet icon).
+
+   .. figure:: screenshots/qgis_digitize_features_2.jpg
+      :alt: Screenshot
+
+   Remember to save layer changes. You can check if you have unsaved
+   changes from the ``Layers`` tab or from the save button itself.
+
 Modifying existing traces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
