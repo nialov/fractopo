@@ -431,11 +431,6 @@ Development
 
 -  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING.html>`__
 
-License
-~~~~~~~
-
-Copyright © 2020-2026, Nikolas Ovaskainen.
-
 -----
 
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
@@ -454,7 +449,7 @@ Copyright © 2020-2026, Nikolas Ovaskainen.
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 45781e546df095e6a0f473a53da8a042)
+.. [[[end]]] (checksum: fae7f5deb2ff57e103ba6d191d36675f)
 
 .. toctree::
    :maxdepth: 1
