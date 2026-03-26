@@ -414,11 +414,6 @@ Development
 
 -  For general contributing guidelines, see `CONTRIBUTING.rst </CONTRIBUTING.rst>`__
 
-License
-~~~~~~~
-
-Copyright © 2020-2026, Nikolas Ovaskainen.
-
 -----
 
 .. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg

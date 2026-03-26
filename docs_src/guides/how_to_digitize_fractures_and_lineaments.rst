@@ -12,12 +12,22 @@ Though drawing lines on a map might not seem complex, there are still
 rules to follow to make the data you produce is analyzable without
 inconsistencies.
 
+Digitizing lineaments and fractures follows the same process. Usually the
+scale of observation and underlying raster data are different but actual
+process of digitization is the same. Consequently, any specific
+references to "fractures" or "lineaments" are mostly interchangeable,
+unless otherwise specified.
+
 How to digitize fractures and lineaments using QGIS
 ---------------------------------------------------
 
 This guide expects some basic knowledge of geographic information
 systems (GIS) and their nomenclature. However, the guide is meant to be
 as detailed as necessary for a beginner of QGIS to follow.
+
+This guide has been written for QGIS version 4.0. Some deviation in
+terms of different option names and locations is therefore possible
+if you are using a different version.
 
 Setting up your project
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -235,7 +245,12 @@ Check ``Suppress attribute form ...`` to disable the pop-up.
 
    Toggle ``Suppress attribute form ...`` on to disable the pop-up.
 
-To start digitizing new features TODO
+To start digitizing new features, make sure you have selected the trace layer
+in the ``Layers`` tab. Next, put ``Toggle Editing`` toggle on. To create a new
+feature, click on ``Add Line Feature`` button. Click on the map to create a vertex,
+then click again to connect the vertexes, and continue digitizing from
+one end of the lineament or fracture to the other end. If either end of the fracture
+seems to abut another fracture
 
 .. dropdown:: Digitizing new features
    :animate: fade-in

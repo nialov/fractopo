@@ -15,6 +15,7 @@ Configuration file for Sphinx.
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
+from datetime import datetime
 from importlib import import_module
 from pathlib import Path
 
@@ -24,7 +25,7 @@ sys.path.insert(0, Path().resolve().as_posix())
 # -- Project information -----------------------------------------------------
 
 project = "fractopo"
-copyright = "2020-%Y"
+copyright = "2020-" + datetime.now().strftime("%Y")
 author = "Nikolas Ovaskainen"
 
 # The full version, including alpha/beta/rc tags
