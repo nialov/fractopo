@@ -83,8 +83,8 @@ version of ``fractopo``:
    cd fractopo
    poetry install --all-extras
 
-container
-~~~~~~~~~
+container (web interface)
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A `marimo <https://github.com/marimo-team/marimo>`__ +
 `FastAPI <https://github.com/fastapi/fastapi>`__ app exists in
