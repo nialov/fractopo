@@ -50,7 +50,7 @@ name ``brittle_course_fracture_digitization_2026`` and yours may differ.
 
 Tree-view of the project folder:
 
-.. code::
+.. code:: text
 
    brittle_course_fracture_digitization_2026
    └── data
@@ -63,7 +63,7 @@ the same name for the project file as you have for the project
 directory. After saving the project file in the directory, you should
 have a new ``brittle_course_fracture_digitization_2026.qgz`` file there.
 
-.. code::
+.. code:: text
 
    brittle_course_fracture_digitization_2026
    ├── brittle_course_fracture_digitization_2026.qgz
@@ -311,10 +311,11 @@ Next steps
 ----------
 
 If you want to validate your data using ``fractopo``, you can do so
-using the command-line interface (See :doc:`/index`) or using Python
+using the command-line interface (See :doc:`/index`), using Python
 code in a script or a notebook (See
-:doc:`/notebooks/fractopo_validation_1`).
+:doc:`/notebooks/fractopo_validation_1`) or using the validation web interface if you have it available (See :doc:`/guides/how_to_use_fractopo_validation_web_interface`).
 
 Similarly, to analyze data using ``fractopo``, you can use the
-command-line interface or follow a notebook
-(:doc:`/notebooks/fractopo_network_1`).
+command-line interface, follow a notebook
+(:doc:`/notebooks/fractopo_network_1`) or use the web
+interface (See :doc:`/guides/how_to_use_fractopo_analysis_web_interface`).

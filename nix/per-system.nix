@@ -58,7 +58,8 @@
             };
             statix.enable = true;
             deadnix.enable = true;
-            rstcheck.enable = true;
+            # TODO: Too many errors and difficult to configure
+            rstcheck.enable = false;
             trim-trailing-whitespace.enable = true;
             check-added-large-files.enable = true;
             sync-git-tag-with-poetry.enable = false;

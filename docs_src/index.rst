@@ -100,8 +100,8 @@ version of ``fractopo``:
    cd fractopo
    poetry install --all-extras
 
-container
-~~~~~~~~~
+container (web interface)
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A `marimo <https://github.com/marimo-team/marimo>`__ +
 `FastAPI <https://github.com/fastapi/fastapi>`__ app exists in
@@ -449,7 +449,7 @@ Development
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: fae7f5deb2ff57e103ba6d191d36675f)
+.. [[[end]]] (checksum: 2162b2f3cacda534a8d15bc6f6b09bf4)
 
 .. toctree::
    :maxdepth: 1
@@ -468,6 +468,7 @@ Development
    :numbered:
 
    guides/how_to_digitize_fractures_and_lineaments
+   guides/how_to_use_fractopo_web_interface
 
 .. toctree::
    :maxdepth: 1
