@@ -274,6 +274,7 @@ def determine_set(
     value_ranges: SetRangeTuple,
     set_names: Sequence[str],
     loop_around: bool,
+    null_set: str = NULL_SET,
 ) -> str:
     """
     Determine which named value range, if any, value is within.
@@ -286,9 +287,15 @@ def determine_set(
     >>> determine_set(10.0, ((0, 20), (30, 160)), ("0-20", "30-160"), False)
     '0-20'
 
-    Example with
+    Example with leep around 0 (160-60)
 
-    >>> determine_set(50.0, ((0, 20), (160, 60)), ("0-20", "160-60"), True)
+    >>> determine_set(50.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
+    '160-60'
+
+    >>> determine_set(170.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
+    '160-60'
+
+    >>> determine_set(0.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
     '160-60'
 
     :param value: Value to determine set of.
@@ -303,10 +310,10 @@ def determine_set(
     possible_set_name = [
         set_name
         for set_name, value_range in zip(set_names, value_ranges)
-        if is_set(value, value_range, loop_around)
+        if is_set(value=value, value_range=value_range, loop_around=loop_around)
     ]
     if len(possible_set_name) == 0:
-        return NULL_SET
+        return null_set
     if len(possible_set_name) == 1:
         return possible_set_name[0]
     raise ValueError("Expected set value ranges to not overlap.")
@@ -326,6 +333,9 @@ def is_set(
     True
 
     >>> is_set(5, (175, 15), True)
+    True
+
+    >>> is_set(0, (175, 15), True)
     True
 
     :param value: Value to determine.
