@@ -23,10 +23,8 @@ with layer name ``traces``, you do not need to specify the layer name.
 
 After uploading these two data, you might need to change the settings of
 the process before running validation or analysis. See
-:ref:`Validation <validation>` and :ref:`Network <network-analysis>`
+:ref:`guides/how_to_use_fractopo_web_interface:validation` and :ref:`guides/how_to_use_fractopo_web_interface:network analysis`
 subsections below.
-
-.. _validation:
 
 Validation
 ----------
@@ -40,8 +38,6 @@ The validation interface should look something like this:
       :alt: Screenshot of validation web interface
 
    Validation web interface of ``fractopo``.
-
-.. _network-analysis:
 
 You normally do not need to change any settings before running
 validation. If you run into problems, you might want to enable verbose
@@ -105,7 +101,9 @@ Downloading and exploring output data
    the results appear. Wait patiently for the results to show and scroll
    to the bottom to find the download link. For few hundreds of
    digitized traces, the computing time is usually in seconds or tens of
-   seconds.
+   seconds. However, if you define a contour grid cell size, the
+   processing time will be significantly increased due to the intensity
+   of contouring.
 
 Both the validation and analysis interfaces output the results as a
 downloadable ``.zip`` archive. Some textual results are also shown

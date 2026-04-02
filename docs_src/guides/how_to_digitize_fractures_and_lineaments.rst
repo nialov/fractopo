@@ -9,7 +9,7 @@ Introduction
 ---------------
 
 Though drawing lines on a map might not seem complex, there are still
-rules to follow to make the data you produce is analyzable without
+rules to follow to make the data you produce analyzable without
 inconsistencies.
 
 Digitizing lineaments and fractures follows the same process. Usually the
@@ -17,6 +17,29 @@ scale of observation and underlying raster data are different but actual
 process of digitization is the same. Consequently, any specific
 references to "fractures" or "lineaments" are mostly interchangeable,
 unless otherwise specified.
+
+The purpose of digitizing is usually creating digital data about
+bedrock discontinuities, i.e. fractures and faults. By drawing
+along a fracture on a georeferenced picture of an outcrop,
+you are documenting the length and orientation of a bedrock feature.
+Furthermore, by accurately digitizing relationships between fractures,
+you are producing topological information about how fractures
+interact and form a network.
+
+.. dropdown::  Examples and illustrations of fracture digitizing
+   :animate: fade-in
+
+   .. figure:: figures/zoomed_digitization_example.jpg
+      :alt: Image showing outcrop photo on the left side and digitized fractures on top of the outcrop photo on the right side
+
+   On the left: outcrop photo, on the right: outcrop photo with digitized fractures on top of it
+
+   .. figure:: figures/orthomosaic_with_fractures_and_inferred_fault.jpg
+      :alt: Image showing outcrop photo with thousands of digitized fractures on top and an E-W trending annotated fault
+
+   Drone orthomosaic from the northern shores of Åland Islands
+   with thousands of digitized fractures on top and an inferred
+   fault zone, i.e. a remotely interpreted potential fault.
 
 How to digitize fractures and lineaments using QGIS
 ---------------------------------------------------
@@ -123,7 +146,7 @@ easily accessible in QGIS.
 
 To add raster data into QGIS, go to ``Layer`` -> ``Add Layer`` ->
 ``Add Raster Layer`` and select your raster file, which usually has a
-``.tif`` extension, and click ``Add`` to add it to the project.
+``.tif`` or ``.tiff`` extension, and click ``Add`` to add it to the project.
 
 .. dropdown:: Adding raster data in QGIS
    :animate: fade-in
@@ -313,9 +336,9 @@ Next steps
 If you want to validate your data using ``fractopo``, you can do so
 using the command-line interface (See :doc:`/index`), using Python
 code in a script or a notebook (See
-:doc:`/notebooks/fractopo_validation_1`) or using the validation web interface if you have it available (See :doc:`/guides/how_to_use_fractopo_validation_web_interface`).
+:doc:`/notebooks/fractopo_validation_1`) or using the validation web interface if you have it available (See :ref:`guides/how_to_use_fractopo_web_interface:Validation`).
 
 Similarly, to analyze data using ``fractopo``, you can use the
 command-line interface, follow a notebook
 (:doc:`/notebooks/fractopo_network_1`) or use the web
-interface (See :doc:`/guides/how_to_use_fractopo_analysis_web_interface`).
+interface (See :ref:`guides/how_to_use_fractopo_web_interface:network analysis`).
