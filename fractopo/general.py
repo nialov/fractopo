@@ -289,14 +289,17 @@ def determine_set(
 
     Example with leep around 0 (160-60)
 
-    >>> determine_set(50.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
+    >>> determine_set(50.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
     '160-60'
 
-    >>> determine_set(170.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
+    >>> determine_set(170.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
     '160-60'
 
-    >>> determine_set(0.0, ((80, 100), (160, 60)), ("0-20", "160-60"), True)
+    >>> determine_set(0.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
     '160-60'
+
+    >>> determine_set(90.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
+    '80-100'
 
     :param value: Value to determine set of.
     :param value_ranges: Ranges of each set.
