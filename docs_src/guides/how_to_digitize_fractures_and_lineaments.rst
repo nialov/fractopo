@@ -225,15 +225,62 @@ without any attribute information. When creating your trace layer, select **Line
 Digitizing fracture and lineament traces in QGIS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Layer organization
+^^^^^^^^^^^^^^^^^^
+
+QGIS determines what gets shown on top of what layer in the ordering of
+layers in the ``Layers`` tab. Make sure the raster layer is at the
+bottom, target area layer is on top of it and the layer with the traces
+you are digitizing is at the top.
+
+.. dropdown:: Screenshot of Layers tab with layers organized
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_layer_organization.jpg
+      :alt: Screenshot
+
+   Order of target area and traces is not so important.
+
+Raster layer styling
+^^^^^^^^^^^^^^^^^^^^
+
+Orthomosaics, or pictures of outcrops in general, are RGB images
+where additional styling is usually not required. However, when
+digitizing lineaments using, e.g., digital elevation model (DEM)
+data, you might need to configure styling.
+
+Vector layer styling
+^^^^^^^^^^^^^^^^^^^^^^
+
+The target area is defined by polygon(s). By default, QGIS styles them
+with a single color fill, i.e., they mask the layers beneath them.
+You can change the styling in the ``Symbology`` section, accessed by right
+clicking the layer in the ``Layers`` tab and selecting ``Properties``.
+
+.. dropdown:: Setting style for target area layer
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_target_area_style.jpg
+      :alt: Screenshot
+
+   Click ``Symbology``, then, if ``Simple Fill`` (or another fill type)
+   is being currently used, click it. Then change the
+   ``Symbol layer type`` to ``Outline: Simple Line`` to only show the
+   boundary of the polygon.
+
+To make digitizing easier, you can try adjusting the trace styles.
+Changing the color is particularly helpful for ensuring your work stands
+out against the underlying raster layer.
+
 Enable and configure snapping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Click the magnet icon in the QGIS toolbar or go to Project > Snapping
 Options. Set snapping to “Vertex” and “Segment” for your trace layer,
 and choose a small snapping tolerance (e.g., 12 ``px``). Snapping helps
-to ensure that traces precisely abut to other traces, which is important
-for accurate network analysis, i.e., determining which trace abuts
-another and which crosscuts.
+to ensure that traces precisely abut, i.e. endpoint of one trace is
+exactly along a segment or on top of a vertex of another trace, to other
+traces, which is important for accurate topological network analysis.
 
 .. dropdown:: Configuring snapping in the toolbar
    :animate: fade-in
@@ -271,7 +318,7 @@ Check ``Suppress attribute form ...`` to disable the pop-up.
 To start digitizing new features, make sure you have selected the trace layer
 in the ``Layers`` tab. Next, put ``Toggle Editing`` toggle on. To create a new
 feature, click on ``Add Line Feature`` button. Click on the map to create a vertex,
-then click again to connect the vertexes, and continue digitizing from
+then click again to connect the vertices, and continue digitizing from
 one end of the lineament or fracture to the other end. If either end of the fracture
 seems to abut another fracture
 
@@ -291,7 +338,35 @@ seems to abut another fracture
    changes from the ``Layers`` tab or from the save button itself.
 
 Modifying existing traces
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is often necessary to modify already digitized features due to
+reinterpretation and to match them with other digitized fractures.
+Start editing similar to when creating new traces. Instead of clicking
+``Add Line Feature``, click on ``Vertex Tool``. Now when moving your
+cursor above traces, you should see their vertices highlighted.
+To modify a single vertex, click on it. You can then move it and
+the trace will be modified to fit the new vertex. To add a new
+vertex between two existing vertices, click along the trace somewhere
+where there is no vertex between the two vertices. To continue a trace,
+click on the plus-symbol at either end of the trace to start appending
+vertices.
+
+.. note::
+
+   When editing traces, you might accidentally cause another trace to no
+   longer abut the modified trace. You can avoid this by adding a
+   vertice along the modified trace at the endpoint of fracture abutting
+   the modified trace.
+
+.. dropdown:: Modifying existing features
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_modify_features.jpg
+      :alt: Screenshot
+
+   Toggle editing (pen icon) on, then click the vertex button.
+   Make sure that snapping is turned on (magnet icon) also when editing.
 
 How to digitize fractures and lineaments using ArcGIS Pro
 ---------------------------------------------------------
