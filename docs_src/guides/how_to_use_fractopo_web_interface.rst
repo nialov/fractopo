@@ -101,9 +101,10 @@ Downloading and exploring output data
    the results appear. Wait patiently for the results to show and scroll
    to the bottom to find the download link. For few hundreds of
    digitized traces, the computing time is usually in seconds or tens of
-   seconds. However, if you define a contour grid cell size, the
-   processing time will be significantly increased due to the intensity
-   of contouring.
+   seconds. However, if you define a contour grid cell size for network
+   analysis, the processing time will be significantly increased,
+   depending on the cell size, due to the computational intensity of
+   contouring. Use a larger cell size to reduce computation time.
 
 Both the validation and analysis interfaces output the results as a
 downloadable ``.zip`` archive. Some textual results are also shown
@@ -119,10 +120,10 @@ Validation results consists of just the traces in few different
 geospatial file formats. If you open the downloaded traces, you will
 notice the inclusion of a new column, ``VALIDATION_ERRORS``, within the
 attribute table of the data. Use the values there to identify errors in
-the trace data and fix them accordingly. You can fix them in the
-original data you inputted or directly in the output trace data.
-After fixing your trace data, run it again through the interface.
-Make sure to use the file where you have done the edits.
+the trace data and fix them accordingly (See :doc:`/validation/errors`).
+You can fix them in the original data you inputted or directly in the
+output trace data. After fixing your trace data, run it again through
+the interface. Make sure to use the file where you have done the edits.
 
 As a general tip, make sure to clearly fix the errors pointed out by the
 validation to avoid having to do multiple rounds of validation. For
