@@ -41,6 +41,7 @@ needs_sphinx = "8.0.0"
 extensions = [
     "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx_autodoc_typehints",
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",
@@ -117,3 +118,7 @@ apidoc_modules = [
 html_baseurl = "https://nialov.github.io/fractopo/"
 sitemap_url_scheme = "{link}"
 html_extra_path = ["robots.txt"]
+
+# -- Options for autosectionlabel -------------------------------------
+
+autosectionlabel_prefix_document = True
