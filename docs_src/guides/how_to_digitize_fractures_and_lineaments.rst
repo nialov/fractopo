@@ -102,7 +102,7 @@ to avoid confusing results from analysis of the finished digitized traces.
 If you are in Finland, the recommended CRS is EPSG:3067 (EUREF-FIN / TM35FIN(E,N) - Finland).
 
 To check and set it, go to ``Project`` -> ``Properties`` -> ``CRS``. Use
-``Filter`` to search for ``EPSG:3065`` and select it. Then click ``OK``
+``Filter`` to search for ``EPSG:3067`` and select it. Then click ``OK``
 to save the setting.
 
 .. dropdown::  Screenshot of CRS selection screen
