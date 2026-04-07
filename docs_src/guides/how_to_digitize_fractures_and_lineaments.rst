@@ -302,7 +302,7 @@ traces, which is important for accurate topological network analysis.
 Digitizing new traces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before starting to digitize traces, you set disable the pop-up that
+Before starting to digitize traces, you can disable the pop-up that
 appears for inputting attribute data after each feature is digitized.
 Go to ``Settings`` -> ``Options`` -> ``Map Tools`` -> ``Digitizing``.
 Check ``Suppress attribute form ...`` to disable the pop-up.
