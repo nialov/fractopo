@@ -21,6 +21,17 @@ for the right layer in the database **if it does not match the filename
 of the database**. E.g. if your fracture traces are in ``traces.gpkg``
 with layer name ``traces``, you do not need to specify the layer name.
 
+.. note::
+
+   If you are uploading GeoPackages, make sure you do not have QGIS open
+   and the data of those GeoPackages loaded in ``Layers`` of QGIS. This
+   can cause the data you upload to contain an older copy of the actual
+   database contents. You can also notice this situation, if next to the
+   ``.gpkg``, there exists files with same names but a suffix like
+   ``.gpkg-shm`` and ``.gpkg-wal``. If these files exist, make sure you
+   close QGIS, or any other GIS software where you might have these
+   layers loaded before uploading.
+
 After uploading these two data, you might need to change the settings of
 the process before running validation or analysis. See
 :ref:`guides/how_to_use_fractopo_web_interface:validation` and :ref:`guides/how_to_use_fractopo_web_interface:network analysis`
