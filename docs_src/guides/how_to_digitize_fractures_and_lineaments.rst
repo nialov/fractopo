@@ -176,6 +176,10 @@ The rasters can cover large areas and digitizing the whole extent might
 not be needed. Consequently, it is a good idea to create a preliminary
 target area for digitizing at this point.
 
+If you have an existing target area layer available, go to
+``Layer`` -> ``Add Layer`` -> ``Add Vector Layer``. Add the
+target area layer similarly to the raster data.
+
 If you do not have an existing target area, create a new polygon vector
 layer for the target area by going to ``Layer`` -> ``Create layer`` ->
 ``New GeoPackage Layer``.
