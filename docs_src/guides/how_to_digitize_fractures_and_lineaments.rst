@@ -180,6 +180,24 @@ If you have an existing target area layer available, go to
 ``Layer`` -> ``Add Layer`` -> ``Add Vector Layer``. Add the
 target area layer similarly to the raster data.
 
+.. dropdown:: Screenshot of adding existing vector data (such as a target area)
+   :animate: fade-in
+
+    .. figure:: screenshots/qgis_add_existing_vector_layer_1.jpg
+       :alt: Screenshot of navigating to ``Add Vector Layer`` option
+
+       Use ``Add Vector Layer`` to add existing, e.g., trace and area
+       layer data.
+
+    .. figure:: screenshots/qgis_add_existing_vector_layer_2.jpg
+       :alt: Screenshot of using ``Add Vector Layer`` wizard
+
+       Click on the three dots on the right side to select a file.
+       Default settings are usually okay. After clicking ``Add``,
+       you might get prompted to choose layer(s) from the vector
+       database. If there is only one, usually you want to
+       add it.
+
 If you do not have an existing target area, create a new polygon vector
 layer for the target area by going to ``Layer`` -> ``Create layer`` ->
 ``New GeoPackage Layer``.
@@ -345,16 +363,32 @@ Modifying existing traces
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is often necessary to modify already digitized features due to
-reinterpretation and to match them with other digitized fractures.
-Start editing similar to when creating new traces. Instead of clicking
-``Add Line Feature``, click on ``Vertex Tool``. Now when moving your
-cursor above traces, you should see their vertices highlighted.
-To modify a single vertex, click on it. You can then move it and
-the trace will be modified to fit the new vertex. To add a new
-vertex between two existing vertices, click along the trace somewhere
-where there is no vertex between the two vertices. To continue a trace,
-click on the plus-symbol at either end of the trace to start appending
-vertices.
+reinterpretation and to match them with other digitized fractures. To
+start modifying, start editing the layer similarly to when creating new
+traces. While editing traces, there are two tools you usually want
+to use the most: ``Select Features by Area or Single Click`` and
+``Vertex Tool``. Use the select tool to select existing traces.
+You can then, e.g., delete them. Selecting will also highlight the
+vertices of the trace, allowing easier selection with the ``Vertex Tool``.
+
+.. dropdown:: Screenshot displaying location of ``Select ...`` and ``Vertex Tool``
+   :animate: fade-in
+
+   .. figure:: screenshots/qgis_select_and_vertex_tool.jpg
+      :alt: Screenshot
+
+   Usually you want to use select first to highlight vertices and the
+   trace, then edit it with the vertex tool. Note that the vertex tool
+   will also allow edits to non-selected traces.
+
+Click on ``Vertex Tool`` to start editing vertices and segments of
+traces. Now when moving your cursor above traces, you should see their
+vertices highlighted. To modify a single vertex, click on it. You can
+then move it and the trace will be modified to fit the new vertex. To
+add a new vertex between two existing vertices, click along the trace
+somewhere where there is no vertex between the two vertices. **To
+continue a trace, click on the plus-symbol at either end of the trace to
+start appending vertices**.
 
 .. note::
 
