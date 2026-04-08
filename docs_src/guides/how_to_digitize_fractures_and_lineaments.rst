@@ -378,15 +378,10 @@ Things to keep in mind while digitizing
 
    -  Do not let more than two lines intersect at a single point. If
       multiple lines cross at one spot, edit them so only two intersect.
-   -  When two lines are meant to connect, make sure their endpoints are
-      snapped together. Use the “Vertex Tool” to adjust endpoints as
-      needed.
 
 -  Prevent self-intersections and duplicate lines
 
-   -  Make sure each line does not cross itself. Use the “Check Geometry
-      Validity” tool (Processing Toolbox > Vector geometry > Check
-      validity) to identify and fix self-intersections.
+   -  Make sure each line does not cross itself.
    -  Avoid drawing duplicate lines directly on top of each other. If
       you find duplicates, delete them.
 
