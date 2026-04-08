@@ -397,7 +397,7 @@ start appending vertices**.
    vertice along the modified trace at the endpoint of fracture abutting
    the modified trace.
 
-.. dropdown:: Modifying existing features
+.. dropdown:: Screenshot where layer is in edit mode and vertex tool is highlighted
    :animate: fade-in
 
    .. figure:: screenshots/qgis_modify_features.jpg
@@ -406,11 +406,21 @@ start appending vertices**.
    Toggle editing (pen icon) on, then click the vertex button.
    Make sure that snapping is turned on (magnet icon) also when editing.
 
+.. note::
+
+   When editing, sometimes the error or errors can be difficult to spot.
+   Instead of trying to find the specific error along a trace or in the
+   intersection of multiple traces, it might be easier to delete the
+   existing traces that have errors and digitize them again.
+
 How to digitize fractures and lineaments using ArcGIS Pro
 ---------------------------------------------------------
 
 Things to keep in mind while digitizing
 ---------------------------------------
+
+For illustrations of the common digitizing errors, go to the
+:doc:`/validation/errors` page. Some general tips below.
 
 -  Avoid unintended intersections
 
@@ -423,6 +433,14 @@ Things to keep in mind while digitizing
    -  Avoid drawing duplicate lines directly on top of each other. If
       you find duplicates, delete them.
 
+-  Do not end two traces at the same endpoint (V-node)
+
+   -  You might accidentally create these kind of errors if you do not
+      make sure that when you continue an existing trace, you actually
+      extend it rather than creating a new trace from the endpoint of
+      the existing trace (See
+      :ref:`guides/how_to_digitize_fractures_and_lineaments:modifying existing traces`)
+
 -  Trace length and target area
 
    -  If you have created a target area to control where you are going
@@ -431,9 +449,6 @@ Things to keep in mind while digitizing
       they can be interpreted to continue. Otherwise trace lengths might
       be improperly samples. Furthermore, the target area you currently
       have might be extended in the future.
-
-For more detailed instructions regarding the different digitization
-errors, go to the :doc:`/validation/errors` page.
 
 How to collect metadata for digitized fractures
 -----------------------------------------------

@@ -57,6 +57,9 @@ https://github.com/nialov/fractopo/issues. Note that validation errors
 (:doc:`/validation/errors`) are something you need to fix in the trace
 (or area) data, not a problem of the interface.
 
+See :ref:`guides/how_to_use_fractopo_web_interface:validation exports`
+section below about what to do with the validated traces.
+
 Network analysis
 ----------------
 
@@ -134,7 +137,9 @@ attribute table of the data. Use the values there to identify errors in
 the trace data and fix them accordingly (See :doc:`/validation/errors`).
 You can fix them in the original data you inputted or directly in the
 output trace data. After fixing your trace data, run it again through
-the interface. Make sure to use the file where you have done the edits.
+the interface. **Make sure to use the file where you have done the
+edits.** If errors remain, fix them again and continue until no errors
+remain.
 
 As a general tip, make sure to clearly fix the errors pointed out by the
 validation to avoid having to do multiple rounds of validation. For
