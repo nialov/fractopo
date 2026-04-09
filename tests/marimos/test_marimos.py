@@ -114,3 +114,34 @@ def test_network_cli(
     check_python_call(
         [PYTHON_INTERPRETER, NETWORK_NOTEBOOK.as_posix(), *args],
     )
+
+
+@pytest_mark_xfail_windows_flaky
+@pytest.mark.parametrize(
+    "notebook_path",
+    [VALIDATION_NOTEBOOK, NETWORK_NOTEBOOK],
+)
+def test_empty_traces_cli(notebook_path: Path, tmp_path: Path):
+    """Test that an empty traces file produces an explicit error."""
+    # Create an empty GeoJSON file (valid GeoJSON, but 0 features)
+    empty_geojson = tmp_path / "empty_traces.geojson"
+    empty_geojson.write_text(
+        '{"type": "FeatureCollection", "features": []}'
+    )
+
+    # Use a valid area file
+    area_path = SAMPLE_DATA_DIR.joinpath("hastholmen_area.geojson").as_posix()
+
+    args = [
+        "--traces-path",
+        empty_geojson.as_posix(),
+        "--area-path",
+        area_path,
+        "--name",
+        "empty_test",
+    ]
+
+    with pytest.raises(subprocess.CalledProcessError):
+        check_python_call(
+            [PYTHON_INTERPRETER, notebook_path.as_posix(), *args],
+        )

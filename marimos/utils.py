@@ -34,6 +34,15 @@ def make_data_upload_prompts(
     )
 
 
+def _check_empty_geodataframe(gdf: gpd.GeoDataFrame, label: str):
+    """Raise an explicit error if a GeoDataFrame is empty."""
+    if gdf.empty:
+        raise ValueError(
+            f"The provided {label} layer is empty (0 features). "
+            f"Please check that you uploaded the correct file and specified the correct layer name."
+        )
+
+
 def parse_network_cli_args(cli_args):
     cli_traces_path = Path(cli_args.get("traces-path"))
     cli_area_path = Path(cli_args.get("area-path"))
@@ -42,6 +51,8 @@ def parse_network_cli_args(cli_args):
 
     traces_gdf = gpd.read_file(cli_traces_path)
     area_gdf = gpd.read_file(cli_area_path)
+    _check_empty_geodataframe(traces_gdf, "traces")
+    _check_empty_geodataframe(area_gdf, "area")
     snap_threshold_str = cli_args.get("snap-threshold")
     contour_grid_cell_size_str = cli_args.get("contour-grid-cell-size")
     contour_grid_cell_size = (
@@ -231,6 +242,8 @@ def parse_validation_cli_args(cli_args):
 
     traces_gdf = gpd.read_file(cli_traces_path)
     area_gdf = gpd.read_file(cli_area_path)
+    _check_empty_geodataframe(traces_gdf, "traces")
+    _check_empty_geodataframe(area_gdf, "area")
     snap_threshold_str = cli_args.get("snap-threshold")
     if snap_threshold_str is None:
         snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
@@ -256,6 +269,8 @@ def read_traces_and_area(
         input_spatial_file=input_area_file,
         input_spatial_layer_name=input_area_layer_name,
     )
+    _check_empty_geodataframe(traces_gdf, "traces")
+    _check_empty_geodataframe(area_gdf, "area")
     print(
         f"Trace layer name: {trace_layer_name}"
         if trace_layer_name is not None
