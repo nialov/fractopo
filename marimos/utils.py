@@ -7,11 +7,14 @@ from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import geopandas as gpd
 import marimo as mo
+import pyogrio
 
 import fractopo.tval.trace_validation
 from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
 from fractopo.analysis.network import Network
 from fractopo.general import Number, write_geodataframe
+
+IGNORED_LAYERS = frozenset({"layer_styles"})
 
 ENABLE_VERBOSE_BASE = "Enable verbose debug output? {}"
 UPLOAD_TRACE_DATA_BASE = "## Upload trace data: {}"
@@ -43,14 +46,47 @@ def _check_empty_geodataframe(gdf: gpd.GeoDataFrame, label: str):
         )
 
 
+def _resolve_layer_name(path: Path, layer: Optional[str]) -> Optional[str]:
+    """Resolve the layer name for a spatial file.
+
+    If ``layer`` is provided, return it unchanged. Otherwise, enumerate layers
+    with :func:`pyogrio.list_layers`, filter out non-spatial and ignored
+    layers, and auto-select the layer when exactly one spatial layer exists.
+    """
+    if layer is not None:
+        return layer
+
+    layers = pyogrio.list_layers(path)
+    # layers is an ndarray of (name, geometry_type) pairs
+    spatial_layers = [
+        name
+        for name, geom_type in layers
+        if geom_type is not None and name not in IGNORED_LAYERS
+    ]
+
+    if len(spatial_layers) == 1:
+        return spatial_layers[0]
+    if len(spatial_layers) == 0:
+        raise ValueError(
+            f"No spatial layers found in {path}. "
+            f"Available layers: {[name for name, _ in layers]}"
+        )
+    raise ValueError(
+        f"Multiple spatial layers found in {path}: {spatial_layers}. "
+        f"Please specify a layer name."
+    )
+
+
 def parse_network_cli_args(cli_args):
     cli_traces_path = Path(cli_args.get("traces-path"))
     cli_area_path = Path(cli_args.get("area-path"))
 
     name = cli_args.get("name") or cli_traces_path.stem
 
-    traces_gdf = gpd.read_file(cli_traces_path)
-    area_gdf = gpd.read_file(cli_area_path)
+    traces_layer = _resolve_layer_name(cli_traces_path, None)
+    area_layer = _resolve_layer_name(cli_area_path, None)
+    traces_gdf = gpd.read_file(cli_traces_path, layer=traces_layer)
+    area_gdf = gpd.read_file(cli_area_path, layer=area_layer)
     _check_empty_geodataframe(traces_gdf, "traces")
     _check_empty_geodataframe(area_gdf, "area")
     snap_threshold_str = cli_args.get("snap-threshold")
@@ -94,6 +130,7 @@ def read_spatial_app_input(
         tmp_dir_path = Path(tmp_dir)
         tmp_data_path = tmp_dir_path.joinpath(input_spatial_file_path)
         tmp_data_path.write_bytes(input_spatial_file.contents())
+        layer_name = _resolve_layer_name(tmp_data_path, layer_name)
         gdf = read_file(
             tmp_data_path,
             layer=layer_name,
@@ -240,8 +277,10 @@ def parse_validation_cli_args(cli_args):
 
     name = cli_args.get("name") or cli_traces_path.stem
 
-    traces_gdf = gpd.read_file(cli_traces_path)
-    area_gdf = gpd.read_file(cli_area_path)
+    traces_layer = _resolve_layer_name(cli_traces_path, None)
+    area_layer = _resolve_layer_name(cli_area_path, None)
+    traces_gdf = gpd.read_file(cli_traces_path, layer=traces_layer)
+    area_gdf = gpd.read_file(cli_area_path, layer=area_layer)
     _check_empty_geodataframe(traces_gdf, "traces")
     _check_empty_geodataframe(area_gdf, "area")
     snap_threshold_str = cli_args.get("snap-threshold")
