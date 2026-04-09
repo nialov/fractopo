@@ -287,10 +287,14 @@ def _(execute, input_debug, mo, partial, utils):
     execute_results, execute_exception, execute_stderr_and_stdout = (
         utils.capture_function_outputs(execute)
     )
-    report_output = partial(
-        mo.output.replace,
-        "\n".join([execute_stderr_and_stdout, str(execute_exception)]),
-    )
+
+    def report_output():
+        # Join exception and stderr/stdout, strip leading/trailing whitespace and excessive empty lines
+        output = "\n".join(
+            [execute_stderr_and_stdout.strip(), str(execute_exception).strip()]
+        ).strip()
+        mo.output.replace(output)
+
     if input_debug.value or execute_exception is not None:
         report_output()
     if execute_exception is not None:
