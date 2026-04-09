@@ -13,3 +13,9 @@
 -   Instead of asking user, use the tools at your disposal to find the
     answer in the codebase.
 -   Do not deviate from existing code structure.
+-   Prefix commands with `nix develop -c` to run them in the development
+    environment of `fractopo`. This applies to any commands listed in
+    this `AGENTS.md` file.
+-   Test Python code with `pytest`
+-   Use `pre-commit` to lint and format code:
+    `pre-commit run --all-files`

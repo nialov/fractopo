@@ -192,7 +192,7 @@ def parse_network_app_args(
     Sequence[str],
     Tuple[Dist, ...],
 ]:
-    name, traces_gdf, area_gdf, snap_threshold, trace_layer_name = _parse_app_base_args(
+    name, traces_gdf, area_gdf, snap_threshold, _ = _parse_app_base_args(
         input_traces_file,
         input_trace_layer_name,
         input_area_file,
