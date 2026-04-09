@@ -58,9 +58,9 @@ Coordinate systems
 ------------------
 
 ``fractopo`` for the most part assumes a metric coordinate system and
-has mostly been tested with data which has the coordinate system of EPSG
-3057. Issues with data from other coordinate systems should be posted on
-*GitHub*. Using a coordinate system with metric units should be the
-first step in debugging if you believe an issue is caused by
+has mostly been tested with data which has the coordinate system of
+``EPSG:3067``. Issues with data from other coordinate systems should be
+posted on *GitHub*. Using a coordinate system with metric units should
+be the first step in debugging if you believe an issue is caused by
 ``fractopo`` not handling other units correctly. Especially the
 ``snap_threshold`` value should be adjusted based on the units used.
