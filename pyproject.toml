@@ -115,6 +115,7 @@ filterwarnings =[
     "ignore:'mode' parameter is deprecated and will be removed in Pillow 13:DeprecationWarning",
     # upstream powerlaw error
     "ignore:Standard error for the MLE should be accessed using the 'standard_err' property.:DeprecationWarning",
+    "ignore:'asyncio.WindowsSelectorEventLoopPolicy' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
 ]
 
 # [tool.isort]
