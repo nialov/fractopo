@@ -9,8 +9,7 @@ import geopandas as gpd
 import marimo as mo
 import pyogrio
 
-import fractopo.tval.trace_validation
-from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
+from fractopo.analysis.length_distributions import Dist
 from fractopo.analysis.network import Network
 from fractopo.general import Number, write_geodataframe
 
@@ -74,54 +73,6 @@ def _resolve_layer_name(path: Path, layer: Optional[str]) -> Optional[str]:
     raise ValueError(
         f"Multiple spatial layers found in {path}: {spatial_layers}. "
         f"Please specify a layer name."
-    )
-
-
-def _parse_cli_traces_and_area(
-    cli_args,
-) -> tuple[Path, Path, gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    """Extract and load traces and area GeoDataFrames from CLI args, with checks."""
-    cli_traces_path = Path(cli_args.get("traces-path"))
-    cli_area_path = Path(cli_args.get("area-path"))
-    traces_layer = _resolve_layer_name(cli_traces_path, None)
-    area_layer = _resolve_layer_name(cli_area_path, None)
-    traces_gdf = gpd.read_file(cli_traces_path, layer=traces_layer)
-    area_gdf = gpd.read_file(cli_area_path, layer=area_layer)
-    _check_empty_geodataframe(traces_gdf, "traces")
-    _check_empty_geodataframe(area_gdf, "area")
-    return cli_traces_path, cli_area_path, traces_gdf, area_gdf
-
-
-def _parse_snap_threshold_from_cli(cli_args) -> float:
-    """Get snap_threshold value from CLI args, with fallback to default."""
-    snap_threshold_str = cli_args.get("snap-threshold")
-    if snap_threshold_str is None:
-        return fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
-    return float(snap_threshold_str)
-
-
-def parse_network_cli_args(cli_args):
-    cli_traces_path, cli_area_path, traces_gdf, area_gdf = _parse_cli_traces_and_area(
-        cli_args
-    )
-
-    name = cli_args.get("name") or cli_traces_path.stem
-    snap_threshold = _parse_snap_threshold_from_cli(cli_args)
-    contour_grid_cell_size_str = cli_args.get("contour-grid-cell-size")
-    contour_grid_cell_size = (
-        float(contour_grid_cell_size_str)
-        if contour_grid_cell_size_str is not None
-        else None
-    )
-    return (
-        name,
-        traces_gdf,
-        area_gdf,
-        snap_threshold,
-        contour_grid_cell_size,
-        Network.azimuth_set_ranges,
-        Network.azimuth_set_names,
-        DEFAULT_FITS_TO_PLOT,
     )
 
 
@@ -295,15 +246,6 @@ def network_results_to_download_element(
         mimetype="application/octet-stream",
     )
     return download_element
-
-
-def parse_validation_cli_args(cli_args):
-    cli_traces_path, cli_area_path, traces_gdf, area_gdf = _parse_cli_traces_and_area(
-        cli_args
-    )
-    name = cli_args.get("name") or cli_traces_path.stem
-    snap_threshold = _parse_snap_threshold_from_cli(cli_args)
-    return name, traces_gdf, area_gdf, snap_threshold
 
 
 def read_traces_and_area(

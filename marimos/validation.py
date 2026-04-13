@@ -87,6 +87,12 @@ def __(
 
 
 @app.cell
+def _(mo):
+    is_script_mode = mo.app_meta().mode == "script"
+    return (is_script_mode,)
+
+
+@app.cell
 def _(
     fractopo,
     input_area_file,
@@ -95,26 +101,20 @@ def _(
     input_snap_threshold,
     input_trace_layer_name,
     input_traces_file,
+    is_script_mode,
     mo,
     utils,
 ):
     def execute():
-        cli_args = mo.cli_args()
-        if len(cli_args) != 0:
-            name, traces_gdf, area_gdf, snap_threshold = (
-                utils.parse_validation_cli_args(cli_args)
-            )
-        else:
+        if not is_script_mode:
             mo.stop(not input_button.value)
-            name, traces_gdf, area_gdf, snap_threshold = (
-                utils.parse_validation_app_args(
-                    input_trace_layer_name,
-                    input_area_layer_name,
-                    input_traces_file,
-                    input_area_file,
-                    input_snap_threshold,
-                )
-            )
+        name, traces_gdf, area_gdf, snap_threshold = utils.parse_validation_app_args(
+            input_trace_layer_name,
+            input_area_layer_name,
+            input_traces_file,
+            input_area_file,
+            input_snap_threshold,
+        )
 
         validation = fractopo.tval.trace_validation.Validation(
             traces=traces_gdf,
@@ -204,12 +204,62 @@ def __(mo, name, partial, utils, validated_clean):
 
 
 @app.cell
-def _(execute_exception, mo, to_file_exception):
-    if len(mo.cli_args()) != 0:
-        if execute_exception is not None:
-            raise execute_exception
-        if to_file_exception is not None:
-            raise to_file_exception
+def _():
+    return
+
+
+@app.cell
+def _(fractopo, utils):
+    import pytest
+
+    @pytest.fixture()
+    def traces_gdf(traces_area_name):
+        import geopandas as gpd
+
+        traces_path, _, _ = traces_area_name
+        return gpd.read_file(traces_path)
+
+    @pytest.fixture()
+    def area_gdf(traces_area_name):
+        import geopandas as gpd
+
+        _, area_path, _ = traces_area_name
+        return gpd.read_file(area_path)
+
+    @pytest.fixture()
+    def dataset_name(traces_area_name):
+        _, _, name = traces_area_name
+        return name
+
+    def test_validation_runs(traces_gdf, area_gdf, dataset_name):
+        """Integration test: run validation on sample data."""
+        validation = fractopo.tval.trace_validation.Validation(
+            traces=traces_gdf,
+            area=area_gdf,
+            name=dataset_name,
+            allow_fix=True,
+            SNAP_THRESHOLD=fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD,
+        )
+        validated = validation.run_validation()
+        validated_clean = fractopo.general.convert_list_columns(validated, allow=True)
+        assert validated_clean is not None
+        assert len(validated_clean) > 0
+
+    def test_validation_download(traces_gdf, area_gdf, dataset_name):
+        """Integration test: validate and produce download artifact."""
+        validation = fractopo.tval.trace_validation.Validation(
+            traces=traces_gdf,
+            area=area_gdf,
+            name=dataset_name,
+            allow_fix=True,
+            SNAP_THRESHOLD=fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD,
+        )
+        validated = validation.run_validation()
+        validated_clean = fractopo.general.convert_list_columns(validated, allow=True)
+        download_element = utils.validated_clean_to_download_element(
+            validated_clean=validated_clean, name=dataset_name
+        )
+        assert download_element is not None
 
 
 @app.cell
