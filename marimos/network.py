@@ -208,6 +208,12 @@ def _(input_button, mo):
 
 
 @app.cell
+def _(mo):
+    is_script_mode = mo.app_meta().mode == "script"
+    return (is_script_mode,)
+
+
+@app.cell
 def _(
     fractopo,
     input_area_file,
@@ -224,46 +230,34 @@ def _(
     input_trace_layer_name,
     input_traces_file,
     input_truncate_traces,
+    is_script_mode,
     mo,
     utils,
 ):
     def execute():
-        cli_args = mo.cli_args()
-        if len(cli_args) != 0:
-            (
-                name,
-                traces_gdf,
-                area_gdf,
-                snap_threshold,
-                contour_grid_cell_size,
-                azimuth_set_ranges,
-                azimuth_set_names,
-                fits_to_plot,
-            ) = utils.parse_network_cli_args(cli_args)
-
-        else:
+        if not is_script_mode:
             mo.stop(not input_button.value)
-            (
-                name,
-                traces_gdf,
-                area_gdf,
-                snap_threshold,
-                contour_grid_cell_size,
-                azimuth_set_ranges,
-                azimuth_set_names,
-                fits_to_plot,
-            ) = utils.parse_network_app_args(
-                input_trace_layer_name,
-                input_area_layer_name,
-                input_traces_file,
-                input_area_file,
-                input_snap_threshold,
-                input_contour_grid_cell_size,
-                input_define_azimuth_sets,
-                input_azimuth_set_ranges,
-                input_azimuth_set_names,
-                input_fits_to_plot,
-            )
+        (
+            name,
+            traces_gdf,
+            area_gdf,
+            snap_threshold,
+            contour_grid_cell_size,
+            azimuth_set_ranges,
+            azimuth_set_names,
+            fits_to_plot,
+        ) = utils.parse_network_app_args(
+            input_trace_layer_name,
+            input_area_layer_name,
+            input_traces_file,
+            input_area_file,
+            input_snap_threshold,
+            input_contour_grid_cell_size,
+            input_define_azimuth_sets,
+            input_azimuth_set_ranges,
+            input_azimuth_set_names,
+            input_fits_to_plot,
+        )
 
         network = fractopo.analysis.network.Network(
             trace_gdf=traces_gdf,
@@ -354,12 +348,73 @@ def _(
 
 
 @app.cell
-def _(execute_exception, mo, to_file_exception):
-    if len(mo.cli_args()) != 0:
-        if execute_exception is not None:
-            raise execute_exception
-        if to_file_exception is not None:
-            raise to_file_exception
+def _():
+    return
+
+
+@app.cell
+def _(Network, fractopo, utils):
+    import pytest
+
+    from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT
+
+    @pytest.fixture()
+    def traces_gdf(traces_area_name):
+        import geopandas as gpd
+
+        traces_path, _, _ = traces_area_name
+        return gpd.read_file(traces_path)
+
+    @pytest.fixture()
+    def area_gdf(traces_area_name):
+        import geopandas as gpd
+
+        _, area_path, _ = traces_area_name
+        return gpd.read_file(area_path)
+
+    @pytest.fixture()
+    def dataset_name(traces_area_name):
+        _, _, name = traces_area_name
+        return name
+
+    def test_network_runs(traces_gdf, area_gdf, dataset_name):
+        """Integration test: run network analysis on sample data."""
+        snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
+        network = Network(
+            trace_gdf=traces_gdf,
+            area_gdf=area_gdf,
+            name=dataset_name,
+            circular_target_area=False,
+            determine_branches_nodes=True,
+            truncate_traces=True,
+            snap_threshold=snap_threshold,
+            azimuth_set_ranges=Network.azimuth_set_ranges,
+            azimuth_set_names=Network.azimuth_set_names,
+        )
+        assert network is not None
+        assert network.parameters is not None
+
+    def test_network_download(traces_gdf, area_gdf, dataset_name):
+        """Integration test: run network analysis and produce download artifact."""
+        snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
+        network = Network(
+            trace_gdf=traces_gdf,
+            area_gdf=area_gdf,
+            name=dataset_name,
+            circular_target_area=False,
+            determine_branches_nodes=True,
+            truncate_traces=True,
+            snap_threshold=snap_threshold,
+            azimuth_set_ranges=Network.azimuth_set_ranges,
+            azimuth_set_names=Network.azimuth_set_names,
+        )
+        download_element = utils.network_results_to_download_element(
+            network=network,
+            name=dataset_name,
+            contour_grid_cell_size=None,
+            fits_to_plot=DEFAULT_FITS_TO_PLOT,
+        )
+        assert download_element is not None
 
 
 @app.cell

@@ -84,6 +84,7 @@ build-backend = "poetry.core.masonry.api"
 testpaths =[
     "tests",
     "fractopo",
+    "marimos",
     ]
 addopts = "--doctest-modules"
 doctest_optionflags =[

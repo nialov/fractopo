@@ -4,8 +4,9 @@
   inputs = {
     nix-extra = {
       url = "github:nialov/nix-extra";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs.follows = "nix-extra/nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.follows = "nix-extra/flake-parts";
     actions-nix = {
       url = "github:nialov/actions.nix";

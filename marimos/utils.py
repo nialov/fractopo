@@ -7,11 +7,13 @@ from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import geopandas as gpd
 import marimo as mo
+import pyogrio
 
-import fractopo.tval.trace_validation
-from fractopo.analysis.length_distributions import DEFAULT_FITS_TO_PLOT, Dist
+from fractopo.analysis.length_distributions import Dist
 from fractopo.analysis.network import Network
 from fractopo.general import Number, write_geodataframe
+
+IGNORED_LAYERS = frozenset({"layer_styles"})
 
 ENABLE_VERBOSE_BASE = "Enable verbose debug output? {}"
 UPLOAD_TRACE_DATA_BASE = "## Upload trace data: {}"
@@ -34,35 +36,43 @@ def make_data_upload_prompts(
     )
 
 
-def parse_network_cli_args(cli_args):
-    cli_traces_path = Path(cli_args.get("traces-path"))
-    cli_area_path = Path(cli_args.get("area-path"))
+def _check_empty_geodataframe(gdf: gpd.GeoDataFrame, label: str):
+    """Raise an explicit error if a GeoDataFrame is empty."""
+    if gdf.empty:
+        raise ValueError(
+            f"The provided {label} layer is empty (0 features). "
+            f"Please check that you uploaded the correct file and specified the correct layer name."
+        )
 
-    name = cli_args.get("name") or cli_traces_path.stem
 
-    traces_gdf = gpd.read_file(cli_traces_path)
-    area_gdf = gpd.read_file(cli_area_path)
-    snap_threshold_str = cli_args.get("snap-threshold")
-    contour_grid_cell_size_str = cli_args.get("contour-grid-cell-size")
-    contour_grid_cell_size = (
-        float(contour_grid_cell_size_str)
-        if contour_grid_cell_size_str is not None
-        else None
-    )
-    if snap_threshold_str is None:
-        snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
-    else:
-        snap_threshold = float(snap_threshold_str)
+def _resolve_layer_name(path: Path, layer: Optional[str]) -> Optional[str]:
+    """Resolve the layer name for a spatial file.
 
-    return (
-        name,
-        traces_gdf,
-        area_gdf,
-        snap_threshold,
-        contour_grid_cell_size,
-        Network.azimuth_set_ranges,
-        Network.azimuth_set_names,
-        DEFAULT_FITS_TO_PLOT,
+    If ``layer`` is provided, return it unchanged. Otherwise, enumerate layers
+    with :func:`pyogrio.list_layers`, filter out non-spatial and ignored
+    layers, and auto-select the layer when exactly one spatial layer exists.
+    """
+    if layer is not None:
+        return layer
+
+    layers = pyogrio.list_layers(path)
+    # layers is an ndarray of (name, geometry_type) pairs
+    spatial_layers = [
+        name
+        for name, geom_type in layers
+        if geom_type is not None and name not in IGNORED_LAYERS
+    ]
+
+    if len(spatial_layers) == 1:
+        return spatial_layers[0]
+    if len(spatial_layers) == 0:
+        raise ValueError(
+            f"No spatial layers found in {path}. "
+            f"Available layers: {[name for name, _ in layers]}"
+        )
+    raise ValueError(
+        f"Multiple spatial layers found in {path}: {spatial_layers}. "
+        f"Please specify a layer name."
     )
 
 
@@ -83,11 +93,33 @@ def read_spatial_app_input(
         tmp_dir_path = Path(tmp_dir)
         tmp_data_path = tmp_dir_path.joinpath(input_spatial_file_path)
         tmp_data_path.write_bytes(input_spatial_file.contents())
+        layer_name = _resolve_layer_name(tmp_data_path, layer_name)
         gdf = read_file(
             tmp_data_path,
             layer=layer_name,
         )
     return layer_name, gdf
+
+
+def _parse_app_base_args(
+    input_traces_file: mo.ui.file,
+    input_trace_layer_name: mo.ui.text,
+    input_area_file: mo.ui.file,
+    input_area_layer_name: mo.ui.text,
+    input_snap_threshold: mo.ui.text,
+) -> tuple[str, gpd.GeoDataFrame, gpd.GeoDataFrame, float, str]:
+    """Base argument parsing (traces, area, name, snap_threshold, layer) for app UI functions."""
+    (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
+        input_traces_file=input_traces_file,
+        input_trace_layer_name=input_trace_layer_name,
+        input_area_file=input_area_file,
+        input_area_layer_name=input_area_layer_name,
+    )
+    snap_threshold = float(input_snap_threshold.value)
+    name = resolve_name(
+        input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
+    )
+    return name, traces_gdf, area_gdf, snap_threshold, trace_layer_name
 
 
 def parse_network_app_args(
@@ -111,25 +143,20 @@ def parse_network_app_args(
     Sequence[str],
     Tuple[Dist, ...],
 ]:
-    (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
-        input_traces_file=input_traces_file,
-        input_trace_layer_name=input_trace_layer_name,
-        input_area_file=input_area_file,
-        input_area_layer_name=input_area_layer_name,
+    name, traces_gdf, area_gdf, snap_threshold, _ = _parse_app_base_args(
+        input_traces_file,
+        input_trace_layer_name,
+        input_area_file,
+        input_area_layer_name,
+        input_snap_threshold,
     )
-
-    snap_threshold = float(input_snap_threshold.value)
     contour_grid_cell_size = (
         None
         if input_contour_grid_cell_size.value == ""
         else float(input_contour_grid_cell_size.value)
     )
-    name = resolve_name(
-        input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
-    )
     if input_define_azimuth_sets.value:
         print("Using user-defined azimuth sets")
-        # azimuth_set_ranges = tuple(input_azimuth_set_ranges.value)
         azimuth_set_ranges: List[Tuple[Number, Number]] = [
             tuple(range_values) for range_values in input_azimuth_set_ranges.value
         ]
@@ -138,7 +165,6 @@ def parse_network_app_args(
         print("Using default azimuth sets")
         azimuth_set_ranges = Network.azimuth_set_ranges
         azimuth_set_names = Network.azimuth_set_names
-
     fits_to_plot = tuple(map(Dist, input_fits_to_plot.value))
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:
@@ -147,7 +173,6 @@ def parse_network_app_args(
     print(f"Azimuth set ranges: {azimuth_set_ranges}")
     print(f"Azimuth set names: {azimuth_set_names}")
     print(f"Length distribution fits to plot: {fits_to_plot}")
-
     return (
         name,
         traces_gdf,
@@ -223,23 +248,6 @@ def network_results_to_download_element(
     return download_element
 
 
-def parse_validation_cli_args(cli_args):
-    cli_traces_path = Path(cli_args.get("traces-path"))
-    cli_area_path = Path(cli_args.get("area-path"))
-
-    name = cli_args.get("name") or cli_traces_path.stem
-
-    traces_gdf = gpd.read_file(cli_traces_path)
-    area_gdf = gpd.read_file(cli_area_path)
-    snap_threshold_str = cli_args.get("snap-threshold")
-    if snap_threshold_str is None:
-        snap_threshold = fractopo.tval.trace_validation.Validation.SNAP_THRESHOLD
-    else:
-        snap_threshold = float(snap_threshold_str)
-
-    return name, traces_gdf, area_gdf, snap_threshold
-
-
 def read_traces_and_area(
     input_traces_file: mo.ui.file,
     input_trace_layer_name: mo.ui.text,
@@ -256,6 +264,8 @@ def read_traces_and_area(
         input_spatial_file=input_area_file,
         input_spatial_layer_name=input_area_layer_name,
     )
+    _check_empty_geodataframe(traces_gdf, "traces")
+    _check_empty_geodataframe(area_gdf, "area")
     print(
         f"Trace layer name: {trace_layer_name}"
         if trace_layer_name is not None
@@ -285,18 +295,14 @@ def parse_validation_app_args(
     input_area_file: mo.ui.file,
     input_snap_threshold: mo.ui.text,
 ):
-    (traces_gdf, trace_layer_name), (area_gdf, _) = read_traces_and_area(
-        input_traces_file=input_traces_file,
-        input_trace_layer_name=input_trace_layer_name,
-        input_area_file=input_area_file,
-        input_area_layer_name=input_area_layer_name,
+    name, traces_gdf, area_gdf, snap_threshold, _ = _parse_app_base_args(
+        input_traces_file,
+        input_trace_layer_name,
+        input_area_file,
+        input_area_layer_name,
+        input_snap_threshold,
     )
-    snap_threshold = float(input_snap_threshold.value)
     print(f"Snap threshold: {snap_threshold}")
-
-    name = resolve_name(
-        input_traces_file=input_traces_file, trace_layer_name=trace_layer_name
-    )
     return name, traces_gdf, area_gdf, snap_threshold
 
 
