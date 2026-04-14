@@ -7,7 +7,25 @@
 
    cog.outl("")
    readme = Path("README.rst")
+   in_badge_block = False
    for line in readme.read_text().splitlines():
+       # Skip the inline badge row at top ("|PyPI Status| |CI Test| ...")
+       if line.startswith("|") and any(
+           b in line for b in ["PyPI Status|", "CI Test|", "Conda Test|", "Binder|", "Zenodo|", "JOSS|", "Conda Version|"]
+       ):
+           continue
+       # Detect start of a badge image substitution definition block
+       if line.startswith(".. |") and "image:: http" in line and any(
+           b in line for b in ["shields.io", "badge", "mybinder", "zenodo", "joss.theoj"]
+       ):
+           in_badge_block = True
+           continue
+       # Skip continuation lines of a badge substitution block
+       if in_badge_block:
+           if line.startswith("   "):
+               continue
+           else:
+               in_badge_block = False
        # Make sure this functionality fits the project documentation structure
        if "figure::" in line:
            line = line.replace("docs_src/", "")
@@ -18,7 +36,6 @@
 fractopo
 ========
 
-|PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
 
 -  `Full Documentation is hosted on GitHub
    <https://nialov.github.io/fractopo/index.html#full-documentation>`__
@@ -433,23 +450,9 @@ Development
 
 -----
 
-.. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
-   :target: https://pypi.python.org/pypi/fractopo
-.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
-   :target: https://anaconda.org/conda-forge/fractopo
 .. .. |Documentation Status| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
 ..    :target: https://nialov.github.io/fractopo/
-.. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
-   :target: https://doi.org/10.21105/joss.05300
-.. |CI Test| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
-.. |Conda Test| image:: https://github.com/nialov/fractopo/actions/workflows/conda.yaml/badge.svg
-   :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
-.. |Binder| image:: http://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
-.. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
-   :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 2162b2f3cacda534a8d15bc6f6b09bf4)
+.. [[[end]]] (checksum: 3f134c1aaed982a3de464da6122d25ea)
 
 .. toctree::
    :maxdepth: 1

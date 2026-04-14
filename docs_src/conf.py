@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.imgconverter",
     "sphinx_autodoc_typehints",
     "sphinx_gallery.gen_gallery",
     "sphinx_rtd_theme",
@@ -122,3 +123,20 @@ html_extra_path = ["robots.txt"]
 # -- Options for autosectionlabel -------------------------------------
 
 autosectionlabel_prefix_document = True
+
+# -- Options for LaTeX / PDF output -----------------------------------
+
+latex_documents = [
+    (
+        master_doc,
+        "fractopo.tex",
+        "fractopo Documentation",
+        author,
+        "manual",
+    ),
+]
+
+latex_elements = {
+    # Avoid font-encoding issues with unicode characters
+    "preamble": r"\usepackage{newunicodechar}",
+}

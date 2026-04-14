@@ -115,6 +115,7 @@
             push-fractopo-image
             ;
           fractopo-documentation = self'.packages.fractopo.passthru.documentation.doc;
+          fractopo-documentation-pdf = self'.packages.fractopo.passthru.documentation-pdf.doc;
           default = self'.packages.fractopo;
           fractopo-shell = self'.devShells.default;
 
