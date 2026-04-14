@@ -155,6 +155,9 @@ from tempfile import TemporaryDirectory
 with TemporaryDirectory() as tmp_dir:
     export_dir = Path(tmp_dir).joinpath("KB11_network_analysis_export")
     KB11_NETWORK.export_network_analysis(output_path=export_dir)
+    plt.close("all")
+
+# %%
 # In your own code, provide a persistent output directory for permanent export.
 # The directory will include geopackage files for traces, branches, nodes, key parameters,
 # and several plots and data files for further analysis.
