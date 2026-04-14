@@ -416,17 +416,17 @@ Development
 
 -----
 
-.. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.svg
+.. |PyPI Status| image:: https://img.shields.io/pypi/v/fractopo.png
    :target: https://pypi.python.org/pypi/fractopo
-.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.svg
+.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/fractopo.png
    :target: https://anaconda.org/conda-forge/fractopo
 .. .. |Documentation Status| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
 ..    :target: https://nialov.github.io/fractopo/
 .. |JOSS| image:: https://joss.theoj.org/papers/10.21105/joss.05300/status.svg
    :target: https://doi.org/10.21105/joss.05300
-.. |CI Test| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.svg
+.. |CI Test| image:: https://github.com/nialov/fractopo/actions/workflows/main.yaml/badge.png
    :target: https://github.com/nialov/fractopo/actions/workflows/main.yaml?query=branch%3Amaster
-.. |Conda Test| image:: https://github.com/nialov/fractopo/actions/workflows/conda.yaml/badge.svg
+.. |Conda Test| image:: https://github.com/nialov/fractopo/actions/workflows/conda.yaml/badge.png
    :target: https://github.com/nialov/fractopo/actions/workflows/conda.yaml?query=branch%3Amaster
 .. |Binder| image:: http://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb

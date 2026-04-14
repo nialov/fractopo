@@ -8,6 +8,9 @@
   matplotlib,
   numpy,
   pandas,
+  texliveSmall,
+  imagemagick,
+  glibcLocales,
   pandas-stubs,
   rich,
   scikit-learn,
@@ -107,6 +110,38 @@ let
         preConfigure = ''
           pythonOutputDistPhase() { touch $dist; }
         '';
+      });
+      # PDF documentation via LaTeX/pdflatex
+      documentation-pdf = self.overridePythonAttrs (prevAttrs: {
+        src = mkSrc docFiles;
+        doCheck = false;
+        dependencies = [ prevAttrs.dependencies ] ++ prevAttrs.optional-dependencies.dev;
+        nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
+          texliveSmall
+          imagemagick
+        ];
+        sphinxRoot = "docs_src";
+        sphinxBuilders = "latexpdf";
+        outputs = [
+          "out"
+          "doc"
+        ];
+        # Normal Python package build expects dist/
+        preConfigure = ''
+          pythonOutputDistPhase() { touch $dist; }
+        '';
+        # sphinx-hook installSphinxPhase tries .sphinx/latexpdf/latexpdf/ which does not
+        # exist; the actual PDF is at .sphinx/latexpdf/latex/fractopo.pdf. Override it.
+        postInstallSphinx = ''
+          docdir="''${doc}/share/doc/''${name}"
+          mkdir -p "$docdir/latexpdf"
+          cp .sphinx/latexpdf/latex/*.pdf "$docdir/latexpdf/" || true
+        '';
+        # Fix locale for sphinx/pdflatex; glibcLocales provides locale-archive
+        LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
+        env = prevAttrs.env // {
+          LC_ALL = "en_US.UTF-8";
+        };
       });
     };
 
