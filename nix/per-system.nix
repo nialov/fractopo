@@ -34,6 +34,7 @@
               pythonEnv
               poetry
               ruff
+              pandoc
             ];
 
           in
