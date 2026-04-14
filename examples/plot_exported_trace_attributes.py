@@ -143,3 +143,18 @@ tbl = ax.table(cellText=preview_df.values, colLabels=preview_df.columns, loc="ce
 tbl.set_fontsize(16)
 tbl.scale(1.2, 1.2)
 ax.set_title("Preview of exported trace attributes")
+
+# %%
+# 3. Recommended: Use export_network_analysis for complete export
+# -------------------------------------------------------------
+# The recommended way to export all relevant network analysis results is to use
+# the built-in `export_network_analysis` method. This outputs traces, plots,
+# parameters, and key arrays in one standardized directory:
+from tempfile import TemporaryDirectory
+
+with TemporaryDirectory() as tmp_dir:
+    export_dir = Path(tmp_dir).joinpath("KB11_network_analysis_export")
+    KB11_NETWORK.export_network_analysis(output_path=export_dir)
+# In your own code, provide a persistent output directory for permanent export.
+# The directory will include geopackage files for traces, branches, nodes, key parameters,
+# and several plots and data files for further analysis.
