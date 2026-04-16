@@ -117,7 +117,7 @@ apidoc_modules = [
 
 html_baseurl = "https://nialov.github.io/fractopo/"
 sitemap_url_scheme = "{link}"
-html_extra_path = ["robots.txt"]
+html_extra_path = ["robots.txt", "google86fb4b6096a20aa8.html"]
 
 # -- Options for autosectionlabel -------------------------------------
 
