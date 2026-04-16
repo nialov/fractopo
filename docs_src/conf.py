@@ -56,6 +56,9 @@ source_suffix = {
 }
 master_doc = "index"
 
+# Disable links to reStructuredText source files (not included by nix sphinxHook)
+html_show_sourcelink = False
+
 # Sphinx-gallery config
 sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
