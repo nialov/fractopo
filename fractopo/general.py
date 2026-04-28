@@ -2086,15 +2086,28 @@ def sanitize_name(name: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]", "", name)
 
 
+def _check_geom_type(name, gdf, accepted_geom_types) -> None:
+    if not all(isinstance(geom, accepted_geom_types) for geom in gdf.geometry.values):
+        raise TypeError(
+            f"Expected {name} geometries to contain only any of {accepted_geom_types}."
+        )
+
+
 @beartype
-def check_for_wrong_geometries(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
+def check_for_wrong_traces_geometries(
+    traces: gpd.GeoDataFrame, accepted_geom_types: Tuple = (LineString, MultiLineString)
+) -> None:
     """
-    Check that traces are line geometries and area contains area geometries.
+    Check that traces are line geometries.
     """
-    accepted_line_types = (LineString, MultiLineString)
-    accepted_area_types = (Polygon, MultiPolygon)
-    for name, geoms, accepted_types in zip(
-        ("traces", "area"), (traces, area), (accepted_line_types, accepted_area_types)
-    ):
-        if not all(isinstance(geom, accepted_types) for geom in geoms.geometry.values):
-            raise TypeError(f"Expected {name} to contain only any of {accepted_types}.")
+    _check_geom_type(name="traces", gdf=traces, accepted_geom_types=accepted_geom_types)
+
+
+@beartype
+def check_for_wrong_area_geometries(
+    area: gpd.GeoDataFrame, accepted_geom_types: Tuple = (Polygon, MultiPolygon)
+) -> None:
+    """
+    Check that area(s) are polygons.
+    """
+    _check_geom_type(name="area", gdf=area, accepted_geom_types=accepted_geom_types)
