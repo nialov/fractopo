@@ -1888,7 +1888,7 @@ def convert_list_columns(gdf: gpd.GeoDataFrame, allow: bool = True) -> gpd.GeoDa
 
 @beartype
 def write_geodata(
-    gdf: gpd.GeoDataFrame,
+    gdf: Union[gpd.GeoDataFrame, gpd.GeoSeries],
     path: Path,
     driver: str = GEOJSON_DRIVER,
     allow_list_column_transform: bool = False,
@@ -1902,8 +1902,9 @@ def write_geodata(
         # Handle empty GeoDataFrames
         path.write_text(gdf.to_json(sort_keys=True))
     else:
-        # Convert list type columns to string.
-        gdf = convert_list_columns(gdf, allow=allow_list_column_transform)
+        if isinstance(gdf, gpd.GeoDataFrame):
+            # Convert list type columns to string.
+            gdf = convert_list_columns(gdf, allow=allow_list_column_transform)
 
         # Write to disk
         gdf.to_file(path, driver=driver)

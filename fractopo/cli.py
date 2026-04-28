@@ -23,7 +23,16 @@ from typer import Typer
 
 from fractopo import __version__
 from fractopo.analysis.network import Network
-from fractopo.general import check_for_wrong_geometries, read_geofile
+from fractopo.branches_and_nodes import (
+    ALLOWED_LOOPS,
+    preprocess_traces_for_topological_analysis,
+)
+from fractopo.general import (
+    check_for_wrong_area_geometries,
+    check_for_wrong_traces_geometries,
+    read_geofile,
+    write_geodata,
+)
 from fractopo.tval.trace_validation import Validation
 from fractopo.tval.trace_validators import SharpCornerValidator, TargetAreaSnapValidator
 
@@ -69,14 +78,19 @@ def get_click_path_args(exists=True, **kwargs):
 
 
 @beartype
-def _check_for_wrong_geometries_cli(traces: gpd.GeoDataFrame, area: gpd.GeoDataFrame):
+def _check_for_wrong_geometries_cli(
+    traces: gpd.GeoDataFrame, area: Optional[gpd.GeoDataFrame]
+):
     try:
-        check_for_wrong_geometries(traces=traces, area=area)
+        check_for_wrong_traces_geometries(traces=traces)
+        if area is not None:
+            check_for_wrong_area_geometries(area=area)
     except TypeError:
         CONSOLE.print(
             Text.assemble(
                 "Check that traces and target area arguments are passed in"
-                " the correct order in the command-line (Check with --help)."
+                " the correct order in the command-line (Check with --help)"
+                " and that the geometries within are correct."
             )
         )
         raise
@@ -416,3 +430,52 @@ def info():
         python_location=str(Path(sys.executable).absolute()),
     )
     CONSOLE.print_json(json.dumps(information, sort_keys=True))
+
+
+@APP.command()
+def snap_traces(
+    trace_file: Path = typer.Argument(
+        ..., exists=True, dir_okay=False, help=TRACE_FILE_HELP
+    ),
+    snap_threshold: float = typer.Option(0.001, help=SNAP_THRESHOLD_HELP),
+    output_path: Path = typer.Option(None, help="Where to save snapped traces."),
+    allowed_loops: int = typer.Option(
+        ALLOWED_LOOPS,
+        help="How many loops of iterative snapping allowed before error is raised.",
+    ),
+):
+    """
+    Snap traces using heuristic developed as part of fractopo.
+
+    The snapping uses an iterative process where trace endpoints close to
+    segments of other traces are snapped to those segments by creating
+    new nodes in the other traces.
+
+    Usually this is just an intermediary preprocess result before
+    determination of branches and notes but the snapped traces might have
+    use outside of fractopo. Using this command is not required for
+    analysis conducted with fractopo as determination of branches and
+    nodes runs this before determination.
+
+    Note that currently no attribute data is kept in the the processed
+    traces. This is due to how the snapping heuristic is implemented
+    using simple Python types along with shapely instead of geopandas
+    data types.
+    """
+    traces = gpd.read_file(trace_file)
+    _check_for_wrong_geometries_cli(traces=traces, area=None)
+
+    snapped_traces = preprocess_traces_for_topological_analysis(
+        traces=traces,
+        areas=None,
+        snap_threshold=snap_threshold,
+        allowed_loops=allowed_loops,
+    )
+
+    CONSOLE.print(f"Writing snapped traces to {output_path}")
+    save_driver = pyogrio.detect_write_driver(trace_file)
+    write_geodata(
+        gdf=snapped_traces,
+        path=output_path,
+        driver=save_driver,
+    )
