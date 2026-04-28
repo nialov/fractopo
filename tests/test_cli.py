@@ -164,3 +164,37 @@ def test_fractopo_callback_error(logging_level_str: str):
             ],
         )
         tests.click_error_print(result=result)
+
+
+@pytest.mark.parametrize(
+    "traces_path",
+    [
+        (tests.kb7_trace_50_path),
+    ],
+)
+@tests.plotting_test
+def test_fractopo_snap_traces_cli(traces_path, tmp_path):
+    """
+    Test fractopo snap-traces cli entrypoint.
+    """
+    output_path = Path(tmp_path).joinpath(
+        f"{traces_path.stem}_snapped{traces_path.suffix}"
+    )
+    result = typer_cli_runner.invoke(
+        cli.APP,
+        [
+            "snap-traces",
+            str(traces_path),
+            "--output-path",
+            str(output_path),
+        ],
+    )
+
+    tests.click_error_print(result)
+
+    assert output_path.is_file()
+
+    output_gdf = gpd.read_file(output_path)
+    assert isinstance(output_gdf, gpd.GeoDataFrame)
+    assert output_gdf.shape[0] > 0
+    assert output_gdf.shape[0] <= gpd.read_file(traces_path).shape[0]
