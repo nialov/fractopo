@@ -57,6 +57,7 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 UNARY_ERROR_SIZE_THRESHOLD = 100
+ALLOWED_LOOPS = 10
 
 
 @beartype
@@ -787,12 +788,12 @@ def filter_non_unique_traces(
 
 
 @beartype
-def report_snapping_loop(loops: int, allowed_loops: int):
+def report_snapping_loop(loops: int, allowed_loops: int) -> None:
     """
     Report snapping looping.
     """
     log.info(f"Loop :{loops}")
-    if loops >= 10:
+    if loops >= (allowed_loops // 2):
         log.warning(
             f"{loops} loops have passed without resolved snapped"
             " traces_geosrs. Snapped traces_geosrs might not"
@@ -808,66 +809,56 @@ def report_snapping_loop(loops: int, allowed_loops: int):
 
 @JOBLIB_CACHE.cache
 @beartype
-def branches_and_nodes(
+def preprocess_traces_for_topological_analysis(
     traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
-    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame, None],
     snap_threshold: float,
-    allowed_loops=10,
+    allowed_loops=ALLOWED_LOOPS,
     already_clipped: bool = False,
-    # unary_size_threshold: int = 5000,
-) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+) -> gpd.GeoSeries:
     """
-    Determine branches and nodes of given traces.
+    Preprocess traces for topological analysis
 
-    The traces will be cropped to the given target area(s) if not already
-    clipped(already_clipped).
-
-    TODO: unary_union will not respect identical traces or near-identical.
-    Therefore cannot test if there are more branches than traces because
-    there might be less due to this issue.
+    Includes removal of z coordinates, clipping to target area, if it is
+    provided, removal of duplicate traces, snapping endpoints of
+    traces to segments of other traces in proximity and removal
+    of small geometries based on provided snap_threshold.
     """
-    log.info(
-        "Starting determination of branches and nodes.",
-        extra=dict(
-            len_traces=len(traces),
-            len_areas=len(areas),
-            snap_threshold=snap_threshold,
-            already_clipped=already_clipped,
-            allowed_loops=allowed_loops,
-        ),
-    )
     traces_geosrs: gpd.GeoSeries = traces.geometry
     if check_for_z_coordinates(geodata=traces_geosrs):
-        log.info(
-            "Removing z-coordinates from trace data before branch and node determination."
-        )
-        traces_without_z_coords = remove_z_coordinates_from_geodata(
+        # TODO: This is maybe not tested?
+        log.info("Removing z-coordinates from trace data.")
+        traces_without_z_coords_maybe = remove_z_coordinates_from_geodata(
             geodata=traces_geosrs
         )
-        assert isinstance(traces_without_z_coords, gpd.GeoSeries)
-        traces_geosrs = traces_without_z_coords
+        assert isinstance(traces_without_z_coords_maybe, gpd.GeoSeries)
+    else:
+        traces_without_z_coords_maybe = traces_geosrs
 
     # Filter out traces that are not unique by wkt
     # unary_union will fail to take them into account any way
-    traces_geosrs = filter_non_unique_traces(
-        traces_geosrs, snap_threshold=snap_threshold
+    traces_no_duplicates = filter_non_unique_traces(
+        traces_without_z_coords_maybe, snap_threshold=snap_threshold
     )
 
-    areas_geosrs: gpd.GeoSeries = areas.geometry
+    if areas is not None:
+        areas_geosrs: gpd.GeoSeries = areas.geometry
 
-    # Collect into lists
-    areas_lists_of_polygons = [
-        [poly] if isinstance(poly, Polygon) else list(poly.geoms)
-        for poly in areas_geosrs.geometry.values
-        if isinstance(poly, (Polygon, MultiPolygon))
-    ]
-    areas_list = list(chain(*areas_lists_of_polygons))
-    assert all(isinstance(poly, Polygon) for poly in areas_list), areas_list
+        # Collect into lists
+        areas_lists_of_polygons = [
+            [poly] if isinstance(poly, Polygon) else list(poly.geoms)
+            for poly in areas_geosrs.geometry.values
+            if isinstance(poly, (Polygon, MultiPolygon))
+        ]
+        areas_list = list(chain(*areas_lists_of_polygons))
+        assert all(isinstance(poly, Polygon) for poly in areas_list), areas_list
+    else:
+        areas_list = None
 
     # Collect into lists
     traces_list = [
         trace
-        for trace in traces_geosrs.geometry.values
+        for trace in traces_no_duplicates.geometry.values
         if isinstance(trace, LineString)
     ]
 
@@ -889,19 +880,63 @@ def branches_and_nodes(
         loops += 1
         report_snapping_loop(loops, allowed_loops=allowed_loops)
 
-    traces_geosrs = gpd.GeoSeries(traces_list, crs=traces.crs)
+    traces_snapped = gpd.GeoSeries(traces_list, crs=traces.crs)
 
     # Clip if necessary
-    if not already_clipped:
-        traces_geosrs = crop_to_target_areas(
-            traces_geosrs,
+    if areas is not None and not already_clipped:
+        traces_maybe_clipped = crop_to_target_areas(
+            traces_snapped,
             areas_geosrs,
         ).geometry
+    else:
+        traces_maybe_clipped = traces_snapped
 
     # Remove too small geometries.
-    traces_geosrs = traces_geosrs.loc[
-        traces_geosrs.geometry.length > snap_threshold * 2.01
+    traces_no_small = traces_maybe_clipped.loc[
+        traces_maybe_clipped.geometry.length > snap_threshold * 2.01
     ]
+
+    return traces_no_small
+
+
+@JOBLIB_CACHE.cache
+@beartype
+def branches_and_nodes(
+    traces: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    areas: Union[gpd.GeoSeries, gpd.GeoDataFrame],
+    snap_threshold: float,
+    allowed_loops=ALLOWED_LOOPS,
+    already_clipped: bool = False,
+) -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """
+    Determine branches and nodes of given traces.
+
+    The traces will be cropped to the given target area(s) if not already
+    clipped(already_clipped).
+
+    TODO: unary_union will not respect identical traces or near-identical.
+    Therefore cannot test if there are more branches than traces because
+    there might be less due to this issue.
+    """
+    log.info(
+        "Starting determination of branches and nodes.",
+        extra=dict(
+            len_traces=len(traces),
+            len_areas=len(areas),
+            snap_threshold=snap_threshold,
+            already_clipped=already_clipped,
+            allowed_loops=allowed_loops,
+        ),
+    )
+
+    traces_geosrs = preprocess_traces_for_topological_analysis(
+        traces=traces,
+        areas=areas,
+        snap_threshold=snap_threshold,
+        allowed_loops=allowed_loops,
+        already_clipped=already_clipped,
+    )
+    areas_geosrs = areas.geometry
 
     # Branches are determined with shapely/geopandas unary_union
     unary_union_result = traces_geosrs.union_all()
@@ -914,14 +949,6 @@ def branches_and_nodes(
             "Expected unary_union_result to be of type (Multi)LineString."
             f" Got: {type(unary_union_result), unary_union_result}"
         )
-
-    # branches_all = list(
-    #     safer_unary_union(
-    #         traces_geosrs,
-    #         snap_threshold=snap_threshold,
-    #         size_threshold=unary_size_threshold,
-    #     ).geoms
-    # )
 
     # Filter out very short branches
     branches = gpd.GeoSeries(
