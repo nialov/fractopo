@@ -473,7 +473,8 @@ def snap_traces(
     )
 
     CONSOLE.print(f"Writing snapped traces to {output_path}")
-    save_driver = pyogrio.detect_write_driver(trace_file)
+    # TODO: Add fallback
+    save_driver = pyogrio.detect_write_driver(output_path)
     write_geodata(
         gdf=snapped_traces,
         path=output_path,
