@@ -370,6 +370,10 @@ hastholmen_traces_validated = read_geofile(
     Path("tests/sample_data/hastholmen_traces_validated.geojson")
 )
 
+geta_lidar_inf_valid_traces_path = Path(
+    "tests/sample_data/geta_lidar_lineaments_infinity_traces.geojson"
+)
+
 geta_lidar_inf_valid_traces = read_geofile(
     Path("tests/sample_data/geta_lidar_lineaments_infinity_traces.geojson")
 )
