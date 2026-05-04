@@ -6,6 +6,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pytest
+from shapely.geometry import MultiLineString
 from typer.testing import CliRunner as TyperCliRunner
 
 import tests
@@ -167,13 +168,14 @@ def test_fractopo_callback_error(logging_level_str: str):
 
 
 @pytest.mark.parametrize(
-    "traces_path",
+    "traces_path,difference_is_expected",
     [
-        (tests.kb7_trace_50_path),
+        (tests.geta_lidar_inf_valid_traces_path, True),
+        (tests.kb7_trace_50_path, False),
     ],
 )
 @tests.plotting_test
-def test_fractopo_snap_traces_cli(traces_path, tmp_path):
+def test_fractopo_snap_traces_cli(traces_path, difference_is_expected, tmp_path):
     """
     Test fractopo snap-traces cli entrypoint.
     """
@@ -194,7 +196,16 @@ def test_fractopo_snap_traces_cli(traces_path, tmp_path):
 
     assert output_path.is_file()
 
+    original_gdf = gpd.read_file(traces_path)
     output_gdf = gpd.read_file(output_path)
     assert isinstance(output_gdf, gpd.GeoDataFrame)
     assert output_gdf.shape[0] > 0
-    assert output_gdf.shape[0] <= gpd.read_file(traces_path).shape[0]
+    assert output_gdf.shape[0] <= original_gdf.shape[0]
+
+    difference_of_original_and_snapped = (
+        MultiLineString(output_gdf.geometry.values)
+        .difference(MultiLineString(original_gdf.geometry.values))
+        .normalize()
+    )
+
+    assert difference_is_expected == (not difference_of_original_and_snapped.is_empty)
