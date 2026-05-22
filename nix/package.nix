@@ -112,24 +112,12 @@ let
         '';
       });
       # PDF documentation via LaTeX/pdflatex
-      documentation-pdf = self.overridePythonAttrs (prevAttrs: {
-        src = mkSrc docFiles;
-        doCheck = false;
-        dependencies = [ prevAttrs.dependencies ] ++ prevAttrs.optional-dependencies.dev;
+      documentation-pdf = self.passthru.documentation.overridePythonAttrs (prevAttrs: {
         nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
           texlive.combined.scheme-full
           imagemagick
         ];
-        sphinxRoot = "docs_src";
         sphinxBuilders = "latexpdf";
-        outputs = [
-          "out"
-          "doc"
-        ];
-        # Normal Python package build expects dist/
-        preConfigure = ''
-          pythonOutputDistPhase() { touch $dist; }
-        '';
         # sphinx-hook installSphinxPhase tries .sphinx/latexpdf/latexpdf/ which does not
         # exist; the actual PDF is at .sphinx/latexpdf/latex/fractopo.pdf. Override it.
         installSphinxPhase = ''
