@@ -3,7 +3,7 @@
     `--no-gpg-sign` if you encounter errors with signing.
 -   Use functional programming paradigms. Try to always write focused
     functions that do not have side effects.
--   Use `README.md` to understand the project.
+-   Use `README.rst` to understand the project.
 -   Check existing project coding conventions from the code of the
     project.
 -   Code structure: Main Python library code is in `./fractopo/`. Code
@@ -17,5 +17,5 @@
     environment of `fractopo`. This applies to any commands listed in
     this `AGENTS.md` file.
 -   Test Python code with `pytest`
--   Use `pre-commit` to lint and format code:
-    `pre-commit run --all-files`
+-   Use `prek` to lint and format code:
+    `prek run --all-files`
