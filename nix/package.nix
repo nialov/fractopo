@@ -8,7 +8,7 @@
   matplotlib,
   numpy,
   pandas,
-  texliveSmall,
+  texlive,
   imagemagick,
   glibcLocales,
   pandas-stubs,
@@ -117,7 +117,7 @@ let
         doCheck = false;
         dependencies = [ prevAttrs.dependencies ] ++ prevAttrs.optional-dependencies.dev;
         nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [
-          texliveSmall
+          texlive.combined.scheme-full
           imagemagick
         ];
         sphinxRoot = "docs_src";
@@ -132,7 +132,7 @@ let
         '';
         # sphinx-hook installSphinxPhase tries .sphinx/latexpdf/latexpdf/ which does not
         # exist; the actual PDF is at .sphinx/latexpdf/latex/fractopo.pdf. Override it.
-        postInstallSphinx = ''
+        installSphinxPhase = ''
           docdir="''${doc}/share/doc/''${name}"
           mkdir -p "$docdir/latexpdf"
           cp .sphinx/latexpdf/latex/*.pdf "$docdir/latexpdf/" || true
