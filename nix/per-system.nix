@@ -28,14 +28,17 @@
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
         devShells =
           let
-            devShellPackages = with pkgs; [
-              pre-commit
-              fhs
-              pythonEnv
-              poetry
-              ruff
-              pandoc
-            ];
+            devShellPackages =
+              with pkgs;
+              [
+                prek
+                fhs
+                pythonEnv
+                poetry
+                ruff
+                pandoc
+              ]
+              ++ config.pre-commit.enabledHookPackages;
 
           in
           {
@@ -51,6 +54,7 @@
 
         pre-commit = {
           check.enable = true;
+          settings.package = pkgs.prek;
           settings.hooks = {
             nixfmt-rfc-style.enable = true;
             nbstripout.enable = true;
