@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.9.2 (2026-05-22)
+
+Includes dependency updates of Python packages, `marimo` entrypoint integration
+and inclusion of new command-line command, `snap-traces`. Additionally,
+documentation now includes guides on how to digitize traces, as well as
+instructions for validating and analyzing their network properties using the
+`fractopo` web interface.
+
+### 🚀 Features
+
+- *(marimos)* Add API entrypoint which serves both marimo apps so single Docker container contains both functionality, validation and network analysis
+- *(cli)* Add snap-traces command, which can be used to only run the topological trace snapping heuristic implemented in `fractopo`. It outputs the snapped traces without further edits.
+
+### 💼 Other
+
+- *(per-system,pre-commit)* Add sphinx-lint as pre-commit check
+- *(pyproject)* Add additional ruff lint and format rules
+- *(poetry)* Update dependencies
+- *(nix,flake)* Update dependencies
+
+### 🚜 Refactor
+
+- *(branches_and_nodes)* Take out snap traces heuristic function
+- *(general)* Improve geometry check function
+
+### 📚 Documentation
+
+- *(README)* Update container information
+- *(examples)* Add example of exporting traces with attributes
+- *(how_to_digitize_fractures_and_lineaments)* New guide with instructions on digitizing traces with QGIS is now provided with the documentation
+- *(how_to_use_fractopo_web_interface)* New guide with instructions on how to use the `fractopo` marimo web interface for validation and network analysis
+- *(examples)* Demonstrate use of export_network_analysis
+
+Full set of changes:
+[`v0.9.1...v0.9.2`](https://github.com/nialov/fractopo/compare/v0.9.1...v0.9.2)
+
 ## v0.9.1 (2026-01-27)
 
 Added back support for Python 3.10.
