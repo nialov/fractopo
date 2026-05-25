@@ -119,11 +119,9 @@ let
         ];
         sphinxBuilders = "latexpdf";
         # sphinx-hook installSphinxPhase tries .sphinx/latexpdf/latexpdf/ which does not
-        # exist; the actual PDF is at .sphinx/latexpdf/latex/fractopo.pdf. Override it.
-        installSphinxPhase = ''
-          docdir="''${doc}/share/doc/''${name}"
-          mkdir -p "$docdir/latexpdf"
-          cp .sphinx/latexpdf/latex/*.pdf "$docdir/latexpdf/" || true
+        # exist; the actual PDF is at .sphinx/latexpdf/latex/fractopo.pdf.
+        preInstallSphinx = ''
+          cp -r .sphinx/latexpdf/latex/ .sphinx/latexpdf/latexpdf/
         '';
         # Fix locale for sphinx/pdflatex; glibcLocales provides locale-archive
         LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";

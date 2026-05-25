@@ -5,8 +5,7 @@
     packageOverlay = _final: prev: {
       pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
         (pythonFinal: _: {
-          fractopo = pythonFinal.callPackage ./package.nix {
-          };
+          fractopo = pythonFinal.callPackage ./package.nix { };
         })
       ];
     };
