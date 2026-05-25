@@ -82,6 +82,7 @@ jobs:
       uses: actions/deploy-pages@v4
     timeout-minutes: 60
   docs-pdf:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/master')
     needs:
     - nix-fast-build
     runs-on: ubuntu-latest
