@@ -132,6 +132,46 @@ in
                 actionsDeployPages
               ];
             };
+            docs-pdf = {
+              needs = [ "nix-fast-build" ];
+              steps =
+                let
+
+                  outputDocsDir = "docs-pdf";
+
+                in
+                baseNixSteps
+                ++ [
+                  {
+                    name = "Build documentation pdf";
+                    run = ''
+                      nix build .#fractopo.passthru.documentation-pdf.doc
+                      cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/latexpdf ./${outputDocsDir}
+                    '';
+                  }
+                  {
+                    uses = "actions/upload-artifact@v7";
+                    id = "fractopo-documentation-upload-step";
+                    "with" = {
+                      # https://github.com/nialov/fractopo/releases/latest/download/fractopo-documentation.pdf
+                      name = "fractopo-documentation.pdf";
+                      path = "./${outputDocsDir}/fractopo.pdf";
+                      if-no-files-found = "error";
+                    };
+                  }
+                  {
+                    name = "Output generated PDF link";
+                    run = "echo \'\${{ steps.fractopo-documentation-upload-step.outputs.artifact-url }}\'";
+
+                    # run = lib.concatStringsSep " " [
+                    #   "echo"
+                    #   "\${{ steps.fractopo-documentation-upload-step.outputs.artifact-url }}"
+                    # ]
+
+                    # ;
+                  }
+                ];
+            };
             docker = lib.recursiveUpdate publishPackages {
               needs = [ "nix-fast-build" ];
               steps =
