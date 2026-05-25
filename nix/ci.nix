@@ -33,6 +33,11 @@ let
     }
   ];
 
+  ifPushAndMaster = lib.concatStringsSep " && " [
+    "github.event_name == 'push'"
+    "startsWith(github.ref, 'refs/heads/master')"
+  ];
+
 in
 {
   flake.actions-nix =
@@ -111,10 +116,7 @@ in
                 ];
             };
             docs = lib.recursiveUpdate publishDocsToGitHubPages {
-              "if" = lib.concatStringsSep " && " [
-                "github.event_name == 'push'"
-                "startsWith(github.ref, 'refs/heads/master')"
-              ];
+              "if" = ifPushAndMaster;
               needs = [ "nix-fast-build" ];
               steps = baseNixSteps ++ [
                 {
@@ -133,6 +135,7 @@ in
               ];
             };
             docs-pdf = {
+              "if" = ifPushAndMaster;
               needs = [ "nix-fast-build" ];
               steps =
                 let
