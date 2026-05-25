@@ -81,6 +81,31 @@ jobs:
     - id: deployment
       uses: actions/deploy-pages@v4
     timeout-minutes: 60
+  docs-pdf:
+    needs:
+    - nix-fast-build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: cachix/install-nix-action@v31
+    - uses: cachix/cachix-action@v16
+      with:
+        authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+        name: nialov
+    - name: Build documentation pdf
+      run: |-
+        nix build .#fractopo.passthru.documentation-pdf.doc
+        cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/latexpdf ./docs-pdf
+    - id: fractopo-documentation-upload-step
+      uses: actions/upload-artifact@v7
+      with:
+        if-no-files-found: error
+        name: fractopo-documentation.pdf
+        path: ./docs-pdf/fractopo.pdf
+    - name: Output generated PDF link
+      run: echo '${{ steps.fractopo-documentation-upload-step.outputs.artifact-url
+        }}'
+    timeout-minutes: 60
   nix-fast-build:
     runs-on: ubuntu-latest
     steps:
