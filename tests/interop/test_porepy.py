@@ -2,13 +2,20 @@ import pytest
 
 from fractopo.interop.porepy import check_porepy_2d_csv_format
 
-EXAMPLE_POREPY_2D_CSV = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
+EXAMPLE_POREPY_2D_CSV_WITH_COMMENTS = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
 -54900, 6730000, -52000, 6733000
 # OBJECTID,START_X,START_Y,END_X,END_Y
 -5.361122869999999966e+04,6.732113743700000457e+06,-5.466355320000000211e+04,6.730962761900000274e+06
 """
 
+EXAMPLE_POREPY_2D_CSV_WITHOUT_COMMENTS = """-54900, 6730000, -52000, 6733000
+-5.361122869999999966e+04,6.732113743700000457e+06,-5.466355320000000211e+04,6.730962761900000274e+06
+"""
 
-@pytest.mark.parametrize("csv_text", [EXAMPLE_POREPY_2D_CSV])
+
+@pytest.mark.parametrize(
+    "csv_text",
+    [EXAMPLE_POREPY_2D_CSV_WITH_COMMENTS, EXAMPLE_POREPY_2D_CSV_WITHOUT_COMMENTS],
+)
 def test_check_porepy_2d_csv_format_passes(csv_text):
     assert check_porepy_2d_csv_format(csv_text=csv_text)

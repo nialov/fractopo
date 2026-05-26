@@ -6,6 +6,8 @@ from beartype import beartype
 from beartype.typing import SupportsFloat
 from shapely.geometry import LineString
 
+from fractopo.typing import GeoDataFrameWithLineStrings
+
 log = logging.getLogger(__name__)
 
 POREPY_2D_CSV_LINES_HEADER = "# OBJECTID,START_X,START_Y,END_X,END_Y"
@@ -104,7 +106,7 @@ def scale_linestrings_to_local(
 
 @beartype
 def export_traces_to_porepy_2d_csv_format(
-    traces: gpd.GeoDataFrame,
+    traces: GeoDataFrameWithLineStrings,
     scale_to_local: bool = True,
     y_scale: float = 100.0,
     include_domain: bool = True,
