@@ -1,12 +1,20 @@
 import logging
+from itertools import starmap
 
 import geopandas as gpd
+import numpy as np
 import shapely
 from beartype import beartype
-from beartype.typing import SupportsFloat
+from beartype.typing import Optional, SupportsFloat, Union
+from numpy.typing import NDArray
 from shapely.geometry import LineString
 
-from fractopo.typing import GeoDataFrameWithLineStrings
+from fractopo.general import get_trace_endpoints
+from fractopo.typing import (
+    GeoDataFrameWithLineStrings,
+    NDArrayWithDipDirections,
+    NDArrayWithDips,
+)
 
 log = logging.getLogger(__name__)
 
@@ -56,7 +64,7 @@ def check_porepy_2d_csv_format(csv_text: str) -> bool:
 
 @beartype
 def scale_linestrings_to_local(
-    linestrings: list[LineString], y_scale: SupportsFloat = 100.0
+    linestrings: list[LineString], y_scale: SupportsFloat
 ) -> list[LineString]:
     """
     Scales a list of LineStrings so that the y-axis spans y_scale units,
@@ -107,25 +115,24 @@ def scale_linestrings_to_local(
 @beartype
 def export_traces_to_porepy_2d_csv_format(
     traces: GeoDataFrameWithLineStrings,
-    scale_to_local: bool = True,
-    y_scale: float = 100.0,
+    y_scale: Optional[SupportsFloat] = None,
     include_domain: bool = True,
 ) -> str:
     """
-    Export traces to a CSV format compatible with PorePy's `network_from_csv`.
+    Export traces to a 2D CSV format compatible with PorePy's `network_from_csv`.
 
     >>> traces = gpd.GeoDataFrame(geometry=[
     ...     LineString([(0, 0), (1, 1)]),
     ...     LineString([(1, 0), (0, 1)])
     ... ])
-    >>> print(export_traces_to_porepy_2d_csv_format(traces, scale_to_local=False))
+    >>> print(export_traces_to_porepy_2d_csv_format(traces))
     0.0,0.0,1.0,1.0
     0.0,0.0,1.0,1.0
     1.0,0.0,0.0,1.0
     """
     original_linestrings: list[LineString] = traces.geometry.tolist()
 
-    if scale_to_local:
+    if y_scale is not None:
         log.info("Scaling linestrings to local coordinates with y_scale: %s", y_scale)
         linestrings = scale_linestrings_to_local(original_linestrings, y_scale=y_scale)
     else:
@@ -136,17 +143,22 @@ def export_traces_to_porepy_2d_csv_format(
     log.info("Computed domain: %s", (x_min, y_min, x_max, y_max))
 
     # When scaling, set y_min/y_max exactly as in the normalization
-    if scale_to_local:
+    if y_scale is not None:
         y_max = y_scale
         y_min = 0
 
     # Collect endpoints only (no IDs)
-    entries = []
-    for ls in linestrings:
-        x0, y0 = ls.coords[0]
-        x1, y1 = ls.coords[-1]
-        entries.append((x0, y0, x1, y1))
-
+    entries = list(
+        starmap(
+            lambda start_point, end_point: (
+                start_point.x,
+                start_point.y,
+                end_point.x,
+                end_point.y,
+            ),
+            map(get_trace_endpoints, linestrings),
+        )
+    )
     # Build CSV lines to satisfy PorePy's importer requirements
     out_lines = [f"{x_min},{y_min},{x_max},{y_max}"] if include_domain else []
     for x0, y0, x1, y1 in entries:
@@ -155,4 +167,60 @@ def export_traces_to_porepy_2d_csv_format(
     output_csv = "\n".join(out_lines)
 
     check_porepy_2d_csv_format(output_csv)
+    return output_csv
+
+
+@beartype
+def export_traces_to_porepy_3d_csv_format(
+    traces: Union[GeoDataFrameWithLineStrings, list[LineString]],
+    dip_values: NDArrayWithDips,
+    y_scale: Optional[SupportsFloat],
+    dip_direction_values: Optional[NDArrayWithDipDirections] = None,
+    # TODO: Domain, if wanted, should be calculated from 3D ellipse extents?
+    # include_domain: bool = True,
+    z_values: Optional[NDArray[np.floating]] = None,
+) -> str:
+    """
+    Export traces to a 3D CSV format compatible with PorePy's `network_from_csv`.
+    """
+    if isinstance(traces, gpd.GeoDataFrame):
+        original_linestrings = traces.geometry.tolist()
+    else:
+        original_linestrings = traces
+
+    if y_scale is not None:
+        log.info("Scaling linestrings to local coordinates with y_scale: %s", y_scale)
+        linestrings = scale_linestrings_to_local(original_linestrings, y_scale=y_scale)
+    else:
+        linestrings = original_linestrings
+
+    # Assume a constant Z=0 for each line's center unless a z column exists
+    if z_values is None:
+        log.info(
+            "No z_values passed, assuming constant z coordinate of 0.0 for all traces"
+        )
+        z_values = np.zeros(len(linestrings))
+
+    log.info("Exporting %d traces as 3D elliptic fractures", len(traces))
+
+    csv_lines = []
+
+    for idx, (ls, dip, dip_dir) in enumerate(
+        zip(linestrings, traces["dip"], traces["dip_direction"])
+    ):
+        bary = ls.interpolate(0.5, normalized=True)
+        azimuth = fractopo.general.determine_azimuth(ls, halved=True)
+        strike_angle = convert_azimuth_to_strike(azimuth)
+        center_x, center_y = bary.x, bary.y
+        center_z = z_vals.iloc[idx] if hasattr(z_vals, "iloc") else z_vals[idx]
+        axis = ls.length
+        major_axis = minor_axis = axis
+        major_axis_angle = 0.0
+        strike_angle_rad = np.deg2rad(strike_angle)
+        dip_angle_rad = np.deg2rad(dip)
+        line = f"{center_x},{center_y},{center_z},{major_axis},{minor_axis},{major_axis_angle},{strike_angle_rad},{dip_angle_rad}"
+        csv_lines.append(line)
+
+    output_csv = "\n".join(csv_lines)
+    log.info("3D CSV contains %d lines", len(csv_lines))
     return output_csv
