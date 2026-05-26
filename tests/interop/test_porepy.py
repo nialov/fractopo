@@ -1,5 +1,4 @@
-import tempfile
-from pathlib import Path
+import pytest
 
 from fractopo.interop.porepy import check_porepy_2d_csv_format
 
@@ -10,12 +9,6 @@ EXAMPLE_POREPY_2D_CSV = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
 """
 
 
-def test_check_porepy_2d_csv_format_passes():
-    with tempfile.NamedTemporaryFile(mode="w+", delete=False) as tmp:
-        tmp.write(EXAMPLE_POREPY_2D_CSV)
-        tmp.flush()
-        path = Path(tmp.name)
-    try:
-        assert check_porepy_2d_csv_format(path)
-    finally:
-        path.unlink()
+@pytest.mark.parametrize("csv_text", [EXAMPLE_POREPY_2D_CSV])
+def test_check_porepy_2d_csv_format_passes(csv_text):
+    assert check_porepy_2d_csv_format(csv_text=csv_text)

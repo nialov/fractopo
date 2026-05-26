@@ -705,17 +705,6 @@ def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
 
 
 @beartype
-def get_trace_endpoints(
-    trace: LineString,
-) -> Tuple[Point, Point]:
-    """
-    Return endpoints (shapely.geometry.Point) of a given LineString.
-    """
-    points = Point(trace.coords[0]), Point(trace.coords[-1])
-    return points
-
-
-@beartype
 def get_trace_coord_points(trace: LineString) -> List[Point]:
     """
     Get all coordinate Points of a LineString.
@@ -727,6 +716,21 @@ def get_trace_coord_points(trace: LineString) -> List[Point]:
 
     """
     return [Point(xy) for xy in trace.coords]
+
+
+@beartype
+def get_trace_endpoints(trace: LineString) -> Tuple[Point, Point]:
+    """
+    Get end coordinate Points of a LineString.
+
+    >>> trace = LineString([(0, 0), (2, 0), (3, 0)])
+    >>> end_points = get_trace_endpoints(trace)
+    >>> print([p.wkt for p in end_points])
+    ['POINT (0 0)', 'POINT (3 0)']
+
+    """
+    coord_points = get_trace_coord_points(trace)
+    return coord_points[0], coord_points[-1]
 
 
 @beartype
