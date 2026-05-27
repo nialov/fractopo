@@ -311,6 +311,9 @@ def determine_set(
     >>> determine_set(90.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
     '80-100'
 
+    >>> determine_set(70.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True, "-1")
+    '-1'
+
     :param value: Value to determine set of.
     :param value_ranges: Ranges of each set.
     :param set_names: Names of each set.

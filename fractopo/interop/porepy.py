@@ -356,10 +356,15 @@ def export_traces_to_porepy_3d_csv_format(
     y_scale: Optional[SupportsFloat],
     # TODO: Domain, if wanted, should be calculated from 3D ellipse extents?
     # include_domain: bool = True,
-    z_values: Optional[NDArray[np.floating]] = None,
+    z_values: Optional[NDArray] = None,
 ) -> str:
     """
     Export traces to a 3D CSV format compatible with PorePy's `network_from_csv`.
+
+    >>> traces = gpd.GeoDataFrame(geometry=[LineString([(0, 0), (1, 1)])])
+    >>> dip_values = np.array([45])
+    >>> print(export_traces_to_porepy_3d_csv_format(traces, dip_values, y_scale=None))
+    0.5,0.5,0.0,1.4142135623730951,1.4142135623730951,0.0,0.7853981633974483,0.7853981633974483
     """
     linestrings, x_min, y_min, x_max, y_max, scale = prepare_geometries_for_export(
         geometries=traces,
