@@ -24,7 +24,17 @@ import numpy as np
 import pandas as pd
 import sklearn.metrics as sklm
 from beartype import beartype
-from beartype.typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union
+from beartype.typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Sequence,
+    Set,
+    SupportsFloat,
+    Tuple,
+    Union,
+)
 from geopandas.sindex import SpatialIndex
 from joblib import Memory
 from matplotlib import patheffects as path_effects
@@ -481,7 +491,7 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
 
 
 @beartype
-def calc_strike(dip_direction: float) -> float:
+def calc_strike(dip_direction: SupportsFloat) -> SupportsFloat:
     """
     Calculate strike from dip direction. Right-handed rule.
 
