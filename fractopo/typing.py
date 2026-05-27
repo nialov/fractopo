@@ -22,12 +22,12 @@ GeoDataFrameWithPoints = Annotated[
 
 NDArrayWithDips = Annotated[
     NDArray[np.floating],
-    Is[lambda arr: all(0.0 <= arr <= 90.0)],
+    Is[lambda arr: all((arr >= 0.0) & (arr <= 90.0))],
 ]
 
 NDArrayWithDipDirections = Annotated[
     NDArray[np.floating],
-    Is[lambda arr: all(0.0 <= arr <= 360.0)],
+    Is[lambda arr: all((arr >= 0.0) & (arr <= 360.0))],
 ]
 
 NDArrayWithPositives = Annotated[

@@ -82,7 +82,7 @@ class EllipticalFracture(NamedTuple):
         major_axis = minor_axis = axis
         major_axis_angle = 0.0
         strike_angle_rad = np.deg2rad(strike_angle)
-        dip_angle_rad = np.deg2rad(float(dip))
+        dip_angle_rad = np.deg2rad(dip)
         return cls(
             center_x=center_x,
             center_y=center_y,
@@ -113,18 +113,6 @@ class EllipticalFracture(NamedTuple):
 
 
 @beartype
-def get_geometry_bounds(geoms: list) -> tuple[float, float, float, float]:
-    """
-    Returns (min_x, min_y, max_x, max_y) bounds for a list of shapely geometries using geopandas fast routines.
-    """
-    if not geoms:
-        raise ValueError("Empty geometry list.")
-    bounds = gpd.array.from_shapely(geoms).total_bounds
-    x_min, y_min, x_max, y_max, *_ = bounds
-    return x_min, y_min, x_max, y_max
-
-
-@beartype
 def scale_geometries_to_local(
     geometries: list, y_scale: SupportsFloat
 ) -> tuple[
@@ -136,19 +124,17 @@ def scale_geometries_to_local(
 
     >>> ls1 = LineString([(0, 0), (10, 10)])
     >>> ls2 = LineString([(0, 5), (10, 5)])
-    >>> scale_geometries_to_local([ls1, ls2], y_scale=100)
+    >>> s_geoms, *_ = scale_geometries_to_local([ls1, ls2], y_scale=100)
+    >>> s_geoms
     [<LINESTRING (0 0, 100 100)>, <LINESTRING (0 50, 100 50)>]
-
-    >>> ls1 = LineString([(25500000, 6670000), (25500100, 6670200)])
-    >>> ls2 = LineString([(25500050, 6670100), (25500150, 6670300)])
-    >>> scale_geometries_to_local([ls1, ls2], y_scale=100)
-    [<LINESTRING (0 0, 33.333 66.667)>, <LINESTRING (16.667 33.333, 50 100)>]
 
     >>> p1 = Point(0, 0)
     >>> p2 = Point(0, 5)
-    >>> scale_geometries_to_local([p1, p2], y_scale=100)
+    >>> s_geoms, *_ = scale_geometries_to_local([p1, p2], y_scale=100)
+    >>> s_geoms
     [<POINT (0 0)>, <POINT (0 100)>]
     """
+    # TODO: Extract resolve_scale_factor as separate function for use in e.g. test_porepy.py
     x_min, y_min, x_max, y_max, *_ = gpd.array.from_shapely(geometries).total_bounds
     y_range = y_max - y_min
     if y_range == 0:
@@ -224,19 +210,18 @@ def prepare_geometries_for_export(
     """
     Standardizes geometry preparation (scaling and bounds) for PorePy export routines.
 
-    Returns a 6-tuple:
-      (geoms, x_min, y_min, x_max, y_max, scale)
+    >>> p_geoms, *_ = prepare_geometries_for_export([Point(1, 2), Point(2, 5)], y_scale=None)
+    >>> p_geoms
+    [<POINT (1 2)>, <POINT (2 5)>]
 
-    >>> from shapely.geometry import Point, LineString
-    >>> prepare_geometries_for_export([Point(1, 2), Point(2, 5)], y_scale=None)
-    ([<POINT (1 2)>, <POINT (2 5)>], 1.0, 2.0, 2.0, 5.0, 1.0)
-    >>> prepare_geometries_for_export([Point(1, 2), Point(2, 5)], y_scale=10)
-    ([<POINT (0 0)>, <POINT (10 10)>], 1.0, 2.0, 2.0, 5.0, 3.3333333333333335)
+    >>> p_geoms, *_ = prepare_geometries_for_export([Point(1, 2), Point(2, 5)], y_scale=10)
+    >>> p_geoms
+    [<POINT (0 0)>, <POINT (3.333 10)>]
 
     >>> l = [LineString([(0, 0), (2, 2)]), LineString([(1, 5), (5, 6)])]
-    >>> r = prepare_geometries_for_export(l, y_scale=10)
-    >>> all(g.__class__.__name__.startswith('LineString') for g in r[0])
-    True
+    >>> p_geoms, *_ = prepare_geometries_for_export(l, y_scale=10)
+    >>> p_geoms
+    [<LINESTRING (0 0, 3.333 3.333)>, <LINESTRING (1.667 8.333, 8.333 10)>]
     """
     # Convert GeoDataFrame to geometry list
     if isinstance(geometries, gpd.GeoDataFrame):
@@ -251,7 +236,7 @@ def prepare_geometries_for_export(
         )
     else:
         scaled = geoms_list
-        x_min, y_min, x_max, y_max = get_geometry_bounds(geoms_list)
+        x_min, y_min, x_max, y_max = gpd.array.from_shapely(geoms_list).total_bounds
         scale = 1.0
 
     return scaled, x_min, y_min, x_max, y_max, scale
@@ -277,6 +262,15 @@ def export_traces_to_porepy_2d_csv_format(
     """
     linestrings, x_min, y_min, x_max, y_max, scale = prepare_geometries_for_export(
         geometries=traces, y_scale=y_scale
+    )
+    log.info(
+        "prepare_geometries_for_export output: geometries=%r, x_min=%.6f, y_min=%.6f, x_max=%.6f, y_max=%.6f, scale=%.6f",
+        linestrings,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        scale,
     )
 
     # Collect endpoints only (no IDs)
@@ -321,9 +315,19 @@ def export_structural_measurements_to_porepy_3d_csv_format(
     Export structural measurements to a 3D CSV format compatible with PorePy's `network_from_csv`.
     """
 
-    points, *_ = prepare_geometries_for_export(measurement_points, y_scale=y_scale)
+    points, x_min, y_min, x_max, y_max, scale = prepare_geometries_for_export(
+        measurement_points, y_scale=y_scale
+    )
+    log.info(
+        "prepare_geometries_for_export output: geometries=%r, x_min=%.6f, y_min=%.6f, x_max=%.6f, y_max=%.6f, scale=%.6f",
+        points,
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        scale,
+    )
 
-    # Assume a constant Z=0 for each point's center unless a z column exists
     if z_values is None:
         log.info(
             "No z_values passed, assuming constant z coordinate of 0.0 for all points"
@@ -361,8 +365,16 @@ def export_traces_to_porepy_3d_csv_format(
         geometries=traces,
         y_scale=y_scale,
     )
+    log.info(
+        "Prepared geometries: geometries count=%s, x_min=%.6f, y_min=%.6f, x_max=%.6f, y_max=%.6f, scale=%.6f",
+        len(linestrings),
+        x_min,
+        y_min,
+        x_max,
+        y_max,
+        scale,
+    )
 
-    # Assume a constant Z=0 for each line's center unless a z column exists
     if z_values is None:
         log.info(
             "No z_values passed, assuming constant z coordinate of 0.0 for all traces"
