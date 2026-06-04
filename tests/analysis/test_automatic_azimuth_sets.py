@@ -5,9 +5,26 @@ from hypothesis import assume, example, given, settings
 from hypothesis.extra import numpy as hypothesis_numpy
 from hypothesis.strategies import integers
 
-from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
+from fractopo.analysis.automatic_azimuth_sets import (
+    _smallest_covering_axial_range,
+    automatic_azimuth_sets,
+)
 
 RNG = np.random.default_rng(0)
+
+
+def _range_contains_azimuth(range_tuple, azimuth):
+    start, end = range_tuple
+    azimuth = azimuth % 180
+    if start <= end:
+        return start <= azimuth <= end
+    return azimuth >= start or azimuth <= end
+
+
+def test_smallest_covering_axial_range_wraparound():
+    """Test that wraparound axial ranges are represented with start > end."""
+    result = _smallest_covering_axial_range(np.array([170.0, 175.0, 5.0, 10.0]))
+    assert np.allclose(result, (170.0, 10.0))
 
 
 def test_automatic_azimuth_sets_perfect_clusters():
@@ -20,35 +37,36 @@ def test_automatic_azimuth_sets_perfect_clusters():
         ]
     )
     azimuths = azimuths % 180
-    labels, centers = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
-    assert len(labels) == len(azimuths)
+    centers, ranges = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
     assert len(centers) == 3
-    counts = [np.sum(labels == i) for i in range(3)]
-    assert all(c >= 7 for c in counts)
-    sorted_centers = np.sort(centers)
-    assert np.allclose(sorted_centers, [10, 80, 150], atol=10)
+    assert len(ranges) == 3
+    assert np.allclose(np.sort(centers), [10, 80, 150], atol=10)
+    for detected_range in ranges:
+        assert isinstance(detected_range, tuple)
+        assert len(detected_range) == 2
 
 
 def test_automatic_azimuth_sets_axial_wraparound_cluster():
-    """Test that azimuths across the 0°/180° axial boundary cluster together."""
+    """Test that wraparound clusters produce a wraparound range."""
     azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
-    labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
-    assert len(set(labels[:4])) == 1
-    assert labels[4] == labels[5]
-    assert labels[0] != labels[4]
+    centers, ranges = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
     assert any(np.isclose(center, 90.0, atol=5.0) for center in centers)
-    assert any(
-        np.isclose(center, 0.0, atol=5.0) or np.isclose(center, 180.0, atol=5.0)
-        for center in centers
+    wraparound_ranges = [
+        range_tuple for range_tuple in ranges if range_tuple[0] > range_tuple[1]
+    ]
+    assert len(wraparound_ranges) == 1
+    assert all(
+        _range_contains_azimuth(wraparound_ranges[0], azimuth)
+        for azimuth in np.array([178.0, 179.0, 1.0, 2.0])
     )
 
 
-def test_automatic_azimuth_sets_returns_labels_and_centers():
-    """Test output shapes for labels and cluster centers."""
+def test_automatic_azimuth_sets_returns_centers_and_ranges():
+    """Test output shapes for detected centers and ranges."""
     azimuths = np.array([0, 10, 20, 90, 100, 110, 170, 175])
-    labels, centers = automatic_azimuth_sets(azimuths, n_sets=3)
-    assert labels.shape == (len(azimuths),)
+    centers, ranges = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
     assert centers.shape == (3,)
+    assert len(ranges) == 3
 
 
 @example(np.array([0.0, 90.0]))
@@ -62,15 +80,16 @@ def test_automatic_azimuth_sets_returns_labels_and_centers():
 )
 @settings(max_examples=25)
 def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(azimuths):
-    """Test that adding 180 degrees does not change axial clustering results."""
+    """Test that adding 180 degrees does not change axial set detection."""
     assume(np.unique(azimuths % 180).size >= 2)
-    labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
-    shifted_labels, shifted_centers = automatic_azimuth_sets(
+    centers, ranges = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
+    shifted_centers, shifted_ranges = automatic_azimuth_sets(
         azimuths + 180.0, n_sets=2, random_state=0
     )
-    assert labels.shape == shifted_labels.shape
-    assert np.array_equal(labels, shifted_labels)
     assert np.allclose(np.sort(centers), np.sort(shifted_centers))
+    assert sorted(tuple(np.round(range_tuple, 6)) for range_tuple in ranges) == sorted(
+        tuple(np.round(range_tuple, 6)) for range_tuple in shifted_ranges
+    )
 
 
 @pytest.mark.parametrize(

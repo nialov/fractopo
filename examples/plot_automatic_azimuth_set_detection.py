@@ -2,8 +2,9 @@
 Automatic azimuth set detection
 ===============================
 
-Detect axial azimuth sets with ``fractopo.analysis.automatic_azimuth_sets``
-and compare the detected centers to a rose plot of the same network.
+Detect axial azimuth set centers and ranges with
+``fractopo.analysis.automatic_azimuth_sets`` and compare the detected centers
+to a rose plot of the same network.
 """
 
 # %%
@@ -40,21 +41,21 @@ pprint(azimuths[:10])
 # passing an explicit random state.
 
 n_sets = 3
-labels, centers = automatic_azimuth_sets(azimuths, n_sets=n_sets, random_state=0)
+centers, ranges = automatic_azimuth_sets(azimuths, n_sets=n_sets, random_state=0)
 
 print(f"Detected {n_sets} sets")
 print("Detected center azimuths (degrees):")
 pprint(np.round(np.sort(centers), 1))
 
-# %%
-# Count how many traces were assigned to each detected set
-# --------------------------------------------------------
+print("Detected set ranges (degrees):")
+pprint(tuple(tuple(np.round(range_tuple, 1)) for range_tuple in ranges))
 
-unique_labels, counts = np.unique(labels, return_counts=True)
-for label, center, count in sorted(
-    zip(unique_labels, centers, counts), key=lambda row: row[1]
-):
-    print(f"Set {label}: center={center:.1f}°, count={count}")
+# %%
+# Create default set names from ranges
+# ------------------------------------
+
+azimuth_set_names = tuple(f"{start:.0f}-{end:.0f}" for start, end in ranges)
+pprint(azimuth_set_names)
 
 # %%
 # Visualize the detected set centers together with a rose plot
@@ -71,11 +72,13 @@ for center in centers:
         linewidth=2,
     )
 
-fig.suptitle(fill("KB11 trace azimuths with automatically detected set centers", 40))
+ax.set_title(
+    fill("KB11 trace azimuths with automatically detected set centers", 30),
+)
 plt.show()
 
 # %%
-# Inspect the first few assignments directly
-# ------------------------------------------
+# The detected ranges can be passed to ``Network`` as azimuth set inputs
+# ----------------------------------------------------------------------
 
-pprint(list(zip(np.round(azimuths[:10], 1), labels[:10])))
+pprint((azimuth_set_names, ranges))
