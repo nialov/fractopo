@@ -5,31 +5,11 @@ in orientation data, using circular embeddings and clustering algorithms.
 
 import numpy as np
 from beartype import beartype
-from beartype.typing import Optional, Tuple
+from beartype.typing import Annotated, Optional, Tuple
+from beartype.vale import Is
 from sklearn.cluster import KMeans
 
-
-@beartype
-def _validate_automatic_azimuth_set_inputs(
-    azimuths_deg: np.ndarray, n_sets: Optional[int]
-) -> np.ndarray:
-    """
-    Validate inputs for automatic azimuth set detection.
-    """
-    azimuths = np.asarray(azimuths_deg, dtype=float)
-    if azimuths.ndim != 1:
-        raise ValueError("azimuths_deg must be a one-dimensional array.")
-    if azimuths.size == 0:
-        raise ValueError("azimuths_deg must not be empty.")
-    if not np.all(np.isfinite(azimuths)):
-        raise ValueError("azimuths_deg must contain only finite values.")
-    if n_sets is None or n_sets < 1:
-        raise ValueError(
-            "n_sets must be specified and >0 (auto-detection not implemented yet)."
-        )
-    if n_sets > azimuths.size:
-        raise ValueError("n_sets cannot be larger than the number of azimuths.")
-    return azimuths
+from fractopo.typing import NDArray1DNotEmpty
 
 
 @beartype
@@ -65,8 +45,8 @@ def _cluster_centers_to_axial_azimuths(cluster_centers: np.ndarray) -> np.ndarra
 
 @beartype
 def automatic_azimuth_sets(
-    azimuths_deg: np.ndarray,
-    n_sets: Optional[int] = None,
+    azimuths_deg: NDArray1DNotEmpty,
+    n_sets: Optional[Annotated[int, Is[lambda value: value > 0]]] = None,
     random_state: int = 42,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -119,9 +99,13 @@ def automatic_azimuth_sets(
     >>> np.allclose(np.sort(centers), np.array([10.0, 80.0, 150.0]), atol=10.0)
     True
     """
-    azimuths = _validate_automatic_azimuth_set_inputs(
-        azimuths_deg=azimuths_deg, n_sets=n_sets
-    )
+    azimuths = np.asarray(azimuths_deg, dtype=float)
+    if n_sets is None:
+        raise ValueError(
+            "n_sets must be specified and >0 (auto-detection not implemented yet)."
+        )
+    if n_sets > azimuths.size:
+        raise ValueError("n_sets cannot be larger than the number of azimuths.")
     unit_vectors = _azimuths_to_axial_unit_vectors(azimuths)
     kmeans = KMeans(n_clusters=n_sets, random_state=random_state, n_init=10)
     set_labels = kmeans.fit_predict(unit_vectors)

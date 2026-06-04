@@ -3,6 +3,7 @@ Python types used across fractopo.
 """
 
 import geopandas as gpd
+import numpy as np
 from beartype.typing import Annotated
 from beartype.vale import Is
 from numpy.typing import NDArray
@@ -33,3 +34,9 @@ NDArrayWithPositives = Annotated[
     NDArray,
     Is[lambda arr: all(arr >= 0.0)],
 ]
+
+NDArray1D = Annotated[NDArray, Is[lambda arr: arr.ndim == 1]]
+
+NDArray1DNotEmpty = Annotated[NDArray1D, Is[lambda arr: arr.size > 0]]
+
+NDArray1DFinite = Annotated[NDArray1D, Is[lambda arr: np.all(np.isfinite(arr))]]

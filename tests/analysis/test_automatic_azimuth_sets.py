@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from beartype.roar import BeartypeCallHintParamViolation
 from hypothesis import assume, example, given, settings
 from hypothesis.extra import numpy as hypothesis_numpy
 from hypothesis.strategies import integers
@@ -69,15 +70,15 @@ def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(azimuths):
 
 
 @pytest.mark.parametrize(
-    ("azimuths", "n_sets"),
+    ("azimuths", "n_sets", "expected_exception"),
     [
-        (np.array([0.0, 90.0, 180.0]), 0),
-        (np.array([], dtype=float), 1),
-        (np.array([[0.0, 90.0]]), 1),
-        (np.array([0.0, np.nan]), 1),
-        (np.array([0.0, 1.0]), 3),
+        (np.array([0.0, 90.0, 180.0]), 0, BeartypeCallHintParamViolation),
+        (np.array([], dtype=float), 1, BeartypeCallHintParamViolation),
+        (np.array([[0.0, 90.0]]), 1, BeartypeCallHintParamViolation),
+        (np.array([0.0, np.nan]), 1, ValueError),
+        (np.array([0.0, 1.0]), 3, ValueError),
     ],
 )
-def test_automatic_azimuth_sets_invalid_inputs(azimuths, n_sets):
-    with pytest.raises(ValueError):
+def test_automatic_azimuth_sets_invalid_inputs(azimuths, n_sets, expected_exception):
+    with pytest.raises(expected_exception):
         automatic_azimuth_sets(azimuths, n_sets=n_sets)
