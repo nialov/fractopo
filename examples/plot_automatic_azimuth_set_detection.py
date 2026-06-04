@@ -11,6 +11,7 @@ and compare the detected centers to a rose plot of the same network.
 # ------------
 
 from pprint import pprint
+from textwrap import fill
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -70,7 +71,7 @@ for center in centers:
         linewidth=2,
     )
 
-ax.set_title("KB11 trace azimuths with automatically detected set centers")
+fig.suptitle(fill("KB11 trace azimuths with automatically detected set centers", 40))
 plt.show()
 
 # %%
