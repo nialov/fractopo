@@ -116,14 +116,17 @@ def automatic_azimuth_sets(
         A longer fracture can pull the detected center towards its azimuth.
 
         >>> azimuths = np.array([0.0, 20.0])
-        >>> centers, _ = automatic_azimuth_sets(
+        >>> lengths = np.array([1.0, 9.0])
+        >>> centers, ranges = automatic_azimuth_sets(
         ...     azimuths,
-        ...     np.array([1.0, 9.0]),
+        ...     lengths,
         ...     n_sets=1,
         ...     random_state=0,
         ... )
-        >>> float(np.round(centers[0], 1))
-        18.1
+        >>> np.round(centers, 1)
+        array([18.1])
+        >>> ranges
+        ((0.0, 20.0),)
 
         Azimuths close to 0° and 180° are treated as belonging to the same
         axial direction and produce a wraparound range.
@@ -136,10 +139,10 @@ def automatic_azimuth_sets(
         ...     n_sets=2,
         ...     random_state=0,
         ... )
-        >>> len(centers) == 2
-        True
-        >>> any(start > end for start, end in ranges)
-        True
+        >>> np.round(np.sort(centers), 1)
+        array([ 90., 180.])
+        >>> tuple(sorted((round(start, 1), round(end, 1)) for start, end in ranges))
+        ((88.0, 92.0), (178.0, 2.0))
     """
     azimuths = np.asarray(azimuths_deg, dtype=float)
     lengths = np.asarray(length_array, dtype=float)

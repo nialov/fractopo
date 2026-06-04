@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
-from hypothesis import HealthCheck, assume, example, given, settings
+from hypothesis import assume, example, given, settings
 from hypothesis.extra import numpy as hypothesis_numpy
-from hypothesis.strategies import integers
+from hypothesis.strategies import composite, integers
 
 from fractopo.analysis.automatic_azimuth_sets import (
     _smallest_covering_axial_range,
@@ -19,9 +19,6 @@ def _range_contains_azimuth(range_tuple, azimuth):
     if start <= end:
         return start <= azimuth <= end
     return azimuth >= start or azimuth <= end
-
-
-LENGTHS = np.ones(6)
 
 
 def test_smallest_covering_axial_range_wraparound():
@@ -69,8 +66,9 @@ def test_automatic_azimuth_sets_length_weighting_changes_center():
 def test_automatic_azimuth_sets_axial_wraparound_cluster():
     """Test that wraparound clusters produce a wraparound range."""
     azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
+    lengths = np.ones_like(azimuths)
     centers, ranges = automatic_azimuth_sets(
-        azimuths, LENGTHS, n_sets=2, random_state=0
+        azimuths, lengths, n_sets=2, random_state=0
     )
     assert any(np.isclose(center, 90.0, atol=5.0) for center in centers)
     wraparound_ranges = [
@@ -94,24 +92,32 @@ def test_automatic_azimuth_sets_returns_centers_and_ranges():
     assert len(ranges) == 3
 
 
-@example(np.array([0.0, 90.0]), np.array([1.0, 1.0]))
-@example(np.array([178.0, 2.0, 88.0, 92.0]), np.array([1.0, 1.0, 1.0, 1.0]))
-@given(
-    hypothesis_numpy.arrays(
-        dtype=np.float64,
-        shape=integers(min_value=2, max_value=20),
-        elements=integers(min_value=0, max_value=179),
-    ),
-    hypothesis_numpy.arrays(
-        dtype=np.float64,
-        shape=integers(min_value=2, max_value=20),
-        elements=integers(min_value=1, max_value=20),
-    ),
-)
-@settings(max_examples=25, suppress_health_check=[HealthCheck.filter_too_much])
-def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(
-    azimuths, lengths
-):
+@composite
+def azimuths_and_lengths(draw):
+    size = draw(integers(min_value=2, max_value=20))
+    azimuths = draw(
+        hypothesis_numpy.arrays(
+            dtype=np.float64,
+            shape=size,
+            elements=integers(min_value=0, max_value=179),
+        )
+    )
+    lengths = draw(
+        hypothesis_numpy.arrays(
+            dtype=np.float64,
+            shape=size,
+            elements=integers(min_value=1, max_value=20),
+        )
+    )
+    return azimuths, lengths
+
+
+@example((np.array([0.0, 90.0]), np.array([1.0, 1.0])))
+@example((np.array([178.0, 2.0, 88.0, 92.0]), np.array([1.0, 1.0, 1.0, 1.0])))
+@given(azimuths_and_lengths())
+@settings(max_examples=25)
+def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(data):
+    azimuths, lengths = data
     """Test that adding 180 degrees does not change axial set detection."""
     assume(azimuths.shape == lengths.shape)
     assume(np.unique(azimuths % 180).size >= 2)
