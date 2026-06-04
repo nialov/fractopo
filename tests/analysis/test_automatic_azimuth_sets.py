@@ -11,6 +11,7 @@ RNG = np.random.default_rng(0)
 
 
 def test_automatic_azimuth_sets_perfect_clusters():
+    """Test automatic_azimuth_sets with well-separated deterministic clusters."""
     azimuths = np.concatenate(
         [
             RNG.normal(10, 2, 10),
@@ -29,6 +30,7 @@ def test_automatic_azimuth_sets_perfect_clusters():
 
 
 def test_automatic_azimuth_sets_axial_wraparound_cluster():
+    """Test that azimuths across the 0°/180° axial boundary cluster together."""
     azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
     labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
     assert len(set(labels[:4])) == 1
@@ -42,6 +44,7 @@ def test_automatic_azimuth_sets_axial_wraparound_cluster():
 
 
 def test_automatic_azimuth_sets_returns_labels_and_centers():
+    """Test output shapes for labels and cluster centers."""
     azimuths = np.array([0, 10, 20, 90, 100, 110, 170, 175])
     labels, centers = automatic_azimuth_sets(azimuths, n_sets=3)
     assert labels.shape == (len(azimuths),)
@@ -59,6 +62,7 @@ def test_automatic_azimuth_sets_returns_labels_and_centers():
 )
 @settings(max_examples=25)
 def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(azimuths):
+    """Test that adding 180 degrees does not change axial clustering results."""
     assume(np.unique(azimuths % 180).size >= 2)
     labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
     shifted_labels, shifted_centers = automatic_azimuth_sets(
@@ -80,5 +84,6 @@ def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(azimuths):
     ],
 )
 def test_automatic_azimuth_sets_invalid_inputs(azimuths, n_sets, expected_exception):
+    """Test that invalid inputs are rejected by contract checks or runtime guards."""
     with pytest.raises(expected_exception):
         automatic_azimuth_sets(azimuths, n_sets=n_sets)

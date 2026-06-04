@@ -3,6 +3,8 @@ Automatic detection of azimuth clusters (fracture sets, orientation clusters)
 in orientation data, using circular embeddings and clustering algorithms.
 """
 
+import logging
+
 import numpy as np
 from beartype import beartype
 from beartype.typing import Annotated, Optional, Tuple
@@ -10,6 +12,8 @@ from beartype.vale import Is
 from sklearn.cluster import KMeans
 
 from fractopo.typing import NDArray1DNotEmpty
+
+log = logging.getLogger(__name__)
 
 
 @beartype
@@ -34,9 +38,7 @@ def _azimuths_to_axial_unit_vectors(azimuths_deg: np.ndarray) -> np.ndarray:
 
 @beartype
 def _cluster_centers_to_axial_azimuths(cluster_centers: np.ndarray) -> np.ndarray:
-    """
-    Convert doubled-angle cluster centers back to axial azimuths in [0, 180).
-    """
+    """Convert doubled-angle cluster centers back to axial azimuths in [0, 180)."""
     doubled_center_azimuths_rad = np.arctan2(
         cluster_centers[:, 1], cluster_centers[:, 0]
     )
@@ -54,19 +56,19 @@ def automatic_azimuth_sets(
 
     Parameters
     ----------
-    azimuths_deg : np.ndarray
+    azimuths_deg
         1D array of axial azimuths in degrees.
-    n_sets : int or None
+    n_sets
         Number of sets to find. If None, raises ValueError because automatic
         set-count detection is not yet implemented.
-    random_state : int
+    random_state
         Random state passed to sklearn.cluster.KMeans.
 
     Returns
     -------
-    set_labels : np.ndarray
+    set_labels
         Cluster label for each azimuth.
-    set_centers : np.ndarray
+    set_centers
         Center (mean axial azimuth, degrees in [0, 180)) of each set.
 
     Notes
@@ -106,8 +108,15 @@ def automatic_azimuth_sets(
         )
     if n_sets > azimuths.size:
         raise ValueError("n_sets cannot be larger than the number of azimuths.")
+    log.debug(
+        "Clustering %s azimuths into %s sets with random_state=%s.",
+        azimuths.size,
+        n_sets,
+        random_state,
+    )
     unit_vectors = _azimuths_to_axial_unit_vectors(azimuths)
     kmeans = KMeans(n_clusters=n_sets, random_state=random_state, n_init=10)
     set_labels = kmeans.fit_predict(unit_vectors)
     set_centers_deg = _cluster_centers_to_axial_azimuths(kmeans.cluster_centers_)
+    log.debug("Automatic azimuth set centers determined: %s", set_centers_deg)
     return set_labels, set_centers_deg
