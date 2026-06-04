@@ -146,10 +146,12 @@ def automatic_azimuth_sets(
     """
     azimuths = np.asarray(azimuths_deg, dtype=float)
     lengths = np.asarray(length_array, dtype=float)
+
     if azimuths.shape != lengths.shape:
         raise ValueError("length_array must have the same shape as azimuths_deg.")
     if n_sets > azimuths.size:
         raise ValueError("n_sets cannot be larger than the number of azimuths.")
+
     log.debug(
         "Clustering %s azimuths into %s sets with random_state=%s.",
         azimuths.size,
@@ -157,11 +159,14 @@ def automatic_azimuth_sets(
         random_state,
     )
     unit_vectors = _azimuths_to_axial_unit_vectors(azimuths)
+
     kmeans = KMeans(n_clusters=n_sets, random_state=random_state, n_init=10)
     set_labels = kmeans.fit_predict(unit_vectors, sample_weight=lengths)
     log.debug("KMeans determined set labels: %s", set_labels)
+
     set_centers_deg = _cluster_centers_to_axial_azimuths(kmeans.cluster_centers_)
     set_ranges = _cluster_ranges(azimuths, set_labels, n_sets)
     log.debug("Automatic azimuth set centers determined: %s", set_centers_deg)
     log.debug("Automatic azimuth set ranges determined: %s", set_ranges)
+
     return set_centers_deg, set_ranges
