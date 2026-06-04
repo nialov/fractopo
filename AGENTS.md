@@ -17,5 +17,8 @@
     environment of `fractopo`. This applies to any commands listed in
     this `AGENTS.md` file.
 -   Test Python code with `pytest`
+-   Test Sphinx-Gallery examples by building docs, not by running example
+    scripts directly. Use `nix develop -c python3 -m sphinx docs_src/ <DOCS_OUTPUT_DIR>`.
+    The official docs build is `nix build .#fractopo.passthru.documentation.doc`.
 -   Use `prek` to lint and format code:
     `prek run --all-files`
