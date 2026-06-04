@@ -10,38 +10,24 @@ and compare the detected centers to a rose plot of the same network.
 # Initializing
 # ------------
 
-from pathlib import Path
 from pprint import pprint
 
-import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 
-from fractopo import Network
-from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
+# Load kb11_network network from examples/example_data.py
+from example_data import KB11_NETWORK
 
-PROJECT_BASE_PATH = Path().resolve().parent
+from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
 
 # %%
 # Input azimuths
 # --------------
 #
-# Use trace azimuths from the KB7 example network. These are axial azimuths in
+# Use trace azimuths from the KB11 example network. These are axial azimuths in
 # the range [0, 180), so 0° and 180° represent the same direction.
 
-trace_gdf = gpd.read_file(PROJECT_BASE_PATH / "tests/sample_data/KB7/KB7_traces.geojson")
-area_gdf = gpd.read_file(PROJECT_BASE_PATH / "tests/sample_data/KB7/KB7_area.geojson")
-kb7_network = Network(
-    name="KB7",
-    trace_gdf=trace_gdf,
-    area_gdf=area_gdf,
-    truncate_traces=True,
-    circular_target_area=False,
-    determine_branches_nodes=True,
-    snap_threshold=0.001,
-)
-
-azimuths = kb7_network.trace_azimuth_array
+azimuths = KB11_NETWORK.trace_azimuth_array
 print(f"Number of trace azimuths: {azimuths.size}")
 pprint(azimuths[:10])
 
@@ -64,20 +50,27 @@ pprint(np.round(np.sort(centers), 1))
 # --------------------------------------------------------
 
 unique_labels, counts = np.unique(labels, return_counts=True)
-for label, center, count in sorted(zip(unique_labels, centers, counts), key=lambda row: row[1]):
+for label, center, count in sorted(
+    zip(unique_labels, centers, counts), key=lambda row: row[1]
+):
     print(f"Set {label}: center={center:.1f}°, count={count}")
 
 # %%
 # Visualize the detected set centers together with a rose plot
 # ------------------------------------------------------------
 
-_, fig, ax = kb7_network.plot_trace_azimuth()
+_, fig, ax = KB11_NETWORK.plot_trace_azimuth()
 for center in centers:
     radians = np.deg2rad(center)
     ax.plot([radians, radians], [0, ax.get_ylim()[1]], linestyle="--", linewidth=2)
-    ax.plot([radians + np.pi, radians + np.pi], [0, ax.get_ylim()[1]], linestyle="--", linewidth=2)
+    ax.plot(
+        [radians + np.pi, radians + np.pi],
+        [0, ax.get_ylim()[1]],
+        linestyle="--",
+        linewidth=2,
+    )
 
-ax.set_title("KB7 trace azimuths with automatically detected set centers")
+ax.set_title("KB11 trace azimuths with automatically detected set centers")
 plt.show()
 
 # %%
