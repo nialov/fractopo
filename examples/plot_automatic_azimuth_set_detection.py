@@ -31,6 +31,7 @@ from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
 # the range [0, 180), so 0° and 180° represent the same direction.
 
 azimuths = KB11_NETWORK.trace_azimuth_array
+lengths = KB11_NETWORK.trace_length_array
 print(f"Number of trace azimuths: {azimuths.size}")
 pprint(azimuths[:10])
 
@@ -39,10 +40,16 @@ pprint(azimuths[:10])
 # -------------------------
 #
 # Choose the number of sets to detect and keep the example deterministic by
-# passing an explicit random state.
+# passing an explicit random state. Fracture lengths are used as weights, so
+# longer traces influence the detected centers more strongly.
 
 n_sets = 3
-centers, ranges = automatic_azimuth_sets(azimuths, n_sets=n_sets, random_state=0)
+centers, ranges = automatic_azimuth_sets(
+    azimuths,
+    lengths,
+    n_sets=n_sets,
+    random_state=0,
+)
 
 print(f"Detected {n_sets} sets")
 print("Detected center azimuths (degrees):")
@@ -83,7 +90,7 @@ plt.show()
 # --------------------------------------------------------------------
 
 kb11_network_automatic_sets = Network(
-    trace_gdf=KB11_NETWORK.trace_gdf,
+    trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
     area_gdf=KB11_NETWORK.area_gdf,
     name="KB11 automatic sets",
     truncate_traces=KB11_NETWORK.truncate_traces,
@@ -94,9 +101,8 @@ kb11_network_automatic_sets = Network(
     azimuth_set_ranges=ranges,
 )
 
-pprint(
-    (
-        kb11_network_automatic_sets.azimuth_set_names,
-        kb11_network_automatic_sets.azimuth_set_ranges,
-    )
+pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)
+
+kb11_network_automatic_sets.plot_trace_azimuth(
+    visualize_sets=True, add_abundance_order=True
 )

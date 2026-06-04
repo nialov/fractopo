@@ -27,12 +27,17 @@ NDArrayWithDips = Annotated[
 
 NDArrayWithDipDirections = Annotated[
     NDArray,
-    Is[lambda arr: all((arr >= 0.0) & (arr <= 360.0))],
+    Is[lambda arr: all((arr >= 0.0) & (arr <= 360.0)) and arr.ndim == 1],
+]
+
+NDArrayWithAxialAzimuths = Annotated[
+    NDArray,
+    Is[lambda arr: arr.ndim == 1 and np.all((arr >= 0.0) & (arr <= 180.0))],
 ]
 
 NDArrayWithPositives = Annotated[
     NDArray,
-    Is[lambda arr: all(arr >= 0.0)],
+    Is[lambda arr: arr.ndim == 1 and np.all(arr > 0.0)],
 ]
 
 NDArray1D = Annotated[NDArray, Is[lambda arr: arr.ndim == 1]]

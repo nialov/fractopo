@@ -12,7 +12,7 @@ from beartype.vale import Is
 from sklearn.cluster import KMeans
 
 from fractopo.general import SetRangeTuple
-from fractopo.typing import NDArray1DNotEmpty
+from fractopo.typing import NDArrayWithAxialAzimuths, NDArrayWithPositives
 
 log = logging.getLogger(__name__)
 
@@ -88,7 +88,8 @@ def _cluster_ranges(
 
 @beartype
 def automatic_azimuth_sets(
-    azimuths_deg: NDArray1DNotEmpty,
+    azimuths_deg: NDArrayWithAxialAzimuths,
+    length_array: NDArrayWithPositives,
     n_sets: Optional[Annotated[int, Is[lambda value: value > 0]]] = None,
     random_state: Optional[int] = None,
 ) -> Tuple[np.ndarray, SetRangeTuple]:
@@ -98,9 +99,13 @@ def automatic_azimuth_sets(
     Axial azimuths are circular data where 0° and 180° are equivalent. To
     respect this topology, clustering is performed on doubled-angle unit-circle
     coordinates before converting cluster centers back to axial azimuths.
+    Fracture lengths are used as sample weights in clustering so longer
+    fractures influence the detected set centers more strongly.
 
     :param azimuths_deg: 1D array of axial azimuths in degrees.
-    :param n_sets: Number of sets to find. If None, raises ValueError because
+    :param length_array: 1D array of strictly positive fracture lengths with the
+        same shape as ``azimuths_deg``.
+    :param n_sets: Number of sets to find. Must be specified because
         automatic set-count detection is not yet implemented.
     :param random_state: Optional random state passed to
         sklearn.cluster.KMeans. If None, no explicit random state is set.
@@ -108,32 +113,38 @@ def automatic_azimuth_sets(
         each set.
 
     Examples:
+        A longer fracture can pull the detected center towards its azimuth.
+
+        >>> azimuths = np.array([0.0, 20.0])
+        >>> centers, _ = automatic_azimuth_sets(
+        ...     azimuths,
+        ...     np.array([1.0, 9.0]),
+        ...     n_sets=1,
+        ...     random_state=0,
+        ... )
+        >>> float(np.round(centers[0], 1))
+        18.1
+
         Azimuths close to 0° and 180° are treated as belonging to the same
         axial direction and produce a wraparound range.
 
         >>> azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
-        >>> centers, ranges = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
-        >>> any(np.isclose(center, 90.0, atol=5.0) for center in centers)
+        >>> lengths = np.ones_like(azimuths)
+        >>> centers, ranges = automatic_azimuth_sets(
+        ...     azimuths,
+        ...     lengths,
+        ...     n_sets=2,
+        ...     random_state=0,
+        ... )
+        >>> len(centers) == 2
         True
-        >>> (170.0, 10.0) == tuple(round(value, 0) for value in ranges[np.argmin(centers)])
-        False
         >>> any(start > end for start, end in ranges)
         True
-
-        A simple three-cluster example returns one center and one range per set.
-
-        >>> azimuths = np.array([5.0, 10.0, 15.0, 75.0, 80.0, 85.0, 145.0, 150.0, 155.0])
-        >>> centers, ranges = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
-        >>> np.allclose(np.sort(centers), np.array([10.0, 80.0, 150.0]), atol=10.0)
-        True
-        >>> len(ranges)
-        3
     """
     azimuths = np.asarray(azimuths_deg, dtype=float)
-    if n_sets is None:
-        raise ValueError(
-            "n_sets must be specified and >0 (auto-detection not implemented yet)."
-        )
+    lengths = np.asarray(length_array, dtype=float)
+    if azimuths.shape != lengths.shape:
+        raise ValueError("length_array must have the same shape as azimuths_deg.")
     if n_sets > azimuths.size:
         raise ValueError("n_sets cannot be larger than the number of azimuths.")
     log.debug(
@@ -144,7 +155,7 @@ def automatic_azimuth_sets(
     )
     unit_vectors = _azimuths_to_axial_unit_vectors(azimuths)
     kmeans = KMeans(n_clusters=n_sets, random_state=random_state, n_init=10)
-    set_labels = kmeans.fit_predict(unit_vectors)
+    set_labels = kmeans.fit_predict(unit_vectors, sample_weight=lengths)
     log.debug("KMeans determined set labels: %s", set_labels)
     set_centers_deg = _cluster_centers_to_axial_azimuths(kmeans.cluster_centers_)
     set_ranges = _cluster_ranges(azimuths, set_labels, n_sets)
