@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import assume, example, given, settings
 from hypothesis.extra import numpy as hypothesis_numpy
 from hypothesis.strategies import integers
 
@@ -47,6 +47,8 @@ def test_automatic_azimuth_sets_returns_labels_and_centers():
     assert centers.shape == (3,)
 
 
+@example(np.array([0.0, 90.0]))
+@example(np.array([178.0, 2.0, 88.0, 92.0]))
 @given(
     hypothesis_numpy.arrays(
         dtype=np.float64,
