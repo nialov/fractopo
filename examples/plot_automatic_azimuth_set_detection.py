@@ -20,6 +20,7 @@ import numpy as np
 # Load kb11_network network from examples/example_data.py
 from example_data import KB11_NETWORK
 
+from fractopo import Network
 from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
 
 # %%
@@ -78,7 +79,24 @@ ax.set_title(
 plt.show()
 
 # %%
-# The detected ranges can be passed to ``Network`` as azimuth set inputs
-# ----------------------------------------------------------------------
+# Create a new ``Network`` using the automatically detected set ranges
+# --------------------------------------------------------------------
 
-pprint((azimuth_set_names, ranges))
+kb11_network_automatic_sets = Network(
+    trace_gdf=KB11_NETWORK.trace_gdf,
+    area_gdf=KB11_NETWORK.area_gdf,
+    name="KB11 automatic sets",
+    truncate_traces=KB11_NETWORK.truncate_traces,
+    circular_target_area=KB11_NETWORK.circular_target_area,
+    determine_branches_nodes=KB11_NETWORK.determine_branches_nodes,
+    snap_threshold=KB11_NETWORK.snap_threshold,
+    azimuth_set_names=azimuth_set_names,
+    azimuth_set_ranges=ranges,
+)
+
+pprint(
+    (
+        kb11_network_automatic_sets.azimuth_set_names,
+        kb11_network_automatic_sets.azimuth_set_ranges,
+    )
+)
