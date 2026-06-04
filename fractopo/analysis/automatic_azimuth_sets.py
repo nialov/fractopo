@@ -49,7 +49,7 @@ def _cluster_centers_to_axial_azimuths(cluster_centers: np.ndarray) -> np.ndarra
 def automatic_azimuth_sets(
     azimuths_deg: NDArray1DNotEmpty,
     n_sets: Optional[Annotated[int, Is[lambda value: value > 0]]] = None,
-    random_state: int = 42,
+    random_state: Optional[int] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Automatically detect fracture sets in axial azimuth data.
@@ -61,7 +61,8 @@ def automatic_azimuth_sets(
     :param azimuths_deg: 1D array of axial azimuths in degrees.
     :param n_sets: Number of sets to find. If None, raises ValueError because
         automatic set-count detection is not yet implemented.
-    :param random_state: Random state passed to sklearn.cluster.KMeans.
+    :param random_state: Optional random state passed to
+        sklearn.cluster.KMeans. If None, no explicit random state is set.
     :return: Cluster labels for each azimuth and center azimuths for each set.
 
     Examples:
