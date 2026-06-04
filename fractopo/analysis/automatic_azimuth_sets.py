@@ -54,52 +54,48 @@ def automatic_azimuth_sets(
     """
     Automatically detect fracture sets in axial azimuth data.
 
-    Parameters
-    ----------
-    azimuths_deg
-        1D array of axial azimuths in degrees.
-    n_sets
-        Number of sets to find. If None, raises ValueError because automatic
-        set-count detection is not yet implemented.
-    random_state
-        Random state passed to sklearn.cluster.KMeans.
-
-    Returns
-    -------
-    set_labels
-        Cluster label for each azimuth.
-    set_centers
-        Center (mean axial azimuth, degrees in [0, 180)) of each set.
-
-    Notes
-    -----
     Axial azimuths are circular data where 0° and 180° are equivalent. To
     respect this topology, clustering is performed on doubled-angle unit-circle
     coordinates before converting cluster centers back to axial azimuths.
 
-    Examples
-    --------
-    Azimuths close to 0° and 180° are treated as belonging to the same axial
-    direction.
+    :param azimuths_deg: 1D array of axial azimuths in degrees.
+    :param n_sets: Number of sets to find. If None, raises ValueError because
+        automatic set-count detection is not yet implemented.
+    :param random_state: Random state passed to sklearn.cluster.KMeans.
+    :return: Cluster labels for each azimuth and center azimuths for each set.
 
-    >>> azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
-    >>> labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
-    >>> len(set(labels[:4])) == 1
-    True
-    >>> bool(labels[4] == labels[5])
-    True
-    >>> any(np.isclose(center, 90.0, atol=5.0) for center in centers)
-    True
+    Examples:
+        Azimuths close to 0° and 180° are treated as belonging to the same
+        axial direction.
 
-    A simple three-cluster example returns one label per input and one center
-    per requested set.
+        >>> azimuths = np.array([178.0, 179.0, 1.0, 2.0, 88.0, 92.0])
+        >>> labels, centers = automatic_azimuth_sets(azimuths, n_sets=2, random_state=0)
+        >>> len(set(labels[:4])) == 1
+        True
+        >>> bool(labels[4] == labels[5])
+        True
+        >>> any(np.isclose(center, 90.0, atol=5.0) for center in centers)
+        True
 
-    >>> azimuths = np.array([5.0, 10.0, 15.0, 75.0, 80.0, 85.0, 145.0, 150.0, 155.0])
-    >>> labels, centers = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
-    >>> labels.shape
-    (9,)
-    >>> np.allclose(np.sort(centers), np.array([10.0, 80.0, 150.0]), atol=10.0)
-    True
+        A simple three-cluster example returns one label per input and one
+        center per requested set.
+
+        >>> azimuths = np.array([
+        ...     5.0,
+        ...     10.0,
+        ...     15.0,
+        ...     75.0,
+        ...     80.0,
+        ...     85.0,
+        ...     145.0,
+        ...     150.0,
+        ...     155.0,
+        ... ])
+        >>> labels, centers = automatic_azimuth_sets(azimuths, n_sets=3, random_state=0)
+        >>> labels.shape
+        (9,)
+        >>> np.allclose(np.sort(centers), np.array([10.0, 80.0, 150.0]), atol=10.0)
+        True
     """
     azimuths = np.asarray(azimuths_deg, dtype=float)
     if n_sets is None:
