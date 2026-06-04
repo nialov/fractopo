@@ -8,6 +8,7 @@ from hypothesis.strategies import composite, integers
 from fractopo.analysis.automatic_azimuth_sets import (
     _smallest_covering_axial_range,
     automatic_azimuth_sets,
+    trim_azimuth_set_ranges,
 )
 from fractopo.general import is_set
 
@@ -94,6 +95,38 @@ def test_automatic_azimuth_sets_returns_centers_and_ranges():
     assert len(ranges) == 3
 
 
+def test_trim_azimuth_set_ranges_creates_background_points():
+    """Test trimming a set range can reclassify edge fractures as background."""
+    azimuths = np.array([10.0, 12.0, 14.0, 30.0])
+    lengths = np.array([1.0, 3.0, 3.0, 3.0])
+    trimmed_ranges, labels = trim_azimuth_set_ranges(
+        azimuths,
+        lengths,
+        ((10.0, 30.0),),
+        retained_length_fraction=0.6,
+    )
+    assert np.allclose(trimmed_ranges[0], (12.0, 14.0))
+    assert tuple(labels) == ("background", "0", "0", "background")
+
+
+def test_trim_azimuth_set_ranges_wraparound():
+    """Test trimming preserves wraparound semantics for axial sets."""
+    azimuths = np.array([178.0, 179.0, 1.0, 2.0, 20.0])
+    lengths = np.array([4.0, 4.0, 4.0, 4.0, 1.0])
+    trimmed_ranges, labels = trim_azimuth_set_ranges(
+        azimuths,
+        lengths,
+        ((178.0, 20.0),),
+        retained_length_fraction=0.75,
+    )
+    assert trimmed_ranges[0][0] > trimmed_ranges[0][1]
+    assert all(
+        is_set(azimuth, trimmed_ranges[0], loop_around=True)
+        for azimuth in np.array([178.0, 179.0, 1.0])
+    )
+    assert labels[-1] == "background"
+
+
 @composite
 def azimuths_and_lengths(draw):
     size = draw(integers(min_value=2, max_value=12))
@@ -175,3 +208,52 @@ def test_automatic_azimuth_sets_invalid_inputs(
     """Test that invalid inputs are rejected by contract checks or runtime guards."""
     with pytest.raises(expected_exception):
         automatic_azimuth_sets(azimuths, lengths, n_sets=n_sets)
+
+
+@pytest.mark.parametrize(
+    (
+        "azimuths",
+        "lengths",
+        "set_ranges",
+        "retained_length_fraction",
+        "expected_exception",
+    ),
+    [
+        (
+            np.array([0.0, 1.0]),
+            np.ones(3),
+            ((0.0, 1.0),),
+            0.6,
+            ValueError,
+        ),
+        (
+            np.array([0.0, 1.0]),
+            np.ones(2),
+            (),
+            0.6,
+            ValueError,
+        ),
+        (
+            np.array([0.0, 1.0]),
+            np.ones(2),
+            ((0.0, 1.0),),
+            0.0,
+            BeartypeCallHintParamViolation,
+        ),
+    ],
+)
+def test_trim_azimuth_set_ranges_invalid_inputs(
+    azimuths,
+    lengths,
+    set_ranges,
+    retained_length_fraction,
+    expected_exception,
+):
+    """Test invalid inputs to trimming are rejected."""
+    with pytest.raises(expected_exception):
+        trim_azimuth_set_ranges(
+            azimuths,
+            lengths,
+            set_ranges,
+            retained_length_fraction=retained_length_fraction,
+        )

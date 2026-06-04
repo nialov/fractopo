@@ -21,7 +21,11 @@ import numpy as np
 from example_data import KB11_NETWORK
 
 from fractopo import Network
-from fractopo.analysis.automatic_azimuth_sets import automatic_azimuth_sets
+from fractopo.analysis.automatic_azimuth_sets import (
+    automatic_azimuth_sets,
+    trim_azimuth_set_ranges,
+)
+from fractopo.general import determine_set
 
 # %%
 # Input azimuths
@@ -86,8 +90,38 @@ ax.set_title(
 plt.show()
 
 # %%
-# Create a new ``Network`` using the automatically detected set ranges
-# --------------------------------------------------------------------
+# Trim detected ranges and label fractures outside them as background
+# -----------------------------------------------------------------
+
+trimmed_ranges, trimmed_labels = trim_azimuth_set_ranges(
+    azimuths,
+    lengths,
+    ranges,
+    retained_length_fraction=0.6,
+)
+trimmed_set_names = tuple(f"{start:.0f}-{end:.0f}" for start, end in trimmed_ranges)
+
+background_labels = np.array(
+    [
+        determine_set(
+            value=azimuth,
+            value_ranges=trimmed_ranges,
+            set_names=trimmed_set_names,
+            loop_around=True,
+            null_set="background",
+        )
+        for azimuth in azimuths
+    ]
+)
+
+print("Trimmed set ranges (degrees):")
+pprint(tuple(tuple(np.round(range_tuple, 1)) for range_tuple in trimmed_ranges))
+print("Background-classified trace counts:")
+pprint(dict(zip(*np.unique(background_labels, return_counts=True), strict=True)))
+
+# %%
+# Create a new ``Network`` using the trimmed set ranges
+# -----------------------------------------------------
 
 kb11_network_automatic_sets = Network(
     trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
@@ -97,8 +131,8 @@ kb11_network_automatic_sets = Network(
     circular_target_area=KB11_NETWORK.circular_target_area,
     determine_branches_nodes=KB11_NETWORK.determine_branches_nodes,
     snap_threshold=KB11_NETWORK.snap_threshold,
-    azimuth_set_names=azimuth_set_names,
-    azimuth_set_ranges=ranges,
+    azimuth_set_names=trimmed_set_names,
+    azimuth_set_ranges=trimmed_ranges,
 )
 
 pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)

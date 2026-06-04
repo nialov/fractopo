@@ -11,7 +11,7 @@ from beartype.typing import Annotated, Optional, Tuple
 from beartype.vale import Is
 from sklearn.cluster import KMeans
 
-from fractopo.general import SetRangeTuple
+from fractopo.general import SetRangeTuple, determine_set
 from fractopo.typing import NDArrayWithAxialAzimuths, NDArrayWithPositives
 
 log = logging.getLogger(__name__)
@@ -84,6 +84,182 @@ def _cluster_ranges(
         _smallest_covering_axial_range(azimuths_deg[set_labels == label])
         for label in range(n_sets)
     )
+
+
+@beartype
+def _unwrap_axial_range(
+    azimuths_deg: np.ndarray, range_tuple: Tuple[float, float]
+) -> np.ndarray:
+    """Unwrap axial azimuths into a monotonic interval defined by ``range_tuple``."""
+    start, end = range_tuple
+    azimuths = azimuths_deg % 180
+    if start <= end:
+        return azimuths
+    return np.where(azimuths < start, azimuths + 180.0, azimuths)
+
+
+@beartype
+def _trim_unwrapped_cluster_range_by_length_fraction(
+    unwrapped_azimuths_deg: np.ndarray,
+    length_array: np.ndarray,
+    retained_length_fraction: float,
+) -> Tuple[float, float]:
+    """
+    Return the narrowest unwrapped range containing the target length fraction.
+
+    Examples
+    --------
+    Keep only the narrowest interval that still contains the requested share
+    of the total fracture length.
+
+    >>> _trim_unwrapped_cluster_range_by_length_fraction(
+    ...     np.array([10.0, 12.0, 14.0, 30.0]),
+    ...     np.array([1.0, 3.0, 3.0, 3.0]),
+    ...     0.6,
+    ... )
+    (12.0, 14.0)
+    """
+    sort_idx = np.argsort(unwrapped_azimuths_deg)
+    sorted_azimuths = unwrapped_azimuths_deg[sort_idx]
+    sorted_lengths = length_array[sort_idx]
+    target_length = retained_length_fraction * sorted_lengths.sum()
+    cumulative_lengths = np.concatenate(([0.0], np.cumsum(sorted_lengths)))
+
+    best_range = (float(sorted_azimuths[0]), float(sorted_azimuths[-1]))
+    best_width = best_range[1] - best_range[0]
+    right = 0
+
+    for left in range(sorted_azimuths.size):
+        right = max(right, left)
+        while right < sorted_azimuths.size:
+            retained_length = cumulative_lengths[right + 1] - cumulative_lengths[left]
+            if retained_length >= target_length:
+                break
+            right += 1
+        if right == sorted_azimuths.size:
+            break
+        candidate_range = (float(sorted_azimuths[left]), float(sorted_azimuths[right]))
+        candidate_width = candidate_range[1] - candidate_range[0]
+        if candidate_width < best_width:
+            best_range = candidate_range
+            best_width = candidate_width
+
+    return best_range
+
+
+@beartype
+def trim_azimuth_set_ranges(
+    azimuths_deg: NDArrayWithAxialAzimuths,
+    length_array: NDArrayWithPositives,
+    set_ranges: SetRangeTuple,
+    retained_length_fraction: Annotated[float, Is[lambda value: 0 < value <= 1]],
+    background_set_name: str = "background",
+) -> Tuple[SetRangeTuple, np.ndarray]:
+    """
+    Trim detected axial set ranges to retain only a target fracture-length fraction.
+
+    The current implementation trims each detected set independently by finding
+    the narrowest axial sub-range that contains at least the requested fraction
+    of the fracture length already assigned to that set.
+
+    :param azimuths_deg: 1D array of axial azimuths in degrees.
+    :param length_array: 1D array of strictly positive fracture lengths with the
+        same shape as ``azimuths_deg``.
+    :param set_ranges: Initial axial set ranges, typically from
+        :func:`automatic_azimuth_sets`.
+    :param retained_length_fraction: Fraction of assigned fracture length to
+        retain inside each trimmed set range.
+    :param background_set_name: Label assigned to fractures outside all trimmed
+        set ranges.
+    :return: Trimmed set ranges and fracture labels using integer-like string
+        set names plus the background label.
+
+    Examples
+    --------
+    Tight clusters do not always justify keeping the full original set range.
+    Here the edge fractures at 10° and 30° are reclassified as background after
+    trimming the set to retain 60% of its assigned total length in the tight
+    core of the cluster.
+
+    >>> azimuths = np.array([10.0, 12.0, 14.0, 30.0])
+    >>> lengths = np.array([1.0, 3.0, 3.0, 3.0])
+    >>> trimmed_ranges, labels = trim_azimuth_set_ranges(
+    ...     azimuths,
+    ...     lengths,
+    ...     ((10.0, 30.0),),
+    ...     retained_length_fraction=0.6,
+    ... )
+    >>> trimmed_ranges
+    ((12.0, 14.0),)
+    >>> tuple(str(label) for label in labels)
+    ('background', '0', '0', 'background')
+
+    Axial wraparound is preserved, so a set around 0°/180° can still be
+    trimmed without losing its circular meaning.
+
+    >>> azimuths = np.array([178.0, 179.0, 1.0, 2.0, 20.0])
+    >>> lengths = np.array([4.0, 4.0, 4.0, 4.0, 1.0])
+    >>> trimmed_ranges, labels = trim_azimuth_set_ranges(
+    ...     azimuths,
+    ...     lengths,
+    ...     ((178.0, 20.0),),
+    ...     retained_length_fraction=0.75,
+    ... )
+    >>> trimmed_ranges[0][0] > trimmed_ranges[0][1]
+    True
+    >>> tuple(str(label) for label in labels)
+    ('0', '0', '0', '0', 'background')
+    """
+    azimuths = np.asarray(azimuths_deg, dtype=float)
+    lengths = np.asarray(length_array, dtype=float)
+
+    if azimuths.shape != lengths.shape:
+        raise ValueError("length_array must have the same shape as azimuths_deg.")
+    if len(set_ranges) == 0:
+        raise ValueError("set_ranges must not be empty.")
+
+    set_names = tuple(str(idx) for idx in range(len(set_ranges)))
+    initial_labels = np.array(
+        [
+            determine_set(
+                value=azimuth,
+                value_ranges=set_ranges,
+                set_names=set_names,
+                loop_around=True,
+                null_set=background_set_name,
+            )
+            for azimuth in azimuths
+        ]
+    )
+
+    trimmed_ranges = []
+    for set_name, range_tuple in zip(set_names, set_ranges):
+        set_mask = initial_labels == set_name
+        if not np.any(set_mask):
+            trimmed_ranges.append(range_tuple)
+            continue
+        unwrapped_azimuths = _unwrap_axial_range(azimuths[set_mask], range_tuple)
+        trimmed_start, trimmed_end = _trim_unwrapped_cluster_range_by_length_fraction(
+            unwrapped_azimuths,
+            lengths[set_mask],
+            retained_length_fraction,
+        )
+        trimmed_ranges.append((trimmed_start % 180.0, trimmed_end % 180.0))
+
+    trimmed_ranges_tuple = tuple(trimmed_ranges)
+    trimmed_labels = np.array(
+        [
+            determine_set(
+                value=azimuth,
+                value_ranges=trimmed_ranges_tuple,
+                set_names=set_names,
+                loop_around=True,
+                null_set=background_set_name,
+            )
+            for azimuth in azimuths
+        ]
+    )
+    return trimmed_ranges_tuple, trimmed_labels
 
 
 @beartype
