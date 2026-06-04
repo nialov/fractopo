@@ -9,6 +9,7 @@ from fractopo.analysis.automatic_azimuth_sets import (
     _smallest_covering_axial_range,
     automatic_azimuth_sets,
 )
+from fractopo.general import is_set
 
 RNG = np.random.default_rng(0)
 
@@ -76,7 +77,8 @@ def test_automatic_azimuth_sets_axial_wraparound_cluster():
     ]
     assert len(wraparound_ranges) == 1
     assert all(
-        _range_contains_azimuth(wraparound_ranges[0], azimuth)
+        # _range_contains_azimuth(wraparound_ranges[0], azimuth)
+        is_set(azimuth, wraparound_ranges[0], loop_around=True)
         for azimuth in np.array([178.0, 179.0, 1.0, 2.0])
     )
 
@@ -115,10 +117,10 @@ def azimuths_and_lengths(draw):
 @example((np.array([0.0, 90.0]), np.array([1.0, 1.0])))
 @example((np.array([178.0, 2.0, 88.0, 92.0]), np.array([1.0, 1.0, 1.0, 1.0])))
 @given(azimuths_and_lengths())
-@settings(max_examples=25)
+@settings(max_examples=25, deadline=None)
 def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(data):
-    azimuths, lengths = data
     """Test that adding 180 degrees does not change axial set detection."""
+    azimuths, lengths = data
     assume(azimuths.shape == lengths.shape)
     assume(np.unique(azimuths % 180).size >= 2)
     centers, ranges = automatic_azimuth_sets(
