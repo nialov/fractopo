@@ -355,7 +355,7 @@ def is_set(
     True
 
     :param value: Value to determine.
-    :param value_range Tuple[float,: The range of values.
+    :param value_range: The range of values.
     :param loop_around: Whether the range loops around. This is the case for
         radial data such as azimuths but not the case for length data.
     :return: Is it within range.
