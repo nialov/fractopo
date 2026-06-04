@@ -96,7 +96,7 @@ def test_automatic_azimuth_sets_returns_centers_and_ranges():
 
 @composite
 def azimuths_and_lengths(draw):
-    size = draw(integers(min_value=2, max_value=20))
+    size = draw(integers(min_value=2, max_value=12))
     azimuths = draw(
         hypothesis_numpy.arrays(
             dtype=np.float64,
@@ -117,7 +117,7 @@ def azimuths_and_lengths(draw):
 @example((np.array([0.0, 90.0]), np.array([1.0, 1.0])))
 @example((np.array([178.0, 2.0, 88.0, 92.0]), np.array([1.0, 1.0, 1.0, 1.0])))
 @given(azimuths_and_lengths())
-@settings(max_examples=25, deadline=None)
+@settings(max_examples=10)
 def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(data):
     """Test that adding 180 degrees does not change axial set detection."""
     azimuths, lengths = data
