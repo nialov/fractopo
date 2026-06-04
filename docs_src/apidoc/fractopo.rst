@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    fractopo.analysis
+   fractopo.interop
    fractopo.tval
 
 Submodules
@@ -41,6 +42,14 @@ fractopo.general module
 -----------------------
 
 .. automodule:: fractopo.general
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+fractopo.typing module
+----------------------
+
+.. automodule:: fractopo.typing
    :members:
    :show-inheritance:
    :undoc-members:

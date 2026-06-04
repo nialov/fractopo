@@ -12,6 +12,14 @@ fractopo.analysis.anisotropy module
    :show-inheritance:
    :undoc-members:
 
+fractopo.analysis.automatic\_azimuth\_sets module
+-------------------------------------------------
+
+.. automodule:: fractopo.analysis.automatic_azimuth_sets
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 fractopo.analysis.azimuth module
 --------------------------------
 
