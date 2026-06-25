@@ -471,7 +471,6 @@ class MultiLengthDistribution:
         )
 
 
-@general.JOBLIB_CACHE.cache
 @beartype
 def determine_fit(
     length_array: np.ndarray, cut_off: Optional[float] = None
