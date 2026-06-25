@@ -21,6 +21,7 @@ dependencies:
   - typer
   - joblib
   - beartype
+  - psutil
   # Dependencies for testing
   - hypothesis
   - pytest
