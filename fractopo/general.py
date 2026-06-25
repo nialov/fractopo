@@ -50,12 +50,6 @@ from sklearn.linear_model import LinearRegression
 log = logging.getLogger(__name__)
 
 
-class ShapefileLimitWarning(UserWarning):
-    """
-    Shapefile export truncates or renames some field names.
-    """
-
-
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
     "color": "white",
@@ -2031,7 +2025,7 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
         warnings.warn(
             "Shapefile export truncates long field names and may rename columns; "
             "use GPKG or GeoJSON for full names.",
-            ShapefileLimitWarning,
+            UserWarning,
             stacklevel=2,
         )
         with warnings.catch_warnings():
