@@ -5,6 +5,7 @@
   pytest,
   geopandas,
   joblib,
+  psutil,
   matplotlib,
   numpy,
   pandas,
@@ -148,6 +149,7 @@ let
       shapely
       typer
       beartype
+      psutil
     ];
 
     optional-dependencies = {

@@ -3318,10 +3318,9 @@ wcwidth = "*"
 name = "psutil"
 version = "7.2.2"
 description = "Cross-platform lib for process and system monitoring."
-optional = true
+optional = false
 python-versions = ">=3.6"
 groups = ["main"]
-markers = "extra == \"dev\" or extra == \"api\""
 files = [
     {file = "psutil-7.2.2-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:2edccc433cbfa046b980b0df0171cd25bcaeb3a68fe9022db0979e7aa74a826b"},
     {file = "psutil-7.2.2-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:e78c8603dcd9a04c7364f1a3e670cea95d51ee865e4efb3556a3a63adef958ea"},
@@ -5742,4 +5741,4 @@ dev = ["codespell", "cogapp", "coverage", "hypothesis", "ipython", "ipython", "j
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "cd115b4b1b6aa98e1ab0ade7a353694760c5f6a267cdce93f33b62fc4afb8d3f"
+content-hash = "c9519cf66e268ceb5c132aea2b058d4866ec6bb1e9a929548f62b6faa8c91214"
