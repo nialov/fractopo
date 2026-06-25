@@ -2,6 +2,7 @@
 Tests for general utilities.
 """
 
+import warnings
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
@@ -205,6 +206,40 @@ def test_total_bounds(geodata):
     result = general.total_bounds(geodata=geodata)
     assert isinstance(result, tuple)
     assert len(result) == 4
+
+
+def test_write_geodataframe_warns_once_and_silences_driver_warnings(tmp_path):
+    """
+    Test shapefile export emits one fractopo warning instead of driver spam.
+    """
+    geodataframe = gpd.GeoDataFrame(
+        {
+            "VALIDATION_ERRORS": ["()"],
+            "boundary_weight": [1.0],
+            "azimuth_set": ["1"],
+            "geometry": [LineString([(0, 0), (1, 1)])],
+        },
+        geometry="geometry",
+    )
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        general.write_geodataframe(geodataframe, "test_output", tmp_path)
+
+    shapefile_warnings = [
+        warning
+        for warning in caught
+        if isinstance(warning.message, general.ShapefileLimitWarning)
+    ]
+    assert len(shapefile_warnings) == 1
+    assert all(
+        "Column names longer than 10 characters" not in str(warning.message)
+        for warning in caught
+    )
+    assert all(
+        "Normalized/laundered field name:" not in str(warning.message)
+        for warning in caught
+    )
 
 
 class DetermineSetParam(NamedTuple):

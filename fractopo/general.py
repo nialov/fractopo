@@ -8,6 +8,7 @@ import math
 import os
 import random
 import re
+import warnings
 from bisect import bisect
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
@@ -47,6 +48,13 @@ from shapely.ops import split
 from sklearn.linear_model import LinearRegression
 
 log = logging.getLogger(__name__)
+
+
+class ShapefileLimitWarning(UserWarning):
+    """
+    Shapefile export truncates or renames some field names.
+    """
+
 
 styled_text_dict = {
     "path_effects": [path_effects.withStroke(linewidth=3, foreground="k")],
@@ -2020,7 +2028,24 @@ def write_geodataframe(geodataframe: gpd.GeoDataFrame, name: str, results_dir: P
     try:
         shp_dir = results_dir / f"{name}_as_shp"
         shp_dir.mkdir(exist_ok=False)
-        geodataframe.to_file(shp_dir / f"{name}.shp")
+        warnings.warn(
+            "Shapefile export truncates long field names and may rename columns; "
+            "use GPKG or GeoJSON for full names.",
+            ShapefileLimitWarning,
+            stacklevel=2,
+        )
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="Column names longer than 10 characters will be truncated.*",
+                category=UserWarning,
+            )
+            warnings.filterwarnings(
+                "ignore",
+                message="Normalized/laundered field name: .*",
+                category=RuntimeWarning,
+            )
+            geodataframe.to_file(shp_dir / f"{name}.shp")
     except Exception:
         log.error(error_base.format(name, "ESRI Shapefile (.shp)"), exc_info=True)
     try:
