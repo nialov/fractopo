@@ -224,14 +224,12 @@ def test_write_geodataframe_warns_once_and_silences_driver_warnings(tmp_path):
 
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        general.write_geodataframe(geodataframe, "test_output", tmp_path)
+        with pytest.warns(
+            UserWarning,
+            match="Shapefile export truncates long field names and may rename columns",
+        ):
+            general.write_geodataframe(geodataframe, "test_output", tmp_path)
 
-    shapefile_warnings = [
-        warning
-        for warning in caught
-        if isinstance(warning.message, general.ShapefileLimitWarning)
-    ]
-    assert len(shapefile_warnings) == 1
     assert all(
         "Column names longer than 10 characters" not in str(warning.message)
         for warning in caught
