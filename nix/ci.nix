@@ -123,7 +123,7 @@ in
                   name = "Build documentation";
                   run = ''
                     nix build .#fractopo.passthru.documentation.doc
-                    cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/html ./docs
+                    cp -Lr --no-preserve=mode,ownership,timestamps ./result-doc/share/doc/"$(nix eval --raw .#fractopo.name)"/dirhtml ./docs
                   '';
 
                 }
