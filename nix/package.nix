@@ -103,6 +103,7 @@ let
         doCheck = false;
         dependencies = [ prevAttrs.dependencies ] ++ prevAttrs.optional-dependencies.dev;
         sphinxRoot = "docs_src";
+        sphinxBuilders = "dirhtml";
         outputs = [
           "out"
           "doc"
