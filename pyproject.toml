@@ -120,7 +120,8 @@ filterwarnings =[
     "ignore:'asyncio.WindowsSelectorEventLoopPolicy' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
     "ignore:'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
     # Windows threadpoolctl warning: Found Intel OpenMP ('libiomp') and LLVM OpenMP ('libomp') loaded
-    "ignore:.*multiple_openmp.*:RuntimeWarning",
+    "ignore: \\nFound Intel:RuntimeWarning",
+    "ignore:\\nFound Intel:RuntimeWarning",
 ]
 
 # [tool.isort]
