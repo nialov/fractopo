@@ -62,7 +62,7 @@ class EllipticalFracture(NamedTuple):
         azimuth = determine_azimuth(ls, halved=True)
         strike_angle = convert_azimuth_to_strike(azimuth)
         center_x, center_y = bary.x, bary.y
-        axis = ls.length
+        axis = ls.length / 2
         major_axis = minor_axis = axis
         major_axis_angle = 0.0
         strike_angle_rad = np.deg2rad(strike_angle)
@@ -89,7 +89,7 @@ class EllipticalFracture(NamedTuple):
     ) -> "EllipticalFracture":
         strike_angle = calc_strike(dip_direction=dip_direction)
         center_x, center_y = point.x, point.y
-        axis = length
+        axis = length / 2
         major_axis = minor_axis = axis
         major_axis_angle = 0.0
         strike_angle_rad = np.deg2rad(strike_angle)
@@ -428,7 +428,7 @@ def export_traces_to_porepy_3d_csv_format(
     >>> traces = gpd.GeoDataFrame(geometry=[LineString([(0, 0), (1, 1)])])
     >>> dip_values = np.array([45])
     >>> print(export_traces_to_porepy_3d_csv_format(traces, dip_values, y_scale=None))
-    0.5,0.5,0.0,1.4142135623730951,1.4142135623730951,0.0,0.7853981633974483,0.7853981633974483
+    0.5,0.5,0.0,0.7071067811865476,0.7071067811865476,0.0,0.7853981633974483,0.7853981633974483
     """
     linestrings, x_min, y_min, x_max, y_max, scale = prepare_geometries_for_export(
         geometries=traces,

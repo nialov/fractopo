@@ -7,6 +7,9 @@ from shapely.geometry import LineString
 from fractopo.interop.porepy import (
     _extract_network_fracture_set_samples,
     check_porepy_2d_csv_format,
+    convert_azimuth_to_strike,
+    determine_azimuth,
+    export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     scale_geometries_to_local,
 )
@@ -104,19 +107,43 @@ def test_export_traces_to_porepy_3d_csv_format(traces, dip_values, y_scale, z_va
     )
     lines = [line for line in csv_out.strip().split("\n")]
     assert len(lines) == len(traces)
-    # If scaling is applied, need to get scaling factor
-
     if y_scale is not None:
-        *_, scale = scale_geometries_to_local(traces, y_scale)
+        expected_traces, *_ = scale_geometries_to_local(traces, y_scale)
     else:
-        scale = 1.0
+        expected_traces = traces
 
-    for line, expected_dip, trace in zip(lines, dip_values, traces):
+    for line, expected_dip, trace in zip(lines, dip_values, expected_traces):
         fields = [float(x) for x in line.split(",")]
         assert len(fields) == 8
-        # Major/minor axes equal to (possibly scaled) trace length
-        scaled_length = trace.length * scale
+        # PorePy axes are (possibly scaled) trace semi-lengths.
+        assert np.allclose(
+            fields[:2], trace.interpolate(0.5, normalized=True).coords[0]
+        )
+        scaled_semi_length = trace.length / 2
         assert abs(fields[3] - fields[4]) < 1e-8
-        assert np.isclose(fields[3], scaled_length, atol=1e-8)
+        assert np.isclose(fields[3], scaled_semi_length, atol=1e-8)
+        expected_strike = convert_azimuth_to_strike(
+            determine_azimuth(trace, halved=True)
+        )
+        assert np.isclose(fields[6], np.deg2rad(expected_strike), atol=1e-8)
         # Dip angle (rad) must match input dip within numerical conversion to radians
         assert np.isclose(fields[7], np.deg2rad(expected_dip), atol=1e-8)
+
+
+def test_export_structural_measurements_to_porepy_3d_csv_format():
+    csv_out = export_structural_measurements_to_porepy_3d_csv_format(
+        dip_values=np.array([30.0]),
+        dip_direction_values=np.array([120.0]),
+        length_values=np.array([10.0]),
+        measurement_points=[LineString([(2, 3), (2, 3)]).centroid],
+        y_scale=None,
+        z_values=np.array([7.0]),
+    )
+
+    fields = [float(value) for value in csv_out.split(",")]
+    assert len(fields) == 8
+    assert np.allclose(fields[:3], [2.0, 3.0, 7.0])
+    assert np.allclose(fields[3:5], [5.0, 5.0])
+    assert np.isclose(fields[5], 0.0)
+    assert np.isclose(fields[6], np.deg2rad(30.0))
+    assert np.isclose(fields[7], np.deg2rad(30.0))
