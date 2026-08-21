@@ -175,6 +175,18 @@ in
                   }
                 ];
             };
+            link-check = {
+              needs = [ "nix-fast-build" ];
+              steps = baseNixSteps ++ [
+                {
+                  name = "Check documentation links with lychee";
+                  run = ''
+                    nix run .#check-links
+                  '';
+
+                }
+              ];
+            };
             docker = lib.recursiveUpdate publishPackages {
               needs = [ "nix-fast-build" ];
               steps =

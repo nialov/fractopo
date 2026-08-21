@@ -1,0 +1,4 @@
+accept = [ "200", "403" ]
+exclude = [
+    '^http://localhost.*',                    # specific URL
+]
