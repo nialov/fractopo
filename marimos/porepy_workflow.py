@@ -154,9 +154,9 @@ def _(mo, np, output_path):
     import porepy as pp
 
     porepy_network = pp.fracture_importer.network_from_csv(output_path, has_domain=True)
-    fracture_centers = np.asarray(
-        [fracture.center for fracture in porepy_network.fractures]
-    ).T
+    fracture_centers = np.hstack(
+        [np.asarray(fracture.center) for fracture in porepy_network.fractures]
+    )
     mo.md(
         "### PorePy import\n\n"
         f"PorePy created a `{type(porepy_network).__name__}` containing "
