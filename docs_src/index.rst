@@ -155,7 +155,7 @@ Cross-cutting and abutting relationships                  `Relationships 1`_; `R
 Geometric and topological fracture network parameters     `Parameters`_
 Contour grids of fracture network parameters              `Contour-grids`_
 Multi-scale length distributions                          `Multi-scale`_
-Automatic azimuth set detection                           `Multi-scale`_
+Automatic azimuth set detection                           `Automatic-set`_
 ========================================================  ======================
 
 .. _Validation 1:
@@ -450,7 +450,7 @@ Development
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 1ceab8a4ece87955857ed96233a57765)
+.. [[[end]]] (checksum: 1dd98b47c9d6145cb66a4e9415aa9841)
 
 .. toctree::
    :maxdepth: 1

@@ -138,7 +138,7 @@ Cross-cutting and abutting relationships                  `Relationships 1`_; `R
 Geometric and topological fracture network parameters     `Parameters`_
 Contour grids of fracture network parameters              `Contour-grids`_
 Multi-scale length distributions                          `Multi-scale`_
-Automatic azimuth set detection                           `Multi-scale`_
+Automatic azimuth set detection                           `Automatic-set`_
 ========================================================  ======================
 
 .. _Validation 1:
