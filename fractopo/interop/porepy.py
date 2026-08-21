@@ -197,7 +197,39 @@ def export_network_to_porepy_3d_csv_format(
     ],
     rng: Optional[np.random.Generator] = None,
 ) -> str:
-    """Export a seeded, empirically sampled circular fracture population."""
+    """Export a Network's empirical fracture population for PorePy 3D loading.
+
+    The v1 source is a ``Network``.  Trace observations are grouped by the
+    named sets in ``network.azimuth_set_names``; set quotas are proportional
+    to usable-row counts, and rows are sampled with replacement.  Pass a
+    caller-owned ``numpy.random.Generator`` for reproducible output::
+
+        csv_text = export_network_to_porepy_3d_csv_format(
+            network,
+            fracture_count=100,
+            bounds=(0, 0, 0, 10, 10, 10),
+            rng=np.random.default_rng(42),
+        )
+        Path("fractures.csv").write_text(csv_text)
+
+    ``bounds`` are ordered ``(xmin, ymin, zmin, xmax, ymax, zmax)``.  The
+    first output row is the PorePy cuboid domain; subsequent rows have the
+    eight fields ``CENTER_X,CENTER_Y,CENTER_Z,MAJOR_AXIS,MINOR_AXIS,
+    MAJOR_AXIS_ANGLE,STRIKE_ANGLE,DIP_ANGLE``.  Centres are sampled inside
+    the cuboid independently, but fracture disks are not guaranteed to fit
+    inside it.  Circular semi-axes are half the sampled observed trace
+    length.  The trace azimuth is used as strike (in radians); PorePy's
+    right-hand rule implies the dip direction, so no dip-direction field is
+    read or emitted.
+
+    Fitted powerlaw distributions are intentionally not sampled in v1:
+    empirical resampling is reproducible from the supplied Generator, while
+    powerlaw ``generate_random`` uses global NumPy randomness and does not
+    honour ``xmax``.  PorePy is not imported by this function.  Load the
+    resulting file in PorePy with, for example (not executed here)::
+
+        pp.network_from_csv(path, has_domain=True)
+    """
     if (
         isinstance(fracture_count, bool)
         or not isinstance(fracture_count, (int, np.integer))
