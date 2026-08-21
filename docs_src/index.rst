@@ -21,7 +21,7 @@ fractopo
 |PyPI Status| |CI Test| |Conda Test| |Binder| |Zenodo| |JOSS| |Conda Version|
 
 -  `Full Documentation is hosted on GitHub
-   <https://nialov.github.io/fractopo/index.html#full-documentation>`__
+   <https://nialov.github.io/fractopo#full-documentation>`__
 
 ``fractopo`` is a Python library/application that contains tools for
 validating and analysing lineament and fracture trace maps (fracture
@@ -155,36 +155,39 @@ Cross-cutting and abutting relationships                  `Relationships 1`_; `R
 Geometric and topological fracture network parameters     `Parameters`_
 Contour grids of fracture network parameters              `Contour-grids`_
 Multi-scale length distributions                          `Multi-scale`_
+Automatic azimuth set detection                           `Multi-scale`_
 ========================================================  ======================
 
 .. _Validation 1:
-   https://nialov.github.io/fractopo/notebooks/fractopo_validation_1.html
+   https://nialov.github.io/fractopo/notebooks/fractopo_validation_1
 .. _Validation 2:
-   https://nialov.github.io/fractopo/notebooks/fractopo_validation_2.html
+   https://nialov.github.io/fractopo/notebooks/fractopo_validation_2
 .. _Visualizing:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Visualizing-trace-map-data
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Visualizing-trace-map-data
 .. _Network:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Network
 .. _Topological:
-   https://nialov.github.io/fractopo/auto_examples/plot_branches_and_nodes.html#sphx-glr-auto-examples-plot-branches-and-nodes-py
+   https://nialov.github.io/fractopo/auto_examples/plot_branches_and_nodes
 .. _Length-distributions:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Length-distributions
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Length-distributions
 .. _Orientation 1:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Rose-plots
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Rose-plots
 .. _Orientation 2:
-   https://nialov.github.io/fractopo/auto_examples/plot_rose_plot.html#sphx-glr-auto-examples-plot-rose-plot-py
+   https://nialov.github.io/fractopo/auto_examples/plot_rose_plot
 .. _Proportions:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Node-and-branch-proportions
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Node-and-branch-proportions
 .. _Relationships 1:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Crosscutting-and-abutting-relationships
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Crosscutting-and-abutting-relationships
 .. _Relationships 2:
-   https://nialov.github.io/fractopo/auto_examples/plot_azimuth_set_relationships.html#sphx-glr-auto-examples-plot-azimuth-set-relationships-py
+   https://nialov.github.io/fractopo/auto_examples/plot_azimuth_set_relationships
 .. _Parameters:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Numerical-Fracture-Network-Characterization-Parameters
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Numerical-Fracture-Network-Characterization-Parameters
 .. _Contour-grids:
-   https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Contour-Grids
+   https://nialov.github.io/fractopo/notebooks/fractopo_network_1#Contour-Grids
 .. _Multi-scale:
-   https://nialov.github.io/fractopo/auto_examples/plot_multi_scale_networks.html#sphx-glr-auto-examples-plot-multi-scale-networks-py
+   https://nialov.github.io/fractopo/auto_examples/plot_multi_scale_networks
+.. _Automatic-set:
+   https://nialov.github.io/fractopo/auto_examples/plot_automatic_azimuth_set_detection
 
 For a short tutorial on use of ``fractopo``, continue reading:
 
@@ -220,7 +223,7 @@ Trace data must be validated using ``fractopo`` validation functionality
 before analysis. The topological analysis of lineament & fracture traces
 implemented in ``fractopo`` will not tolerate uncertainty related to the
 topological abutting and snapping relationships between traces. See `the
-documentation <https://nialov.github.io/fractopo/validation/errors.html>`__
+documentation <https://nialov.github.io/fractopo/validation/errors>`__
 for further info on validation error types. Trace validation is
 recommended before all analysis using ``Network``. Trace and target area
 data can be validated for further analysis with a ``Validation`` object:
@@ -341,9 +344,9 @@ Documentation
 -------------
 
 Please visit the full documentation at:
-https://nialov.github.io/fractopo/index.html. I recommend starting with
+https://nialov.github.io/fractopo/. I recommend starting with
 the tutorial notebook demonstrating network analysis functionality at
-https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html. The
+https://nialov.github.io/fractopo/notebooks/fractopo_network_1. The
 documentation source is in ``docs_src`` and ``examples`` directories and
 is built with ``sphinx``.
 
@@ -410,7 +413,7 @@ are referred to multiple sources:
    -  `powerlaw GitHub <https://github.com/jeffalstott/powerlaw>`__
 
 -  `Bonnet et al.,
-   2001 <https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/1999RG000074>`__
+   2001 <https://doi.org/10.1029/1999RG000074>`__
 
    -  Length distribution modelling review.
 
@@ -447,7 +450,7 @@ Development
    :target: https://mybinder.org/v2/gh/nialov/fractopo/HEAD?filepath=docs_src%2Fnotebooks%2Ffractopo_network_1.ipynb
 .. |Zenodo| image:: https://zenodo.org/badge/297451015.svg
    :target: https://zenodo.org/badge/latestdoi/297451015
-.. [[[end]]] (checksum: 8d559c942e5cf20231276cc7514a79f4)
+.. [[[end]]] (checksum: 1ceab8a4ece87955857ed96233a57765)
 
 .. toctree::
    :maxdepth: 1
