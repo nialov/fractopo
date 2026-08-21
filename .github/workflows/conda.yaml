@@ -24,6 +24,9 @@ jobs:
       run: python -c 'import fractopo'
     - name: Test module entrypoint
       run: python -m fractopo --help
+    - if: ${{ matrix.platform }} == 'windows-latest'
+      name: Set OMP_NUM_THREADS on Windows for kmeans
+      run: echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
     - name: Run unittests with pytest
       run: pytest -v
     strategy:
