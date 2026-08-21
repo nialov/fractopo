@@ -15,10 +15,25 @@ from fractopo.general import is_set
 RNG = np.random.default_rng(0)
 
 
-def test_smallest_covering_axial_range_wraparound():
-    """Test that wraparound axial ranges are represented with start > end."""
-    result = _smallest_covering_axial_range(np.array([170.0, 175.0, 5.0, 10.0]))
-    assert np.allclose(result, (170.0, 10.0))
+@pytest.mark.parametrize(
+    ("azimuths", "expected_range"),
+    [
+        pytest.param(
+            np.array([170.0, 175.0, 5.0, 10.0]),
+            (170.0, 10.0),
+            id="wraparound-range",
+        ),
+        pytest.param(
+            np.array([70.0]),
+            (70.0, 70.0),
+            id="singleton-range",
+        ),
+    ],
+)
+def test_smallest_covering_axial_range_known_cases(azimuths, expected_range):
+    """Test known smallest-covering axial range cases."""
+    result = _smallest_covering_axial_range(azimuths)
+    assert np.allclose(result, expected_range)
 
 
 def test_automatic_azimuth_sets_perfect_clusters():
@@ -118,6 +133,64 @@ def test_trim_azimuth_set_ranges_wraparound():
     assert labels[-1] == "background"
 
 
+@pytest.mark.parametrize(
+    (
+        "azimuths",
+        "lengths",
+        "set_ranges",
+        "retained_length_fraction",
+        "expected_ranges",
+        "expected_labels",
+    ),
+    [
+        pytest.param(
+            np.array([10.0, 12.0, 14.0, 30.0]),
+            np.array([1.0, 3.0, 3.0, 3.0]),
+            ((10.0, 30.0),),
+            1.0,
+            ((10.0, 30.0),),
+            ("0", "0", "0", "0"),
+            id="full-retained-fraction-keeps-single-range",
+        ),
+        pytest.param(
+            np.array([178.0, 179.0, 1.0, 2.0]),
+            np.ones(4),
+            ((178.0, 20.0),),
+            1.0,
+            ((178.0, 2.0),),
+            ("0", "0", "0", "0"),
+            id="full-retained-fraction-shrinks-wraparound-to-data-support",
+        ),
+        pytest.param(
+            np.array([10.0, 12.0, 14.0]),
+            np.ones(3),
+            ((10.0, 20.0), (80.0, 100.0)),
+            1.0,
+            ((10.0, 14.0), (80.0, 100.0)),
+            ("0", "0", "0"),
+            id="empty-set-range-is-left-unchanged",
+        ),
+    ],
+)
+def test_trim_azimuth_set_ranges_known_cases(
+    azimuths,
+    lengths,
+    set_ranges,
+    retained_length_fraction,
+    expected_ranges,
+    expected_labels,
+):
+    """Test known trimming cases."""
+    trimmed_ranges, labels = trim_azimuth_set_ranges(
+        azimuths,
+        lengths,
+        set_ranges,
+        retained_length_fraction=retained_length_fraction,
+    )
+    assert trimmed_ranges == expected_ranges
+    assert tuple(labels) == expected_labels
+
+
 @composite
 def azimuths_and_lengths(draw):
     size = draw(integers(min_value=2, max_value=12))
@@ -138,6 +211,21 @@ def azimuths_and_lengths(draw):
     return azimuths, lengths
 
 
+@example(np.array([170.0, 175.0, 5.0, 10.0]))
+@given(
+    hypothesis_numpy.arrays(
+        dtype=np.int64,
+        shape=integers(min_value=1, max_value=20),
+        elements=integers(min_value=0, max_value=179),
+    )
+)
+@settings(max_examples=25)
+def test_smallest_covering_axial_range_contains_all_input_azimuths(azimuths):
+    """Test returned axial range contains every input azimuth."""
+    result = _smallest_covering_axial_range(azimuths)
+    assert all(is_set(azimuth, result, loop_around=True) for azimuth in azimuths)
+
+
 @example((np.array([0.0, 90.0]), np.array([1.0, 1.0])))
 @example((np.array([178.0, 2.0, 88.0, 92.0]), np.array([1.0, 1.0, 1.0, 1.0])))
 @given(azimuths_and_lengths())
@@ -145,7 +233,6 @@ def azimuths_and_lengths(draw):
 def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(data):
     """Test that adding 180 degrees does not change axial set detection."""
     azimuths, lengths = data
-    assume(azimuths.shape == lengths.shape)
     assume(np.unique(azimuths % 180).size >= 2)
     centers, ranges = automatic_azimuth_sets(
         azimuths,
@@ -208,14 +295,14 @@ def test_automatic_azimuth_sets_is_invariant_under_adding_180_degrees(data):
             np.ones(3),
             1,
             ValueError,
-            id="array-shapes-must-match",
+            id="azimuths-and-lengths-shape-mismatch",
         ),
         pytest.param(
             np.array([0.0, 1.0]),
             np.array([1.0, np.inf]),
             1,
             ValueError,
-            id="lengths-must-be-finite",
+            id="lengths-contain-infinity",
         ),
         pytest.param(
             np.array([0.0, 1.0]),
@@ -249,7 +336,7 @@ def test_automatic_azimuth_sets_invalid_inputs(
             ((0.0, 1.0),),
             0.6,
             ValueError,
-            id="array-shapes-must-match",
+            id="azimuths-and-lengths-shape-mismatch",
         ),
         pytest.param(
             np.array([0.0, 1.0]),
@@ -306,6 +393,14 @@ def test_automatic_azimuth_sets_invalid_inputs(
             0.6,
             ValueError,
             id="set-ranges-must-be-finite",
+        ),
+        pytest.param(
+            np.array([0.0, 1.0]),
+            np.ones(2),
+            ((0.0,),),
+            0.6,
+            BeartypeCallHintParamViolation,
+            id="set-ranges-must-contain-two-values",
         ),
     ],
 )
