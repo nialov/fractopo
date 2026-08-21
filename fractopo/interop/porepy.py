@@ -184,6 +184,69 @@ def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
 
 
 @beartype
+def export_network_to_porepy_3d_csv_format(
+    network,
+    fracture_count: int,
+    bounds: tuple[
+        SupportsFloat,
+        SupportsFloat,
+        SupportsFloat,
+        SupportsFloat,
+        SupportsFloat,
+        SupportsFloat,
+    ],
+    rng: Optional[np.random.Generator] = None,
+) -> str:
+    """Export a seeded, empirically sampled circular fracture population."""
+    if (
+        isinstance(fracture_count, bool)
+        or not isinstance(fracture_count, (int, np.integer))
+        or fracture_count <= 0
+    ):
+        raise ValueError("fracture_count must be a positive integer")
+    if len(bounds) != 6:
+        raise ValueError("bounds must contain xmin, ymin, zmin, xmax, ymax, zmax")
+    bounds = tuple(float(value) for value in bounds)
+    if not all(np.isfinite(value) for value in bounds):
+        raise ValueError("bounds must be finite")
+    xmin, ymin, zmin, xmax, ymax, zmax = bounds
+    if not (xmin < xmax and ymin < ymax and zmin < zmax):
+        raise ValueError("bounds must be strictly increasing on every axis")
+
+    samples = _extract_network_fracture_set_samples(network)
+    generator = np.random.default_rng() if rng is None else rng
+    names = list(samples.proportions)
+    raw = np.array([samples.proportions[name] * fracture_count for name in names])
+    quotas = np.floor(raw).astype(int)
+    for index in np.argsort(-(raw - quotas), kind="stable")[
+        : fracture_count - quotas.sum()
+    ]:
+        quotas[index] += 1
+
+    rows = [f"{xmin},{ymin},{zmin},{xmax},{ymax},{zmax}"]
+    for name, quota in zip(names, quotas):
+        for _ in range(quota):
+            source = int(generator.choice(len(samples.length[name])))
+            center = (
+                generator.uniform(xmin, xmax),
+                generator.uniform(ymin, ymax),
+                generator.uniform(zmin, zmax),
+            )
+            fracture = EllipticalFracture(
+                center_x=center[0],
+                center_y=center[1],
+                center_z=center[2],
+                major_axis=samples.length[name][source] / 2,
+                minor_axis=samples.length[name][source] / 2,
+                major_axis_angle=0.0,
+                strike_angle_rad=np.deg2rad(samples.azimuth[name][source]),
+                dip_angle_rad=np.deg2rad(samples.dip[name][source]),
+            )
+            rows.append(fracture.to_csv_row())
+    return "\n".join(rows)
+
+
+@beartype
 def scale_geometries_to_local(
     geometries: list, y_scale: SupportsFloat
 ) -> tuple[

@@ -9,6 +9,7 @@ from fractopo.interop.porepy import (
     check_porepy_2d_csv_format,
     convert_azimuth_to_strike,
     determine_azimuth,
+    export_network_to_porepy_3d_csv_format,
     export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     scale_geometries_to_local,
@@ -73,6 +74,57 @@ def test_extract_network_fracture_set_samples_rejects_all_invalid():
 )
 def test_check_porepy_2d_csv_format_passes(csv_text):
     assert check_porepy_2d_csv_format(csv_text=csv_text)
+
+
+def test_export_network_to_porepy_3d_csv_format():
+    network = SimpleNamespace(
+        azimuth_set_names=("manual", "automatic", "unused"),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["manual", "manual", "automatic", "-1"]),
+            azimuth_array=np.array([10.0, 11.0, 20.0, 30.0]),
+            length_array=np.array([4.0, 6.0, 8.0, 10.0]),
+        ),
+        trace_gdf={"dip": np.array([20.0, 30.0, 40.0, 50.0])},
+    )
+    bounds = (0.0, 10.0, 20.0, 1.0, 11.0, 21.0)
+    first = export_network_to_porepy_3d_csv_format(
+        network, 4, bounds, np.random.default_rng(7)
+    )
+    second = export_network_to_porepy_3d_csv_format(
+        network, 4, bounds, np.random.default_rng(7)
+    )
+    assert first == second
+    lines = first.splitlines()
+    assert [float(value) for value in lines[0].split(",")] == list(bounds)
+    assert len(lines) == 5
+    for line in lines[1:]:
+        fields = np.asarray([float(value) for value in line.split(",")])
+        assert fields.size == 8 and np.all(np.isfinite(fields))
+        assert fields[3] == fields[4] > 0
+        assert 0 <= fields[0] <= 1 and 10 <= fields[1] <= 11
+        assert 20 <= fields[2] <= 21
+    # Counts are 2:1, so largest remainder gives one automatic sample;
+    # its source strike/dip and semi-axis are all observable in the output.
+    assert any(
+        np.isclose(float(row.split(",")[6]), np.deg2rad(20)) for row in lines[1:]
+    )
+    assert any(
+        np.isclose(float(row.split(",")[7]), np.deg2rad(40)) for row in lines[1:]
+    )
+    assert all(float(row.split(",")[3]) in (2.0, 3.0, 4.0) for row in lines[1:])
+
+
+@pytest.mark.parametrize(
+    "count,bounds,error",
+    [
+        (0, (0, 0, 0, 1, 1, 1), "positive integer"),
+        (1, (0, 0, 0, 0, 1, 1), "strictly increasing"),
+        (1, (0, 0, np.inf, 1, 1, 1), "finite"),
+    ],
+)
+def test_export_network_to_porepy_3d_csv_format_validates(count, bounds, error):
+    with pytest.raises(ValueError, match=error):
+        export_network_to_porepy_3d_csv_format(SimpleNamespace(), count, bounds)
 
 
 @pytest.mark.parametrize(
