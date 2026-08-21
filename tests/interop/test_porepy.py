@@ -1,8 +1,11 @@
+from types import SimpleNamespace
+
 import numpy as np
 import pytest
 from shapely.geometry import LineString
 
 from fractopo.interop.porepy import (
+    _extract_network_fracture_set_samples,
     check_porepy_2d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     scale_geometries_to_local,
@@ -17,6 +20,39 @@ EXAMPLE_POREPY_2D_CSV_WITH_COMMENTS = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
 EXAMPLE_POREPY_2D_CSV_WITHOUT_COMMENTS = """-54900, 6730000, -52000, 6733000
 -5.361122869999999966e+04,6.732113743700000457e+06,-5.466355320000000211e+04,6.730962761900000274e+06
 """
+
+
+def test_extract_network_fracture_set_samples_filters_and_counts():
+    network = SimpleNamespace(
+        azimuth_set_names=("north", "south"),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["north", "north", "south", "-1", "south"]),
+            azimuth_array=np.array([10.0, np.nan, 40.0, 50.0, 60.0]),
+            length_array=np.array([2.0, 3.0, 4.0, 5.0, 0.0]),
+        ),
+        trace_gdf={"dip": np.array([20.0, 30.0, 40.0, 50.0, 100.0])},
+    )
+
+    samples = _extract_network_fracture_set_samples(network)
+
+    np.testing.assert_array_equal(samples.azimuth["north"], [10.0])
+    np.testing.assert_array_equal(samples.dip["south"], [40.0])
+    np.testing.assert_array_equal(samples.length["south"], [4.0])
+    assert samples.proportions == {"north": 0.5, "south": 0.5}
+
+
+def test_extract_network_fracture_set_samples_rejects_all_invalid():
+    network = SimpleNamespace(
+        azimuth_set_names=("north",),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["-1"]),
+            azimuth_array=np.array([10.0]),
+            length_array=np.array([1.0]),
+        ),
+        trace_gdf={"dip": np.array([20.0])},
+    )
+    with pytest.raises(ValueError, match="usable.*set"):
+        _extract_network_fracture_set_samples(network)
 
 
 @pytest.mark.parametrize(

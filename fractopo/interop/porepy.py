@@ -18,6 +18,7 @@ from numpy.typing import NDArray
 from shapely.geometry import LineString, Point
 
 from fractopo.general import (
+    NULL_SET,
     calc_strike,
     determine_azimuth,
     get_trace_endpoints,
@@ -32,6 +33,15 @@ from fractopo.typing import (
 )
 
 log = logging.getLogger(__name__)
+
+
+class _FractureSetSamples(NamedTuple):
+    """Aligned usable observations grouped by azimuth set."""
+
+    azimuth: dict[str, NDArray[np.floating]]
+    dip: dict[str, NDArray[np.floating]]
+    length: dict[str, NDArray[np.floating]]
+    proportions: dict[str, float]
 
 
 class EllipticalFracture(NamedTuple):
@@ -111,6 +121,66 @@ class EllipticalFracture(NamedTuple):
                 ),
             )
         )
+
+
+@beartype
+def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
+    """Extract usable, aligned trace observations from a ``Network``.
+
+    Only the calculated trace-data arrays and the configured set names are
+    used for set membership.  Dip is the sole orientation value read from
+    ``trace_gdf``; dip direction is intentionally not part of this boundary.
+    """
+    trace_data = network.trace_data
+    labels = np.asarray(trace_data.azimuth_set_array)
+    azimuth = np.asarray(trace_data.azimuth_array, dtype=float)
+    length = np.asarray(trace_data.length_array, dtype=float)
+
+    if "dip" not in network.trace_gdf:
+        raise ValueError("no usable fracture set remains: trace_gdf is missing dip")
+    try:
+        dip = np.asarray(network.trace_gdf["dip"], dtype=float)
+    except (TypeError, ValueError) as error:
+        raise ValueError(
+            "no usable fracture set remains: dip is not numeric"
+        ) from error
+
+    if not (len(labels) == len(azimuth) == len(length) == len(dip)):
+        raise ValueError(
+            "no usable fracture set remains: trace data arrays are misaligned"
+        )
+
+    arrays = {name: ([], [], []) for name in network.azimuth_set_names}
+    for label, azi, dip_value, trace_length in zip(labels, azimuth, dip, length):
+        if (
+            label == NULL_SET
+            or label not in arrays
+            or not np.isfinite(azi)
+            or not np.isfinite(dip_value)
+            or not 0 <= dip_value <= 90
+            or not np.isfinite(trace_length)
+            or trace_length <= 0
+        ):
+            continue
+        arrays[label][0].append(azi)
+        arrays[label][1].append(dip_value)
+        arrays[label][2].append(trace_length)
+
+    usable = {
+        name: tuple(np.asarray(values, dtype=float) for values in grouped)
+        for name, grouped in arrays.items()
+        if grouped[0]
+    }
+    if not usable:
+        raise ValueError("no usable named fracture set remains")
+    count = sum(len(values[0]) for values in usable.values())
+
+    return _FractureSetSamples(
+        azimuth={name: values[0] for name, values in usable.items()},
+        dip={name: values[1] for name, values in usable.items()},
+        length={name: values[2] for name, values in usable.items()},
+        proportions={name: len(values[0]) / count for name, values in usable.items()},
+    )
 
 
 @beartype
