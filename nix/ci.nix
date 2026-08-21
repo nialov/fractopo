@@ -266,17 +266,26 @@ in
               timeout-minutes = 30;
               strategy = {
                 fail-fast = false;
-                matrix = {
-                  # Test same Python versions as for poetry job
-                  inherit (config.workflows.".github/workflows/main.yaml".jobs.poetry.strategy.matrix)
-                    python-version
-                    ;
-                  platform = [
-                    "ubuntu-latest"
-                    "macos-latest"
-                    "windows-latest"
-                  ];
-                };
+                matrix =
+                  let
+                    inherit (config.workflows.".github/workflows/main.yaml".jobs.poetry.strategy.matrix)
+                      python-version
+                      ;
+                    # Only test oldest and newest Python in conda
+                    python-version-conda = [
+                      (lib.lists.elemAt python-version 0)
+                      (lib.lists.last python-version)
+                    ];
+                  in
+                  {
+                    # Test same Python versions as for poetry job
+                    python-version = python-version-conda;
+                    platform = [
+                      "ubuntu-latest"
+                      "macos-latest"
+                      "windows-latest"
+                    ];
+                  };
               };
               runs-on = "\${{ matrix.platform }}";
               defaults.run.shell = "bash -l {0}";
