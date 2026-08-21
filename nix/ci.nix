@@ -280,41 +280,52 @@ in
               };
               runs-on = "\${{ matrix.platform }}";
               defaults.run.shell = "bash -l {0}";
-              steps = [
+              steps =
+                let
+                  isWindows = "\${{ matrix.platform }} == 'windows-latest'";
+                in
+                [
 
-                actionsCheckout
-                {
-                  uses = "mamba-org/setup-micromamba@v2";
-                  "with" = {
-                    micromamba-version = "1.5.6-0";
-                    environment-file = "environment.yaml";
-                    init-shell = "bash powershell";
-                    cache-environment = true;
-                    cache-downloads = true;
-                    post-cleanup = "all";
-                    create-args = "python=\${{ matrix.python-version }}";
-                  };
-                }
-                {
-                  name = "Test package import";
-                  run = ''
-                    python -c 'import fractopo'
-                  '';
-                }
-                {
-                  name = "Test module entrypoint";
-                  run = ''
-                    python -m fractopo --help
-                  '';
-                }
-                {
-                  name = "Run unittests with pytest";
-                  run = ''
-                    pytest -v
-                  '';
-                }
+                  actionsCheckout
+                  {
+                    uses = "mamba-org/setup-micromamba@v2";
+                    "with" = {
+                      micromamba-version = "1.5.6-0";
+                      environment-file = "environment.yaml";
+                      init-shell = "bash powershell";
+                      cache-environment = true;
+                      cache-downloads = true;
+                      post-cleanup = "all";
+                      create-args = "python=\${{ matrix.python-version }}";
+                    };
+                  }
+                  {
+                    name = "Test package import";
+                    run = ''
+                      python -c 'import fractopo'
+                    '';
+                  }
+                  {
+                    name = "Test module entrypoint";
+                    run = ''
+                      python -m fractopo --help
+                    '';
+                  }
+                  {
+                    name = "Set OMP_NUM_THREADS on Windows for kmeans";
+                    "if" = isWindows;
+                    run = ''
+                      echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+                    '';
+                  }
+                  {
+                    name = "Run unittests with pytest";
+                    run = ''
+                      pytest -v
+                    '';
+                  }
 
-              ];
+                ];
             };
           };
         };
