@@ -45,6 +45,14 @@ fractopo.general module
    :show-inheritance:
    :undoc-members:
 
+fractopo.typing module
+----------------------
+
+.. automodule:: fractopo.typing
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 Module contents
 ---------------
 

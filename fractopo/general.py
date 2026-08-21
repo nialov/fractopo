@@ -25,7 +25,17 @@ import numpy as np
 import pandas as pd
 import sklearn.metrics as sklm
 from beartype import beartype
-from beartype.typing import Any, Callable, Dict, List, Sequence, Set, Tuple, Union
+from beartype.typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Sequence,
+    Set,
+    SupportsFloat,
+    Tuple,
+    Union,
+)
 from geopandas.sindex import SpatialIndex
 from joblib import Memory
 from matplotlib import patheffects as path_effects
@@ -303,6 +313,9 @@ def determine_set(
     >>> determine_set(90.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True)
     '80-100'
 
+    >>> determine_set(70.0, ((80, 100), (160, 60)), ("80-100", "160-60"), True, "-1")
+    '-1'
+
     :param value: Value to determine set of.
     :param value_ranges: Ranges of each set.
     :param set_names: Names of each set.
@@ -344,7 +357,7 @@ def is_set(
     True
 
     :param value: Value to determine.
-    :param value_range Tuple[float,: The range of values.
+    :param value_range: The range of values.
     :param loop_around: Whether the range loops around. This is the case for
         radial data such as azimuths but not the case for length data.
     :return: Is it within range.
@@ -483,7 +496,7 @@ def determine_azimuth(line: LineString, halved: bool) -> float:
 
 
 @beartype
-def calc_strike(dip_direction: float) -> float:
+def calc_strike(dip_direction: SupportsFloat) -> SupportsFloat:
     """
     Calculate strike from dip direction. Right-handed rule.
 
@@ -707,17 +720,6 @@ def get_next_point_in_trace(trace: LineString, point: Point) -> Point:
 
 
 @beartype
-def get_trace_endpoints(
-    trace: LineString,
-) -> Tuple[Point, Point]:
-    """
-    Return endpoints (shapely.geometry.Point) of a given LineString.
-    """
-    points = Point(trace.coords[0]), Point(trace.coords[-1])
-    return points
-
-
-@beartype
 def get_trace_coord_points(trace: LineString) -> List[Point]:
     """
     Get all coordinate Points of a LineString.
@@ -729,6 +731,21 @@ def get_trace_coord_points(trace: LineString) -> List[Point]:
 
     """
     return [Point(xy) for xy in trace.coords]
+
+
+@beartype
+def get_trace_endpoints(trace: LineString) -> Tuple[Point, Point]:
+    """
+    Get end coordinate Points of a LineString.
+
+    >>> trace = LineString([(0, 0), (2, 0), (3, 0)])
+    >>> end_points = get_trace_endpoints(trace)
+    >>> print([p.wkt for p in end_points])
+    ['POINT (0 0)', 'POINT (3 0)']
+
+    """
+    coord_points = get_trace_coord_points(trace)
+    return coord_points[0], coord_points[-1]
 
 
 @beartype
