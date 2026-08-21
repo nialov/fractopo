@@ -58,7 +58,7 @@ pprint(azimuths[:10])
 # fracture length, so longer traces have more influence on the centers.
 # ``random_state`` keeps the example output reproducible; omit it otherwise.
 
-n_sets = 3
+n_sets = 2
 centers, ranges = automatic_azimuth_sets(
     azimuths,
     lengths,
@@ -101,14 +101,19 @@ trimmed_ranges, trimmed_labels = trim_azimuth_set_ranges(
     azimuths,
     lengths,
     ranges,
-    retained_length_fraction=0.6,
+    retained_length_fraction=0.8,
 )
 trimmed_set_names = tuple(f"{start:.0f}-{end:.0f}" for start, end in trimmed_ranges)
 
 print("Trimmed set ranges (degrees):")
 pprint(tuple(tuple(np.round(range_tuple, 1)) for range_tuple in trimmed_ranges))
-print("Background-classified trace counts:")
-pprint(dict(zip(*np.unique(trimmed_labels, return_counts=True), strict=True)))
+print("Classified trace counts, including background fractures:")
+pprint(
+    {
+        str(key): int(val)
+        for key, val in zip(*np.unique(trimmed_labels, return_counts=True), strict=True)
+    }
+)
 
 # %%
 # Build a new ``Network`` with the trimmed set ranges
@@ -129,5 +134,5 @@ kb11_network_automatic_sets = Network(
 pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)
 
 kb11_network_automatic_sets.plot_trace_azimuth(
-    visualize_sets=True, add_abundance_order=True
+    visualize_sets=True, add_abundance_order=True, append_azimuth_set_text=True
 )
