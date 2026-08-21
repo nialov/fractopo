@@ -151,6 +151,23 @@
             ${prev.busybox}/bin/sed -n '3,/## v[[:digit:]].[[:digit:]].[[:digit:]]/p' CHANGELOG.md | head -n -2
           '';
         };
+        check-links = prev.writeShellApplication {
+          name = "check-links";
+          text =
+            let
+              filePatternsArgs = lib.concatStringsSep " " [
+                "README.rst"
+                "docs_src/**/*.rst"
+                "examples/*.py"
+                "CITATION.cff"
+                "CONTRIBUTING.rst"
+                "docs_src/notebooks/*.ipynb"
+              ];
+            in
+            ''
+              ${prev.lychee}/bin/lychee ${filePatternsArgs} -v
+            '';
+        };
       };
 
   in
