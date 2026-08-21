@@ -28,12 +28,11 @@
         _module.args.pkgs = mkNixpkgs inputs.nixpkgs;
         devShells =
           let
-            devShellPackages =
+            baseDevShellPackages =
               with pkgs;
               [
                 prek
                 fhs
-                pythonEnv
                 poetry
                 ruff
                 pandoc
@@ -43,7 +42,24 @@
           in
           {
             default = pkgs.mkShell {
-              packages = devShellPackages;
+              packages = baseDevShellPackages ++ [ pkgs.pythonEnv ];
+              shellHook = config.pre-commit.installationScript + ''
+                export PROJECT_DIR="$PWD"
+                export PYTHONPATH="$PWD":"$PYTHONPATH"
+              '';
+            };
+            fractopo-porepy = pkgs.mkShell {
+              packages = baseDevShellPackages ++ [
+                (pkgs.python312.withPackages (
+                  p:
+                  p.fractopo.dependencies
+                  ++ p.fractopo.optional-dependencies.dev
+                  ++ p.fractopo.optional-dependencies.api
+                  ++ [ p.porepy ]
+                )
+
+                )
+              ];
               shellHook = config.pre-commit.installationScript + ''
                 export PROJECT_DIR="$PWD"
                 export PYTHONPATH="$PWD":"$PYTHONPATH"

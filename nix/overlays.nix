@@ -6,6 +6,7 @@
       pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
         (pythonFinal: _: {
           fractopo = pythonFinal.callPackage ./package.nix { };
+          porepy = pythonFinal.callPackage ./porepy.nix { };
         })
       ];
     };
