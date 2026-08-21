@@ -3,8 +3,20 @@ Automatic azimuth set detection
 ===============================
 
 Detect axial azimuth set centers and ranges with
-``fractopo.analysis.automatic_azimuth_sets``. The example compares the detected
-centers with a rose plot of the same network.
+``fractopo.analysis.automatic_azimuth_sets`` and (optionally) trim them with
+``trim_azimuth_set_ranges``. The example compares the detected centers with a
+rose plot of the same network.
+
+The definition of azimuth sets based only on the orientation and lengths of
+fractures in an area might not reflect how they have actually been formed
+geologically. Consequently, any automatic set detection algorithm result should
+be critically evaluated during deeper analysis of fracturing in an area.
+
+The example here tries to help with a case when fractures seem to have been,
+within the whole target area, clustered in orientation to few specific
+directions. However, not all fractures follow these specific directions
+and they are, consequently, considered "background" fractures. This is
+only one interpretation.
 """
 
 # %%
