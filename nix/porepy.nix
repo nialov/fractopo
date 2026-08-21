@@ -6,7 +6,6 @@
   wheel,
   deepdiff,
   future,
-  pytestCheckHook,
   gmsh,
   matplotlib,
   meshio,
