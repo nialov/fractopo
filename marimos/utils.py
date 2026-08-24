@@ -211,9 +211,9 @@ def parse_network_app_args(
         ]
         azimuth_set_names = tuple(input_azimuth_set_names.value)
     else:
-        print("Using default azimuth sets")
-        azimuth_set_ranges = Network.azimuth_set_ranges
-        azimuth_set_names = Network.azimuth_set_names
+        print("Using automatically detected azimuth sets")
+        azimuth_set_ranges = None
+        azimuth_set_names = None
     fits_to_plot = tuple(map(Dist, input_fits_to_plot.value))
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:

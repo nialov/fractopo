@@ -258,10 +258,18 @@ Trace and target area data (``GeoDataFrames``) are passed into a
 ``Network`` object which has properties and functions for returning and
 visualizing different parameters and attributes of trace data.
 
+When ``azimuth_set_ranges`` is omitted, ``Network`` automatically detects
+azimuth sets from the processed traces during initialization. It detects three
+sets by default and trims their ranges. Set ``azimuth_set_ranges`` explicitly
+when you need fixed, user-defined ranges, or use ``n_azimuth_sets`` and
+``retained_azimuth_length_fraction`` to control automatic detection.
+
 .. code:: python
 
    from fractopo import Network
 
+   # Without azimuth_set_ranges, Network detects and trims azimuth sets
+   # automatically during initialization.
    # Initialize Network object and determine the topological branches and nodes
    network = Network(
        trace_data,
