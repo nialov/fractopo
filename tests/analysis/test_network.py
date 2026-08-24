@@ -25,6 +25,9 @@ from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
 from fractopo.general import Col, SetRangeTuple, read_geofile
 
+DEFAULT_AZIMUTH_SET_NAMES = ("1", "2", "3")
+DEFAULT_AZIMUTH_SET_RANGES = ((0, 60), (60, 120), (120, 180))
+
 
 def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
     """
@@ -106,8 +109,8 @@ def test_length_set_relationships_regression(num_regression):
         trace_length_set_ranges=trace_length_set_ranges,
         snap_threshold=0.001,
         circular_target_area=False,
-        azimuth_set_names=("1", "2", "3"),
-        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     ).azimuth_set_relationships
 
     relations_df_dict = relations_df_to_dict(relations_df)
@@ -142,8 +145,8 @@ def test_network(
     file_regression,
     data_regression,
     tmp_path,
-    azimuth_set_names=("1", "2", "3"),
-    azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
+    azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+    azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -401,8 +404,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=True,
         determine_branches_nodes=True,
-        azimuth_set_names=("1", "2", "3"),
-        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     )
     network_non_circular = Network(
         trace_gdf=trace_gdf,
@@ -410,8 +413,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=False,
         determine_branches_nodes=False,
-        azimuth_set_names=("1", "2", "3"),
-        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     )
 
     lengths_circular = network_circular.trace_length_array
