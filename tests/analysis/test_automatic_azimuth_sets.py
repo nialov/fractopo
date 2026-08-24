@@ -10,7 +10,7 @@ from fractopo.analysis.automatic_azimuth_sets import (
     automatic_azimuth_sets,
     trim_azimuth_set_ranges,
 )
-from fractopo.general import is_set
+from fractopo.general import NULL_SET, is_set
 
 RNG = np.random.default_rng(0)
 
@@ -112,7 +112,7 @@ def test_trim_azimuth_set_ranges_creates_background_points():
         retained_length_fraction=0.6,
     )
     assert np.allclose(trimmed_ranges[0], (12.0, 14.0))
-    assert tuple(labels) == ("background", "0", "0", "background")
+    assert tuple(labels) == (NULL_SET, "0", "0", NULL_SET)
 
 
 def test_trim_azimuth_set_ranges_wraparound():
@@ -130,7 +130,7 @@ def test_trim_azimuth_set_ranges_wraparound():
         is_set(azimuth, trimmed_ranges[0], loop_around=True)
         for azimuth in np.array([178.0, 179.0, 1.0])
     )
-    assert labels[-1] == "background"
+    assert labels[-1] == NULL_SET
 
 
 @pytest.mark.parametrize(

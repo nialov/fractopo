@@ -106,6 +106,8 @@ def test_length_set_relationships_regression(num_regression):
         trace_length_set_ranges=trace_length_set_ranges,
         snap_threshold=0.001,
         circular_target_area=False,
+        azimuth_set_names=("1", "2", "3"),
+        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
     ).azimuth_set_relationships
 
     relations_df_dict = relations_df_to_dict(relations_df)
@@ -140,8 +142,8 @@ def test_network(
     file_regression,
     data_regression,
     tmp_path,
-    azimuth_set_names=Network.azimuth_set_names,
-    azimuth_set_ranges=Network.azimuth_set_ranges,
+    azimuth_set_names=("1", "2", "3"),
+    azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -277,6 +279,8 @@ def network_extensive_testing(  # noqa: PLR0915
         determine_branches_nodes=False,
         truncate_traces=True,
         snap_threshold=snap_threshold,
+        azimuth_set_ranges=network.azimuth_set_ranges,
+        azimuth_set_names=network.azimuth_set_names,
     )
 
     assert_frame_equal(network_test.branch_gdf, branch_copy)
@@ -397,6 +401,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=True,
         determine_branches_nodes=True,
+        azimuth_set_names=("1", "2", "3"),
+        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
     )
     network_non_circular = Network(
         trace_gdf=trace_gdf,
@@ -404,6 +410,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=False,
         determine_branches_nodes=False,
+        azimuth_set_names=("1", "2", "3"),
+        azimuth_set_ranges=((0, 60), (60, 120), (120, 180)),
     )
 
     lengths_circular = network_circular.trace_length_array
