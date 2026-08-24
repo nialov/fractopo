@@ -62,6 +62,8 @@ class NetworkRandomSampler:
     snap_threshold: float
     random_choice: Union[RandomChoice, str]
     name: str
+    azimuth_set_ranges: Optional[tuple] = None
+    azimuth_set_names: Optional[tuple[str, ...]] = None
 
     def __post_init__(self):
         """
@@ -242,6 +244,8 @@ class NetworkRandomSampler:
                 snap_threshold=self.snap_threshold,
                 circular_target_area=True,
                 truncate_traces=True,
+                azimuth_set_ranges=self.azimuth_set_ranges,
+                azimuth_set_names=self.azimuth_set_names,
             )
         except ValueError:
             log.error(

@@ -39,6 +39,25 @@ from fractopo.analysis.automatic_azimuth_sets import (
 )
 
 # %%
+# Automatic Network initialization
+# ---------------------------------
+# Network detects, trims, and labels the azimuth sets during initialization.
+kb11_network_automatic_sets = Network(
+    trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
+    area_gdf=KB11_NETWORK.area_gdf,
+    name="KB11 automatic sets",
+    truncate_traces=KB11_NETWORK.truncate_traces,
+    circular_target_area=KB11_NETWORK.circular_target_area,
+    determine_branches_nodes=KB11_NETWORK.determine_branches_nodes,
+    snap_threshold=KB11_NETWORK.snap_threshold,
+    n_azimuth_sets=2,
+    random_state=0,
+)
+pprint(np.round(kb11_network_automatic_sets.azimuth_set_centers, 1))
+pprint(kb11_network_automatic_sets.azimuth_set_ranges)
+pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)
+
+# %%
 # Input azimuths
 # --------------
 #
@@ -119,7 +138,7 @@ pprint(
 # Build a new ``Network`` with the trimmed set ranges
 # -----------------------------------------------------
 
-kb11_network_automatic_sets = Network(
+manual_network = Network(
     trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
     area_gdf=KB11_NETWORK.area_gdf,
     name="KB11 automatic sets",
@@ -131,8 +150,8 @@ kb11_network_automatic_sets = Network(
     azimuth_set_ranges=trimmed_ranges,
 )
 
-pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)
+pprint(manual_network.trace_azimuth_set_counts)
 
-kb11_network_automatic_sets.plot_trace_azimuth(
+manual_network.plot_trace_azimuth(
     visualize_sets=True, add_abundance_order=True, append_azimuth_set_text=True
 )
