@@ -327,6 +327,7 @@ class LineData:
         visualize_sets: bool = False,
         bar_color: str = "darkgrey",
         plain: bool = False,
+        azimuth_set_centers: Optional[np.ndarray] = None,
     ) -> Tuple[azimuth.AzimuthBins, Figure, PolarAxes]:
         """
         Plot azimuth data in rose plot.
@@ -337,6 +338,7 @@ class LineData:
             self.azimuth_set_array,
             self.azimuth_set_names,
             azimuth_set_ranges=self.azimuth_set_ranges,
+            azimuth_set_centers=azimuth_set_centers,
             label=label,
             append_azimuth_set_text=append_azimuth_set_text,
             visualize_sets=visualize_sets,
