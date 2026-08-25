@@ -346,7 +346,11 @@ def network(
     ),
 ):
     """
-    Analyze the geometry and topology of trace network.
+    Analyze the geometry and topology of a trace network.
+
+    Azimuth sets are detected and trimmed automatically. Use the azimuth-set
+    options to control detection, or use the Python API to provide explicit
+    ``azimuth_set_ranges``.
     """
     network_name = name if name is not None else area_file.stem
 

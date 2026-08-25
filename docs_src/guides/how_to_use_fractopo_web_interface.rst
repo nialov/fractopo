@@ -84,12 +84,14 @@ parameters and, e.g, handle partly unknown trace lengths better. To get
 more info about some of the settings, click the link that is embedded in
 the option title text.
 
-If you want to set azimuth sets (often called fracture sets), click the
-``Define azimuth sets?`` toggle. Next, set the number of wanted sets.
-Then, for each set, input the minimum and maximum value for the set.
-Note that you can define a set that wraps around 0. E.g. a set,
-labeled as ``N-S`` could be defined to start from 165 and end
-at 15. See screenshots below.
+Azimuth sets are detected automatically when the ``Define azimuth sets?``
+toggle is off. The automatic detection uses the processed traces and trims
+the detected ranges. Use the toggle when you need to provide fixed ranges
+instead. Then set the number of sets and enter the minimum and maximum value
+for each set.
+
+You can define a set that wraps around 0. For example, a set labeled ``N-S``
+can start at 165 and end at 15. See the screenshots below.
 
 .. dropdown:: Examples of defining azimuth sets
    :animate: fade-in

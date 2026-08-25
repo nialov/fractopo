@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+- ``Network`` now detects and trims azimuth sets automatically when
+  ``azimuth_set_ranges`` is omitted. It detects three sets by default. Pass
+  explicit ranges to keep fixed, user-defined azimuth sets, or configure the
+  automatic detection with ``n_azimuth_sets`` and
+  ``retained_azimuth_length_fraction``.
+
 ## v0.9.2 (2026-05-22)
 
 Includes dependency updates of Python packages, `marimo` entrypoint integration
