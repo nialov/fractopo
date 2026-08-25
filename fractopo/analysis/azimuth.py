@@ -272,7 +272,9 @@ def decorate_azimuth_ax(
     add_abundance_order: bool = False,
 ):
     """
-    Decorate azimuth rose plot ax.
+    Add labels and optional set guides to an azimuth rose plot.
+
+    Set boundaries and centers are drawn only when ``visualize_sets`` is true.
     """
     # Title is the name of the target area or group
     # prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
@@ -348,9 +350,9 @@ def plot_azimuth_plot(
     azimuth_set_centers: Optional[np.ndarray] = None,
 ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
-    Plot azimuth rose plot to its own figure.
+    Plot an azimuth rose plot in a new figure.
 
-    Returns rose plot bin parameters, figure, ax
+    Returns the bin parameters, figure, and polar axes.
     """
     azimuth_bins = determine_azimuth_bins(azimuth_array, length_array, axial=axial)
     fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))

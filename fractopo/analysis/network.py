@@ -129,16 +129,18 @@ class Network:
     :param truncate_traces: Whether to crop the traces at the target area
         boundary.
     :param circular_target_area: Is the target are a circle.
-    :param azimuth_set_names: Names for the azimuth sets. If omitted, Network
-        uses numeric names. In automatic mode, a supplied sequence must contain
-        one name for each detected set.
-    :param azimuth_set_ranges: Azimuth ranges for the sets. Pass ``None`` to
-        detect the ranges from the processed traces during initialization.
-    :param n_azimuth_sets: Number of sets to detect when ``azimuth_set_ranges``
-        is ``None``.
+    :param azimuth_set_names: Names assigned to the azimuth sets. If omitted,
+        Network assigns numeric names. In automatic mode, provide one name for
+        each detected set.
+    :param azimuth_set_ranges: Ranges assigned to the azimuth sets. Pass
+        ``None`` to detect the ranges from the processed traces during
+        initialization.
+    :param n_azimuth_sets: Number of sets to detect when
+        ``azimuth_set_ranges`` is ``None``.
     :param retained_azimuth_length_fraction: Fraction of weighted trace length
-        to keep when trimming detected ranges. The value must be in ``(0, 1]``.
-    :param random_state: Optional seed used by the automatic detector.
+        to retain when trimming detected ranges. The value must be in
+        ``(0, 1]``.
+    :param random_state: Optional seed for the automatic detector.
     :param trace_length_set_names: Names of each trace length set.
     :param trace_length_set_ranges: Ranges of each trace length set.
     :param branch_length_set_names: Names of each branch length set.
