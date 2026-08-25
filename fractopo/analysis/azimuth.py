@@ -322,12 +322,15 @@ def decorate_azimuth_ax(
         if azimuth_set_centers is not None:
             for center in azimuth_set_centers:
                 ax.axvline(
-                    np.deg2rad(center), linestyle="solid", color="darkgray", linewidth=2
+                    np.deg2rad(center),
+                    linestyle="dotted",
+                    color="darkgray",
+                    linewidth=2,
                 )
                 if axial:
                     ax.axvline(
                         np.deg2rad(center + 180),
-                        linestyle="solid",
+                        linestyle="dotted",
                         color="darkgray",
                         linewidth=2,
                     )
