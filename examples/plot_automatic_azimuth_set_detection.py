@@ -57,21 +57,10 @@ pprint(np.round(kb11_network_automatic_sets.azimuth_set_centers, 1))
 pprint(kb11_network_automatic_sets.azimuth_set_ranges)
 pprint(kb11_network_automatic_sets.trace_azimuth_set_counts)
 
-# Plot the centers and the resolved ranges from the Network object.
-_, fig, ax = kb11_network_automatic_sets.plot_trace_azimuth(
-    visualize_sets=True,
-    append_azimuth_set_text=True,
+# Plot the centers and resolved ranges through Network's common azimuth API.
+kb11_network_automatic_sets.plot_trace_azimuth(
+    visualize_sets=True, append_azimuth_set_text=True
 )
-for center in kb11_network_automatic_sets.azimuth_set_centers:
-    radians = np.deg2rad(center)
-    ax.plot([radians, radians], [0, ax.get_ylim()[1]], linestyle="--", linewidth=2)
-    ax.plot(
-        [radians + np.pi, radians + np.pi],
-        [0, ax.get_ylim()[1]],
-        linestyle="--",
-        linewidth=2,
-    )
-ax.set_title(fill("Automatic Network azimuth sets", 30))
 plt.show()
 
 # %%

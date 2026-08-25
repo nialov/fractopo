@@ -368,6 +368,13 @@ class Network:
             )
         else:
             self.azimuth_set_names = tuple(self.azimuth_set_names)
+        if self.azimuth_set_centers is None:
+            self.azimuth_set_centers = np.array(
+                [
+                    (start + ((end - start) % 180) / 2) % 180
+                    for start, end in self.azimuth_set_ranges
+                ]
+            )
         assert (
             self.azimuth_set_ranges is not None and self.azimuth_set_names is not None
         )
@@ -1023,6 +1030,7 @@ class Network:
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
+            azimuth_set_centers=self.azimuth_set_centers,
         )
 
     @requires_topology
@@ -1047,6 +1055,7 @@ class Network:
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
+            azimuth_set_centers=self.azimuth_set_centers,
         )
 
     @requires_topology
