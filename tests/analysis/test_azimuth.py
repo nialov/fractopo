@@ -65,3 +65,27 @@ def test_plot_azimuth_plot(
     assert isinstance(fig, Figure)
     assert isinstance(ax, PolarAxes)
     plt.close("all")
+
+
+def test_plot_azimuth_plot_centers_follow_visualize_sets():
+    """Center and range guides are opt-in and use distinct line styles."""
+    kwargs = dict(
+        azimuth_array=np.array([10.0, 90.0, 170.0]),
+        length_array=np.ones(3),
+        azimuth_set_array=np.array(["1", "2", "1"]),
+        azimuth_set_names=("1", "2"),
+        azimuth_set_ranges=((0, 30), (60, 120)),
+        label="test",
+        plain=False,
+        axial=True,
+        azimuth_set_centers=np.array([15.0, 90.0]),
+    )
+    _, fig, ax = azimuth.plot_azimuth_plot(**kwargs)
+    assert len(ax.lines) == 0
+    plt.close(fig)
+
+    _, fig, ax = azimuth.plot_azimuth_plot(**kwargs, visualize_sets=True)
+    assert len(ax.lines) == 8
+    assert sum(line.get_color() == "darkgray" for line in ax.lines) == 4
+    assert sum(line.get_color() == "black" for line in ax.lines) == 4
+    plt.close(fig)
