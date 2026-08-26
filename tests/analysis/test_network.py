@@ -391,6 +391,44 @@ def test_network_kb11_manual():
 
 
 @pytest.mark.parametrize(
+    "azimuth_set_ranges",
+    [None, DEFAULT_AZIMUTH_SET_RANGES],
+    ids=["automatic", "manual"],
+)
+def test_network_azimuth_sets(
+    azimuth_set_ranges,
+):
+    """Test automatic defaults and explicit ranges on a real sample network."""
+    network = Network(
+        tests.kb11_traces,
+        tests.kb11_area,
+        truncate_traces=True,
+        azimuth_set_ranges=azimuth_set_ranges,
+        random_state=0,
+    )
+
+    assert network.azimuth_set_ranges is not None
+    assert network.azimuth_set_centers is not None
+    assert len(network.azimuth_set_ranges) == (
+        3 if azimuth_set_ranges is None else len(azimuth_set_ranges)
+    )
+    assert len(network.azimuth_set_centers) == len(network.azimuth_set_ranges)
+    assert np.all(network.trace_data.azimuth_set_array != "")
+    assert network.trace_azimuth_set_counts
+    if azimuth_set_ranges is None:
+        repeat = Network(
+            tests.kb11_traces,
+            tests.kb11_area,
+            truncate_traces=True,
+            random_state=0,
+        )
+        assert np.allclose(network.azimuth_set_centers, repeat.azimuth_set_centers)
+        assert network.azimuth_set_ranges == repeat.azimuth_set_ranges
+    else:
+        assert np.allclose(network.azimuth_set_centers, (30.0, 90.0, 150.0))
+
+
+@pytest.mark.parametrize(
     "trace_gdf,area_gdf,name",
     tests.test_network_circular_target_area_params,
 )
