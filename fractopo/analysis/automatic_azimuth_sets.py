@@ -11,7 +11,7 @@ from beartype.typing import Annotated, Optional, Tuple
 from beartype.vale import Is
 from sklearn.cluster import KMeans
 
-from fractopo.general import SetRangeTuple, determine_set
+from fractopo.general import NULL_SET, SetRangeTuple, determine_set
 from fractopo.typing import NDArrayWithAxialAzimuths, NDArrayWithPositives
 
 log = logging.getLogger(__name__)
@@ -156,7 +156,7 @@ def trim_azimuth_set_ranges(
     length_array: NDArrayWithPositives,
     set_ranges: SetRangeTuple,
     retained_length_fraction: Annotated[float, Is[lambda value: 0 < value <= 1]],
-    background_set_name: str = "background",
+    background_set_name: str = NULL_SET,
 ) -> Tuple[SetRangeTuple, np.ndarray]:
     """
     Trim detected axial set ranges to retain only a target fracture-length fraction.
@@ -173,7 +173,7 @@ def trim_azimuth_set_ranges(
     :param retained_length_fraction: Fraction of assigned fracture length to
         retain inside each trimmed set range.
     :param background_set_name: Label assigned to fractures outside all trimmed
-        set ranges.
+        set ranges. Defaults to :data:`fractopo.general.NULL_SET`.
     :return: Trimmed set ranges and fracture labels using integer-like string
         set names plus the background label.
 
@@ -195,7 +195,7 @@ def trim_azimuth_set_ranges(
     >>> trimmed_ranges
     ((12.0, 14.0),)
     >>> tuple(str(label) for label in labels)
-    ('background', '0', '0', 'background')
+    ('-1', '0', '0', '-1')
 
     Axial wraparound is preserved, so a set around 0°/180° can still be
     trimmed without losing its circular meaning.
@@ -211,7 +211,7 @@ def trim_azimuth_set_ranges(
     >>> trimmed_ranges[0][0] > trimmed_ranges[0][1]
     True
     >>> tuple(str(label) for label in labels)
-    ('0', '0', '0', '0', 'background')
+    ('0', '0', '0', '0', '-1')
     """
     azimuths = np.asarray(azimuths_deg, dtype=float)
     lengths = np.asarray(length_array, dtype=float)

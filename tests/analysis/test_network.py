@@ -25,6 +25,9 @@ from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.network import Network
 from fractopo.general import Col, SetRangeTuple, read_geofile
 
+DEFAULT_AZIMUTH_SET_NAMES = ("1", "2", "3")
+DEFAULT_AZIMUTH_SET_RANGES = ((0, 60), (60, 120), (120, 180))
+
 
 def relations_df_to_dict(df: pd.DataFrame) -> Dict[str, List[int]]:
     """
@@ -106,6 +109,8 @@ def test_length_set_relationships_regression(num_regression):
         trace_length_set_ranges=trace_length_set_ranges,
         snap_threshold=0.001,
         circular_target_area=False,
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     ).azimuth_set_relationships
 
     relations_df_dict = relations_df_to_dict(relations_df)
@@ -140,8 +145,8 @@ def test_network(
     file_regression,
     data_regression,
     tmp_path,
-    azimuth_set_names=Network.azimuth_set_names,
-    azimuth_set_ranges=Network.azimuth_set_ranges,
+    azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+    azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
 ):
     """
     Test Network object creation and attributes with general datasets.
@@ -277,6 +282,8 @@ def network_extensive_testing(  # noqa: PLR0915
         determine_branches_nodes=False,
         truncate_traces=True,
         snap_threshold=snap_threshold,
+        azimuth_set_ranges=network.azimuth_set_ranges,
+        azimuth_set_names=network.azimuth_set_names,
     )
 
     assert_frame_equal(network_test.branch_gdf, branch_copy)
@@ -384,6 +391,44 @@ def test_network_kb11_manual():
 
 
 @pytest.mark.parametrize(
+    "azimuth_set_ranges",
+    [None, DEFAULT_AZIMUTH_SET_RANGES],
+    ids=["automatic", "manual"],
+)
+def test_network_azimuth_sets(
+    azimuth_set_ranges,
+):
+    """Test automatic defaults and explicit ranges on a real sample network."""
+    network = Network(
+        tests.kb11_traces,
+        tests.kb11_area,
+        truncate_traces=True,
+        azimuth_set_ranges=azimuth_set_ranges,
+        random_state=0,
+    )
+
+    assert network.azimuth_set_ranges is not None
+    assert network.azimuth_set_centers is not None
+    assert len(network.azimuth_set_ranges) == (
+        3 if azimuth_set_ranges is None else len(azimuth_set_ranges)
+    )
+    assert len(network.azimuth_set_centers) == len(network.azimuth_set_ranges)
+    assert np.all(network.trace_data.azimuth_set_array != "")
+    assert network.trace_azimuth_set_counts
+    if azimuth_set_ranges is None:
+        repeat = Network(
+            tests.kb11_traces,
+            tests.kb11_area,
+            truncate_traces=True,
+            random_state=0,
+        )
+        assert np.allclose(network.azimuth_set_centers, repeat.azimuth_set_centers)
+        assert network.azimuth_set_ranges == repeat.azimuth_set_ranges
+    else:
+        assert np.allclose(network.azimuth_set_centers, (30.0, 90.0, 150.0))
+
+
+@pytest.mark.parametrize(
     "trace_gdf,area_gdf,name",
     tests.test_network_circular_target_area_params,
 )
@@ -397,6 +442,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=True,
         determine_branches_nodes=True,
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     )
     network_non_circular = Network(
         trace_gdf=trace_gdf,
@@ -404,6 +451,8 @@ def test_network_circular_target_area(trace_gdf, area_gdf, name, data_regression
         name=name,
         circular_target_area=False,
         determine_branches_nodes=False,
+        azimuth_set_names=DEFAULT_AZIMUTH_SET_NAMES,
+        azimuth_set_ranges=DEFAULT_AZIMUTH_SET_RANGES,
     )
 
     lengths_circular = network_circular.trace_length_array

@@ -480,7 +480,7 @@ def plot_crosscut_abutting_relationships_plot(
                     prop={"family": "DejaVu Sans"},
                 )
 
-                ax.set_ylim(0, 1.6 * max([row["x"], row["y"], row["y-reverse"]]))
+                ax.set_ylim(0, 1.6 * max([row["x"], row["y"], row["y-reverse"], 1]))
 
                 ax.grid(zorder=-10, color="black", alpha=0.5)
 

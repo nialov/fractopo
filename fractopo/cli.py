@@ -315,6 +315,15 @@ def network(
         ..., exists=True, dir_okay=False, help=AREA_FILE_HELP
     ),
     snap_threshold: float = typer.Option(0.001, help=SNAP_THRESHOLD_HELP),
+    n_azimuth_sets: int = typer.Option(
+        3, help="Number of automatically detected azimuth sets."
+    ),
+    retained_azimuth_length_fraction: float = typer.Option(
+        0.7, help="Length fraction retained in automatic azimuth ranges."
+    ),
+    random_state: Optional[int] = typer.Option(
+        None, help="Random seed for automatic azimuth detection."
+    ),
     determine_branches_nodes: bool = typer.Option(
         True,
         help="Whether to determine branches and nodes as part of analysis. Recommended.",
@@ -337,7 +346,11 @@ def network(
     ),
 ):
     """
-    Analyze the geometry and topology of trace network.
+    Analyze the geometry and topology of a trace network.
+
+    Azimuth sets are detected and trimmed automatically. Use the azimuth-set
+    options to control detection, or use the Python API to provide explicit
+    ``azimuth_set_ranges``.
     """
     network_name = name if name is not None else area_file.stem
 
@@ -354,6 +367,9 @@ def network(
         trace_gdf=traces,
         area_gdf=areas,
         snap_threshold=snap_threshold,
+        n_azimuth_sets=n_azimuth_sets,
+        retained_azimuth_length_fraction=retained_azimuth_length_fraction,
+        random_state=random_state,
         determine_branches_nodes=determine_branches_nodes,
         name=network_name,
         circular_target_area=circular_target_area,

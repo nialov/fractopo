@@ -58,6 +58,10 @@ def _(mo):
     input_truncate_traces = mo.ui.switch(True)
     input_debug = mo.ui.switch(False)
     input_define_azimuth_sets = mo.ui.switch(False)
+    input_retained_azimuth_length_fraction = mo.ui.number(
+        start=0.01, stop=1, step=0.01, value=0.7
+    )
+    input_random_state = mo.ui.number(start=0, stop=10000, value=0)
     default_fits_to_plot = ("power_law", "lognormal", "exponential")
     input_fits_to_plot = mo.ui.multiselect(
         options=default_fits_to_plot, value=default_fits_to_plot
@@ -72,6 +76,8 @@ def _(mo):
         input_contour_grid_cell_size,
         input_debug,
         input_define_azimuth_sets,
+        input_retained_azimuth_length_fraction,
+        input_random_state,
         input_determine_branches_nodes,
         input_fits_to_plot,
         input_name,
@@ -219,6 +225,8 @@ def _(
     input_contour_grid_cell_size,
     input_define_azimuth_sets,
     input_determine_branches_nodes,
+    input_retained_azimuth_length_fraction,
+    input_random_state,
     input_fits_to_plot,
     input_snap_threshold,
     input_trace_layer_name,
@@ -275,6 +283,8 @@ def _(
             snap_threshold=snap_threshold,
             azimuth_set_ranges=azimuth_set_ranges,
             azimuth_set_names=azimuth_set_names,
+            retained_azimuth_length_fraction=input_retained_azimuth_length_fraction.value,
+            random_state=input_random_state.value,
         )
 
         return network, name, contour_grid_cell_size, fits_to_plot

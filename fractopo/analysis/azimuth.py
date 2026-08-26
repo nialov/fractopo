@@ -267,11 +267,14 @@ def decorate_azimuth_ax(
     set_ranges: SetRangeTuple,
     axial: bool,
     visualize_sets: bool,
+    azimuth_set_centers: Optional[np.ndarray] = None,
     append_azimuth_set_text: bool = False,
     add_abundance_order: bool = False,
 ):
     """
-    Decorate azimuth rose plot ax.
+    Add labels and optional set guides to an azimuth rose plot.
+
+    Set boundaries and centers are drawn only when ``visualize_sets`` is true.
     """
     # Title is the name of the target area or group
     # prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)
@@ -316,6 +319,21 @@ def decorate_azimuth_ax(
         for set_range in set_ranges:
             for edge in set_range:
                 ax.axvline(np.deg2rad(edge), linestyle="dashed", color="black")
+        if azimuth_set_centers is not None:
+            for center in azimuth_set_centers:
+                ax.axvline(
+                    np.deg2rad(center),
+                    linestyle=(0, (1, 5)),
+                    color="darkgray",
+                    linewidth=2,
+                )
+                if axial:
+                    ax.axvline(
+                        np.deg2rad(center + 180),
+                        linestyle=(0, (1, 5)),
+                        color="darkgray",
+                        linewidth=2,
+                    )
 
 
 @beartype
@@ -332,11 +350,12 @@ def plot_azimuth_plot(
     axial: bool = True,
     visualize_sets: bool = False,
     bar_color: str = "darkgrey",
+    azimuth_set_centers: Optional[np.ndarray] = None,
 ) -> Tuple[AzimuthBins, Figure, PolarAxes]:
     """
-    Plot azimuth rose plot to its own figure.
+    Plot an azimuth rose plot in a new figure.
 
-    Returns rose plot bin parameters, figure, ax
+    Returns the bin parameters, figure, and polar axes.
     """
     azimuth_bins = determine_azimuth_bins(azimuth_array, length_array, axial=axial)
     fig, ax = plt.subplots(subplot_kw=dict(polar=True), figsize=(6.5, 5.1))
@@ -362,6 +381,7 @@ def plot_azimuth_plot(
             add_abundance_order=add_abundance_order,
             axial=axial,
             visualize_sets=visualize_sets,
+            azimuth_set_centers=azimuth_set_centers,
         )
     return (
         azimuth_bins,

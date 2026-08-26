@@ -23,6 +23,10 @@ from shapely.geometry import MultiPoint, MultiPolygon, Point, Polygon
 from ternary.ternary_axes_subplot import TernaryAxesSubplot
 
 from fractopo.analysis.anisotropy import determine_anisotropy_sum, plot_anisotropy_plot
+from fractopo.analysis.automatic_azimuth_sets import (
+    automatic_azimuth_sets,
+    trim_azimuth_set_ranges,
+)
 from fractopo.analysis.azimuth import AzimuthBins
 from fractopo.analysis.contour_grid import run_grid_sampling
 from fractopo.analysis.length_distributions import (
@@ -50,6 +54,7 @@ from fractopo.general import (
     CLASS_COLUMN,
     CONNECTION_COLUMN,
     NAME,
+    NULL_SET,
     RADIUS,
     RELATIVE_CENSORING,
     REPRESENTATIVE_POINT,
@@ -124,8 +129,18 @@ class Network:
     :param truncate_traces: Whether to crop the traces at the target area
         boundary.
     :param circular_target_area: Is the target are a circle.
-    :param azimuth_set_names: Names of each azimuth set.
-    :param azimuth_set_ranges: Ranges of each azimuth set.
+    :param azimuth_set_names: Names assigned to the azimuth sets. If omitted,
+        Network assigns numeric names. In automatic mode, provide one name for
+        each detected set.
+    :param azimuth_set_ranges: Ranges assigned to the azimuth sets. Pass
+        ``None`` to detect the ranges from the processed traces during
+        initialization.
+    :param n_azimuth_sets: Number of sets to detect when
+        ``azimuth_set_ranges`` is ``None``.
+    :param retained_azimuth_length_fraction: Fraction of weighted trace length
+        to retain when trimming detected ranges. The value must be in
+        ``(0, 1]``.
+    :param random_state: Optional seed for the automatic detector.
     :param trace_length_set_names: Names of each trace length set.
     :param trace_length_set_ranges: Ranges of each trace length set.
     :param branch_length_set_names: Names of each branch length set.
@@ -167,12 +182,12 @@ class Network:
 
     # Azimuth sets
     # ============
-    azimuth_set_names: Sequence[str] = ("1", "2", "3")
-    azimuth_set_ranges: SetRangeTuple = (
-        (0, 60),
-        (60, 120),
-        (120, 180),
-    )
+    azimuth_set_names: Optional[Sequence[str]] = None
+    azimuth_set_ranges: Optional[SetRangeTuple] = None
+    n_azimuth_sets: int = 3
+    retained_azimuth_length_fraction: float = 0.7
+    random_state: Optional[int] = None
+    azimuth_set_centers: Optional[np.ndarray] = field(default=None, repr=False)
 
     # Length sets
     # ===========
@@ -228,7 +243,7 @@ class Network:
         as_gen = ((start, end) for start, end in zip(starts, ends))
         return tuple(as_gen)
 
-    def __post_init__(self):
+    def __post_init__(self):  # noqa: PLR0915
         """
         Copy GeoDataFrames instead of changing inputs.
 
@@ -302,6 +317,69 @@ class Network:
             if self.trace_gdf.shape[0] == 0:
                 raise ValueError("Empty trace GeoDataFrame after crop_to_target_areas.")
 
+        if self.azimuth_set_ranges is None:
+            if self.n_azimuth_sets <= 0:
+                raise ValueError("n_azimuth_sets must be positive.")
+            if not 0 < self.retained_azimuth_length_fraction <= 1:
+                raise ValueError("retained_azimuth_length_fraction must be in (0, 1].")
+            if (
+                self.azimuth_set_names is not None
+                and len(self.azimuth_set_names) != self.n_azimuth_sets
+            ):
+                raise ValueError(
+                    "azimuth_set_names must match n_azimuth_sets in automatic mode."
+                )
+            data = LineData(
+                _line_gdf=self.trace_gdf,
+                using_branches=False,
+                azimuth_set_ranges=(),
+                azimuth_set_names=(),
+                area_boundary_intersects=self.trace_intersects_target_area_boundary,
+            )
+            azimuths, lengths = data.azimuth_array, data.length_array
+            usable = lengths > 0
+            if int(usable.sum()) < self.n_azimuth_sets:
+                raise ValueError(
+                    "Automatic detection requires enough positive-weight traces."
+                )
+            centers, ranges = automatic_azimuth_sets(
+                azimuths[usable],
+                lengths[usable],
+                self.n_azimuth_sets,
+                self.random_state,
+            )
+            order = np.argsort(centers % 180, kind="stable")
+            centers, ranges = centers[order], tuple(ranges[i] for i in order)
+            ranges, _ = trim_azimuth_set_ranges(
+                azimuths[usable],
+                lengths[usable],
+                ranges,
+                self.retained_azimuth_length_fraction,
+                NULL_SET,
+            )
+            self.azimuth_set_centers = centers
+            self.azimuth_set_ranges = ranges
+            self.azimuth_set_names = (
+                tuple(str(i + 1) for i in range(self.n_azimuth_sets))
+                if self.azimuth_set_names is None
+                else tuple(self.azimuth_set_names)
+            )
+        elif self.azimuth_set_names is None:
+            self.azimuth_set_names = tuple(
+                str(i + 1) for i in range(len(self.azimuth_set_ranges))
+            )
+        else:
+            self.azimuth_set_names = tuple(self.azimuth_set_names)
+        if self.azimuth_set_centers is None:
+            self.azimuth_set_centers = np.array(
+                [
+                    (start + ((end - start) % 180) / 2) % 180
+                    for start, end in self.azimuth_set_ranges
+                ]
+            )
+        assert (
+            self.azimuth_set_ranges is not None and self.azimuth_set_names is not None
+        )
         self.trace_data = LineData(
             _line_gdf=self.trace_gdf,
             azimuth_set_ranges=self.azimuth_set_ranges,
@@ -390,7 +468,7 @@ class Network:
 
     def reset_length_data(self):
         """
-        Reset LineData attributes.
+        Reset LineData attributes while retaining resolved azimuth-set definitions.
 
         WARNING: Mostly untested.
         """
@@ -954,6 +1032,7 @@ class Network:
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
+            azimuth_set_centers=self.azimuth_set_centers,
         )
 
     @requires_topology
@@ -978,6 +1057,7 @@ class Network:
             visualize_sets=visualize_sets,
             bar_color=bar_color,
             plain=plain,
+            azimuth_set_centers=self.azimuth_set_centers,
         )
 
     @requires_topology
