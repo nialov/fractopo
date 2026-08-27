@@ -16,6 +16,10 @@
 -   Prefix commands with `nix develop -c` to run them in the development
     environment of `fractopo`. This applies to any commands listed in
     this `AGENTS.md` file.
+-   Poetry is available through the FHS shell: use
+    `nix run .#fhs -- -c '<command>'`, e.g.
+    `nix run .#fhs -- -c 'poetry install'` and
+    `nix run .#fhs -- -c 'poetry run pytest'`.
 -   Test Python code with `pytest`
 -   Test Sphinx-Gallery examples by building docs, not by running example
     scripts directly. Use `nix develop -c python3 -m sphinx docs_src/ <DOCS_OUTPUT_DIR>`.

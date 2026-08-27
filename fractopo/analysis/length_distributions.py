@@ -3,6 +3,7 @@ Utilities for analyzing and plotting length distributions for line data.
 """
 
 import logging
+import warnings
 from dataclasses import dataclass
 from enum import Enum, unique
 from itertools import chain, cycle
@@ -54,12 +55,13 @@ class SilentFit(powerlaw.Fit):
         xmin=None,
         xmax=None,
         verbose=True,
-        fit_method="Likelihood",
-        estimate_discrete=True,
-        discrete_approximation="round",
+        fit_method="likelihood",
+        estimate_discrete=None,
+        discrete_normalization="round",
         sigma_threshold=None,
-        parameter_range=None,
-        fit_optimizer=None,
+        initial_parameters=None,
+        parameter_ranges=None,
+        parameter_constraints=None,
         xmin_distance="D",
         xmin_distribution="power_law",
         **kwargs,
@@ -67,7 +69,8 @@ class SilentFit(powerlaw.Fit):
         """
         Override Fit.__init__ to silence output.
         """
-        with general.silent_output("__init__"):
+        with warnings.catch_warnings(), general.silent_output("__init__"):
+            warnings.filterwarnings("ignore", category=UserWarning, module="powerlaw")
             super().__init__(
                 data,
                 discrete=discrete,
@@ -76,10 +79,11 @@ class SilentFit(powerlaw.Fit):
                 verbose=verbose,
                 fit_method=fit_method,
                 estimate_discrete=estimate_discrete,
-                discrete_approximation=discrete_approximation,
+                discrete_normalization=discrete_normalization,
                 sigma_threshold=sigma_threshold,
-                parameter_range=parameter_range,
-                fit_optimizer=fit_optimizer,
+                initial_parameters=initial_parameters,
+                parameter_ranges=parameter_ranges,
+                parameter_constraints=parameter_constraints,
                 xmin_distance=xmin_distance,
                 xmin_distribution=xmin_distribution,
                 **kwargs,
@@ -92,7 +96,8 @@ class SilentFit(powerlaw.Fit):
         Also wraps all callables (~instance methods) with silent_output. The
         stdout and stderr is reported with log.info so it is not lost.
         """
-        with general.silent_output("__getattribute__"):
+        with warnings.catch_warnings(), general.silent_output("__getattribute__"):
+            warnings.filterwarnings("ignore", category=UserWarning, module="powerlaw")
             attribute = super().__getattribute__(name)
         if callable(attribute):
             return general.wrap_silence(attribute)
@@ -595,6 +600,9 @@ def plot_distribution_fits(
             f"No length data for plotting with label {label}. Returning fit as None."
         )
         return None, fig, ax
+    if not np.isfinite(fit.xmin):
+        log.warning("Could not determine a finite power-law cut-off for %s.", label)
+        return fit, fig, ax
 
     # Get the x, y data from fit
     # y values are either the complementary cumulative distribution function
@@ -920,24 +928,35 @@ def describe_powerlaw_fit(
     """
     Compose dict of fit powerlaw attributes and comparisons between fits.
     """
-    base = {
-        **distribution_compare_dict(fit),
-        Dist.POWERLAW.value + " " + KOLM_DIST: fit.power_law.D,
-        Dist.EXPONENTIAL.value + " " + KOLM_DIST: fit.exponential.D,
-        Dist.LOGNORMAL.value + " " + KOLM_DIST: fit.lognormal.D,
-        Dist.TRUNCATED_POWERLAW.value + " " + KOLM_DIST: fit.truncated_power_law.D,
-        "Kolmogorov-Smirnov critical distance value": calculate_critical_distance_value(
-            data_length=len(fit.data)
-        ),
-        Dist.POWERLAW.value + " " + ALPHA: fit.alpha,
-        Dist.POWERLAW.value + " " + EXPONENT: calculate_exponent(fit.alpha),
-        Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
-        Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
-        **all_fit_attributes_dict(fit),
-        "lengths cut off proportion": cut_off_proportion_of_data(
-            fit=fit, length_array=length_array
-        ),
-    }
+    try:
+        base = {
+            **distribution_compare_dict(fit),
+            Dist.POWERLAW.value + " " + KOLM_DIST: fit.power_law.D,
+            Dist.EXPONENTIAL.value + " " + KOLM_DIST: fit.exponential.D,
+            Dist.LOGNORMAL.value + " " + KOLM_DIST: fit.lognormal.D,
+            Dist.TRUNCATED_POWERLAW.value
+            + " "
+            + KOLM_DIST: fit.truncated_power_law.D,
+            "Kolmogorov-Smirnov critical distance value": calculate_critical_distance_value(
+                data_length=len(fit.data)
+            ),
+            Dist.POWERLAW.value + " " + ALPHA: fit.alpha,
+            Dist.POWERLAW.value + " " + EXPONENT: calculate_exponent(fit.alpha),
+            Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
+            Dist.POWERLAW.value + " " + SIGMA: fit.power_law.sigma,
+            **all_fit_attributes_dict(fit),
+            "lengths cut off proportion": cut_off_proportion_of_data(
+                fit=fit, length_array=length_array
+            ),
+        }
+    except (AttributeError, ValueError):
+        log.warning("Could not determine power-law fit statistics.")
+        base = {
+            Dist.POWERLAW.value + " " + CUT_OFF: fit.xmin,
+            "lengths cut off proportion": cut_off_proportion_of_data(
+                fit=fit, length_array=length_array
+            ),
+        }
     if label is None:
         return base
     return {f"{label} {key}": value for key, value in base.items()}

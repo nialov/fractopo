@@ -1875,7 +1875,8 @@ def wrap_silence(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        with silent_output(func.__name__):
+        with warnings.catch_warnings(), silent_output(func.__name__):
+            warnings.filterwarnings("ignore", category=UserWarning, module="powerlaw")
             results = func(*args, **kwargs)
         return results
 
