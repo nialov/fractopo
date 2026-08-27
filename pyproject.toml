@@ -28,8 +28,7 @@ dependencies = [
     "matplotlib >=3.5.3",
     "numpy >=1.26.0,<3.0.0",
     "pandas >=2.1.0,<3.0.0",
-    # 2.0.0 changes results. Needs a review before updating.
-    "powerlaw>=1.4.6,<2.0.0",
+    "powerlaw>=2.0.0",
     "python-ternary",
     "rich >=11.0.0",
     "scikit-learn",
