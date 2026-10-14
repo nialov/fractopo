@@ -52,10 +52,11 @@ def _(mo):
         [
             mo.md("## Fractopo → PorePy 3-D fracture workflow"),
             mo.md(
-                "This example uses the small **KB7** trace dataset. "
-                "The source traces are 2-D. This workflow detects 2-D azimuth "
-                "sets, fits 3-D plane-pole models from a few example measurements, "
-                "and fills the remaining orientations before PorePy export."
+                "This example uses the small **KB7** trace dataset. The bundled "
+                "trace datasets do not include measured `dip`/`dip_dir` columns, "
+                "so we create clearly labeled example orientation measurements: "
+                "four traces per detected azimuth set. The workflow then fits "
+                "set pole models, fills the remaining orientations, and exports."
             ),
             mo.hstack([mo.md("Fractures:"), fracture_count]),
             mo.hstack([mo.md("Random seed:"), seed]),
@@ -80,26 +81,35 @@ def _(Path, gpd):
 
 @app.cell
 def _(Network, area, np, traces):
-    # KB7 contains no orientation columns. Seed a small paired structural
-    # measurement sample to demonstrate fitting from sparse measured data.
-    traces_with_dips = traces.copy()
-    traces_with_dips["dip"] = np.nan
-    traces_with_dips["dip_dir"] = np.nan
-    measured_count = min(12, len(traces_with_dips))
-    measured_indices = traces_with_dips.index[:measured_count]
-    traces_with_dips.loc[measured_indices, "dip"] = np.linspace(
-        60.0, 85.0, measured_count
-    )
-    traces_with_dips.loc[measured_indices, "dip_dir"] = np.linspace(
-        30.0, 150.0, measured_count
-    )
     network = Network(
-        trace_gdf=traces_with_dips,
+        trace_gdf=traces,
         area_gdf=area,
         name="KB7",
         determine_branches_nodes=False,
         truncate_traces=True,
     )
+    # No bundled trace dataset has measured dip/dip_dir fields. Seed four
+    # explicitly synthetic paired measurements per detected azimuth set.
+    orientation_traces = network.trace_gdf.copy()
+    orientation_traces["dip"] = np.nan
+    orientation_traces["dip_dir"] = np.nan
+    set_labels = network.trace_data.azimuth_set_array
+    trace_azimuths = network.trace_data.azimuth_array
+    measured_indices = np.concatenate(
+        [
+            np.flatnonzero(set_labels == name)[:4]
+            for name in network.azimuth_set_names
+            if np.count_nonzero(set_labels == name) >= 2
+        ]
+    )
+    measured_count = len(measured_indices)
+    orientation_traces.iloc[
+        measured_indices, orientation_traces.columns.get_loc("dip")
+    ] = np.tile([55.0, 62.0, 70.0, 78.0], measured_count // 4)
+    orientation_traces.iloc[
+        measured_indices, orientation_traces.columns.get_loc("dip_dir")
+    ] = (trace_azimuths[measured_indices] + 90.0) % 360.0
+    network.trace_gdf = orientation_traces
     orientation_diagnostics = network.complete_trace_orientations(
         rng=np.random.default_rng(42),
         fill_null_set=True,
@@ -121,13 +131,13 @@ def _(Network, area, np, traces):
         ),
         "orientation models": orientation_diagnostics,
     }
-    return network, network_summary, traces_with_dips
+    return network, network_summary, traces
 
 
 @app.cell
 def _(mo, network_summary):
     mo.md(
-        "### Network characterization\n\n"
+        "### Network and orientation models\n\n"
         + "\n".join(f"- **{key}:** `{value}`" for key, value in network_summary.items())
     )
 
@@ -162,11 +172,12 @@ def _(
 
 
 @app.cell
-def _(csv_text, mo, output_path):
+def _(csv_text, mo, network, output_path):
     rows = csv_text.splitlines()
     mo.md(
-        "### Generated PorePy input\n\n"
-        f"Wrote `{output_path}` with **{len(rows) - 1}** circular fractures. "
+        "### Completed trace orientations and PorePy input\n\n"
+        f"Completed orientations: **{network.trace_gdf[['dip', 'dip_dir']].notna().all(axis=1).sum()}**; "
+        f"wrote `{output_path}` with **{len(rows) - 1}** circular fractures. "
         "The first row is the cuboid domain; each remaining row stores center, "
         "two semi-axes, strike, and dip."
     )
