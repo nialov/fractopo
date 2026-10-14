@@ -40,6 +40,7 @@ class _FractureSetSamples(NamedTuple):
 
     azimuth: dict[str, NDArray[np.floating]]
     dip: dict[str, NDArray[np.floating]]
+    dip_direction: dict[str, NDArray[np.floating]]
     length: dict[str, NDArray[np.floating]]
     proportions: dict[str, float]
 
@@ -127,9 +128,10 @@ class EllipticalFracture(NamedTuple):
 def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
     """Extract usable, aligned trace observations from a ``Network``.
 
-    Only the calculated trace-data arrays and the configured set names are
-    used for set membership.  Dip is the sole orientation value read from
-    ``trace_gdf``; dip direction is intentionally not part of this boundary.
+    Only the calculated trace-data arrays and configured set names are
+    used for PorePy export set membership. Dip direction is read when available to preserve
+    full measured or completed plane orientation in PorePy output. Invalid or
+    missing directions retain the legacy trace-azimuth strike convention.
     """
     trace_data = network.trace_data
     labels = np.asarray(trace_data.azimuth_set_array)
@@ -145,19 +147,38 @@ def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
             "no usable fracture set remains: dip is not numeric"
         ) from error
 
-    if not (len(labels) == len(azimuth) == len(length) == len(dip)):
+    dip_direction = None
+    if "dip_dir" in network.trace_gdf:
+        try:
+            dip_direction = np.asarray(network.trace_gdf["dip_dir"], dtype=float)
+        except (TypeError, ValueError) as error:
+            raise ValueError("dip_dir is not numeric") from error
+
+    aligned = [labels, azimuth, length, dip]
+    if dip_direction is not None:
+        aligned.append(dip_direction)
+    if len({len(values) for values in aligned}) != 1:
         raise ValueError(
             "no usable fracture set remains: trace data arrays are misaligned"
         )
 
-    arrays = {name: ([], [], []) for name in network.azimuth_set_names}
-    for label, azi, dip_value, trace_length in zip(labels, azimuth, dip, length):
+    arrays = {name: ([], [], [], []) for name in network.azimuth_set_names}
+    for index, (label, azi, dip_value, trace_length) in enumerate(
+        zip(labels, azimuth, dip, length)
+    ):
+        direction = None if dip_direction is None else dip_direction[index]
         if (
             label == NULL_SET
             or label not in arrays
             or not np.isfinite(azi)
             or not np.isfinite(dip_value)
             or not 0 <= dip_value <= 90
+            or (
+                direction is not None
+                and np.isfinite(direction)
+                and not 0 <= direction <= 360
+            )
+            or (direction is not None and np.isinf(direction))
             or not np.isfinite(trace_length)
             or trace_length <= 0
         ):
@@ -165,6 +186,9 @@ def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
         arrays[label][0].append(azi)
         arrays[label][1].append(dip_value)
         arrays[label][2].append(trace_length)
+        arrays[label][3].append(
+            np.nan if direction is None or not np.isfinite(direction) else direction
+        )
 
     usable = {
         name: tuple(np.asarray(values, dtype=float) for values in grouped)
@@ -178,6 +202,7 @@ def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
     return _FractureSetSamples(
         azimuth={name: values[0] for name, values in usable.items()},
         dip={name: values[1] for name, values in usable.items()},
+        dip_direction={name: values[3] for name, values in usable.items()},
         length={name: values[2] for name, values in usable.items()},
         proportions={name: len(values[0]) / count for name, values in usable.items()},
     )
@@ -218,9 +243,8 @@ def export_network_to_porepy_3d_csv_format(
     MAJOR_AXIS_ANGLE,STRIKE_ANGLE,DIP_ANGLE``.  Centres are sampled inside
     the cuboid independently, but fracture disks are not guaranteed to fit
     inside it.  Circular semi-axes are half the sampled observed trace
-    length.  The trace azimuth is used as strike (in radians); PorePy's
-    right-hand rule implies the dip direction, so no dip-direction field is
-    read or emitted.
+    length. If ``trace_gdf`` has valid ``dip_dir``, strike is derived from
+    it to preserve plane orientation; otherwise trace azimuth supplies strike.
 
     Fitted powerlaw distributions are intentionally not sampled in v1:
     empirical resampling is reproducible from the supplied Generator, while
@@ -271,7 +295,11 @@ def export_network_to_porepy_3d_csv_format(
                 major_axis=samples.length[name][source] / 2,
                 minor_axis=samples.length[name][source] / 2,
                 major_axis_angle=0.0,
-                strike_angle_rad=np.deg2rad(samples.azimuth[name][source]),
+                strike_angle_rad=np.deg2rad(
+                    convert_azimuth_to_strike(samples.azimuth[name][source])
+                    if np.isnan(samples.dip_direction[name][source])
+                    else calc_strike(samples.dip_direction[name][source])
+                ),
                 dip_angle_rad=np.deg2rad(samples.dip[name][source]),
             )
             rows.append(fracture.to_csv_row())

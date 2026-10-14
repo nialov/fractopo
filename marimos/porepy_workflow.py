@@ -53,8 +53,9 @@ def _(mo):
             mo.md("## Fractopo → PorePy 3-D fracture workflow"),
             mo.md(
                 "This example uses the small **KB7** trace dataset. "
-                "The source traces are 2-D, so deterministic synthetic dips "
-                "between 60° and 90° are added before sampling."
+                "The source traces are 2-D. This workflow detects 2-D azimuth "
+                "sets, fits 3-D plane-pole models from a few example measurements, "
+                "and fills the remaining orientations before PorePy export."
             ),
             mo.hstack([mo.md("Fractures:"), fracture_count]),
             mo.hstack([mo.md("Random seed:"), seed]),
@@ -79,16 +80,32 @@ def _(Path, gpd):
 
 @app.cell
 def _(Network, area, np, traces):
-    # KB7 contains no orientation columns. A fixed sequence makes the notebook
-    # useful in script mode and makes regenerated CSV output reproducible.
+    # KB7 contains no orientation columns. Seed a small paired structural
+    # measurement sample to demonstrate fitting from sparse measured data.
     traces_with_dips = traces.copy()
-    traces_with_dips["dip"] = np.linspace(60.0, 90.0, len(traces_with_dips))
+    traces_with_dips["dip"] = np.nan
+    traces_with_dips["dip_dir"] = np.nan
+    measured_count = min(12, len(traces_with_dips))
+    measured_indices = traces_with_dips.index[:measured_count]
+    traces_with_dips.loc[measured_indices, "dip"] = np.linspace(
+        60.0, 85.0, measured_count
+    )
+    traces_with_dips.loc[measured_indices, "dip_dir"] = np.linspace(
+        30.0, 150.0, measured_count
+    )
     network = Network(
         trace_gdf=traces_with_dips,
         area_gdf=area,
         name="KB7",
         determine_branches_nodes=False,
         truncate_traces=True,
+    )
+    orientation_diagnostics = network.complete_trace_orientations(
+        rng=np.random.default_rng(42),
+        fill_null_set=True,
+        fallback_dip=75.0,
+        fallback_dip_dir=90.0,
+        fallback_angular_std=15.0,
     )
     network_summary = {
         "source traces": len(traces),
@@ -97,6 +114,12 @@ def _(Network, area, np, traces):
         "azimuth sets": network.azimuth_set_names,
         "trace counts by set": network.trace_azimuth_set_counts,
         "mean trace length": float(np.mean(network.trace_data.length_array)),
+        "measured orientation rows": measured_count,
+        "generated orientation rows": int(
+            network.trace_gdf[["dip", "dip_dir"]].notna().all(axis=1).sum()
+            - measured_count
+        ),
+        "orientation models": orientation_diagnostics,
     }
     return network, network_summary, traces_with_dips
 

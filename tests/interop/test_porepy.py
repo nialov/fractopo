@@ -53,7 +53,7 @@ def test_extract_network_fracture_set_samples_rejects_all_invalid():
             azimuth_array=np.array([10.0]),
             length_array=np.array([1.0]),
         ),
-        trace_gdf={"dip": np.array([20.0])},
+        trace_gdf={"dip": np.array([20.0]), "dip_dir": np.array([np.nan])},
     )
     with pytest.raises(ValueError, match="usable.*set"):
         _extract_network_fracture_set_samples(network)
@@ -84,7 +84,10 @@ def test_export_network_to_porepy_3d_csv_format():
             azimuth_array=np.array([10.0, 11.0, 20.0, 30.0]),
             length_array=np.array([4.0, 6.0, 8.0, 10.0]),
         ),
-        trace_gdf={"dip": np.array([20.0, 30.0, 40.0, 50.0])},
+        trace_gdf={
+            "dip": np.array([20.0, 30.0, 40.0, 50.0]),
+            "dip_dir": np.array([100.0, 101.0, 110.0, 120.0]),
+        },
     )
     bounds = (0.0, 10.0, 20.0, 1.0, 11.0, 21.0)
     first = export_network_to_porepy_3d_csv_format(
@@ -112,6 +115,45 @@ def test_export_network_to_porepy_3d_csv_format():
         np.isclose(float(row.split(",")[7]), np.deg2rad(40)) for row in lines[1:]
     )
     assert all(float(row.split(",")[3]) in (2.0, 3.0, 4.0) for row in lines[1:])
+    expected_strikes = {
+        np.deg2rad(20.0): np.deg2rad(10.0),
+        np.deg2rad(30.0): np.deg2rad(11.0),
+        np.deg2rad(40.0): np.deg2rad(20.0),
+    }
+    assert all(
+        np.isclose(row[6], expected_strikes[row[7]])
+        for row in (
+            np.asarray([float(value) for value in line.split(",")])
+            for line in lines[1:]
+        )
+    )
+
+
+def test_network_export_preserves_opposite_dip_direction_sides():
+    network = SimpleNamespace(
+        azimuth_set_names=("set",),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["set", "set"]),
+            azimuth_array=np.array([90.0, 90.0]),
+            length_array=np.array([2.0, 2.0]),
+        ),
+        trace_gdf={"dip": np.array([80.0, 80.0]), "dip_dir": np.array([0.0, 180.0])},
+    )
+    rows = export_network_to_porepy_3d_csv_format(
+        network,
+        fracture_count=50,
+        bounds=(0, 0, 0, 1, 1, 1),
+        rng=np.random.default_rng(0),
+    ).splitlines()[1:]
+    strike_dips = sorted(
+        (
+            round(np.rad2deg(float(row.split(",")[6]))),
+            round(np.rad2deg(float(row.split(",")[7]))),
+        )
+        for row in rows
+    )
+    assert all(dip == 80 for _, dip in strike_dips)
+    assert {strike for strike, _ in strike_dips} == {90, 270}
 
 
 @pytest.mark.parametrize(

@@ -4,6 +4,14 @@ fractopo.interop package
 Submodules
 ----------
 
+fractopo.interop.orientation module
+-----------------------------------
+
+.. automodule:: fractopo.interop.orientation
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 fractopo.interop.porepy module
 ------------------------------
 
