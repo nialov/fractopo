@@ -32,10 +32,10 @@ Thanks to *Siyh* for the issue report and above code example
 (https://github.com/nialov/fractopo/issues/21).
 
 Furthermore, some validation and analysis remove Z-coordinates from
-geometric results. Specifically, use of ``Validation`` will remove
-Z-coordinates to avoid unexpected behaviour. Use of ``Network`` will by
-default remove z-coordinates but this can be disabled (See ``Network``
-input arguments)..
+geometric results. Specifically, :class:`fractopo.tval.trace_validation.Validation`
+removes Z-coordinates to avoid unexpected behaviour. Use of
+:class:`fractopo.analysis.network.Network` removes Z-coordinates by default.
+You can disable this with its ``remove_z_coordinates_from_inputs`` argument.
 
 Snap threshold parameter
 ------------------------

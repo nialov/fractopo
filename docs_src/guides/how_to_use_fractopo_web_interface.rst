@@ -84,16 +84,13 @@ parameters and, e.g, handle partly unknown trace lengths better. To get
 more info about some of the settings, click the link that is embedded in
 the option title text.
 
-Azimuth sets are detected automatically when the ``Define azimuth sets?``
-toggle is off. The automatic detection uses the processed traces and trims
-the detected ranges. Use the toggle when you need to provide fixed ranges
-instead. Then set the number of sets and enter the minimum and maximum value
-for each set.
+With ``Define azimuth sets?`` turned off, fractopo detects sets from the
+processed traces and trims their ranges. Turn it on to enter fixed ranges.
+Choose the number of sets, then enter the minimum and maximum azimuth for each.
 
-Azimuth ranges are ordered (start, end). To cross 180°/0°, the start must be
-higher than the end: a ``N-S`` range of ``(165, 15)`` includes azimuths near
-0°, whereas ``(15, 165)`` covers the middle of the 0°–180° interval. See the
-screenshots below.
+Ranges use (start, end) order. A range such as ``(165, 15)`` crosses 180°/0°
+and includes azimuths near 0°. ``(15, 165)`` covers the interval between those
+values. See the screenshots below.
 
 .. dropdown:: Examples of defining azimuth sets
    :animate: fade-in

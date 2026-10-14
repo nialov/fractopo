@@ -22,10 +22,10 @@ def _azimuths_to_axial_unit_vectors(azimuths_deg: np.ndarray) -> np.ndarray:
     """
     Represent axial azimuths on the unit circle.
 
-    Double the angle to map the 180° range of line orientations onto a full
-    circle: 0° and 180° coincide, while 90° maps to (-1, 0). These vectors
-    encode orientations for clustering, NOT physical line directions where
-    90° would map to (1, 0).
+    Doubling the angle maps line orientations from 0°–180° onto a full circle.
+    The encoding makes 0° and 180° equivalent, and maps 90° to (-1, 0). This
+    vector represents an orientation for clustering. As a physical direction,
+    90° would point along (1, 0).
 
     Examples
     --------
@@ -44,8 +44,8 @@ def _cluster_centers_to_axial_azimuths(cluster_centers: np.ndarray) -> np.ndarra
     """
     Convert doubled-angle circle coordinates back to axial azimuths in [0, 180).
 
-    Undo the orientation encoding used for clustering: a center at (-1, 0)
-    represents a 90° line orientation, not a line pointing west.
+    This reverses the clustering encoding. For example, (-1, 0) maps back to
+    a 90° line orientation, even though the vector itself points west.
 
     Examples
     --------
@@ -66,9 +66,9 @@ def _smallest_covering_axial_range(
     """
     Return the smallest axial range covering the cluster azimuths.
 
-    The returned range is expressed in [0, 180). It is ordered (start, end):
-    a start greater than the end means it wraps across 180°/0°, e.g.
-    ``(170.0, 20.0)``. Otherwise it is the interval between the endpoints.
+    The returned range is in [0, 180) and is ordered (start, end). If the
+    start is greater than the end, the range wraps across 180°/0°. For example,
+    ``(170.0, 20.0)`` wraps, while ``(70.0, 110.0)`` does not.
 
     Examples
     --------
@@ -147,11 +147,10 @@ def _trim_unwrapped_cluster_range_by_length_fraction(
     """
     Return the narrowest unwrapped range containing the target length fraction.
 
-    Sort azimuths, then scan candidate windows from left to right. For each
-    left edge, advance the right edge until the window contains the target
-    weighted length, then move the left edge forward and keep searching. The
-    left edge is not fixed, and the moving right edge only advances, making this
-    a linear scan after sorting.
+    After sorting, scan windows from left to right. For each left edge, advance
+    the right edge until the window contains the target weighted length. Then
+    move the left edge forward and continue searching. The right edge only
+    moves forward, so the scan is linear after sorting.
 
     Examples
     --------
@@ -238,9 +237,9 @@ def trim_azimuth_set_ranges(
     """
     Trim detected axial set ranges to retain only a target fracture-length fraction.
 
-    The current implementation trims each detected set independently by finding
-    the narrowest axial sub-range that contains at least the requested fraction
-    of the fracture length already assigned to that set.
+    Each set is trimmed separately. The function finds the narrowest axial
+    sub-range that retains at least the requested fraction of the total trace
+    length assigned to that set.
 
     :param azimuths_deg: 1D array of axial azimuths in degrees.
     :param length_array: 1D array of strictly positive fracture lengths with the
@@ -464,8 +463,8 @@ def automatic_azimuth_sets(
         random_state,
     )
     log.debug(
-        "Doubling axial angles and embedding them as unit vectors so opposite "
-        "directions represent the same orientation."
+        "Doubling axial angles before embedding them as unit vectors. This "
+        "makes opposite directions represent the same orientation."
     )
     unit_vectors = _azimuths_to_axial_unit_vectors(azimuths)
 

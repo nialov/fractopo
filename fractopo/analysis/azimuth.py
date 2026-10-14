@@ -274,7 +274,7 @@ def decorate_azimuth_ax(
     """
     Add labels and optional set guides to an azimuth rose plot.
 
-    Set boundaries and centers are drawn only when ``visualize_sets`` is true.
+    Range boundaries and centers appear when ``visualize_sets`` is true.
     """
     # Title is the name of the target area or group
     # prop_title = dict(boxstyle="square", facecolor="linen", alpha=1, linewidth=2)

@@ -321,8 +321,8 @@ def network(
     retained_azimuth_length_fraction: float = typer.Option(
         0.7,
         help=(
-            "Fraction of weighted trace length retained in automatic azimuth "
-            "ranges; higher values (up to 1) give tighter ranges, lower "
+            "Fraction of weighted trace length to keep in automatic azimuth "
+            "ranges. Higher values, up to 1, give tighter ranges. Lower "
             "values give wider ranges."
         ),
     ),
@@ -353,9 +353,9 @@ def network(
     """
     Analyze the geometry and topology of a trace network.
 
-    Azimuth sets are detected and trimmed automatically. Use the azimuth-set
-    options to control detection, or use the Python API to provide explicit
-    ``azimuth_set_ranges``.
+    By default, fractopo detects and trims azimuth sets. Use the azimuth-set
+    options to adjust detection. In Python, pass explicit ``azimuth_set_ranges``
+    to use fixed ranges.
     """
     network_name = name if name is not None else area_file.stem
 
