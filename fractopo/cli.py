@@ -319,7 +319,12 @@ def network(
         3, help="Number of automatically detected azimuth sets."
     ),
     retained_azimuth_length_fraction: float = typer.Option(
-        0.7, help="Length fraction retained in automatic azimuth ranges."
+        0.7,
+        help=(
+            "Fraction of weighted trace length retained in automatic azimuth "
+            "ranges; higher values (up to 1) give tighter ranges, lower "
+            "values give wider ranges."
+        ),
     ),
     random_state: Optional[int] = typer.Option(
         None, help="Random seed for automatic azimuth detection."

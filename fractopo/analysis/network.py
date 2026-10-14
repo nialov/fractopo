@@ -134,12 +134,14 @@ class Network:
         each detected set.
     :param azimuth_set_ranges: Ranges assigned to the azimuth sets. Pass
         ``None`` to detect the ranges from the processed traces during
-        initialization.
+        initialization. Ranges are ordered (start, end): ``(170, 10)`` wraps
+        across 180°/0°, while ``(10, 170)`` covers the interval in between.
     :param n_azimuth_sets: Number of sets to detect when
         ``azimuth_set_ranges`` is ``None``.
     :param retained_azimuth_length_fraction: Fraction of weighted trace length
-        to retain when trimming detected ranges. The value must be in
-        ``(0, 1]``.
+        to retain when trimming detected ranges. Higher values (up to ``1``)
+        give tighter ranges; lower values give wider ranges. The value must be
+        in ``(0, 1]``.
     :param random_state: Optional seed for the automatic detector.
     :param trace_length_set_names: Names of each trace length set.
     :param trace_length_set_ranges: Ranges of each trace length set.

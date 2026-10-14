@@ -291,8 +291,9 @@ def determine_set(
     """
     Determine which named value range, if any, value is within.
 
-    loop_around defines behavior expected for radial data i.e. when value range
-    can loop back around e.g. [160, 50]
+    With ``loop_around=True``, a range whose start exceeds its end crosses
+    180°/0°, e.g. (170, 10) includes 175° and 5°. (10, 170) instead covers
+    the non-wrapping interval from 10° to 170°.
 
     E.g.
 
@@ -344,8 +345,9 @@ def is_set(
     """
     Determine if value fits within the given value_range.
 
-    If the value range has the possibility of looping around loop_around can be
-    set to true.
+    With ``loop_around=True``, (170, 10) wraps across 180°/0°;
+    (10, 170) is the non-wrapping interval between those values. Endpoints
+    are included.
 
     >>> is_set(5, (0, 10), False)
     True
@@ -355,6 +357,9 @@ def is_set(
 
     >>> is_set(0, (175, 15), True)
     True
+
+    >>> is_set(0, (15, 175), True)
+    False
 
     :param value: Value to determine.
     :param value_range: The range of values.
