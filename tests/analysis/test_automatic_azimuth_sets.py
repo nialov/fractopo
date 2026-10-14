@@ -36,6 +36,21 @@ def test_smallest_covering_axial_range_known_cases(azimuths, expected_range):
     assert np.allclose(result, expected_range)
 
 
+@pytest.mark.parametrize(
+    ("range_tuple", "inside", "outside"),
+    [
+        ((170.0, 10.0), (175.0, 0.0, 5.0), (15.0, 90.0, 165.0)),
+        ((10.0, 170.0), (15.0, 90.0, 165.0), (175.0, 0.0, 5.0)),
+    ],
+)
+def test_axial_range_order_controls_wraparound(range_tuple, inside, outside):
+    """Reversing endpoints selects the complementary side of the axial circle."""
+    assert all(is_set(azimuth, range_tuple, loop_around=True) for azimuth in inside)
+    assert all(
+        not is_set(azimuth, range_tuple, loop_around=True) for azimuth in outside
+    )
+
+
 def test_automatic_azimuth_sets_perfect_clusters():
     """Test automatic_azimuth_sets with well-separated deterministic clusters."""
     azimuths = np.concatenate(

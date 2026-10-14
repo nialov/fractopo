@@ -10,6 +10,12 @@
   automatic detection with ``n_azimuth_sets`` and
   ``retained_azimuth_length_fraction``.
 
+### Features
+
+- Automatic detection exposes the resolved azimuth-set centers through
+  ``Network.azimuth_set_centers``. Set guide plotting now shows both detected
+  range edges and center lines when ``visualize_sets=True``.
+
 ## v0.9.2 (2026-05-22)
 
 Includes dependency updates of Python packages, `marimo` entrypoint integration

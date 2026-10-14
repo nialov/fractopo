@@ -90,8 +90,10 @@ the detected ranges. Use the toggle when you need to provide fixed ranges
 instead. Then set the number of sets and enter the minimum and maximum value
 for each set.
 
-You can define a set that wraps around 0. For example, a set labeled ``N-S``
-can start at 165 and end at 15. See the screenshots below.
+Azimuth ranges are ordered (start, end). To cross 180°/0°, the start must be
+higher than the end: a ``N-S`` range of ``(165, 15)`` includes azimuths near
+0°, whereas ``(15, 165)`` covers the middle of the 0°–180° interval. See the
+screenshots below.
 
 .. dropdown:: Examples of defining azimuth sets
    :animate: fade-in

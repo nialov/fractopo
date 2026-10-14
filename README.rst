@@ -262,7 +262,10 @@ When ``azimuth_set_ranges`` is omitted, ``Network`` automatically detects
 azimuth sets from the processed traces during initialization. It detects three
 sets by default and trims their ranges. Set ``azimuth_set_ranges`` explicitly
 when you need fixed, user-defined ranges, or use ``n_azimuth_sets`` and
-``retained_azimuth_length_fraction`` to control automatic detection.
+``retained_azimuth_length_fraction`` to control automatic detection. Higher
+values (up to ``1``) retain tighter ranges; lower values retain wider ranges.
+Azimuth ranges are ordered (start, end): ``(170, 10)`` crosses 180°/0°,
+whereas ``(10, 170)`` covers the interval between the endpoints.
 
 .. code:: python
 
