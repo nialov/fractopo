@@ -4,17 +4,15 @@
 
 ### Breaking changes
 
-- ``Network`` now detects and trims azimuth sets automatically when
-  ``azimuth_set_ranges`` is omitted. It detects three sets by default. Pass
-  explicit ranges to keep fixed, user-defined azimuth sets, or configure the
-  automatic detection with ``n_azimuth_sets`` and
-  ``retained_azimuth_length_fraction``.
+- ``Network`` does automatic detection of azimuth sets, and subsequent
+  trimming, when ``azimuth_set_ranges`` is omitted. It detects three sets by
+  default. Pass explicit ranges to use fixed azimuth sets, or adjust automatic
+  detection with ``n_azimuth_sets`` and ``retained_azimuth_length_fraction``.
 
 ### Features
 
-- Automatic detection exposes the resolved azimuth-set centers through
-  ``Network.azimuth_set_centers``. Set guide plotting now shows both detected
-  range edges and center lines when ``visualize_sets=True``.
+- ``Network.azimuth_set_centers`` provides the resolved set centers. When
+  ``visualize_sets=True``, azimuth plots show the range edges and center lines.
 
 ## v0.9.2 (2026-05-22)
 

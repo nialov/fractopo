@@ -258,21 +258,22 @@ Trace and target area data (``GeoDataFrames``) are passed into a
 ``Network`` object which has properties and functions for returning and
 visualizing different parameters and attributes of trace data.
 
-When ``azimuth_set_ranges`` is omitted, ``Network`` automatically detects
-azimuth sets from the processed traces during initialization. It detects three
-sets by default and trims their ranges. Set ``azimuth_set_ranges`` explicitly
-when you need fixed, user-defined ranges, or use ``n_azimuth_sets`` and
-``retained_azimuth_length_fraction`` to control automatic detection. Higher
-values (up to ``1``) retain tighter ranges; lower values retain wider ranges.
-Azimuth ranges are ordered (start, end): ``(170, 10)`` crosses 180°/0°,
-whereas ``(10, 170)`` covers the interval between the endpoints.
+When ``azimuth_set_ranges`` is omitted, ``Network`` detects azimuth sets from
+the processed traces during initialization and trims their ranges. The default
+is three sets. Pass explicit ranges to use fixed sets, or adjust detection with
+``n_azimuth_sets`` and ``retained_azimuth_length_fraction``. Higher retained
+fractions, up to ``1``, give tighter ranges. Lower fractions give wider ranges.
+
+Ranges use (start, end) order. ``(170, 10)`` crosses 180°/0°, while
+``(10, 170)`` covers the interval between those endpoints. See the
+`Network API documentation <https://nialov.github.io/fractopo/apidoc/fractopo.analysis/#fractopo.analysis.network.Network>`_
+for all azimuth-set options.
 
 .. code:: python
 
    from fractopo import Network
 
-   # Without azimuth_set_ranges, Network detects and trims azimuth sets
-   # automatically during initialization.
+   # Network detects and trims azimuth sets when ranges are omitted.
    # Initialize Network object and determine the topological branches and nodes
    network = Network(
        trace_data,

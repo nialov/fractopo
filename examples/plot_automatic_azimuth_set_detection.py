@@ -2,31 +2,27 @@
 Automatic azimuth set detection
 ===============================
 
-This example shows two ways to use automatic azimuth set detection.
+This example covers two automatic azimuth-set workflows.
 
-The first workflow uses :class:`fractopo.Network` directly. When
-``azimuth_set_ranges=None`` (the default), ``Network`` detects azimuth sets
-from the processed trace data during initialization, trims the detected ranges,
-and stores the resolved ranges and centers for later plots and analyses.
+First, :class:`fractopo.analysis.network.Network` detects and trims sets during initialization
+when ``azimuth_set_ranges`` is omitted. It stores the resolved ranges and
+centers for later analysis and plotting.
 
-The second workflow uses
+The second workflow calls
 ``fractopo.analysis.automatic_azimuth_sets.automatic_azimuth_sets`` and
-``trim_azimuth_set_ranges`` step by step. Use it to inspect the raw detected
-centers and ranges, try parameters such as ``n_sets`` and
-``retained_length_fraction``, and iterate before creating a ``Network`` with
-manual ranges.
+``trim_azimuth_set_ranges`` separately. This lets you inspect the detected
+centers and ranges, then try different values for ``n_sets`` and
+``retained_length_fraction`` before deciding which ranges to use in a
+``Network``.
 
-Automatic azimuth sets use only trace orientations and weighted trace lengths.
-A higher ``retained_length_fraction`` (up to ``1``) gives tighter ranges; a
-lower value gives wider ranges. They are useful for exploration, but the
-result should still be checked against the geology of the target area.
+Detection uses trace orientations and weighted trace lengths. Higher retained
+fractions, up to ``1``, give tighter ranges. Lower fractions give wider ranges.
+Check the results against the geology of the target area.
 """
 
 # %%
 # Imports and example data
 # ------------------------
-#
-# Load the example network and the helper functions used below.
 
 from pprint import pprint
 
@@ -44,9 +40,8 @@ from fractopo.analysis.automatic_azimuth_sets import (
 # Workflow 1: let ``Network`` resolve the azimuth sets
 # ----------------------------------------------------
 #
-# This is the short path. ``Network`` handles the automatic detection and
-# trimming during initialization. The resolved definitions are then available
-# everywhere the network uses azimuth sets.
+# ``Network`` detects and trims the sets during initialization. The resolved
+# ranges and centers are available on the network for plotting and analysis.
 kb11_network_automatic_sets = Network(
     trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
     area_gdf=KB11_NETWORK.area_gdf,
@@ -80,9 +75,8 @@ plt.show()
 # Workflow 2: inspect the helper functions and iterate manually
 # -------------------------------------------------------------
 #
-# This workflow exposes the intermediate results. Use it to inspect what the
-# detector found, try different parameters, or decide how tightly to trim the
-# ranges before creating a final ``Network``.
+# Inspect the intermediate results and change the parameters before creating
+# a Network with the ranges you want to use.
 
 # %%
 # Start from the trace azimuths
@@ -100,10 +94,10 @@ pprint(azimuths[:10])
 # Detect candidate sets
 # ---------------------
 #
-# Set the number of groups to find. The clustering weights each azimuth by
-# fracture length, so longer traces have more influence on the centers.
-# ``random_state`` keeps the example output reproducible. In your own work,
-# rerun this step with different ``n_sets`` values to compare the result.
+# Set how many groups to find. Longer traces have more influence on the
+# centers because clustering weights each azimuth by trace length. The fixed
+# random state makes this example reproducible. Try other ``n_sets`` values
+# to compare the results.
 
 n_sets = 2
 centers, ranges = automatic_azimuth_sets(
@@ -124,10 +118,8 @@ pprint(tuple(tuple(np.round(range_tuple, 1)) for range_tuple in ranges))
 # Review the detected ranges before trimming
 # ------------------------------------------
 #
-# One way to inspect the helper output is to build a temporary ``Network``
-# from the detected ranges and plot it with set visualization enabled. Print
-# the ranges alongside the plot because broad detected ranges can be hard to
-# read from the rose plot alone.
+# Plot the detected ranges on a temporary Network. The printed values help
+# interpret broad ranges that may be hard to read from the rose plot.
 
 inspection_network = Network(
     trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],
@@ -150,10 +142,10 @@ plt.show()
 # Trim the detected ranges
 # ------------------------
 #
-# The detector returns full set ranges. ``trim_azimuth_set_ranges`` narrows
-# them so that each set retains a chosen fraction of its assigned weighted trace
-# length. Traces outside the retained ranges fall into the null set. This is a
-# useful parameter to adjust when the raw ranges look too broad or too narrow.
+# ``trim_azimuth_set_ranges`` narrows each detected range to retain the chosen
+# fraction of its assigned weighted trace length. Traces outside the trimmed
+# ranges are assigned to the null set. Adjust the fraction if the ranges look
+# too broad or too narrow.
 
 retained_length_fraction = 0.8
 trimmed_ranges, trimmed_labels = trim_azimuth_set_ranges(
@@ -178,8 +170,7 @@ pprint(
 # Build a final ``Network`` from the inspected result
 # ---------------------------------------------------
 #
-# After reviewing the helper output, pass the chosen ranges back into
-# ``Network`` and continue with a manual azimuth set definition.
+# Pass the ranges you want to keep into ``Network`` as a manual definition.
 
 tuned_network = Network(
     trace_gdf=KB11_NETWORK.trace_gdf[["geometry"]],

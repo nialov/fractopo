@@ -21,8 +21,8 @@ required (it is similarly loaded from ``fractopo`` GitHub page).
 # %%
 # Initialize ``fractopo.Network``
 # -------------------------------
-# Azimuth sets are explicitly set here for the networks that are used together.
-# If ranges are omitted, Network detects and trims azimuth sets automatically.
+# These networks use explicit azimuth ranges so their sets can be compared.
+# If ranges are omitted, Network detects and trims sets automatically.
 
 from pathlib import Path
 
