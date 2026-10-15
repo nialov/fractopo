@@ -34,6 +34,7 @@ def _():
 
     from fractopo.analysis.network import Network
     from fractopo.interop.porepy import (
+        condition_porepy_csv_slice_targets,
         export_network_to_porepy_3d_csv_format,
         exterior_triangle_connectivity,
         porepy_csv_fracture_diameters,
@@ -45,6 +46,7 @@ def _():
     return (
         Network,
         Path,
+        condition_porepy_csv_slice_targets,
         export_network_to_porepy_3d_csv_format,
         exterior_triangle_connectivity,
         porepy_csv_fracture_diameters,
@@ -118,6 +120,11 @@ def _(
 @app.cell
 def _(mo):
     fracture_count = mo.ui.number(start=10, stop=500, value=60, step=10)
+    condition_on_slices = mo.ui.checkbox(
+        label="Condition on surface slices", value=False
+    )
+    p21_tolerance = mo.ui.number(start=0.0, stop=1.0, value=0.5, step=0.05)
+    top_count_tolerance = mo.ui.number(start=0.0, stop=1.0, value=0.5, step=0.05)
     seed = mo.ui.number(start=0, stop=999999, value=42, step=1)
     fracture_mesh_size = mo.ui.number(start=0.1, stop=10.0, value=3.0, step=0.1)
     background_mesh_size = mo.ui.number(start=0.1, stop=10.0, value=5.0, step=0.1)
@@ -134,7 +141,12 @@ def _(mo):
                 "four traces per detected azimuth set. The workflow then fits "
                 "set pole models, fills the remaining orientations, and exports."
             ),
-            mo.hstack([mo.md("Fractures:"), fracture_count]),
+            mo.hstack([mo.md("Base fractures:"), fracture_count]),
+            condition_on_slices,
+            mo.hstack([mo.md("P21 relative tolerance:"), p21_tolerance]),
+            mo.hstack(
+                [mo.md("Top trace-count relative tolerance:"), top_count_tolerance]
+            ),
             mo.hstack([mo.md("Random seed:"), seed]),
             reuse_existing,
             run,
@@ -146,8 +158,11 @@ def _(mo):
     )
     return (
         background_mesh_size,
+        condition_on_slices,
         fracture_count,
         fracture_mesh_size,
+        p21_tolerance,
+        top_count_tolerance,
         mesh_run,
         reuse_existing,
         run,
@@ -234,9 +249,13 @@ def _(mo, network_summary):
 @app.cell
 def _(
     area,
+    condition_on_slices,
+    condition_porepy_csv_slice_targets,
     export_network_to_porepy_3d_csv_format,
     fracture_count,
     mo,
+    p21_tolerance,
+    top_count_tolerance,
     network,
     np,
     root,
@@ -249,33 +268,65 @@ def _(
     generate_export = run.value or mo.app_meta().mode == "script"
     mo.stop(not (reuse_export or generate_export))
 
+    slice_result = None
     if reuse_export:
         csv_text = output_path.read_text().rstrip("\n")
         export_source = "reused existing CSV"
     else:
         xmin, ymin, xmax, ymax = map(float, area.total_bounds)
         bounds = (xmin, ymin, 0.0, xmax, ymax, 20.0)
-        csv_text = export_network_to_porepy_3d_csv_format(
-            network,
-            fracture_count=int(fracture_count.value),
-            bounds=bounds,
-            rng=np.random.default_rng(int(seed.value)),
-        )
+        rng = np.random.default_rng(int(seed.value))
+        if condition_on_slices.value:
+            section_heights = np.linspace(2.0, 18.0, 5)
+            footprint_area = (xmax - xmin) * (ymax - ymin)
+            slice_result = condition_porepy_csv_slice_targets(
+                network,
+                fracture_count=int(fracture_count.value),
+                bounds=bounds,
+                section_heights=section_heights,
+                target_p21=float(network.trace_data.length_array.sum())
+                / float(network.total_area),
+                target_top_count=round(
+                    len(network.trace_data.length_array)
+                    * footprint_area
+                    / float(network.total_area)
+                ),
+                rng=rng,
+                max_attempts=3,
+                p21_tolerance=float(p21_tolerance.value),
+            )
+            csv_text = slice_result["csv_text"]
+        else:
+            csv_text = export_network_to_porepy_3d_csv_format(
+                network,
+                fracture_count=int(fracture_count.value),
+                bounds=bounds,
+                rng=rng,
+            )
         output_path.parent.mkdir(exist_ok=True)
         output_path.write_text(csv_text + "\n")
-        export_source = "generated CSV"
-    return csv_text, export_source, output_path
+        export_source = "generated conditioned CSV" if slice_result else "generated CSV"
+    return csv_text, export_source, output_path, slice_result
 
 
 @app.cell
-def _(csv_text, export_source, mo, network, output_path):
+def _(csv_text, export_source, mo, network, output_path, slice_result):
     rows = csv_text.splitlines()
+    status = ""
+    if slice_result:
+        metrics = slice_result["metrics"]
+        status = (
+            f" Conditioning added **{slice_result['added_top_fracture_count']}** top-hit "
+            f"fractures to the base population; top hits **{metrics['top_intersection_count']}**, "
+            f"mean section P21 relative error **{metrics['mean_absolute_relative_p21_error']:.1%}** "
+            f"in {slice_result['attempts']} attempt(s)."
+        )
     mo.md(
         "### Completed trace orientations and PorePy input\n\n"
         f"Completed orientations: **{network.trace_gdf[['dip', 'dip_dir']].notna().all(axis=1).sum()}**; "
         f"{export_source} at `{output_path}` with **{len(rows) - 1}** circular fractures. "
         "The first row is the cuboid domain; each remaining row stores center, "
-        "two semi-axes, strike, and dip."
+        "two semi-axes, strike, and dip." + status
     )
 
 

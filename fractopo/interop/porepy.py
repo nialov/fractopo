@@ -406,6 +406,9 @@ def condition_porepy_csv_slice_targets(
     target_p21: SupportsFloat,
     target_top_count: int,
     rng: Optional[np.random.Generator] = None,
+    *,
+    max_attempts: int = 3,
+    p21_tolerance: SupportsFloat = 0.5,
 ) -> dict[str, object]:
     """Prototype conditioning: match zmax count, then assess interior P21.
 
@@ -413,12 +416,45 @@ def condition_porepy_csv_slice_targets(
     deficit is filled by additional fractures whose centers lie at zmax. This is
     a simple, intentionally non-stationary prototype, not a calibrated model.
     """
+    if max_attempts <= 0:
+        raise ValueError("max_attempts must be positive")
+    if not 0 <= float(p21_tolerance) <= 1:
+        raise ValueError("p21_tolerance must be between 0 and 1")
     generator = rng if rng is not None else np.random.default_rng()
+    candidates = [
+        _condition_porepy_csv_slice_targets_once(
+            network,
+            fracture_count,
+            bounds,
+            section_heights,
+            target_p21,
+            target_top_count,
+            generator,
+        )
+        for _ in range(max_attempts)
+    ]
+    best = min(
+        candidates,
+        key=lambda result: result["metrics"]["mean_absolute_relative_p21_error"],
+    )
+    best["attempts"] = max_attempts
+    return best
+
+
+def _condition_porepy_csv_slice_targets_once(
+    network,
+    fracture_count,
+    bounds,
+    section_heights,
+    target_p21,
+    target_top_count,
+    generator,
+):
     base_csv = export_network_to_porepy_3d_csv_format(
         network, fracture_count, bounds, rng=generator
     )
     base_rows = base_csv.splitlines()
-    xmin, ymin, zmin, xmax, ymax, zmax = map(float, bounds)
+    zmax = float(bounds[5])
     target_p21 = float(target_p21)
     if target_top_count <= 0 or target_p21 <= 0:
         raise ValueError("slice targets must be positive")
