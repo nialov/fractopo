@@ -409,6 +409,7 @@ def condition_porepy_csv_slice_targets(
     *,
     max_attempts: int = 3,
     p21_tolerance: SupportsFloat = 0.5,
+    top_count_tolerance: SupportsFloat = 0.5,
 ) -> dict[str, object]:
     """Prototype conditioning: match zmax count, then assess interior P21.
 
@@ -418,8 +419,12 @@ def condition_porepy_csv_slice_targets(
     """
     if max_attempts <= 0:
         raise ValueError("max_attempts must be positive")
-    if not 0 <= float(p21_tolerance) <= 1:
-        raise ValueError("p21_tolerance must be between 0 and 1")
+    for name, tolerance in (
+        ("p21_tolerance", p21_tolerance),
+        ("top_count_tolerance", top_count_tolerance),
+    ):
+        if not np.isfinite(float(tolerance)) or not 0 <= float(tolerance) <= 1:
+            raise ValueError(f"{name} must be finite and between 0 and 1")
     generator = rng if rng is not None else np.random.default_rng()
     candidates = [
         _condition_porepy_csv_slice_targets_once(
@@ -433,11 +438,22 @@ def condition_porepy_csv_slice_targets(
         )
         for _ in range(max_attempts)
     ]
+    matching = [
+        candidate
+        for candidate in candidates
+        if porepy_csv_matches_slice_targets(
+            candidate["metrics"],
+            p21_tolerance=p21_tolerance,
+            top_count_tolerance=top_count_tolerance,
+        )
+    ]
     best = min(
-        candidates,
-        key=lambda result: result["metrics"]["mean_absolute_relative_p21_error"],
+        matching or candidates,
+        key=lambda result: result["metrics"]["mean_absolute_relative_p21_error"]
+        + result["metrics"]["relative_top_count_error"],
     )
     best["attempts"] = max_attempts
+    best["target_match"] = bool(matching)
     return best
 
 

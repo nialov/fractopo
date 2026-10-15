@@ -294,6 +294,7 @@ def _(
                 rng=rng,
                 max_attempts=3,
                 p21_tolerance=float(p21_tolerance.value),
+                top_count_tolerance=float(top_count_tolerance.value),
             )
             csv_text = slice_result["csv_text"]
         else:
@@ -319,7 +320,8 @@ def _(csv_text, export_source, mo, network, output_path, slice_result):
             f" Conditioning added **{slice_result['added_top_fracture_count']}** top-hit "
             f"fractures to the base population; top hits **{metrics['top_intersection_count']}**, "
             f"mean section P21 relative error **{metrics['mean_absolute_relative_p21_error']:.1%}** "
-            f"in {slice_result['attempts']} attempt(s)."
+            f"in {slice_result['attempts']} attempt(s); both tolerances met: "
+            f"**{slice_result['target_match']}**."
         )
     mo.md(
         "### Completed trace orientations and PorePy input\n\n"

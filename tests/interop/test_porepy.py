@@ -279,10 +279,12 @@ def test_condition_porepy_csv_slice_targets_adds_top_intersections():
         fracture_count=1,
         bounds=(0, 0, 0, 1, 1, 1),
         section_heights=np.array([0.5]),
-        target_p21=1.0,
+        target_p21=3.0,
         target_top_count=3,
         rng=np.random.default_rng(2),
+        top_count_tolerance=0.0,
     )
+    assert result["target_match"] is True
     assert result["added_top_fracture_count"] == 2
     assert result["total_fracture_count"] == 3
     assert result["metrics"]["top_intersection_count"] == 3
