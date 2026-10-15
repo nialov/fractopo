@@ -58,6 +58,7 @@
                   ++ [
                     p.porepy
                     p.mplstereonet
+                    p.plotly
                   ]
                 )
 

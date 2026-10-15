@@ -1,7 +1,7 @@
 # /// script
 # [tool.marimo]
 # version = "0.15.2"
-# dependencies = ["marimo", "fractopo", "geopandas", "matplotlib", "numpy", "porepy", "mplstereonet"]
+# dependencies = ["marimo", "fractopo", "geopandas", "matplotlib", "numpy", "porepy", "mplstereonet", "plotly"]
 # [tool.marimo.runtime]
 # on_cell_change = "autorun"
 #
@@ -29,6 +29,8 @@ def _():
     import matplotlib.pyplot as plt
     import mplstereonet
     import numpy as np
+    import plotly.graph_objects as go
+    import porepy as pp
 
     from fractopo.analysis.network import Network
     from fractopo.interop.porepy import export_network_to_porepy_3d_csv_format
@@ -39,9 +41,11 @@ def _():
         export_network_to_porepy_3d_csv_format,
         gpd,
         mo,
+        go,
         mplstereonet,
         np,
         plt,
+        pp,
     )
 
 
@@ -49,7 +53,11 @@ def _():
 def _(mo):
     fracture_count = mo.ui.number(start=10, stop=500, value=60, step=10)
     seed = mo.ui.number(start=0, stop=999999, value=42, step=1)
+    fracture_mesh_size = mo.ui.number(start=0.1, stop=10.0, value=3.0, step=0.1)
+    background_mesh_size = mo.ui.number(start=0.1, stop=10.0, value=5.0, step=0.1)
+    reuse_existing = mo.ui.checkbox(label="Reuse existing exports/meshes", value=True)
     run = mo.ui.run_button(label="Generate PorePy network")
+    mesh_run = mo.ui.run_button(label="Mesh fracture network")
     mo.vstack(
         [
             mo.md("## Fractopo → PorePy 3-D fracture workflow"),
@@ -62,10 +70,23 @@ def _(mo):
             ),
             mo.hstack([mo.md("Fractures:"), fracture_count]),
             mo.hstack([mo.md("Random seed:"), seed]),
+            reuse_existing,
             run,
+            mo.md("### Mesh settings (metres)"),
+            mo.hstack([mo.md("Fracture size:"), fracture_mesh_size]),
+            mo.hstack([mo.md("Background size:"), background_mesh_size]),
+            mesh_run,
         ]
     )
-    return fracture_count, run, seed
+    return (
+        background_mesh_size,
+        fracture_count,
+        fracture_mesh_size,
+        mesh_run,
+        reuse_existing,
+        run,
+        seed,
+    )
 
 
 @app.cell
@@ -153,41 +174,47 @@ def _(
     network,
     np,
     root,
+    reuse_existing,
     run,
     seed,
 ):
-    mo.stop(not (run.value or mo.app_meta().mode == "script"))
-
-    xmin, ymin, xmax, ymax = map(float, area.total_bounds)
-    bounds = (xmin, ymin, 0.0, xmax, ymax, 20.0)
-    csv_text = export_network_to_porepy_3d_csv_format(
-        network,
-        fracture_count=int(fracture_count.value),
-        bounds=bounds,
-        rng=np.random.default_rng(int(seed.value)),
-    )
     output_path = root / ".cache" / "kb7_porepy_fractures.csv"
-    output_path.parent.mkdir(exist_ok=True)
-    output_path.write_text(csv_text + "\n")
-    return csv_text, output_path
+    reuse_export = reuse_existing.value and output_path.is_file()
+    generate_export = run.value or mo.app_meta().mode == "script"
+    mo.stop(not (reuse_export or generate_export))
+
+    if reuse_export:
+        csv_text = output_path.read_text().rstrip("\n")
+        export_source = "reused existing CSV"
+    else:
+        xmin, ymin, xmax, ymax = map(float, area.total_bounds)
+        bounds = (xmin, ymin, 0.0, xmax, ymax, 20.0)
+        csv_text = export_network_to_porepy_3d_csv_format(
+            network,
+            fracture_count=int(fracture_count.value),
+            bounds=bounds,
+            rng=np.random.default_rng(int(seed.value)),
+        )
+        output_path.parent.mkdir(exist_ok=True)
+        output_path.write_text(csv_text + "\n")
+        export_source = "generated CSV"
+    return csv_text, export_source, output_path
 
 
 @app.cell
-def _(csv_text, mo, network, output_path):
+def _(csv_text, export_source, mo, network, output_path):
     rows = csv_text.splitlines()
     mo.md(
         "### Completed trace orientations and PorePy input\n\n"
         f"Completed orientations: **{network.trace_gdf[['dip', 'dip_dir']].notna().all(axis=1).sum()}**; "
-        f"wrote `{output_path}` with **{len(rows) - 1}** circular fractures. "
+        f"{export_source} at `{output_path}` with **{len(rows) - 1}** circular fractures. "
         "The first row is the cuboid domain; each remaining row stores center, "
         "two semi-axes, strike, and dip."
     )
 
 
 @app.cell
-def _(mo, np, output_path):
-    import porepy as pp
-
+def _(mo, np, output_path, pp):
     porepy_network = pp.fracture_importer.network_from_csv(output_path, has_domain=True)
     fracture_centers = np.hstack(
         [np.asarray(fracture.center) for fracture in porepy_network.fractures]
@@ -199,6 +226,147 @@ def _(mo, np, output_path):
         f"Center array shape: `{fracture_centers.shape}`."
     )
     return fracture_centers, porepy_network
+
+
+@app.cell
+def _(
+    background_mesh_size,
+    mesh_run,
+    mo,
+    root,
+    porepy_network,
+    fracture_mesh_size,
+    reuse_existing,
+    pp,
+):
+    mesh_directory = root / ".cache" / "porepy_mesh"
+    mesh_path = mesh_directory / "kb7_fractures.msh"
+    reuse_mesh = reuse_existing.value and mesh_path.is_file()
+    mo.stop(not (reuse_mesh or mesh_run.value))
+
+    if reuse_mesh:
+        mesh = pp.meshing.subdomains_to_mdg(
+            pp.fracs.simplex.tetrahedral_grid_from_gmsh(mesh_path, verbose=0)
+        )
+        mesh_source = "reused existing Gmsh mesh"
+    else:
+        mesh_directory.mkdir(parents=True, exist_ok=True)
+        mesh = porepy_network.mesh(
+            {
+                "mesh_size_fracture": float(fracture_mesh_size.value),
+                "mesh_size_boundary": float(background_mesh_size.value),
+                "mesh_size_min": 0.1
+                * min(
+                    float(fracture_mesh_size.value),
+                    float(background_mesh_size.value),
+                ),
+                "refinement_size_multiplier": 1.0,
+                "refinement_proximity_multiplier": 1.0,
+            },
+            file_name=mesh_path,
+        )
+        mesh_source = "generated new Gmsh mesh"
+    mesh_summary = {
+        "mesh source": mesh_source,
+        "mesh file": mesh_path,
+        "fracture count": len(porepy_network.fractures),
+        "subdomain grids": mesh.num_subdomains(),
+        "subdomain cells": mesh.num_subdomain_cells(),
+        "cells by dimension": {
+            dimension: mesh.num_subdomain_cells(lambda grid: grid.dim == dimension)
+            for dimension in sorted({grid.dim for grid in mesh.subdomains()})
+        },
+        "interfaces": len(mesh.interfaces()),
+        "mesh artifacts": sorted(
+            path.name for path in mesh_directory.glob("kb7_fractures.*")
+        ),
+    }
+    mo.md(
+        "### PorePy mesh\n\n"
+        + "\n".join(f"- **{key}:** `{value}`" for key, value in mesh_summary.items())
+        + "\n\nAll Gmsh/PorePy output is written under `.cache/porepy_mesh/` "
+        "by passing an explicit `file_name`; no mesh artifacts are expected in the working directory."
+    )
+    return mesh, mesh_path, mesh_summary
+
+
+@app.cell
+def _(go, mesh, mo, np):
+    def triangle_indices(connectivity):
+        connectivity = connectivity.tocsc()
+        counts = np.diff(connectivity.indptr)
+        triangle_columns = np.flatnonzero(counts == 3)
+        return np.column_stack(
+            [
+                connectivity.indices[
+                    connectivity.indptr[column] : connectivity.indptr[column + 1]
+                ]
+                for column in triangle_columns
+            ]
+        ).T
+
+    volume_grid = mesh.subdomains(dim=3)[0]
+    face_cell_counts = np.asarray(np.abs(volume_grid.cell_faces).sum(axis=1)).ravel()
+    boundary_faces = np.flatnonzero(face_cell_counts == 1)
+    boundary_triangles = triangle_indices(volume_grid.face_nodes[:, boundary_faces])
+    fracture_coordinates = []
+    fracture_triangles = []
+    node_offset = 0
+    for fracture_grid in mesh.subdomains(dim=2):
+        coordinates = fracture_grid.nodes.T
+        triangles = triangle_indices(fracture_grid.cell_nodes()) + node_offset
+        fracture_coordinates.append(coordinates)
+        fracture_triangles.append(triangles)
+        node_offset += len(coordinates)
+
+    coordinates = np.vstack(fracture_coordinates)
+    triangles = np.vstack(fracture_triangles)
+    mesh_figure = go.Figure(
+        data=[
+            go.Mesh3d(
+                x=volume_grid.nodes[0],
+                y=volume_grid.nodes[1],
+                z=volume_grid.nodes[2],
+                i=boundary_triangles[:, 0],
+                j=boundary_triangles[:, 1],
+                k=boundary_triangles[:, 2],
+                color="lightsteelblue",
+                opacity=0.2,
+                name="domain boundary",
+                hoverinfo="skip",
+            ),
+            go.Mesh3d(
+                x=coordinates[:, 0],
+                y=coordinates[:, 1],
+                z=coordinates[:, 2],
+                i=triangles[:, 0],
+                j=triangles[:, 1],
+                k=triangles[:, 2],
+                color="crimson",
+                opacity=0.9,
+                name="fracture surfaces",
+                hoverinfo="skip",
+            ),
+        ]
+    )
+    mesh_figure.update_layout(
+        title="PorePy tetrahedral domain and fracture surfaces",
+        scene={
+            "aspectmode": "data",
+            "xaxis_title": "x",
+            "yaxis_title": "y",
+            "zaxis_title": "z",
+        },
+        margin={"l": 0, "r": 0, "t": 40, "b": 0},
+    )
+    mo.vstack(
+        [
+            mo.md(
+                "Rotate or zoom the 3D view to inspect fracture placement in the domain."
+            ),
+            mesh_figure,
+        ]
+    )
 
 
 @app.cell
