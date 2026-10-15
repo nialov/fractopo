@@ -1,7 +1,7 @@
 # /// script
 # [tool.marimo]
 # version = "0.15.2"
-# dependencies = ["marimo", "fractopo", "geopandas", "matplotlib", "numpy", "porepy"]
+# dependencies = ["marimo", "fractopo", "geopandas", "matplotlib", "numpy", "porepy", "mplstereonet"]
 # [tool.marimo.runtime]
 # on_cell_change = "autorun"
 #
@@ -16,7 +16,7 @@
 
 import marimo
 
-__generated_with = "0.17.8"
+__generated_with = "0.15.2"
 app = marimo.App(width="medium")
 
 
@@ -27,6 +27,7 @@ def _():
     import geopandas as gpd
     import marimo as mo
     import matplotlib.pyplot as plt
+    import mplstereonet
     import numpy as np
 
     from fractopo.analysis.network import Network
@@ -38,6 +39,7 @@ def _():
         export_network_to_porepy_3d_csv_format,
         gpd,
         mo,
+        mplstereonet,
         np,
         plt,
     )
@@ -76,7 +78,7 @@ def _(Path, gpd):
     area_path = root / "tests/sample_data/KB7/KB7_tulkinta_alue.geojson"
     traces = gpd.read_file(trace_path)
     area = gpd.read_file(area_path)
-    return area, area_path, root, trace_path, traces
+    return area, root, traces
 
 
 @app.cell
@@ -131,7 +133,7 @@ def _(Network, area, np, traces):
         ),
         "orientation models": orientation_diagnostics,
     }
-    return network, network_summary, traces
+    return network, network_summary
 
 
 @app.cell
@@ -154,8 +156,7 @@ def _(
     run,
     seed,
 ):
-    should_run = run.value or mo.app_meta().mode == "script"
-    mo.stop(not should_run)
+    mo.stop(not (run.value or mo.app_meta().mode == "script"))
 
     xmin, ymin, xmax, ymax = map(float, area.total_bounds)
     bounds = (xmin, ymin, 0.0, xmax, ymax, 20.0)
@@ -168,7 +169,7 @@ def _(
     output_path = root / ".cache" / "kb7_porepy_fractures.csv"
     output_path.parent.mkdir(exist_ok=True)
     output_path.write_text(csv_text + "\n")
-    return bounds, csv_text, output_path
+    return csv_text, output_path
 
 
 @app.cell
@@ -197,11 +198,57 @@ def _(mo, np, output_path):
         f"**{len(porepy_network.fractures)}** fractures. "
         f"Center array shape: `{fracture_centers.shape}`."
     )
-    return fracture_centers, porepy_network, pp
+    return fracture_centers, porepy_network
 
 
 @app.cell
-def _(area, fracture_centers, mo, plt, traces):
+def _(
+    area,
+    fracture_centers,
+    mo,
+    mplstereonet,
+    np,
+    network,
+    porepy_network,
+    plt,
+    traces,
+):
+    stereo_fig, stereo_axes = mplstereonet.subplots(1, 2, figsize=(10, 5))
+    dip = network.trace_gdf["dip"].to_numpy(dtype=float)
+    strike = (network.trace_gdf["dip_dir"].to_numpy(dtype=float) - 90.0) % 360.0
+    measured = (
+        network.trace_gdf["dip"].notna().to_numpy()
+        & network.trace_gdf["dip_dir"].notna().to_numpy()
+    )
+    stereo_axes[0].pole(
+        strike[measured], dip[measured], "o", markersize=2, color="0.55"
+    )
+    stereo_axes[0].density_contourf(
+        strike[measured], dip[measured], measurement="poles", cmap="Greys", alpha=0.45
+    )
+    stereo_axes[0].set_title("Completed trace plane poles")
+    exported_fractures = porepy_network.fractures
+    exported_strikes = np.rad2deg(
+        [fracture.strike_angle for fracture in exported_fractures]
+    )
+    exported_dips = np.rad2deg([fracture.dip_angle for fracture in exported_fractures])
+    stereo_axes[1].pole(
+        exported_strikes,
+        exported_dips,
+        "o",
+        markersize=4,
+        color="tab:blue",
+    )
+    if len(exported_fractures) > 1:
+        stereo_axes[1].density_contourf(
+            exported_strikes,
+            exported_dips,
+            measurement="poles",
+            cmap="Blues",
+            alpha=0.45,
+        )
+    stereo_axes[1].set_title("PorePy plane poles")
+
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
     traces.plot(ax=axes[0], color="0.55", linewidth=0.5)
     area.boundary.plot(ax=axes[0], color="black")
@@ -215,7 +262,16 @@ def _(area, fracture_centers, mo, plt, traces):
     axes[1].set_xlabel("x")
     axes[1].set_ylabel("y")
     mo.vstack(
-        [fig, mo.md("Color in the right panel represents the sampled z coordinate.")]
+        [
+            stereo_fig,
+            mo.md(
+                "Stereonets show lower-hemisphere poles: the left net is the completed trace orientations; the right net is the PorePy-imported fracture orientations."
+            ),
+            fig,
+            mo.md(
+                "Color in the map panel represents sampled fracture-center z coordinates."
+            ),
+        ]
     )
 
 

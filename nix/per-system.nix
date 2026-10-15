@@ -55,7 +55,10 @@
                   p.fractopo.dependencies
                   ++ p.fractopo.optional-dependencies.dev
                   ++ p.fractopo.optional-dependencies.api
-                  ++ [ p.porepy ]
+                  ++ [
+                    p.porepy
+                    p.mplstereonet
+                  ]
                 )
 
                 )
