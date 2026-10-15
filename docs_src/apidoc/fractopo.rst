@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    fractopo.analysis
+   fractopo.interop
    fractopo.tval
 
 Submodules

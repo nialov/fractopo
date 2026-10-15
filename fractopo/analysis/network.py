@@ -79,6 +79,7 @@ from fractopo.general import (
     write_geodata,
     write_geodataframe,
 )
+from fractopo.interop.orientation import complete_network_orientations
 
 if TYPE_CHECKING:
     from geopandas.sindex import SpatialIndex
@@ -582,6 +583,30 @@ class Network:
         Get azimuth set for each trace.
         """
         return self.trace_data.azimuth_set_array
+
+    def complete_trace_orientations(
+        self,
+        rng: Optional[np.random.Generator] = None,
+        fill_null_set: bool = False,
+        fallback_dip: Optional[float] = None,
+        fallback_dip_dir: Optional[float] = None,
+        fallback_angular_std: Optional[float] = None,
+    ) -> Dict[str, Dict[str, object]]:
+        """Fill missing ``dip``/``dip_dir`` trace pairs from set pole models.
+
+        Returns model diagnostics and updates ``trace_gdf`` without rebuilding
+        geometry-derived ``trace_data``. See
+        :func:`fractopo.interop.orientation.complete_network_orientations`.
+        """
+        self.trace_gdf, diagnostics = complete_network_orientations(
+            self,
+            rng=rng,
+            fill_null_set=fill_null_set,
+            fallback_dip=fallback_dip,
+            fallback_dip_dir=fallback_dip_dir,
+            fallback_angular_std=fallback_angular_std,
+        )
+        return diagnostics
 
     @property
     @requires_topology
