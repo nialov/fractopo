@@ -15,6 +15,7 @@ from fractopo.interop.porepy import (
     export_traces_to_porepy_3d_csv_format,
     exterior_triangle_connectivity,
     porepy_csv_fracture_diameters,
+    porepy_csv_horizontal_slice_lengths,
     scale_geometries_to_local,
     summarize_empirical_fracture_lengths,
     summarize_porepy_mesh,
@@ -62,6 +63,35 @@ def test_summarize_empirical_fracture_lengths_and_csv_diameters():
     )
     with pytest.raises(ValueError, match="invalid PorePy"):
         porepy_csv_fracture_diameters("domain\nbad")
+
+
+def test_csv_horizontal_slice_lengths():
+    domain = "-10,-10,0,10,10,10"
+    fractures = [
+        # Vertical disk with strike 0: 4-unit chord at its center.
+        "0,0,5,2,2,0,0,1.5707963267948966",
+        # A 45-degree circle one unit below its center: chord length 4.
+        "0,0,6,2.449489742783178,2.449489742783178,0,0,0.7853981633974483",
+        # Vertical circle centered at x=9, clipped by the x=10 boundary.
+        "9,0,5,2,2,0,1.5707963267948966,1.5707963267948966",
+        # Strike 0 makes the section run north-south; clip against y=10.
+        "0,9,5,2,2,0,0,1.5707963267948966",
+    ]
+    csv_text = "\n".join([domain, *fractures])
+    lengths = porepy_csv_horizontal_slice_lengths(csv_text, z=5)
+    np.testing.assert_allclose(lengths, [4.0, 4.0, 3.0, 3.0])
+    np.testing.assert_allclose(
+        porepy_csv_horizontal_slice_lengths("\n".join([domain, fractures[2]]), z=4),
+        [1.0 + np.sqrt(3.0)],
+    )
+    with pytest.raises(ValueError, match="coplanar"):
+        porepy_csv_horizontal_slice_lengths("\n".join([domain, "0,0,5,2,2,0,0,0"]), z=5)
+    with pytest.raises(NotImplementedError, match="only circular"):
+        porepy_csv_horizontal_slice_lengths(
+            "\n".join([domain, "0,0,5,2,1,0,0,1.5707963267948966"]), z=5
+        )
+    with pytest.raises(ValueError, match="invalid PorePy"):
+        porepy_csv_horizontal_slice_lengths("bad", z=5)
 
 
 def test_summarize_porepy_mesh_and_triangle_connectivity():

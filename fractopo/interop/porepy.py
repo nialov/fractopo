@@ -6,6 +6,7 @@ input files and input parameters. Model building in PorePy is not covered;
 PorePy is not a fractopo dependency.
 """
 
+import csv
 import logging
 from itertools import starmap
 
@@ -15,7 +16,7 @@ import shapely
 from beartype import beartype
 from beartype.typing import NamedTuple, Optional, SupportsFloat, Union
 from numpy.typing import NDArray
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, box
 
 from fractopo.general import (
     NULL_SET,
@@ -219,6 +220,90 @@ def porepy_csv_fracture_diameters(csv_text: str) -> NDArray[np.floating]:
         return diameters
     except (IndexError, ValueError) as error:
         raise ValueError("invalid PorePy 3D fracture CSV") from error
+
+
+def _horizontal_slice_length(row, section_z, footprint) -> float:
+    values = np.asarray(row, dtype=float)
+    if values.shape != (8,) or not np.isfinite(values).all():
+        raise ValueError
+    cx, cy, cz, major, minor, _, strike, dip = values
+    if major <= 0 or minor <= 0:
+        raise ValueError
+    if not np.isclose(major, minor):
+        raise NotImplementedError("only circular fractures are supported")
+
+    # Matches EllipticFracture.fracture_to_gmsh's Z-then-strike-axis rotation.
+    normal = np.array([np.cos(strike), -np.sin(strike), 0.0]) * np.sin(dip)
+    normal[2] = np.cos(dip)
+    direction = np.cross(normal, [0.0, 0.0, 1.0])
+    direction_norm = np.linalg.norm(direction)
+    dz = section_z - cz
+    if direction_norm < 1e-12:
+        if abs(dz) < 1e-12:
+            raise ValueError("slice is coplanar with a horizontal fracture")
+        return 0.0
+
+    vertical = np.array([0.0, 0.0, 1.0]) - normal * normal[2]
+    vertical_norm = np.linalg.norm(vertical)
+    offset = dz / vertical_norm
+    if abs(offset) >= major:
+        return 0.0
+    half_chord = np.sqrt(major**2 - offset**2)
+    line_center = np.array([cx, cy]) + dz * vertical[:2] / vertical_norm**2
+    direction /= direction_norm
+    return (
+        LineString(
+            [
+                line_center - half_chord * direction[:2],
+                line_center + half_chord * direction[:2],
+            ]
+        )
+        .intersection(footprint)
+        .length
+    )
+
+
+@beartype
+def porepy_csv_horizontal_slice_lengths(
+    csv_text: str, z: SupportsFloat
+) -> NDArray[np.floating]:
+    """Intersect circular CSV fractures with a horizontal plane and clip to domain.
+
+    Returns one length per non-empty trace. Horizontal fractures coplanar with the
+    section are ambiguous (their intersection is an area) and raise ``ValueError``.
+    """
+    try:
+        rows = [
+            row
+            for row in csv.reader(csv_text.splitlines())
+            if row and not row[0].lstrip().startswith("#")
+        ]
+        bounds = np.asarray(rows[0], dtype=float)
+        if bounds.shape != (6,):
+            raise ValueError
+        xmin, ymin, zmin, xmax, ymax, zmax = bounds
+        section_z = float(z)
+        if not np.isfinite(bounds).all() or not np.isfinite(section_z):
+            raise ValueError
+        if not (xmin < xmax and ymin < ymax and zmin <= section_z <= zmax):
+            raise ValueError
+        footprint = box(xmin, ymin, xmax, ymax)
+        lengths = np.asarray(
+            [
+                length
+                for row in rows[1:]
+                if (length := _horizontal_slice_length(row, section_z, footprint)) > 0
+            ]
+        )
+        return lengths
+    except NotImplementedError:
+        raise
+    except ValueError as error:
+        if "coplanar" in str(error):
+            raise
+        raise ValueError("invalid PorePy CSV or horizontal slice") from error
+    except (IndexError, TypeError) as error:
+        raise ValueError("invalid PorePy CSV or horizontal slice") from error
 
 
 def _length_statistics(lengths: NDArray[np.floating]) -> dict[str, float | int]:

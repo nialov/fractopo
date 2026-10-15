@@ -8,6 +8,7 @@ from fractopo.interop.orientation import (
 from fractopo.interop.porepy import (
     exterior_triangle_connectivity,
     porepy_csv_fracture_diameters,
+    porepy_csv_horizontal_slice_lengths,
     summarize_empirical_fracture_lengths,
     summarize_porepy_mesh,
     triangle_cell_connectivity,
@@ -18,6 +19,7 @@ __all__ = [
     "dip_direction_to_pole",
     "pole_to_orientation",
     "porepy_csv_fracture_diameters",
+    "porepy_csv_horizontal_slice_lengths",
     "summarize_empirical_fracture_lengths",
     "summarize_porepy_mesh",
     "exterior_triangle_connectivity",
