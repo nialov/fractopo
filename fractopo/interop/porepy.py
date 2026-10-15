@@ -391,7 +391,7 @@ def porepy_csv_matches_slice_targets(
 
 
 @beartype
-def find_porepy_csv_matching_slice_targets(
+def condition_porepy_csv_slice_targets(
     network,
     fracture_count: int,
     bounds: tuple[
@@ -406,58 +406,49 @@ def find_porepy_csv_matching_slice_targets(
     target_p21: SupportsFloat,
     target_top_count: int,
     rng: Optional[np.random.Generator] = None,
-    *,
-    p21_tolerance: SupportsFloat = 0.5,
-    top_count_tolerance: SupportsFloat = 0.5,
-    max_attempts: int = 100,
 ) -> dict[str, object]:
-    """Return the first reproducible exporter population meeting slice targets.
+    """Prototype conditioning: match zmax count, then assess interior P21.
 
-    This exploratory rejection sampler changes no exporter parameters. Tolerances
-    are relative errors; it raises ``RuntimeError`` when no candidate passes.
+    Base fractures retain the exporter's uniform 3D center sampling. Any top-hit
+    deficit is filled by additional fractures whose centers lie at zmax. This is
+    a simple, intentionally non-stationary prototype, not a calibrated model.
     """
-    if max_attempts <= 0:
-        raise ValueError("max_attempts must be positive")
-    if not porepy_csv_matches_slice_targets(
-        {
-            "mean_absolute_relative_p21_error": 0.0,
-            "relative_top_count_error": 0.0,
-        },
-        p21_tolerance=p21_tolerance,
-        top_count_tolerance=top_count_tolerance,
-    ):
-        raise ValueError("relative tolerances must be finite and between 0 and 1")
-
     generator = rng if rng is not None else np.random.default_rng()
-    best_score = np.inf
-    best_metrics = None
-    for attempt in range(1, max_attempts + 1):
-        csv_text = export_network_to_porepy_3d_csv_format(
-            network, fracture_count, bounds, rng=generator
-        )
-        metrics = evaluate_porepy_csv_slice_metrics(
-            csv_text, section_heights, target_p21, target_top_count
-        )
-        score = (
-            metrics["mean_absolute_relative_p21_error"]
-            + metrics["relative_top_count_error"]
-        )
-        if score < best_score:
-            best_score, best_metrics = score, metrics
-        if porepy_csv_matches_slice_targets(
-            metrics,
-            p21_tolerance=p21_tolerance,
-            top_count_tolerance=top_count_tolerance,
-        ):
-            return {
-                "csv_text": csv_text,
-                "metrics": metrics,
-                "attempts": attempt,
-            }
-    raise RuntimeError(
-        f"no population met slice targets in {max_attempts} attempts; "
-        f"best candidate metrics: {best_metrics}"
+    base_csv = export_network_to_porepy_3d_csv_format(
+        network, fracture_count, bounds, rng=generator
     )
+    base_rows = base_csv.splitlines()
+    xmin, ymin, zmin, xmax, ymax, zmax = map(float, bounds)
+    target_p21 = float(target_p21)
+    if target_top_count <= 0 or target_p21 <= 0:
+        raise ValueError("slice targets must be positive")
+    _, base_top_lengths = porepy_csv_horizontal_slice_lengths(
+        base_csv, zmax, return_indices=True
+    )
+    added_count = max(0, target_top_count - len(base_top_lengths))
+    added_rows = (
+        export_network_to_porepy_3d_csv_format(
+            network, added_count, bounds, rng=generator
+        ).splitlines()[1:]
+        if added_count
+        else []
+    )
+    conditioned_rows = []
+    for row in added_rows:
+        values = row.split(",")
+        values[2] = str(zmax)
+        conditioned_rows.append(",".join(values))
+    csv_text = "\n".join([*base_rows, *conditioned_rows])
+    metrics = evaluate_porepy_csv_slice_metrics(
+        csv_text, section_heights, target_p21, target_top_count
+    )
+    return {
+        "csv_text": csv_text,
+        "metrics": metrics,
+        "base_fracture_count": fracture_count,
+        "added_top_fracture_count": added_count,
+        "total_fracture_count": fracture_count + added_count,
+    }
 
 
 def _length_statistics(lengths: NDArray[np.floating]) -> dict[str, float | int]:

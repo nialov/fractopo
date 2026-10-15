@@ -8,6 +8,7 @@ from shapely.geometry import LineString
 from fractopo.interop.porepy import (
     _extract_network_fracture_set_samples,
     check_porepy_2d_csv_format,
+    condition_porepy_csv_slice_targets,
     convert_azimuth_to_strike,
     determine_azimuth,
     evaluate_porepy_csv_slice_metrics,
@@ -15,7 +16,6 @@ from fractopo.interop.porepy import (
     export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     exterior_triangle_connectivity,
-    find_porepy_csv_matching_slice_targets,
     porepy_csv_fracture_diameters,
     porepy_csv_horizontal_slice_lengths,
     porepy_csv_matches_slice_targets,
@@ -264,7 +264,7 @@ def test_export_network_to_porepy_3d_csv_format():
     )
 
 
-def test_find_matching_porepy_population_rejection_prototype():
+def test_condition_porepy_csv_slice_targets_adds_top_intersections():
     network = SimpleNamespace(
         azimuth_set_names=("set",),
         trace_data=SimpleNamespace(
@@ -274,19 +274,19 @@ def test_find_matching_porepy_population_rejection_prototype():
         ),
         trace_gdf={"dip": np.array([90.0])},
     )
-    result = find_porepy_csv_matching_slice_targets(
+    result = condition_porepy_csv_slice_targets(
         network,
         fracture_count=1,
         bounds=(0, 0, 0, 1, 1, 1),
         section_heights=np.array([0.5]),
         target_p21=1.0,
-        target_top_count=1,
+        target_top_count=3,
         rng=np.random.default_rng(2),
-        max_attempts=2,
     )
-    assert result["attempts"] == 1
-    assert result["metrics"]["top_intersection_count"] == 1
-    assert len(result["csv_text"].splitlines()) == 2
+    assert result["added_top_fracture_count"] == 2
+    assert result["total_fracture_count"] == 3
+    assert result["metrics"]["top_intersection_count"] == 3
+    assert result["metrics"]["relative_top_count_error"] == 0.0
 
 
 def test_network_export_preserves_opposite_dip_direction_sides():
