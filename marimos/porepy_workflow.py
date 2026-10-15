@@ -33,10 +33,12 @@ def _():
     import porepy as pp
 
     from fractopo.analysis.network import Network
+    from fractopo.general import NULL_SET
     from fractopo.interop.porepy import export_network_to_porepy_3d_csv_format
 
     return (
         Network,
+        NULL_SET,
         Path,
         export_network_to_porepy_3d_csv_format,
         gpd,
@@ -226,6 +228,60 @@ def _(mo, np, output_path, pp):
         f"Center array shape: `{fracture_centers.shape}`."
     )
     return fracture_centers, porepy_network
+
+
+@app.cell
+def _(NULL_SET, csv_text, mo, network, np):
+    def summarize_empirical_lengths():
+        csv_rows = [line.split(",") for line in csv_text.splitlines()]
+        generated_lengths = 2.0 * np.asarray([float(row[3]) for row in csv_rows[1:]])
+        trace_data = network.trace_data
+        set_labels = trace_data.azimuth_set_array
+        source_lengths = np.asarray(trace_data.length_array, dtype=float)
+        azimuths = np.asarray(trace_data.azimuth_array, dtype=float)
+        dip_values = network.trace_gdf["dip"].to_numpy(dtype=float)
+        dip_dirs = network.trace_gdf["dip_dir"].to_numpy(dtype=float)
+
+        length_models = {}
+        for model_set_name in network.azimuth_set_names:
+            eligible = (
+                (set_labels == model_set_name)
+                & np.isfinite(azimuths)
+                & np.isfinite(source_lengths)
+                & (source_lengths > 0)
+                & np.isfinite(dip_values)
+                & (dip_values >= 0)
+                & (dip_values <= 90)
+                & ~np.isinf(dip_dirs)
+                & (~np.isfinite(dip_dirs) | ((dip_dirs >= 0) & (dip_dirs <= 360)))
+            )
+            if model_set_name != NULL_SET and np.any(eligible):
+                length_models[model_set_name] = source_lengths[eligible]
+
+        summary_lines = [
+            f"- **{model_set_name}:** {len(lengths)} eligible traces; "
+            f"boundary-weighted length min/median/mean/max `"
+            f"{np.min(lengths):.3g}/{np.median(lengths):.3g}/"
+            f"{np.mean(lengths):.3g}/{np.max(lengths):.3g}`."
+            for model_set_name, lengths in length_models.items()
+        ]
+        summary_lines.append(
+            f"- **Generated/reused CSV overall:** {len(generated_lengths)} "
+            f"fracture diameters min/median/mean/max `"
+            f"{np.min(generated_lengths):.3g}/{np.median(generated_lengths):.3g}/"
+            f"{np.mean(generated_lengths):.3g}/{np.max(generated_lengths):.3g}`."
+        )
+        return mo.md(
+            "### Per-set empirical length models\n\n"
+            "Each eligible trace length in a set is sampled with equal probability; "
+            "duplicate lengths therefore retain their observed frequency. The exporter "
+            "uses these same boundary-weighted lengths as generated fracture diameters. "
+            "The PorePy CSV contains no azimuth-set labels, so generated lengths are "
+            "summarized overall rather than attributed back to sets.\n\n"
+            + "\n".join(summary_lines)
+        )
+
+    summarize_empirical_lengths()
 
 
 @app.cell
