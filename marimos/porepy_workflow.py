@@ -33,14 +33,24 @@ def _():
     import porepy as pp
 
     from fractopo.analysis.network import Network
-    from fractopo.general import NULL_SET
-    from fractopo.interop.porepy import export_network_to_porepy_3d_csv_format
+    from fractopo.interop.porepy import (
+        export_network_to_porepy_3d_csv_format,
+        exterior_triangle_connectivity,
+        porepy_csv_fracture_diameters,
+        summarize_empirical_fracture_lengths,
+        summarize_porepy_mesh,
+        triangle_cell_connectivity,
+    )
 
     return (
         Network,
-        NULL_SET,
         Path,
         export_network_to_porepy_3d_csv_format,
+        exterior_triangle_connectivity,
+        porepy_csv_fracture_diameters,
+        summarize_empirical_fracture_lengths,
+        summarize_porepy_mesh,
+        triangle_cell_connectivity,
         gpd,
         mo,
         go,
@@ -49,6 +59,60 @@ def _():
         plt,
         pp,
     )
+
+
+@app.cell
+def _(
+    exterior_triangle_connectivity,
+    np,
+    pp,
+    summarize_porepy_mesh,
+    triangle_cell_connectivity,
+):
+    def load_or_mesh_network(
+        porepy_network, mesh_path, reuse_existing, fracture_size, background_size
+    ):
+        if reuse_existing and mesh_path.is_file():
+            mesh = pp.meshing.subdomains_to_mdg(
+                pp.fracs.simplex.tetrahedral_grid_from_gmsh(mesh_path, verbose=0)
+            )
+            return mesh, "reused existing Gmsh mesh"
+
+        mesh_path.parent.mkdir(parents=True, exist_ok=True)
+        mesh = porepy_network.mesh(
+            {
+                "mesh_size_fracture": fracture_size,
+                "mesh_size_boundary": background_size,
+                "mesh_size_min": 0.1 * min(fracture_size, background_size),
+                "refinement_size_multiplier": 1.0,
+                "refinement_proximity_multiplier": 1.0,
+            },
+            file_name=mesh_path,
+        )
+        return mesh, "generated new Gmsh mesh"
+
+    def mesh_arrays(mesh):
+        volume_grid = mesh.subdomains(dim=3)[0]
+        boundary_triangles = exterior_triangle_connectivity(
+            volume_grid.face_nodes, volume_grid.cell_faces
+        )
+        coordinates, triangles, node_offset = [], [], 0
+        for fracture_grid in mesh.subdomains(dim=2):
+            fracture_coordinates = fracture_grid.nodes.T
+            fracture_triangles = (
+                triangle_cell_connectivity(fracture_grid.cell_nodes()) + node_offset
+            )
+            coordinates.append(fracture_coordinates)
+            triangles.append(fracture_triangles)
+            node_offset += len(fracture_coordinates)
+        return (
+            volume_grid.nodes,
+            boundary_triangles,
+            np.vstack(coordinates),
+            np.vstack(triangles),
+        )
+
+    return load_or_mesh_network, mesh_arrays
 
 
 @app.cell
@@ -231,108 +295,75 @@ def _(mo, np, output_path, pp):
 
 
 @app.cell
-def _(NULL_SET, csv_text, mo, network, np):
-    def summarize_empirical_lengths():
-        csv_rows = [line.split(",") for line in csv_text.splitlines()]
-        generated_lengths = 2.0 * np.asarray([float(row[3]) for row in csv_rows[1:]])
-        trace_data = network.trace_data
-        set_labels = trace_data.azimuth_set_array
-        source_lengths = np.asarray(trace_data.length_array, dtype=float)
-        azimuths = np.asarray(trace_data.azimuth_array, dtype=float)
-        dip_values = network.trace_gdf["dip"].to_numpy(dtype=float)
-        dip_dirs = network.trace_gdf["dip_dir"].to_numpy(dtype=float)
-
-        length_models = {}
-        for model_set_name in network.azimuth_set_names:
-            eligible = (
-                (set_labels == model_set_name)
-                & np.isfinite(azimuths)
-                & np.isfinite(source_lengths)
-                & (source_lengths > 0)
-                & np.isfinite(dip_values)
-                & (dip_values >= 0)
-                & (dip_values <= 90)
-                & ~np.isinf(dip_dirs)
-                & (~np.isfinite(dip_dirs) | ((dip_dirs >= 0) & (dip_dirs <= 360)))
-            )
-            if model_set_name != NULL_SET and np.any(eligible):
-                length_models[model_set_name] = source_lengths[eligible]
-
-        summary_lines = [
-            f"- **{model_set_name}:** {len(lengths)} eligible traces; "
-            f"boundary-weighted length min/median/mean/max `"
-            f"{np.min(lengths):.3g}/{np.median(lengths):.3g}/"
-            f"{np.mean(lengths):.3g}/{np.max(lengths):.3g}`."
-            for model_set_name, lengths in length_models.items()
-        ]
-        summary_lines.append(
-            f"- **Generated/reused CSV overall:** {len(generated_lengths)} "
-            f"fracture diameters min/median/mean/max `"
-            f"{np.min(generated_lengths):.3g}/{np.median(generated_lengths):.3g}/"
-            f"{np.mean(generated_lengths):.3g}/{np.max(generated_lengths):.3g}`."
-        )
-        return mo.md(
-            "### Per-set empirical length models\n\n"
-            "Each eligible trace length in a set is sampled with equal probability; "
-            "duplicate lengths therefore retain their observed frequency. The exporter "
-            "uses these same boundary-weighted lengths as generated fracture diameters. "
-            "The PorePy CSV contains no azimuth-set labels, so generated lengths are "
-            "summarized overall rather than attributed back to sets.\n\n"
-            + "\n".join(summary_lines)
-        )
-
-    summarize_empirical_lengths()
+def _(
+    csv_text,
+    mo,
+    network,
+    summarize_empirical_fracture_lengths,
+):
+    length_summary = summarize_empirical_fracture_lengths(network, csv_text)
+    per_set = length_summary["by_set"]
+    summary_lines = [
+        f"- **{name}:** {values['count']} eligible traces; boundary-weighted "
+        f"length min/median/mean/max `"
+        f"{values['min']:.3g}/{values['median']:.3g}/{values['mean']:.3g}/"
+        f"{values['max']:.3g}`."
+        for name, values in per_set.items()
+    ]
+    generated = length_summary["generated"]
+    summary_lines.append(
+        f"- **Generated/reused CSV overall:** {generated['count']} fracture "
+        f"diameters min/median/mean/max `"
+        f"{generated['min']:.3g}/{generated['median']:.3g}/{generated['mean']:.3g}/"
+        f"{generated['max']:.3g}`."
+    )
+    mo.md(
+        "### Per-set empirical length models\n\n"
+        "Each eligible trace length in a set is sampled with equal probability; "
+        "duplicate lengths therefore retain their observed frequency. The exporter "
+        "uses these same boundary-weighted lengths as generated fracture diameters. "
+        "The PorePy CSV contains no azimuth-set labels, so generated lengths are "
+        "summarized overall rather than attributed back to sets.\n\n"
+        + "\n".join(summary_lines)
+    )
 
 
 @app.cell
 def _(
     background_mesh_size,
+    load_or_mesh_network,
     mesh_run,
+    mesh_arrays,
     mo,
+    np,
     root,
     porepy_network,
     fracture_mesh_size,
     reuse_existing,
-    pp,
+    summarize_porepy_mesh,
 ):
     mesh_directory = root / ".cache" / "porepy_mesh"
     mesh_path = mesh_directory / "kb7_fractures.msh"
     reuse_mesh = reuse_existing.value and mesh_path.is_file()
     mo.stop(not (reuse_mesh or mesh_run.value))
 
-    if reuse_mesh:
-        mesh = pp.meshing.subdomains_to_mdg(
-            pp.fracs.simplex.tetrahedral_grid_from_gmsh(mesh_path, verbose=0)
-        )
-        mesh_source = "reused existing Gmsh mesh"
-    else:
-        mesh_directory.mkdir(parents=True, exist_ok=True)
-        mesh = porepy_network.mesh(
-            {
-                "mesh_size_fracture": float(fracture_mesh_size.value),
-                "mesh_size_boundary": float(background_mesh_size.value),
-                "mesh_size_min": 0.1
-                * min(
-                    float(fracture_mesh_size.value),
-                    float(background_mesh_size.value),
-                ),
-                "refinement_size_multiplier": 1.0,
-                "refinement_proximity_multiplier": 1.0,
-            },
-            file_name=mesh_path,
-        )
-        mesh_source = "generated new Gmsh mesh"
+    mesh, mesh_source = load_or_mesh_network(
+        porepy_network,
+        mesh_path,
+        reuse_mesh,
+        float(fracture_mesh_size.value),
+        float(background_mesh_size.value),
+    )
+    grids = mesh.subdomains()
     mesh_summary = {
         "mesh source": mesh_source,
         "mesh file": mesh_path,
         "fracture count": len(porepy_network.fractures),
-        "subdomain grids": mesh.num_subdomains(),
-        "subdomain cells": mesh.num_subdomain_cells(),
-        "cells by dimension": {
-            dimension: mesh.num_subdomain_cells(lambda grid: grid.dim == dimension)
-            for dimension in sorted({grid.dim for grid in mesh.subdomains()})
-        },
-        "interfaces": len(mesh.interfaces()),
+        **summarize_porepy_mesh(
+            np.asarray([grid.dim for grid in grids]),
+            np.asarray([grid.num_cells for grid in grids]),
+            len(mesh.interfaces()),
+        ),
         "mesh artifacts": sorted(
             path.name for path in mesh_directory.glob("kb7_fractures.*")
         ),
@@ -347,42 +378,14 @@ def _(
 
 
 @app.cell
-def _(go, mesh, mo, np):
-    def triangle_indices(connectivity):
-        connectivity = connectivity.tocsc()
-        counts = np.diff(connectivity.indptr)
-        triangle_columns = np.flatnonzero(counts == 3)
-        return np.column_stack(
-            [
-                connectivity.indices[
-                    connectivity.indptr[column] : connectivity.indptr[column + 1]
-                ]
-                for column in triangle_columns
-            ]
-        ).T
-
-    volume_grid = mesh.subdomains(dim=3)[0]
-    face_cell_counts = np.asarray(np.abs(volume_grid.cell_faces).sum(axis=1)).ravel()
-    boundary_faces = np.flatnonzero(face_cell_counts == 1)
-    boundary_triangles = triangle_indices(volume_grid.face_nodes[:, boundary_faces])
-    fracture_coordinates = []
-    fracture_triangles = []
-    node_offset = 0
-    for fracture_grid in mesh.subdomains(dim=2):
-        coordinates = fracture_grid.nodes.T
-        triangles = triangle_indices(fracture_grid.cell_nodes()) + node_offset
-        fracture_coordinates.append(coordinates)
-        fracture_triangles.append(triangles)
-        node_offset += len(coordinates)
-
-    coordinates = np.vstack(fracture_coordinates)
-    triangles = np.vstack(fracture_triangles)
+def _(go, mesh, mesh_arrays, mo):
+    volume_nodes, boundary_triangles, coordinates, triangles = mesh_arrays(mesh)
     mesh_figure = go.Figure(
         data=[
             go.Mesh3d(
-                x=volume_grid.nodes[0],
-                y=volume_grid.nodes[1],
-                z=volume_grid.nodes[2],
+                x=volume_nodes[0],
+                y=volume_nodes[1],
+                z=volume_nodes[2],
                 i=boundary_triangles[:, 0],
                 j=boundary_triangles[:, 1],
                 k=boundary_triangles[:, 2],

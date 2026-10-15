@@ -209,6 +209,128 @@ def _extract_network_fracture_set_samples(network) -> _FractureSetSamples:
 
 
 @beartype
+def porepy_csv_fracture_diameters(csv_text: str) -> NDArray[np.floating]:
+    """Parse generated fracture diameters from PorePy 3D CSV text."""
+    try:
+        rows = [line.split(",") for line in csv_text.splitlines()]
+        diameters = np.asarray([2 * float(row[3]) for row in rows[1:]], dtype=float)
+        if not np.isfinite(diameters).all() or (diameters <= 0).any():
+            raise ValueError
+        return diameters
+    except (IndexError, ValueError) as error:
+        raise ValueError("invalid PorePy 3D fracture CSV") from error
+
+
+def _length_statistics(lengths: NDArray[np.floating]) -> dict[str, float | int]:
+    if not len(lengths):
+        raise ValueError("cannot summarize an empty length array")
+    return {
+        "count": len(lengths),
+        "min": float(np.min(lengths)),
+        "median": float(np.median(lengths)),
+        "mean": float(np.mean(lengths)),
+        "max": float(np.max(lengths)),
+    }
+
+
+def summarize_empirical_fracture_lengths(network, csv_text: str) -> dict[str, object]:
+    """Summarize exporter-eligible boundary-weighted lengths by set and CSV output."""
+    trace_data = network.trace_data
+    labels = np.asarray(trace_data.azimuth_set_array)
+    azimuths = np.asarray(trace_data.azimuth_array, dtype=float)
+    lengths = np.asarray(trace_data.length_array, dtype=float)
+    dips = np.asarray(network.trace_gdf["dip"], dtype=float)
+    directions = (
+        np.asarray(network.trace_gdf["dip_dir"], dtype=float)
+        if "dip_dir" in network.trace_gdf
+        else np.full(len(labels), np.nan)
+    )
+    if (
+        len({len(values) for values in (labels, azimuths, lengths, dips, directions)})
+        != 1
+    ):
+        raise ValueError("trace arrays for length summary are misaligned")
+
+    by_set = {}
+    for name in network.azimuth_set_names:
+        valid = (
+            (labels == name)
+            & np.isfinite(azimuths)
+            & np.isfinite(lengths)
+            & (lengths > 0)
+            & np.isfinite(dips)
+            & (dips >= 0)
+            & (dips <= 90)
+            & ~np.isinf(directions)
+            & (~np.isfinite(directions) | ((directions >= 0) & (directions <= 360)))
+        )
+        selected = lengths[valid]
+        if name != NULL_SET and len(selected):
+            by_set[name] = _length_statistics(selected)
+    return {
+        "by_set": by_set,
+        "generated": _length_statistics(porepy_csv_fracture_diameters(csv_text)),
+    }
+
+
+def summarize_porepy_mesh(
+    dimensions: NDArray[np.integer],
+    cell_counts: NDArray[np.integer],
+    interface_count: int,
+) -> dict[str, object]:
+    """Summarize an MDG from its subdomain dimensions and cell counts."""
+    dimensions = np.asarray(dimensions, dtype=int)
+    cell_counts = np.asarray(cell_counts, dtype=int)
+    if dimensions.ndim != 1 or dimensions.shape != cell_counts.shape:
+        raise ValueError("dimensions and cell_counts must be aligned 1D arrays")
+    return {
+        "subdomain grids": len(dimensions),
+        "subdomain cells": int(cell_counts.sum()),
+        "cells by dimension": {
+            int(dimension): int(cell_counts[dimensions == dimension].sum())
+            for dimension in np.unique(dimensions)
+        },
+        "interfaces": int(interface_count),
+    }
+
+
+def exterior_triangle_connectivity(face_nodes, cell_faces) -> NDArray[np.integer]:
+    """Return triangular faces belonging to one volume cell."""
+    boundary = np.flatnonzero(np.asarray(np.abs(cell_faces).sum(axis=1)).ravel() == 1)
+    connectivity = face_nodes[:, boundary].tocsc()
+    columns = np.flatnonzero(np.diff(connectivity.indptr) == 3)
+    return (
+        np.column_stack(
+            [
+                connectivity.indices[
+                    connectivity.indptr[column] : connectivity.indptr[column + 1]
+                ]
+                for column in columns
+            ]
+        ).T
+        if len(columns)
+        else np.empty((0, 3), dtype=int)
+    )
+
+
+def triangle_cell_connectivity(cell_nodes) -> NDArray[np.integer]:
+    """Return cell-node connectivity columns containing exactly three nodes."""
+    connectivity = cell_nodes.tocsc()
+    columns = np.flatnonzero(np.diff(connectivity.indptr) == 3)
+    return (
+        np.column_stack(
+            [
+                connectivity.indices[
+                    connectivity.indptr[column] : connectivity.indptr[column + 1]
+                ]
+                for column in columns
+            ]
+        ).T
+        if len(columns)
+        else np.empty((0, 3), dtype=int)
+    )
+
+
 def export_network_to_porepy_3d_csv_format(
     network,
     fracture_count: int,

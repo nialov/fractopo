@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from scipy.sparse import csc_matrix, csr_matrix
 from shapely.geometry import LineString
 
 from fractopo.interop.porepy import (
@@ -12,7 +13,12 @@ from fractopo.interop.porepy import (
     export_network_to_porepy_3d_csv_format,
     export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
+    exterior_triangle_connectivity,
+    porepy_csv_fracture_diameters,
     scale_geometries_to_local,
+    summarize_empirical_fracture_lengths,
+    summarize_porepy_mesh,
+    triangle_cell_connectivity,
 )
 
 EXAMPLE_POREPY_2D_CSV_WITH_COMMENTS = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
@@ -24,6 +30,71 @@ EXAMPLE_POREPY_2D_CSV_WITH_COMMENTS = """# Domain X_MIN, Y_MIN, X_MAX, Y_MAX
 EXAMPLE_POREPY_2D_CSV_WITHOUT_COMMENTS = """-54900, 6730000, -52000, 6733000
 -5.361122869999999966e+04,6.732113743700000457e+06,-5.466355320000000211e+04,6.730962761900000274e+06
 """
+
+
+def test_summarize_empirical_fracture_lengths_and_csv_diameters():
+    network = SimpleNamespace(
+        azimuth_set_names=("north", "south", "-1"),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["north", "north", "south", "-1"]),
+            azimuth_array=np.array([10.0, 12.0, 40.0, 50.0]),
+            length_array=np.array([2.0, 4.0, 8.0, 10.0]),
+        ),
+        trace_gdf={
+            "dip": np.array([30.0, 40.0, 60.0, 50.0]),
+            "dip_dir": np.array([100.0, 110.0, 130.0, 120.0]),
+        },
+    )
+    summary = summarize_empirical_fracture_lengths(
+        network, "0,0,0,1,1,1\n0,0,0,1,1,0,0,0\n0,0,0,2,2,0,0,0"
+    )
+    assert summary["by_set"]["north"] == {
+        "count": 2,
+        "min": 2.0,
+        "median": 3.0,
+        "mean": 3.0,
+        "max": 4.0,
+    }
+    assert summary["by_set"]["south"]["mean"] == 8.0
+    assert summary["generated"]["mean"] == 3.0
+    np.testing.assert_array_equal(
+        porepy_csv_fracture_diameters("0,0,0,1,1,1\n0,0,0,2,2,0,0,0"), [4.0]
+    )
+    with pytest.raises(ValueError, match="invalid PorePy"):
+        porepy_csv_fracture_diameters("domain\nbad")
+
+
+def test_summarize_porepy_mesh_and_triangle_connectivity():
+    summary = summarize_porepy_mesh(np.array([3, 2, 2]), np.array([4, 5, 6]), 2)
+    assert summary == {
+        "subdomain grids": 3,
+        "subdomain cells": 15,
+        "cells by dimension": {2: 11, 3: 4},
+        "interfaces": 2,
+    }
+    with pytest.raises(ValueError, match="aligned"):
+        summarize_porepy_mesh(np.array([3]), np.array([4, 5]), 0)
+
+    nodes_by_face = csc_matrix(
+        np.array(
+            [
+                [1, 0, 1],
+                [1, 1, 0],
+                [1, 1, 1],
+                [0, 1, 1],
+            ]
+        )
+    )
+    cell_by_face = csr_matrix(np.array([[1, 0], [1, 1], [0, 1]]))
+    expected_triangles = [[0, 1, 2], [0, 2, 3]]
+    np.testing.assert_array_equal(
+        exterior_triangle_connectivity(nodes_by_face, cell_by_face),
+        expected_triangles,
+    )
+    np.testing.assert_array_equal(
+        triangle_cell_connectivity(nodes_by_face),
+        [[0, 1, 2], [1, 2, 3], [0, 2, 3]],
+    )
 
 
 def test_extract_network_fracture_set_samples_filters_and_counts():
