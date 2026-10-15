@@ -10,12 +10,14 @@ from fractopo.interop.porepy import (
     check_porepy_2d_csv_format,
     convert_azimuth_to_strike,
     determine_azimuth,
+    evaluate_porepy_csv_slice_metrics,
     export_network_to_porepy_3d_csv_format,
     export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     exterior_triangle_connectivity,
     porepy_csv_fracture_diameters,
     porepy_csv_horizontal_slice_lengths,
+    porepy_csv_matches_slice_targets,
     scale_geometries_to_local,
     summarize_empirical_fracture_lengths,
     summarize_porepy_mesh,
@@ -78,7 +80,10 @@ def test_csv_horizontal_slice_lengths():
         "0,9,5,2,2,0,0,1.5707963267948966",
     ]
     csv_text = "\n".join([domain, *fractures])
-    lengths = porepy_csv_horizontal_slice_lengths(csv_text, z=5)
+    indices, lengths = porepy_csv_horizontal_slice_lengths(
+        csv_text, z=5, return_indices=True
+    )
+    np.testing.assert_array_equal(indices, [0, 1, 2, 3])
     np.testing.assert_allclose(lengths, [4.0, 4.0, 3.0, 3.0])
     np.testing.assert_allclose(
         porepy_csv_horizontal_slice_lengths("\n".join([domain, fractures[2]]), z=4),
@@ -92,6 +97,34 @@ def test_csv_horizontal_slice_lengths():
         )
     with pytest.raises(ValueError, match="invalid PorePy"):
         porepy_csv_horizontal_slice_lengths("bad", z=5)
+
+
+def test_evaluate_porepy_csv_slice_metrics_and_tolerances():
+    csv_text = "\n".join(
+        [
+            "-10,-10,0,10,10,6",
+            "0,0,5,2,2,0,0,1.5707963267948966",
+            "0,0,6,2,2,0,0,1.5707963267948966",
+        ]
+    )
+    metrics = evaluate_porepy_csv_slice_metrics(
+        csv_text, np.array([5.0]), target_p21=0.018660254037844386, target_top_count=2
+    )
+    np.testing.assert_allclose(metrics["generated_p21"], [0.018660254037844386])
+    assert metrics["top_intersection_count"] == 2
+    assert metrics["mean_absolute_relative_p21_error"] == 0.0
+    assert metrics["relative_top_count_error"] == 0.0
+    assert porepy_csv_matches_slice_targets(
+        metrics, p21_tolerance=0.0, top_count_tolerance=0.0
+    )
+    with pytest.raises(ValueError, match="between 0 and 1"):
+        porepy_csv_matches_slice_targets(
+            metrics, p21_tolerance=-0.01, top_count_tolerance=0.0
+        )
+    with pytest.raises(ValueError, match="invalid PorePy"):
+        evaluate_porepy_csv_slice_metrics(
+            csv_text, [], target_p21=0, target_top_count=0
+        )
 
 
 def test_summarize_porepy_mesh_and_triangle_connectivity():

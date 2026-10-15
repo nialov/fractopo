@@ -265,12 +265,12 @@ def _horizontal_slice_length(row, section_z, footprint) -> float:
 
 @beartype
 def porepy_csv_horizontal_slice_lengths(
-    csv_text: str, z: SupportsFloat
-) -> NDArray[np.floating]:
+    csv_text: str, z: SupportsFloat, *, return_indices: bool = False
+) -> NDArray[np.floating] | tuple[NDArray[np.integer], NDArray[np.floating]]:
     """Intersect circular CSV fractures with a horizontal plane and clip to domain.
 
-    Returns one length per non-empty trace. Horizontal fractures coplanar with the
-    section are ambiguous (their intersection is an area) and raise ``ValueError``.
+    Returns one length per non-empty trace, optionally paired with fracture row
+    indices. Coplanar horizontal fractures are ambiguous and raise ``ValueError``.
     """
     try:
         rows = [
@@ -288,14 +288,14 @@ def porepy_csv_horizontal_slice_lengths(
         if not (xmin < xmax and ymin < ymax and zmin <= section_z <= zmax):
             raise ValueError
         footprint = box(xmin, ymin, xmax, ymax)
-        lengths = np.asarray(
-            [
-                length
-                for row in rows[1:]
-                if (length := _horizontal_slice_length(row, section_z, footprint)) > 0
-            ]
-        )
-        return lengths
+        hits = [
+            (index, length)
+            for index, row in enumerate(rows[1:])
+            if (length := _horizontal_slice_length(row, section_z, footprint)) > 0
+        ]
+        indices = np.asarray([index for index, _ in hits], dtype=int)
+        lengths = np.asarray([length for _, length in hits], dtype=float)
+        return (indices, lengths) if return_indices else lengths
     except NotImplementedError:
         raise
     except ValueError as error:
@@ -304,6 +304,90 @@ def porepy_csv_horizontal_slice_lengths(
         raise ValueError("invalid PorePy CSV or horizontal slice") from error
     except (IndexError, TypeError) as error:
         raise ValueError("invalid PorePy CSV or horizontal slice") from error
+
+
+def evaluate_porepy_csv_slice_metrics(
+    csv_text: str,
+    section_heights: NDArray[np.floating],
+    target_p21: SupportsFloat,
+    target_top_count: int,
+) -> dict[str, object]:
+    """Evaluate horizontal-slice P21 and top-surface fracture-hit targets."""
+    try:
+        rows = [
+            row
+            for row in csv.reader(csv_text.splitlines())
+            if row and not row[0].lstrip().startswith("#")
+        ]
+        bounds = np.asarray(rows[0], dtype=float)
+        if bounds.shape != (6,) or not np.isfinite(bounds).all():
+            raise ValueError
+        xmin, ymin, zmin, xmax, ymax, zmax = bounds
+        footprint_area = (xmax - xmin) * (ymax - ymin)
+        heights = np.asarray(section_heights, dtype=float)
+        target = float(target_p21)
+        if (
+            footprint_area <= 0
+            or zmin >= zmax
+            or heights.ndim != 1
+            or not len(heights)
+            or not np.isfinite(heights).all()
+            or np.any((heights < zmin) | (heights > zmax))
+            or not np.isfinite(target)
+            or target <= 0
+            or target_top_count <= 0
+        ):
+            raise ValueError
+        fracture_rows = rows[1:]
+        footprint = box(xmin, ymin, xmax, ymax)
+        section_p21 = np.asarray(
+            [
+                sum(
+                    _horizontal_slice_length(row, z, footprint) for row in fracture_rows
+                )
+                / footprint_area
+                for z in heights
+            ]
+        )
+        top_indices, _ = porepy_csv_horizontal_slice_lengths(
+            csv_text, zmax, return_indices=True
+        )
+        return {
+            "section_heights": heights,
+            "generated_p21": section_p21,
+            "relative_p21_errors": np.abs(section_p21 - target) / target,
+            "mean_absolute_relative_p21_error": float(
+                np.mean(np.abs(section_p21 - target) / target)
+            ),
+            "top_intersection_count": len(top_indices),
+            "target_top_count": target_top_count,
+            "relative_top_count_error": abs(len(top_indices) - target_top_count)
+            / target_top_count,
+        }
+    except (IndexError, TypeError, ValueError) as error:
+        raise ValueError("invalid PorePy CSV or slice targets") from error
+
+
+def porepy_csv_matches_slice_targets(
+    metrics: dict[str, object],
+    *,
+    p21_tolerance: SupportsFloat = 0.5,
+    top_count_tolerance: SupportsFloat = 0.5,
+) -> bool:
+    """Return whether both slice metrics meet their relative-error tolerances."""
+    p21_tolerance = float(p21_tolerance)
+    top_count_tolerance = float(top_count_tolerance)
+    if not (
+        np.isfinite(p21_tolerance)
+        and np.isfinite(top_count_tolerance)
+        and 0 <= p21_tolerance <= 1
+        and 0 <= top_count_tolerance <= 1
+    ):
+        raise ValueError("relative tolerances must be finite and between 0 and 1")
+    return (
+        metrics["mean_absolute_relative_p21_error"] <= p21_tolerance
+        and metrics["relative_top_count_error"] <= top_count_tolerance
+    )
 
 
 def _length_statistics(lengths: NDArray[np.floating]) -> dict[str, float | int]:
