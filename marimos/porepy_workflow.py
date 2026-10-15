@@ -133,7 +133,8 @@ def _(mo):
     mesh_run = mo.ui.run_button(label="Mesh fracture network")
     mo.vstack(
         [
-            mo.md("## Fractopo → PorePy 3-D fracture workflow"),
+            mo.md("# Fractopo → PorePy 3-D fracture workflow"),
+            mo.md("## Run settings"),
             mo.md(
                 "This example uses the small **KB7** trace dataset. The bundled "
                 "trace datasets do not include measured `dip`/`dip_dir` columns, "
@@ -150,7 +151,7 @@ def _(mo):
             mo.hstack([mo.md("Random seed:"), seed]),
             reuse_existing,
             run,
-            mo.md("### Mesh settings (metres)"),
+            mo.md("## Mesh settings (metres)"),
             mo.hstack([mo.md("Fracture size:"), fracture_mesh_size]),
             mo.hstack([mo.md("Background size:"), background_mesh_size]),
             mesh_run,
@@ -241,7 +242,7 @@ def _(Network, area, np, traces):
 @app.cell
 def _(mo, network_summary):
     mo.md(
-        "### Network and orientation models\n\n"
+        "## 1. Input data and orientation completion\n\n"
         + "\n".join(f"- **{key}:** `{value}`" for key, value in network_summary.items())
     )
 
@@ -324,7 +325,7 @@ def _(csv_text, export_source, mo, network, output_path, slice_result):
             f"**{slice_result['target_match']}**."
         )
     mo.md(
-        "### Completed trace orientations and PorePy input\n\n"
+        "## 2. Generate fracture CSV\n\n"
         f"Completed orientations: **{network.trace_gdf[['dip', 'dip_dir']].notna().all(axis=1).sum()}**; "
         f"{export_source} at `{output_path}` with **{len(rows) - 1}** circular fractures. "
         "The first row is the cuboid domain; each remaining row stores center, "
@@ -339,7 +340,7 @@ def _(mo, np, output_path, pp):
         [np.asarray(fracture.center) for fracture in porepy_network.fractures]
     )
     mo.md(
-        "### PorePy import\n\n"
+        "## 3. Validate PorePy import\n\n"
         f"PorePy created a `{type(porepy_network).__name__}` containing "
         f"**{len(porepy_network.fractures)}** fractures. "
         f"Center array shape: `{fracture_centers.shape}`."
@@ -371,7 +372,7 @@ def _(
         f"{generated['max']:.3g}`."
     )
     mo.md(
-        "### Per-set empirical length models\n\n"
+        "## 4. Inspect sampled fracture sizes\n\n"
         "Each eligible trace length in a set is sampled with equal probability; "
         "duplicate lengths therefore retain their observed frequency. The exporter "
         "uses these same boundary-weighted lengths as generated fracture diameters. "
@@ -422,7 +423,7 @@ def _(
         ),
     }
     mo.md(
-        "### PorePy mesh\n\n"
+        "## 5. Generate and inspect the mesh\n\n"
         + "\n".join(f"- **{key}:** `{value}`" for key, value in mesh_summary.items())
         + "\n\nAll Gmsh/PorePy output is written under `.cache/porepy_mesh/` "
         "by passing an explicit `file_name`; no mesh artifacts are expected in the working directory."
@@ -473,6 +474,7 @@ def _(go, mesh, mesh_arrays, mo):
     )
     mo.vstack(
         [
+            mo.md("### 3-D mesh view"),
             mo.md(
                 "Rotate or zoom the 3D view to inspect fracture placement in the domain."
             ),
@@ -543,10 +545,13 @@ def _(
     axes[1].set_ylabel("y")
     mo.vstack(
         [
+            mo.md("## 6. Inspect orientations and spatial placement"),
+            mo.md("### Plane-orientation stereonets"),
             stereo_fig,
             mo.md(
                 "Stereonets show lower-hemisphere poles: the left net is the completed trace orientations; the right net is the PorePy-imported fracture orientations."
             ),
+            mo.md("### Trace map and fracture-center locations"),
             fig,
             mo.md(
                 "Color in the map panel represents sampled fracture-center z coordinates."
