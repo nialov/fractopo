@@ -8,6 +8,7 @@ from fractopo.interop.orientation import (
 from fractopo.interop.porepy import (
     evaluate_porepy_csv_slice_metrics,
     exterior_triangle_connectivity,
+    find_porepy_csv_matching_slice_targets,
     porepy_csv_fracture_diameters,
     porepy_csv_horizontal_slice_lengths,
     porepy_csv_matches_slice_targets,
@@ -26,6 +27,7 @@ __all__ = [
     "summarize_empirical_fracture_lengths",
     "summarize_porepy_mesh",
     "evaluate_porepy_csv_slice_metrics",
+    "find_porepy_csv_matching_slice_targets",
     "exterior_triangle_connectivity",
     "triangle_cell_connectivity",
 ]

@@ -15,6 +15,7 @@ from fractopo.interop.porepy import (
     export_structural_measurements_to_porepy_3d_csv_format,
     export_traces_to_porepy_3d_csv_format,
     exterior_triangle_connectivity,
+    find_porepy_csv_matching_slice_targets,
     porepy_csv_fracture_diameters,
     porepy_csv_horizontal_slice_lengths,
     porepy_csv_matches_slice_targets,
@@ -261,6 +262,31 @@ def test_export_network_to_porepy_3d_csv_format():
             for line in lines[1:]
         )
     )
+
+
+def test_find_matching_porepy_population_rejection_prototype():
+    network = SimpleNamespace(
+        azimuth_set_names=("set",),
+        trace_data=SimpleNamespace(
+            azimuth_set_array=np.array(["set"]),
+            azimuth_array=np.array([0.0]),
+            length_array=np.array([2.0]),
+        ),
+        trace_gdf={"dip": np.array([90.0])},
+    )
+    result = find_porepy_csv_matching_slice_targets(
+        network,
+        fracture_count=1,
+        bounds=(0, 0, 0, 1, 1, 1),
+        section_heights=np.array([0.5]),
+        target_p21=1.0,
+        target_top_count=1,
+        rng=np.random.default_rng(2),
+        max_attempts=2,
+    )
+    assert result["attempts"] == 1
+    assert result["metrics"]["top_intersection_count"] == 1
+    assert len(result["csv_text"].splitlines()) == 2
 
 
 def test_network_export_preserves_opposite_dip_direction_sides():
