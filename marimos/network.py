@@ -57,7 +57,8 @@ def _(mo):
     input_determine_branches_nodes = mo.ui.switch(True)
     input_truncate_traces = mo.ui.switch(True)
     input_debug = mo.ui.switch(False)
-    input_define_azimuth_sets = mo.ui.switch(False)
+    input_define_azimuth_sets_manually = mo.ui.switch(False)
+    input_azimuth_set_count = mo.ui.number(start=1, stop=10, step=1, value=3)
     input_retained_azimuth_length_fraction = mo.ui.number(
         start=0.01, stop=1, step=0.01, value=0.7
     )
@@ -75,7 +76,8 @@ def _(mo):
         input_circular_target_area,
         input_contour_grid_cell_size,
         input_debug,
-        input_define_azimuth_sets,
+        input_define_azimuth_sets_manually,
+        input_azimuth_set_count,
         input_retained_azimuth_length_fraction,
         input_random_state,
         input_determine_branches_nodes,
@@ -94,6 +96,7 @@ def _(
     input_area_layer_name,
     input_circular_target_area,
     input_contour_grid_cell_size,
+    input_retained_azimuth_length_fraction,
     input_debug,
     input_determine_branches_nodes,
     input_fits_to_plot,
@@ -106,36 +109,29 @@ def _(
     utils,
 ):
     prompts = [
+        mo.md("# Input data"),
         *utils.make_data_upload_prompts(
             input_traces_file=input_traces_file,
             input_area_file=input_area_file,
             input_trace_layer_name=input_trace_layer_name,
             input_area_layer_name=input_area_layer_name,
         ),
-        utils.make_snap_threshold_hstack(input_snap_threshold),
-        mo.hstack(
-            [
-                mo.md(
-                    "[Contour grid cell size]"
-                    + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Contour-Grids)"
-                    + " (optional):"
-                ),
-                input_contour_grid_cell_size,
-                "{}".format(input_contour_grid_cell_size.value),
-            ]
-        ),
-        mo.md(f"Name for analysis: {input_name}"),
+        mo.md("# Input values and setup"),
+        mo.md("## Target area setup"),
         mo.md(
             "[Is the target area a circle?]"
             + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network)"
             + f" {input_circular_target_area}"
         ),
-        mo.md(f"Determine branches and nodes? {input_determine_branches_nodes}"),
         mo.md(
             "[Truncate traces to target area?]"
             + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Network)"
             + f" {input_truncate_traces}"
         ),
+        mo.md("## Topology"),
+        utils.make_snap_threshold_hstack(input_snap_threshold),
+        mo.md(f"Determine branches and nodes? {input_determine_branches_nodes}"),
+        mo.md("## Length distributions"),
         mo.hstack(
             [
                 mo.md(
@@ -147,6 +143,19 @@ def _(
                 "{}".format(input_fits_to_plot.value),
             ]
         ),
+        mo.md("## Contour grid setup"),
+        mo.hstack(
+            [
+                mo.md(
+                    "[Contour grid cell size]"
+                    + "(https://nialov.github.io/fractopo/notebooks/fractopo_network_1.html#Contour-Grids)"
+                    + " (optional):"
+                ),
+                input_contour_grid_cell_size,
+                "{}".format(input_contour_grid_cell_size.value),
+            ]
+        ),
+        mo.md("## Miscellanous"),
         mo.md(utils.ENABLE_VERBOSE_BASE.format(input_debug)),
     ]
 
@@ -155,62 +164,67 @@ def _(
 
 
 @app.cell
-def _(input_define_azimuth_sets, mo):
-    mo.md(f"Define azimuth sets? {input_define_azimuth_sets}")
-
-
-@app.cell
-def _(mo):
-    input_azimuth_set_range_count = mo.ui.number(start=1, stop=10, value=3)
-    return (input_azimuth_set_range_count,)
-
-
-@app.cell
-def _(input_azimuth_set_range_count, mo, partial):
+def _(input_azimuth_set_count, mo, partial):
     make_set_value = partial(mo.ui.number, start=0, stop=180, step=1)
     input_azimuth_set_ranges = mo.ui.array(
         [
             mo.ui.array([make_set_value(), make_set_value()])
-            for _ in range(input_azimuth_set_range_count.value)
+            for _ in range(input_azimuth_set_count.value)
         ]
     )
-    return input_azimuth_set_ranges, make_set_value
+    return (input_azimuth_set_ranges,)
 
 
 @app.cell
-def _(input_azimuth_set_ranges, mo):
-    default_set_names = [
-        "-".join(map(str, set_range)) for set_range in input_azimuth_set_ranges.value
-    ]
+def _(input_azimuth_set_count, mo):
     input_azimuth_set_names = mo.ui.array(
-        [mo.ui.text(set_name) for set_name in default_set_names]
+        [mo.ui.text(str(index + 1)) for index in range(input_azimuth_set_count.value)]
     )
-    return default_set_names, input_azimuth_set_names
+    return (input_azimuth_set_names,)
 
 
 @app.cell
 def _(
+    input_azimuth_set_count,
     input_azimuth_set_names,
-    input_azimuth_set_range_count,
+    input_define_azimuth_sets_manually,
     input_azimuth_set_ranges,
-    input_define_azimuth_sets,
+    input_retained_azimuth_length_fraction,
     mo,
 ):
-    input_azimuth_stack = mo.vstack(
+    azimuth_set_controls = [
+        mo.md("Sets are detected automatically by default."),
+        mo.md("Following settings control both automatic and manual set definition."),
+        mo.md(f"Number of azimuth sets: {input_azimuth_set_count}"),
+        mo.md(f"Names for azimuth sets: {input_azimuth_set_names}"),
+        mo.md(
+            f"Define azimuth set ranges manually? {input_define_azimuth_sets_manually}"
+        ),
+    ]
+    if input_define_azimuth_sets_manually.value:
+        azimuth_set_controls.append(
+            mo.md(f"Set ranges (from 0 to 180): {input_azimuth_set_ranges}")
+        )
+    else:
+        azimuth_set_controls.append(
+            mo.md(
+                "Retained azimuth length fraction (higher values give tighter ranges): "
+                f"{input_retained_azimuth_length_fraction}"
+            )
+        )
+    mo.vstack(
         [
-            mo.md(f"Number of sets: {input_azimuth_set_range_count}"),
-            mo.md(f"Set ranges (from 0 to 180): {input_azimuth_set_ranges}"),
-            mo.md(f"Set names: {input_azimuth_set_names}"),
+            mo.md("## Azimuth set setup"),
+            *azimuth_set_controls,
         ]
     )
-    if input_define_azimuth_sets.value:
-        mo.output.replace(input_azimuth_stack)
-    return (input_azimuth_stack,)
 
 
 @app.cell
 def _(input_button, mo):
-    mo.md(f"Press to (re)start analysis: {input_button}")
+    mo.vstack(
+        [mo.md("# Output"), mo.md(f"Press to (re)start analysis: {input_button}")]
+    )
 
 
 @app.cell
@@ -218,12 +232,13 @@ def _(
     fractopo,
     input_area_file,
     input_area_layer_name,
-    input_azimuth_set_names,
     input_azimuth_set_ranges,
     input_button,
     input_circular_target_area,
     input_contour_grid_cell_size,
-    input_define_azimuth_sets,
+    input_azimuth_set_count,
+    input_azimuth_set_names,
+    input_define_azimuth_sets_manually,
     input_determine_branches_nodes,
     input_retained_azimuth_length_fraction,
     input_random_state,
@@ -267,7 +282,8 @@ def _(
                 input_area_file,
                 input_snap_threshold,
                 input_contour_grid_cell_size,
-                input_define_azimuth_sets,
+                input_define_azimuth_sets_manually,
+                input_azimuth_set_count,
                 input_azimuth_set_ranges,
                 input_azimuth_set_names,
                 input_fits_to_plot,
@@ -283,6 +299,7 @@ def _(
             snap_threshold=snap_threshold,
             azimuth_set_ranges=azimuth_set_ranges,
             azimuth_set_names=azimuth_set_names,
+            n_azimuth_sets=input_azimuth_set_count.value,
             retained_azimuth_length_fraction=input_retained_azimuth_length_fraction.value,
             random_state=input_random_state.value,
         )

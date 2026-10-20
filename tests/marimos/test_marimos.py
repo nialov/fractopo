@@ -4,6 +4,7 @@ import subprocess
 import sys
 from functools import partial
 from pathlib import Path
+from types import SimpleNamespace
 
 import geopandas as gpd
 import pytest
@@ -11,7 +12,7 @@ from shapely.geometry import LineString, Polygon
 
 import fractopo.tval.trace_validation
 import tests
-from marimos.utils import _resolve_layer_name
+from marimos.utils import _resolve_layer_name, parse_network_app_args
 
 SAMPLE_DATA_DIR = Path(__file__).parent.parent.joinpath("sample_data/")
 VALIDATION_NOTEBOOK = Path(__file__).parent.parent.parent.joinpath(
@@ -147,6 +148,42 @@ def test_empty_traces_cli(notebook_path: Path, tmp_path: Path):
         check_python_call(
             [PYTHON_INTERPRETER, notebook_path.as_posix(), *args],
         )
+
+
+@pytest.mark.parametrize(
+    "manual, expected_ranges, expected_names",
+    [
+        (False, None, ("1", "Custom", "3")),
+        (True, [(10, 20), (30, 40), (50, 60)], ("", "Custom", "   ")),
+    ],
+)
+def test_parse_network_app_args_azimuth_sets(
+    monkeypatch, manual, expected_ranges, expected_names
+):
+    monkeypatch.setattr(
+        "marimos.utils._parse_app_base_args",
+        lambda *args: ("network", None, None, 0.01, "traces"),
+    )
+
+    def values(value):
+        return SimpleNamespace(value=value)
+
+    result = parse_network_app_args(
+        values(""),
+        values(""),
+        values(None),
+        values(None),
+        values("0.01"),
+        values(""),
+        values(manual),
+        values(3),
+        values([[10, 20], [30, 40], [50, 60]]),
+        values(["", "Custom", "   "]),
+        values([]),
+    )
+
+    assert result[5] == expected_ranges
+    assert result[6] == expected_names
 
 
 class TestResolveLayerName:

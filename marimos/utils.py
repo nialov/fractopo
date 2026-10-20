@@ -178,7 +178,8 @@ def parse_network_app_args(
     input_area_file: mo.ui.file,
     input_snap_threshold: mo.ui.text,
     input_contour_grid_cell_size: mo.ui.text,
-    input_define_azimuth_sets: mo.ui.switch,
+    input_define_azimuth_sets_manually: mo.ui.switch,
+    input_azimuth_set_count: mo.ui.number,
     input_azimuth_set_ranges: mo.ui.array,
     input_azimuth_set_names: mo.ui.array,
     input_fits_to_plot: mo.ui.multiselect,
@@ -188,7 +189,7 @@ def parse_network_app_args(
     gpd.GeoDataFrame,
     float,
     Optional[float],
-    Sequence[Tuple[Number, Number]],
+    Optional[Sequence[Tuple[Number, Number]]],
     Sequence[str],
     Tuple[Dist, ...],
 ]:
@@ -204,21 +205,26 @@ def parse_network_app_args(
         if input_contour_grid_cell_size.value == ""
         else float(input_contour_grid_cell_size.value)
     )
-    if input_define_azimuth_sets.value:
+    n_azimuth_sets = int(input_azimuth_set_count.value)
+    if input_define_azimuth_sets_manually.value:
         print("Using user-defined azimuth sets")
-        azimuth_set_ranges: List[Tuple[Number, Number]] = [
+        azimuth_set_ranges: Optional[List[Tuple[Number, Number]]] = [
             tuple(range_values) for range_values in input_azimuth_set_ranges.value
         ]
         azimuth_set_names = tuple(input_azimuth_set_names.value)
     else:
         print("Using automatically detected azimuth sets")
         azimuth_set_ranges = None
-        azimuth_set_names = None
+        azimuth_set_names = tuple(
+            name.strip() or str(index + 1)
+            for index, name in enumerate(input_azimuth_set_names.value)
+        )
     fits_to_plot = tuple(map(Dist, input_fits_to_plot.value))
     print(f"Snap threshold: {snap_threshold}")
     if contour_grid_cell_size is not None:
         print(f"Contour grid cell size: {contour_grid_cell_size}")
     print(f"Name: {name}")
+    print(f"Number of azimuth sets: {n_azimuth_sets}")
     print(f"Azimuth set ranges: {azimuth_set_ranges}")
     print(f"Azimuth set names: {azimuth_set_names}")
     print(f"Length distribution fits to plot: {fits_to_plot}")
