@@ -196,6 +196,7 @@ class ParamInfo:
     # TODO: Currently not used.
     needs_topology: bool
     aggregator: Callable
+    is_numeric: bool = True
 
 
 @unique
@@ -207,6 +208,12 @@ class Param(Enum):
     """
 
     AREA = ParamInfo("Area", False, r"$m^2$", False, sum_aggregation)
+    AZIMUTH_SET_NAMES = ParamInfo(
+        "Azimuth Set Names", False, "-", False, fallback_aggregation, False
+    )
+    AZIMUTH_SET_RANGES = ParamInfo(
+        "Azimuth Set Ranges", False, "-", False, fallback_aggregation, False
+    )
     AREAL_FREQUENCY_B20 = ParamInfo(
         "Areal Frequency B20", True, r"$\frac{1}{m^2}$", True, mean_aggregation
     )
@@ -278,6 +285,9 @@ class Param(Enum):
         needs_topology=False,
         aggregator=sum_aggregation,
     )
+
+
+NUMERICAL_PARAMS = tuple(param for param in Param if param.value.is_numeric)
 
 
 @beartype

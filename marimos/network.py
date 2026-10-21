@@ -27,10 +27,12 @@ def _():
     import fractopo.general
     import fractopo.tval.trace_validation
     from fractopo.analysis.network import Network
+    from fractopo.general import Param as NetworkParam
 
     return (
         BytesIO,
         Network,
+        NetworkParam,
         Path,
         fractopo,
         gpd,
@@ -155,7 +157,7 @@ def _(
                 "{}".format(input_contour_grid_cell_size.value),
             ]
         ),
-        mo.md("## Miscellanous"),
+        mo.md("## Miscellaneous"),
         mo.md(utils.ENABLE_VERBOSE_BASE.format(input_debug)),
     ]
 
@@ -194,7 +196,7 @@ def _(
 ):
     azimuth_set_controls = [
         mo.md("Sets are detected automatically by default."),
-        mo.md("Following settings control both automatic and manual set definition."),
+        mo.md("Set count and names apply to both automatic and manual definitions."),
         mo.md(f"Number of azimuth sets: {input_azimuth_set_count}"),
         mo.md(f"Names for azimuth sets: {input_azimuth_set_names}"),
         mo.md(
@@ -349,11 +351,17 @@ def _(mo):
 
 
 @app.cell
-def _(mo, network):
+def _(mo, network, NetworkParam):
     if network is None:
         mo.output.replace("")
     else:
-        mo.output.replace(network.parameters)
+        mo.output.replace(
+            {
+                **network.parameters,
+                NetworkParam.AZIMUTH_SET_NAMES.value.name: network.azimuth_set_names,
+                NetworkParam.AZIMUTH_SET_RANGES.value.name: network.azimuth_set_ranges,
+            }
+        )
 
 
 @app.cell

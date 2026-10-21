@@ -1,10 +1,13 @@
+import json
 import os
 import sqlite3
 import subprocess
 import sys
 from functools import partial
+from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
+from zipfile import ZipFile
 
 import geopandas as gpd
 import pytest
@@ -12,7 +15,11 @@ from shapely.geometry import LineString, Polygon
 
 import fractopo.tval.trace_validation
 import tests
-from marimos.utils import _resolve_layer_name, parse_network_app_args
+from marimos.utils import (
+    _resolve_layer_name,
+    network_results_to_download_element,
+    parse_network_app_args,
+)
 
 SAMPLE_DATA_DIR = Path(__file__).parent.parent.joinpath("sample_data/")
 VALIDATION_NOTEBOOK = Path(__file__).parent.parent.parent.joinpath(
@@ -184,6 +191,40 @@ def test_parse_network_app_args_azimuth_sets(
 
     assert result[5] == expected_ranges
     assert result[6] == expected_names
+
+
+def test_network_results_zip_uses_existing_numerical_data_json(monkeypatch):
+    class FakeNetwork:
+        plain_name = "network"
+
+        def export_network_analysis(self, output_path, **kwargs):
+            export_path = output_path / self.plain_name
+            export_path.mkdir()
+            (export_path / "additional_numerical_data.json").write_text(
+                json.dumps(
+                    {
+                        "Azimuth Set Names": ["north", "east"],
+                        "Azimuth Set Ranges": [[0, 30], [70, 110]],
+                    }
+                )
+            )
+
+    captured = {}
+    monkeypatch.setattr(
+        "marimos.utils.mo.download",
+        lambda data, **kwargs: captured.update(zip_data=data.getvalue()),
+    )
+
+    network_results_to_download_element(FakeNetwork(), "network", None, ())
+
+    with ZipFile(BytesIO(captured["zip_data"])) as archive:
+        numerical_data = json.loads(
+            archive.read("network/additional_numerical_data.json")
+        )
+    assert numerical_data == {
+        "Azimuth Set Names": ["north", "east"],
+        "Azimuth Set Ranges": [[0, 30], [70, 110]],
+    }
 
 
 class TestResolveLayerName:
