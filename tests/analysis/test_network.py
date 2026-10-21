@@ -2,6 +2,7 @@
 Tests for Network.
 """
 
+import json
 from functools import partial
 from pathlib import Path
 
@@ -239,6 +240,12 @@ def test_network(
             include_contour_grid=network.trace_gdf.shape[0] < 250,
         )
         assert output_path.exists()
+        numerical_data_path = output_path / "additional_numerical_data.json"
+        numerical_data = json.loads(numerical_data_path.read_text())
+        assert numerical_data["Azimuth Set Names"] == list(network.azimuth_set_names)
+        assert numerical_data["Azimuth Set Ranges"] == [
+            list(ranges) for ranges in network.azimuth_set_ranges
+        ]
         for extension in ("geojson", "gpkg", "gdb"):
             data_paths = list(output_path.glob(f"*.{extension}"))
             assert len(data_paths) > 0

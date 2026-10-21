@@ -292,7 +292,6 @@ def network_results_to_download_element(
             contour_grid_cell_size=contour_grid_cell_size,
             fits_to_plot=fits_to_plot,
         )
-
         zip_io = _write_dir_contents_to_zip(tmp_dir_path=tmp_dir_path)
 
     download_element = mo.download(

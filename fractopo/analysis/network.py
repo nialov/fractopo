@@ -1574,7 +1574,11 @@ class Network:
         parameters = (
             self.numerical_network_description()
             if self.determine_branches_nodes
-            else self.parameters
+            else {
+                **self.parameters,
+                Param.AZIMUTH_SET_NAMES.value.name: self.azimuth_set_names,
+                Param.AZIMUTH_SET_RANGES.value.name: self.azimuth_set_ranges,
+            }
         )
         params_point = gpd.GeoDataFrame(
             [
@@ -1605,7 +1609,13 @@ class Network:
                 "branch_azimuth_array": (self.branch_azimuth_array),
                 "branch_azimuth_set_array": (self.branch_azimuth_set_array),
             }
-        json_data_lists = {key: item.tolist() for key, item in json_data_arrays.items()}
+        json_data_lists = {
+            **{key: item.tolist() for key, item in json_data_arrays.items()},
+            Param.AZIMUTH_SET_NAMES.value.name: list(self.azimuth_set_names),
+            Param.AZIMUTH_SET_RANGES.value.name: [
+                list(ranges) for ranges in self.azimuth_set_ranges
+            ],
+        }
         json_data_path = export_path / "additional_numerical_data.json"
         json_data_path.write_text(json.dumps(json_data_lists, sort_keys=True))
 
